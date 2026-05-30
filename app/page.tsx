@@ -1,26 +1,70 @@
 "use client";
 
 import { useState } from "react";
+import { Search, Compass, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import { T, type Lang } from "@/lib/i18n";
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("ua");
+  const [query, setQuery] = useState("");
   const t = T[lang];
+
+  const stats = [
+    { n: "1 240+", l: t.stat_jobs },
+    { n: "180+", l: t.stat_companies },
+    { n: "32k+", l: t.stat_seafarers },
+  ];
 
   return (
     <div className="min-h-screen">
       <Header lang={lang} setLang={setLang} />
 
-      <main className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-4 px-5 py-32 text-center">
-        <h1 className="font-display text-5xl font-semibold text-foam md:text-6xl">
-          SeaJobs<span className="text-brass2">.pro</span>
-        </h1>
-        <p className="text-lg text-mist">{t.tagline} ⚓</p>
-        <span className="mt-4 rounded-full bg-brass px-5 py-2 font-semibold text-deep">
-          {t.login} → попробуйте сменить язык вверху справа
-        </span>
-      </main>
+      {/* HERO */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_70%_-10%,#0e2a45,#0a1f33_60%)]" />
+        <div className="relative mx-auto max-w-7xl px-5 py-20 md:py-28">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brass2">
+              <Compass size={14} /> {t.hero_kicker}
+            </div>
+
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-white md:text-6xl">
+              {t.hero_title}
+            </h1>
+
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">
+              {t.hero_sub}
+            </p>
+
+            {/* Search bar */}
+            <div className="mt-8 flex max-w-2xl flex-wrap gap-2.5 rounded-2xl bg-white p-2 shadow-2xl">
+              <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
+                <Search size={20} className="text-navy" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={t.hero_search}
+                  className="w-full bg-transparent py-3 text-base text-navy outline-none"
+                />
+              </div>
+              <button className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 px-6 py-3 text-base font-bold text-white transition hover:-translate-y-0.5">
+                {t.hero_cta} <ArrowRight size={17} />
+              </button>
+            </div>
+
+            {/* Stats */}
+            <div className="mt-10 flex flex-wrap gap-10">
+              {stats.map((s) => (
+                <div key={s.l}>
+                  <div className="font-display text-4xl font-bold text-brass2">{s.n}</div>
+                  <div className="text-sm font-medium text-mist">{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
