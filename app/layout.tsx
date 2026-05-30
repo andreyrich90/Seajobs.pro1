@@ -1,6 +1,8 @@
+import "./globals.css";
+
 export const metadata = {
-  title: "SeaJobs.pro",
-  description: "Maritime career platform",
+  title: "SeaJobs.pro — Maritime Jobs",
+  description: "Maritime career platform for seafarers and crewing companies",
 };
 
 export default function RootLayout({
@@ -10,7 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="bg-navy text-foam font-body">{children}</body>
     </html>
   );
 }
