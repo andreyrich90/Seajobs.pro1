@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Search, Compass, ArrowRight, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import JobCard from "@/components/JobCard";
-import { T, type Lang } from "@/lib/i18n";
+import { T } from "@/lib/i18n";
+import { useLang } from "@/components/LangProvider";
 import { JOBS } from "@/lib/data";
 
 export default function Home() {
-  const [lang, setLang] = useState<Lang>("ua");
+  const { lang } = useLang();
   const [query, setQuery] = useState("");
   const t = T[lang];
 
@@ -20,7 +22,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <Header lang={lang} setLang={setLang} />
+      <Header />
 
       {/* HERO */}
       <section className="relative overflow-hidden">
@@ -45,9 +47,12 @@ export default function Home() {
                   className="w-full bg-transparent py-3 text-base text-navy outline-none"
                 />
               </div>
-              <button className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 px-6 py-3 text-base font-bold text-white transition hover:-translate-y-0.5">
+              <Link
+                href="/jobs"
+                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 px-6 py-3 text-base font-bold text-white transition hover:-translate-y-0.5"
+              >
                 {t.hero_cta} <ArrowRight size={17} />
-              </button>
+              </Link>
             </div>
 
             <div className="mt-10 flex flex-wrap gap-10">
@@ -68,9 +73,12 @@ export default function Home() {
           <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
             {t.jobs_latest}
           </h2>
-          <span className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2">
+          <Link
+            href="/jobs"
+            className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2"
+          >
             {t.view_all} <ChevronRight size={17} />
-          </span>
+          </Link>
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
