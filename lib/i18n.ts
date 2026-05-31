@@ -22,6 +22,9 @@ export const T: Record<Lang, Record<string, string>> = {
     apply: "Подати заявку", applied: "Подано",
     jobs_title: "Вакансії", jobs_found: "вакансій знайдено",
     f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Усі", nothing: "Нічого не знайдено",
+    overview: "Опис", requirements: "Вимоги", we_offer: "Ми пропонуємо",
+details: "Детальніше", back: "Назад до вакансій", similar: "Схожі вакансії",
+orig_note: "Опис вакансії наведено мовою оригіналу (надано агенцією).",
   },
   pl: {
     nav_jobs: "Oferty", nav_forum: "Forum", nav_news: "Aktualności", login: "Zaloguj",
@@ -37,6 +40,9 @@ export const T: Record<Lang, Record<string, string>> = {
     apply: "Aplikuj", applied: "Wysłano",
     jobs_title: "Oferty pracy", jobs_found: "ofert znalezionych",
     f_rank: "Ranga", f_vessel: "Typ statku", f_all: "Wszystkie", nothing: "Nic nie znaleziono",
+    overview: "Opis", requirements: "Wymagania", we_offer: "Oferujemy",
+details: "Szczegóły", back: "Powrót do ofert", similar: "Podobne oferty",
+orig_note: "Opis oferty podano w języku oryginału (dostarczony przez agencję).",
   },
   ru: {
     nav_jobs: "Вакансии", nav_forum: "Форум", nav_news: "Новости", login: "Войти",
@@ -52,6 +58,9 @@ export const T: Record<Lang, Record<string, string>> = {
     apply: "Откликнуться", applied: "Отклик отправлен",
     jobs_title: "Вакансии", jobs_found: "вакансий найдено",
     f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Все", nothing: "Ничего не найдено",
+    overview: "Описание", requirements: "Требования", we_offer: "Что предлагаем",
+details: "Подробнее", back: "Назад к вакансиям", similar: "Похожие вакансии",
+orig_note: "Описание вакансии приведено на языке оригинала (предоставлено агентством).",
   },
   en: {
     nav_jobs: "Vacancies", nav_forum: "Forum", nav_news: "News", login: "Log in",
@@ -67,5 +76,8 @@ export const T: Record<Lang, Record<string, string>> = {
     apply: "Apply", applied: "Applied",
     jobs_title: "Vacancies", jobs_found: "vacancies found",
     f_rank: "Rank", f_vessel: "Vessel type", f_all: "All", nothing: "Nothing found",
+    overview: "Overview", requirements: "Requirements", we_offer: "We offer",
+details: "Details", back: "Back to vacancies", similar: "Similar vacancies",
+orig_note: "The vacancy description is shown in its original language (provided by the agency).",
   },
 };
