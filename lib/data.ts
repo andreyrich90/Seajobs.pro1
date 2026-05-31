@@ -14,7 +14,6 @@ export type Job = {
 };
 
 export const JOBS: Job[] = [
-export const JOBS: Job[] = [
   { id: 1, rank: "Chief Officer", vessel: "LNG", salary: 11500, currency: "USD", duration: "4+1", joining: "2026-06-12", company: "Hanseatic Crewing", flag: "🇩🇪", location: "Hamburg", logo: "HC", hot: true },
   { id: 2, rank: "2nd Engineer", vessel: "Tanker", salary: 9200, currency: "EUR", duration: "6", joining: "2026-06-20", company: "Aegean Marine", flag: "🇬🇷", location: "Piraeus", logo: "AM" },
   { id: 3, rank: "Master", vessel: "Bulk Carrier", salary: 13800, currency: "USD", duration: "4", joining: "2026-07-01", company: "Nordic Fleet", flag: "🇳🇴", location: "Oslo", logo: "NF", hot: true },
