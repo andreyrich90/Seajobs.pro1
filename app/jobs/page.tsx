@@ -73,7 +73,7 @@ export default function JobsPage() {
 
         {/* Results */}
         {filtered.length > 0 ? (
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 flex flex-col gap-3">
             {filtered.map((job) => (
               <JobCard key={job.id} job={job} lang={lang} />
             ))}
