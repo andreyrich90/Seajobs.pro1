@@ -20,6 +20,8 @@ export const T: Record<Lang, Record<string, string>> = {
     jobs_latest: "Свіжі вакансії", view_all: "Дивитися всі",
     salary: "Зарплата", duration: "Контракт", joining: "Посадка", flag_l: "Прапор",
     apply: "Подати заявку", applied: "Подано",
+    jobs_title: "Вакансії", jobs_found: "вакансій знайдено",
+    f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Усі", nothing: "Нічого не знайдено",
   },
   pl: {
     nav_jobs: "Oferty", nav_forum: "Forum", nav_news: "Aktualności", login: "Zaloguj",
@@ -33,6 +35,8 @@ export const T: Record<Lang, Record<string, string>> = {
     jobs_latest: "Najnowsze oferty", view_all: "Zobacz wszystkie",
     salary: "Wynagrodzenie", duration: "Kontrakt", joining: "Zaokrętowanie", flag_l: "Bandera",
     apply: "Aplikuj", applied: "Wysłano",
+    jobs_title: "Oferty pracy", jobs_found: "ofert znalezionych",
+    f_rank: "Ranga", f_vessel: "Typ statku", f_all: "Wszystkie", nothing: "Nic nie znaleziono",
   },
   ru: {
     nav_jobs: "Вакансии", nav_forum: "Форум", nav_news: "Новости", login: "Войти",
@@ -46,6 +50,8 @@ export const T: Record<Lang, Record<string, string>> = {
     jobs_latest: "Свежие вакансии", view_all: "Смотреть все",
     salary: "Зарплата", duration: "Контракт", joining: "Посадка", flag_l: "Флаг",
     apply: "Откликнуться", applied: "Отклик отправлен",
+    jobs_title: "Вакансии", jobs_found: "вакансий найдено",
+    f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Все", nothing: "Ничего не найдено",
   },
   en: {
     nav_jobs: "Vacancies", nav_forum: "Forum", nav_news: "News", login: "Log in",
@@ -59,5 +65,7 @@ export const T: Record<Lang, Record<string, string>> = {
     jobs_latest: "Latest vacancies", view_all: "View all",
     salary: "Salary", duration: "Contract", joining: "Joining", flag_l: "Flag",
     apply: "Apply", applied: "Applied",
+    jobs_title: "Vacancies", jobs_found: "vacancies found",
+    f_rank: "Rank", f_vessel: "Vessel type", f_all: "All", nothing: "Nothing found",
   },
 };
