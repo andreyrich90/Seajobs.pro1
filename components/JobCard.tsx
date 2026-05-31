@@ -1,116 +1,82 @@
-export type JobDetail = {
-  descr: string;
-  req: string[];
-  offer: string[];
-};
+"use client";
 
-export const JOB_DETAILS: Record<number, JobDetail> = {
-  1: {
-    descr:
-      "Modern LNG carrier (174,000 m³, membrane type) trading on worldwide voyages. Join the vessel in Hamburg. Rotation 4 months on / 1 month leave. English-speaking multinational crew of 24.",
-    req: [
-      "Valid CoC Chief Mate / Master, unlimited",
-      "Minimum 24 months as Chief Officer on gas carriers",
-      "Valid GMDSS, advanced LNG / IGF endorsement",
-      "Good command of English (Marlins test 80%+)",
-      "All STCW certificates valid for 6+ months",
-    ],
-    offer: [
-      "Salary from $11,500/month, paid in USD",
-      "Paid joining / repatriation flights and transit",
-      "P&I and full medical insurance for the contract",
-      "Senior officer cabin, Wi-Fi onboard",
-      "Long-term cooperation, owner's own fleet",
-    ],
-  },
-  2: {
-    descr:
-      "Product / chemical tanker (IMO II/III, 45,000 DWT) on Mediterranean and Atlantic trade. Sign-on in Piraeus or nearest convenient port. Single contract of 6 months (+/- 1 month).",
-    req: [
-      "Valid CoC 2nd Engineer, unlimited",
-      "Experience on tankers with similar machinery (MAN B&W)",
-      "Valid Advanced Tanker (chemical) training",
-      "Dangerous Cargo Endorsement",
-      "Team player, ready for a 6-month contract",
-    ],
-    offer: [
-      "Salary €9,200/month",
-      "Equal rotation, stable schedule",
-      "Flights and visa costs covered by the company",
-      "Modern, well-maintained vessel",
-      "Possibility of permanent employment",
-    ],
-  },
-  3: {
-    descr:
-      "Supramax bulk carrier (58,000 DWT) on worldwide tramp trading. Reliable Norwegian owner with a young fleet. Crew change planned in a European port.",
-    req: [
-      "Valid CoC Master, unlimited",
-      "Minimum 36 months in command of bulk carriers",
-      "Strong knowledge of port state control and vetting",
-      "Excellent English, leadership skills",
-      "Clean record, valid medical (ENG1 or equivalent)",
-    ],
-    offer: [
-      "Salary from $13,800/month",
-      "4-month contracts, predictable rotation",
-      "Direct employment with the owner",
-      "High safety and maintenance standards",
-      "Loyalty bonus for returning officers",
-    ],
-  },
-  4: {
-    descr:
-      "Feeder container vessel (1,700 TEU) operating in North Europe and the Baltic. Frequent port calls, active deck work. Join in Rotterdam.",
-    req: [
-      "Valid AB certificate (II/5)",
-      "Minimum 12 months as AB on container or general cargo",
-      "Valid Basic + Advanced fire fighting",
-      "Mooring and cargo lashing experience",
-      "Conversational English",
-    ],
-    offer: [
-      "Salary €2,400/month",
-      "Contract 6 months (+/- 1)",
-      "Travel arranged and paid by the company",
-      "Friendly, experienced crew",
-      "Re-joining priority for reliable seafarers",
-    ],
-  },
-  5: {
-    descr:
-      "Mid-size cruise vessel (1,200 pax) on Mediterranean itineraries. High standard of automation and passenger systems. Sign-on in Genoa.",
-    req: [
-      "Valid CoC Electro-Technical Officer",
-      "Experience with passenger vessel electrical systems",
-      "Knowledge of automation, HV systems, navigation electronics",
-      "Customer-service mindset (passenger environment)",
-      "Fluent English",
-    ],
-    offer: [
-      "Salary $5,600/month",
-      "4-month contracts",
-      "Single cabin, full board",
-      "International team, dynamic environment",
-      "Career development within the cruise line",
-    ],
-  },
-  6: {
-    descr:
-      "Offshore PSV / supply vessel operating in the North Sea. DP2 class, high-spec diesel-electric propulsion. Equal-time rotation 5 weeks on / 5 weeks off.",
-    req: [
-      "Valid CoC Chief Engineer, unlimited",
-      "Offshore / DP vessel experience preferred",
-      "Knowledge of diesel-electric propulsion",
-      "Valid OPITO BOSIET / offshore survival",
-      "Strong English, safety-first attitude",
-    ],
-    offer: [
-      "Salary from $14,200/month",
-      "Equal 5/5 rotation",
-      "Top-tier insurance and benefits",
-      "Modern offshore unit",
-      "Long-term offshore career path",
-    ],
-  },
-};
+import { useState } from "react";
+import { Ship, Send, CheckCircle2, TrendingUp } from "lucide-react";
+import { T, type Lang } from "@/lib/i18n";
+import type { Job } from "@/lib/data";
+
+export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
+  const t = T[lang];
+  const [applied, setApplied] = useState(false);
+
+  const joinDate = new Date(job.joining).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+  });
+
+  const symbol = job.currency === "EUR" ? "€" : "$";
+
+  const stats = [
+    { label: t.salary, value: `${symbol}${job.salary.toLocaleString()}` },
+    { label: t.duration, value: `${job.duration} mo` },
+    { label: t.joining, value: joinDate },
+  ];
+
+  return (
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-brass hover:shadow-2xl lg:flex-row lg:items-center lg:gap-6">
+      {/* Left: logo + main info */}
+      <div className="flex items-center gap-4 lg:w-[300px] lg:shrink-0">
+        <div className="grid h-13 w-13 min-h-[52px] min-w-[52px] place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 text-base font-extrabold text-deep">
+          {job.logo}
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-display text-lg font-semibold text-white">{job.rank}</h3>
+            {job.hot && (
+              <span className="flex items-center gap-1 rounded-md bg-coral px-2 py-0.5 text-[11px] font-extrabold tracking-wide text-white">
+                <TrendingUp size={11} /> HOT
+              </span>
+            )}
+          </div>
+          <div className="mt-0.5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-teal">
+            <Ship size={14} /> {job.vessel}
+          </div>
+          <div className="mt-1.5 text-[13px] text-mist">
+            {job.flag} {job.company} · {job.location}
+          </div>
+        </div>
+      </div>
+
+      {/* Middle: stats in fixed columns */}
+      <div className="grid grid-cols-3 gap-3 lg:flex-1">
+        {stats.map((s) => (
+          <div key={s.label} className="min-w-0">
+            <div className="truncate text-[11px] uppercase tracking-wide text-mist">{s.label}</div>
+            <div className="mt-0.5 truncate text-base font-bold text-white">{s.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Right: apply button */}
+      <button
+        onClick={() => setApplied(true)}
+        disabled={applied}
+        className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 py-2.5 text-sm font-bold transition lg:w-[180px] lg:shrink-0 ${
+          applied
+            ? "bg-teal/20 text-teal"
+            : "bg-gradient-to-br from-brass to-brass2 text-deep hover:-translate-y-0.5"
+        }`}
+      >
+        {applied ? (
+          <>
+            <CheckCircle2 size={16} /> {t.applied}
+          </>
+        ) : (
+          <>
+            <Send size={15} /> {t.apply}
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
