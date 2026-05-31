@@ -80,7 +80,7 @@ export default function Home() {
             {t.view_all} <ChevronRight size={17} />
           </Link>
         </div>
-ч
+
         <div className="mt-6 flex flex-col gap-3">
           {JOBS.map((job) => (
             <JobCard key={job.id} job={job} lang={lang} />
