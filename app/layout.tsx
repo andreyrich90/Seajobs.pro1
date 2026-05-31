@@ -1,4 +1,5 @@
 import "./globals.css";
+import { LangProvider } from "@/components/LangProvider";
 
 export const metadata = {
   title: "SeaJobs.pro — Maritime Jobs",
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-navy text-foam font-body">{children}</body>
+      <body className="bg-navy text-foam font-body">
+        <LangProvider>{children}</LangProvider>
+      </body>
     </html>
   );
 }
