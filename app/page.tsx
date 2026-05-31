@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Compass, ArrowRight } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
+import JobCard from "@/components/JobCard";
 import { T, type Lang } from "@/lib/i18n";
+import { JOBS } from "@/lib/data";
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("ua");
@@ -28,16 +30,11 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brass2">
               <Compass size={14} /> {t.hero_kicker}
             </div>
-
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-white md:text-6xl">
               {t.hero_title}
             </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
 
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">
-              {t.hero_sub}
-            </p>
-
-            {/* Search bar */}
             <div className="mt-8 flex max-w-2xl flex-wrap gap-2.5 rounded-2xl bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
                 <Search size={20} className="text-navy" />
@@ -53,7 +50,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* Stats */}
             <div className="mt-10 flex flex-wrap gap-10">
               {stats.map((s) => (
                 <div key={s.l}>
@@ -63,6 +59,24 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* LATEST JOBS */}
+      <section className="mx-auto max-w-7xl px-5 py-12">
+        <div className="flex items-end justify-between gap-4">
+          <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
+            {t.jobs_latest}
+          </h2>
+          <span className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2">
+            {t.view_all} <ChevronRight size={17} />
+          </span>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {JOBS.map((job) => (
+            <JobCard key={job.id} job={job} lang={lang} />
+          ))}
         </div>
       </section>
     </div>
