@@ -20,3 +20,49 @@ export const JOBS: Job[] = [
   { id: 5, rank: "ETO", vessel: "Cruise", salary: 5600, duration: "4", joining: "2026-06-25", company: "Adriatic Crew", flag: "🇮🇹", location: "Genoa", logo: "AC" },
   { id: 6, rank: "Chief Engineer", vessel: "Offshore", salary: 14200, duration: "5/5", joining: "2026-07-10", company: "Maersk Crewing", flag: "🇩🇰", location: "Copenhagen", logo: "MC", hot: true },
 ];
+export type NewsItem = {
+  id: number;
+  title: Record<string, string>;
+  tag: string;
+  date: string;
+  gradient: string;
+};
+
+export const NEWS: NewsItem[] = [
+  {
+    id: 1,
+    title: {
+      ua: "IMO оновлює вимоги STCW щодо годин відпочинку у 2026",
+      pl: "IMO aktualizuje wymogi STCW dotyczące godzin odpoczynku w 2026",
+      ru: "IMO обновляет требования STCW к часам отдыха в 2026",
+      en: "IMO updates STCW rest-hour requirements for 2026",
+    },
+    tag: "Regulation",
+    date: "2026-05-24",
+    gradient: "linear-gradient(135deg,#0c4a6e,#155e75)",
+  },
+  {
+    id: 2,
+    title: {
+      ua: "Зарплати офіцерів зросли на 8% через дефіцит екіпажів",
+      pl: "Pensje oficerów wzrosły o 8% z powodu niedoboru załóg",
+      ru: "Зарплаты офицеров выросли на 8% из-за дефицита экипажей",
+      en: "Officer salaries rise 8% amid global crew shortage",
+    },
+    tag: "Market",
+    date: "2026-05-20",
+    gradient: "linear-gradient(135deg,#7c2d12,#9a3412)",
+  },
+  {
+    id: 3,
+    title: {
+      ua: "Новим суднам на зеленому паливі потрібно 4000 інженерів",
+      pl: "Nowe statki na zielone paliwo potrzebują 4000 inżynierów",
+      ru: "Новым судам на зелёном топливе нужно 4000 инженеров",
+      en: "New green-fuel vessels need 4,000 trained engineers",
+    },
+    tag: "Industry",
+    date: "2026-05-15",
+    gradient: "linear-gradient(135deg,#14532d,#166534)",
+  },
+];
