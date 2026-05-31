@@ -80,8 +80,8 @@ export default function Home() {
             {t.view_all} <ChevronRight size={17} />
           </Link>
         </div>
-
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+ч
+        <div className="mt-6 flex flex-col gap-3">
           {JOBS.map((job) => (
             <JobCard key={job.id} job={job} lang={lang} />
           ))}
