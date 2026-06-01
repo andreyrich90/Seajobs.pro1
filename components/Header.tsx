@@ -75,9 +75,12 @@ export default function Header() {
           </div>
 
           {/* Login */}
-          <button className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5">
+          <Link
+            href="/auth/login"
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+          >
             <LogIn size={16} /> {t.login}
-          </button>
+          </Link>
         </div>
       </div>
     </header>
