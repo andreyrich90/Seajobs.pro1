@@ -1,17 +1,22 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+export type TypedSupabaseClient = SupabaseClient<Database>;
 
-// Singleton browser client
-let client: ReturnType<typeof createClient<Database>> | null = null;
+let _client: TypedSupabaseClient | null = null;
 
-export function getSupabaseClient() {
-  if (!client) {
-    client = createClient<Database>(supabaseUrl, supabaseAnonKey);
+function getClient(): TypedSupabaseClient {
+  if (!_client) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+    _client = createClient<Database>(url, key);
   }
-  return client;
+  return _client;
 }
 
-export const supabase = getSupabaseClient();
+// Proxy object so `import { supabase }` still works
+export const supabase = new Proxy({} as TypedSupabaseClient, {
+  get(_target, prop) {
+    return getClient()[prop as keyof TypedSupabaseClient];
+  },
+});

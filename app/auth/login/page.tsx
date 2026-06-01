@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Anchor, LogIn, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import type { Profile } from "@/lib/supabase/types";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,20 +37,20 @@ export default function LoginPage() {
       }
 
       // Check user role from profiles table
-      const { data: profile, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("role")
+        .select("*")
         .eq("id", data.user.id)
-        .single();
+        .single() as { data: Profile | null; error: unknown };
 
-      if (profileError || !profile) {
+      if (profileError || !profileData) {
         setError("Could not load your profile. Please try again.");
         return;
       }
 
-      if (profile.role === "seafarer") {
+      if (profileData.role === "seafarer") {
         router.push("/seafarer/dashboard");
-      } else if (profile.role === "company") {
+      } else if (profileData.role === "company") {
         router.push("/company/dashboard");
       } else {
         router.push("/");

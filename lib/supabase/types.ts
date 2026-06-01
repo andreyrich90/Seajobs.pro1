@@ -25,6 +25,7 @@ export interface Database {
           role?: "seafarer" | "company";
           created_at?: string;
         };
+        Relationships: [];
       };
       seafarers: {
         Row: {
@@ -66,6 +67,7 @@ export interface Database {
           about?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
       certificates: {
         Row: {
@@ -101,6 +103,7 @@ export interface Database {
           file_url?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       sea_experience: {
         Row: {
@@ -142,6 +145,7 @@ export interface Database {
           to_date?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       companies: {
         Row: {
@@ -171,11 +175,13 @@ export interface Database {
           website?: string | null;
           updated_at?: string | null;
         };
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
+    Views: { [_ in never]: never };
+    Functions: { [_ in never]: never };
+    Enums: { [_ in never]: never };
+    CompositeTypes: { [_ in never]: never };
   };
 }
 
