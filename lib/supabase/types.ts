@@ -13,17 +13,59 @@ export interface Database {
         Row: {
           id: string;
           role: "seafarer" | "company";
+          is_admin: boolean;
+          is_blocked: boolean;
           created_at: string;
         };
         Insert: {
           id: string;
           role: "seafarer" | "company";
+          is_admin?: boolean;
+          is_blocked?: boolean;
           created_at?: string;
         };
         Update: {
           id?: string;
           role?: "seafarer" | "company";
+          is_admin?: boolean;
+          is_blocked?: boolean;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      news_articles: {
+        Row: {
+          id: string;
+          title: Record<string, string>;
+          body: Record<string, string>;
+          tag: string | null;
+          cover_gradient: string | null;
+          is_published: boolean;
+          published_at: string | null;
+          created_at: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: Record<string, string>;
+          body: Record<string, string>;
+          tag?: string | null;
+          cover_gradient?: string | null;
+          is_published?: boolean;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: Record<string, string>;
+          body?: Record<string, string>;
+          tag?: string | null;
+          cover_gradient?: string | null;
+          is_published?: boolean;
+          published_at?: string | null;
+          created_at?: string;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
@@ -308,3 +350,4 @@ export type Company = Database["public"]["Tables"]["companies"]["Row"];
 export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
 export type ForumTopic = Database["public"]["Tables"]["forum_topics"]["Row"];
 export type ForumPost = Database["public"]["Tables"]["forum_posts"]["Row"];
+export type NewsArticle = Database["public"]["Tables"]["news_articles"]["Row"];
