@@ -2,23 +2,32 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare, Newspaper, LayoutDashboard } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare,
+  Newspaper, LayoutDashboard, Menu, X,
+} from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { supabase } from "@/lib/supabase/client";
 
 export default function Header() {
   const { lang, setLang } = useLang();
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [langOpen, setLangOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [dashboardHref, setDashboardHref] = useState<string | null>(null);
   const t = T[lang];
   const current = LANGS.find((l) => l.code === lang)!;
 
   const nav = [
-    { label: t.nav_jobs, icon: Briefcase, href: "/jobs" },
+    { label: t.nav_jobs,  icon: Briefcase,     href: "/jobs" },
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },
-    { label: t.nav_news, icon: Newspaper, href: "/news" },
+    { label: t.nav_news,  icon: Newspaper,     href: "/news" },
   ];
+
+  // Close mobile menu on navigation
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
     async function loadAuth() {
@@ -35,9 +44,25 @@ export default function Header() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const authButton = dashboardHref ? (
+    <Link
+      href={dashboardHref}
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+    >
+      <LayoutDashboard size={16} /> Cabinet
+    </Link>
+  ) : (
+    <Link
+      href="/auth/login"
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+    >
+      <LogIn size={16} /> {t.login}
+    </Link>
+  );
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-deep/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center gap-5 px-5 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
@@ -48,35 +73,34 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* Nav (desktop) */}
-        <nav className="ml-6 hidden gap-6 md:flex">
+        {/* Nav — desktop only */}
+        <nav className="ml-4 hidden gap-5 md:flex">
           {nav.map((n) => (
-            <Link
-              key={n.label}
-              href={n.href}
-              className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-foam transition hover:text-brass2"
-            >
+            <Link key={n.href} href={n.href}
+              className="flex items-center gap-1.5 text-sm font-semibold text-foam transition hover:text-brass2">
               <n.icon size={16} /> {n.label}
             </Link>
           ))}
         </nav>
 
         {/* Right side */}
-        <div className="ml-auto flex items-center gap-3">
-          {/* Language */}
+        <div className="ml-auto flex items-center gap-2">
+          {/* Language picker */}
           <div className="relative">
             <button
-              onClick={() => setOpen((o) => !o)}
+              onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
               className="flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
             >
-              <Globe size={16} /> {current.label} <ChevronDown size={14} />
+              <Globe size={16} />
+              <span className="hidden sm:inline">{current.label}</span>
+              <span className="sm:hidden">{current.flag}</span>
+              <ChevronDown size={14} />
             </button>
-            {open && (
+            {langOpen && (
               <div className="absolute right-0 top-12 z-50 min-w-[140px] rounded-xl border border-white/10 bg-navy2 p-1.5 shadow-2xl">
                 {LANGS.map((l) => (
-                  <div
-                    key={l.code}
-                    onClick={() => { setLang(l.code); setOpen(false); }}
+                  <div key={l.code}
+                    onClick={() => { setLang(l.code); setLangOpen(false); }}
                     className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition hover:bg-white/5 ${
                       lang === l.code ? "bg-brass/15" : ""
                     }`}
@@ -88,24 +112,35 @@ export default function Header() {
             )}
           </div>
 
-          {/* Auth button */}
-          {dashboardHref ? (
-            <Link
-              href={dashboardHref}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-            >
-              <LayoutDashboard size={16} /> Cabinet
-            </Link>
-          ) : (
-            <Link
-              href="/auth/login"
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-            >
-              <LogIn size={16} /> {t.login}
-            </Link>
-          )}
+          {/* Auth button — desktop */}
+          <div className="hidden sm:block">{authButton}</div>
+
+          {/* Mobile burger */}
+          <button
+            onClick={() => { setMobileOpen((o) => !o); setLangOpen(false); }}
+            className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 md:hidden"
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown menu */}
+      {mobileOpen && (
+        <div className="border-t border-white/10 bg-deep/95 backdrop-blur-md px-5 py-4 md:hidden">
+          <nav className="flex flex-col gap-1">
+            {nav.map((n) => (
+              <Link key={n.href} href={n.href}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
+                <n.icon size={18} /> {n.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="mt-3 border-t border-white/10 pt-3">
+            {authButton}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
