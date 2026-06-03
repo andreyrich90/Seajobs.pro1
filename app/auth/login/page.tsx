@@ -166,6 +166,11 @@ function LoginContent() {
                   </button>
                 </div>
               </div>
+              <div className="text-right">
+                <Link href="/auth/forgot-password" className="text-xs text-mist hover:text-white transition">
+                  Forgot password?
+                </Link>
+              </div>
               <button type="submit" disabled={loading}
                 className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0">
                 {loading ? "Signing in..." : "Sign in"}

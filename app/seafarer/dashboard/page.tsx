@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Award, Ship, Calendar, User, FileText, ChevronRight } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Send } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 
@@ -10,6 +10,7 @@ interface DashboardStats {
   seafarer: Seafarer | null;
   certCount: number;
   expCount: number;
+  applicationCount: number;
 }
 
 function calcCompletion(seafarer: Seafarer | null): number {
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     seafarer: null,
     certCount: 0,
     expCount: 0,
+    applicationCount: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -42,16 +44,18 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const [seafarerRes, certsRes, expRes] = await Promise.all([
+      const [seafarerRes, certsRes, expRes, appRes] = await Promise.all([
         supabase.from("seafarers").select("*").eq("id", session.user.id).single(),
         supabase.from("certificates").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("sea_experience").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
+        supabase.from("applications").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
       ]);
 
       setStats({
         seafarer: seafarerRes.data,
         certCount: certsRes.count ?? 0,
         expCount: expRes.count ?? 0,
+        applicationCount: appRes.count ?? 0,
       });
       setLoading(false);
     }
@@ -110,7 +114,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold text-mist">Certificates</p>
@@ -135,9 +139,20 @@ export default function DashboardPage() {
 
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-mist">Ready to Sail</p>
+            <p className="text-sm font-semibold text-mist">Applications</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-coral/10">
-              <Calendar size={18} className="text-coral" />
+              <Send size={18} className="text-coral" />
+            </div>
+          </div>
+          <p className="font-display text-3xl font-bold text-white">{stats.applicationCount}</p>
+          <p className="text-xs text-mist mt-1">jobs applied to</p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-card p-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-mist">Ready to Sail</p>
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-teal/10">
+              <Calendar size={18} className="text-teal" />
             </div>
           </div>
           <p className="font-display text-lg font-bold text-white">

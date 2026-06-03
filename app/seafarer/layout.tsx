@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
@@ -18,6 +18,8 @@ const navItems = [
   { label: "Certificates", href: "/seafarer/certificates", icon: Award },
   { label: "Sea Experience", href: "/seafarer/experience", icon: Ship },
   { label: "My CV", href: "/seafarer/cv", icon: FileText },
+  { label: "Applications", href: "/seafarer/applications", icon: Send },
+  { label: "Saved Jobs", href: "/seafarer/saved", icon: Bookmark },
 ];
 
 export default function SeafarerLayout({ children }: { children: React.ReactNode }) {

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe } from "lucide-react";
+import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { LANGS } from "@/lib/i18n";
@@ -14,6 +14,7 @@ const navItems = [
   { label: "Dashboard", href: "/company/dashboard", icon: LayoutDashboard },
   { label: "Company Profile", href: "/company/profile", icon: Building2 },
   { label: "Vacancies", href: "/company/vacancies", icon: Briefcase },
+  { label: "Applications", href: "/company/applications", icon: Users },
 ];
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {

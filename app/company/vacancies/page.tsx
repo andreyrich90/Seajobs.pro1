@@ -60,6 +60,7 @@ function formatDate(dateStr: string | null): string {
 
 export default function VacanciesPage() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
+  const [appCounts, setAppCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -81,6 +82,22 @@ export default function VacanciesPage() {
         .order("created_at", { ascending: false });
 
       setVacancies(data ?? []);
+
+      // Fetch application counts per vacancy
+      const ids = (data ?? []).map((v) => v.id);
+      if (ids.length > 0) {
+        const { data: appData } = await supabase
+          .from("applications")
+          .select("vacancy_id")
+          .in("vacancy_id", ids);
+
+        const counts: Record<string, number> = {};
+        for (const a of appData ?? []) {
+          counts[a.vacancy_id] = (counts[a.vacancy_id] ?? 0) + 1;
+        }
+        setAppCounts(counts);
+      }
+
       setLoading(false);
     }
     load();
@@ -439,6 +456,11 @@ export default function VacanciesPage() {
                   {v.description && (
                     <span className="line-clamp-1 max-w-sm">{v.description}</span>
                   )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist/60">
+                  <span>Views: {v.views_count}</span>
+                  <span>Applications: {appCounts[v.id] ?? 0}</span>
                 </div>
               </div>
 
