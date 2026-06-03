@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare, Newspaper } from "lucide-react";
+import { Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare, Newspaper, LayoutDashboard } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
+import { supabase } from "@/lib/supabase/client";
 
 export default function Header() {
   const { lang, setLang } = useLang();
   const [open, setOpen] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState<string | null>(null);
   const t = T[lang];
   const current = LANGS.find((l) => l.code === lang)!;
 
@@ -17,6 +19,21 @@ export default function Header() {
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },
     { label: t.nav_news, icon: Newspaper, href: "/news" },
   ];
+
+  useEffect(() => {
+    async function loadAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setDashboardHref(null); return; }
+      const { data: profile } = await supabase
+        .from("profiles").select("role").eq("id", session.user.id).single();
+      if (profile?.role === "seafarer") setDashboardHref("/seafarer/dashboard");
+      else if (profile?.role === "company") setDashboardHref("/company/dashboard");
+      else setDashboardHref(null);
+    }
+    loadAuth();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => loadAuth());
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-deep/80 backdrop-blur-md">
@@ -59,10 +76,7 @@ export default function Header() {
                 {LANGS.map((l) => (
                   <div
                     key={l.code}
-                    onClick={() => {
-                      setLang(l.code);
-                      setOpen(false);
-                    }}
+                    onClick={() => { setLang(l.code); setOpen(false); }}
                     className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition hover:bg-white/5 ${
                       lang === l.code ? "bg-brass/15" : ""
                     }`}
@@ -74,13 +88,22 @@ export default function Header() {
             )}
           </div>
 
-          {/* Login */}
-          <Link
-            href="/auth/login"
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-          >
-            <LogIn size={16} /> {t.login}
-          </Link>
+          {/* Auth button */}
+          {dashboardHref ? (
+            <Link
+              href={dashboardHref}
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+            >
+              <LayoutDashboard size={16} /> Cabinet
+            </Link>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+            >
+              <LogIn size={16} /> {t.login}
+            </Link>
+          )}
         </div>
       </div>
     </header>
