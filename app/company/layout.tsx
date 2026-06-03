@@ -28,12 +28,17 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
 
         const { data: profile } = await supabase
           .from("profiles")
-          .select("role")
+          .select("role, is_blocked")
           .eq("id", session.user.id)
           .single();
 
         if (!profile || profile.role !== "company") {
           router.replace("/auth/login");
+          return;
+        }
+        if (profile.is_blocked) {
+          await supabase.auth.signOut();
+          router.replace("/auth/login?blocked=1");
           return;
         }
         setChecking(false);

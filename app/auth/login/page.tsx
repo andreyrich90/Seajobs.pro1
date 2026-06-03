@@ -2,17 +2,19 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Anchor, Ship, Briefcase, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Anchor, Ship, Briefcase, Eye, EyeOff, AlertCircle, ShieldOff } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 type Role = "seafarer" | "company";
 
-export default function LoginPage() {
-  const router = useRouter();
+function LoginContent() {
+  const router       = useRouter();
+  const searchParams = useSearchParams();
   const [role, setRole] = useState<Role>("seafarer");
+  const isBlocked = searchParams.get("blocked") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -105,6 +107,13 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {isBlocked && (
+              <div className="mb-5 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
+                <ShieldOff size={18} className="mt-0.5 shrink-0 text-coral" />
+                <p className="text-sm text-coral">Your account has been blocked. Please contact support.</p>
+              </div>
+            )}
+
             {error && (
               <div className="mb-5 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
                 <AlertCircle size={18} className="mt-0.5 shrink-0 text-coral" />
@@ -171,5 +180,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }
