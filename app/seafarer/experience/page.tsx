@@ -5,32 +5,144 @@ import { Plus, Trash2, Pencil, AlertCircle, X, Ship } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { SeaExperience } from "@/lib/supabase/types";
 
-const VESSEL_TYPES = [
-  "Bulk Carrier",
-  "Tanker",
-  "Container",
-  "LNG",
-  "Cruise",
-  "Offshore",
-  "General Cargo",
-  "RoRo",
-  "Passenger",
+const VESSEL_TYPE_GROUPS: { label: string; types: string[] }[] = [
+  {
+    label: "Tankers",
+    types: [
+      "Oil Tanker (VLCC)",
+      "Oil Tanker (Suezmax)",
+      "Oil Tanker (Aframax)",
+      "Oil Tanker (MR/Handysize)",
+      "Chemical Tanker",
+      "Product Tanker",
+      "LNG Tanker",
+      "LPG Tanker",
+      "Crude Oil Tanker",
+      "Bitumen Tanker",
+    ],
+  },
+  {
+    label: "Dry Cargo",
+    types: [
+      "Bulk Carrier (Capesize)",
+      "Bulk Carrier (Panamax)",
+      "Bulk Carrier (Handymax)",
+      "Bulk Carrier (Handysize)",
+      "General Cargo",
+      "Container (Feeder)",
+      "Container (Panamax)",
+      "Container (Post-Panamax)",
+      "Reefer",
+      "Heavy Lift / Project Cargo",
+      "Coaster",
+    ],
+  },
+  {
+    label: "RoRo / Passenger",
+    types: [
+      "RoRo (Pure Car Carrier)",
+      "RoRo (PCTC)",
+      "RoRo Cargo",
+      "Cruise Ship",
+      "Ferry (Passenger/Vehicle)",
+      "High-Speed Craft",
+      "River Cruise",
+    ],
+  },
+  {
+    label: "Offshore",
+    types: [
+      "PSV (Platform Supply Vessel)",
+      "AHTS (Anchor Handling Tug Supply)",
+      "ERRV (Emergency Response)",
+      "Construction Support Vessel",
+      "Diving Support Vessel",
+      "Crane Vessel",
+      "Drill Ship",
+      "Semi-Submersible",
+      "Jack-Up Rig",
+      "FPSO",
+      "FSO",
+      "FLNG",
+      "Offshore Wind Installation Vessel",
+      "CTV (Crew Transfer Vessel)",
+    ],
+  },
+  {
+    label: "Specialized",
+    types: [
+      "Cable Layer",
+      "Pipe Layer",
+      "Dredger",
+      "Hopper Dredger",
+      "Research / Survey Vessel",
+      "Icebreaker",
+      "Tug",
+      "Salvage Vessel",
+      "Bunker Vessel",
+      "Livestock Carrier",
+      "Cement Carrier",
+      "Wood Chip Carrier",
+    ],
+  },
+  {
+    label: "Other",
+    types: ["Fishing Vessel", "Training Vessel", "Patrol Vessel", "Navy / Military", "Yacht / Superyacht", "Other"],
+  },
 ];
 
-const RANKS = [
-  "Master",
-  "Chief Officer",
-  "2nd Officer",
-  "3rd Officer",
-  "Chief Engineer",
-  "2nd Engineer",
-  "3rd Engineer",
-  "ETO",
-  "AB",
-  "OS",
-  "Cook",
-  "Bosun",
-  "Motorman",
+const RANK_GROUPS: { label: string; ranks: string[] }[] = [
+  {
+    label: "Deck Officers",
+    ranks: [
+      "Master (Captain)",
+      "Chief Officer (Chief Mate)",
+      "2nd Officer",
+      "3rd Officer",
+      "Junior Officer",
+      "Deck Cadet",
+    ],
+  },
+  {
+    label: "Engine Officers",
+    ranks: [
+      "Chief Engineer",
+      "2nd Engineer",
+      "3rd Engineer",
+      "4th Engineer",
+      "Junior Engineer",
+      "Engine Cadet",
+    ],
+  },
+  {
+    label: "Electro-Technical / Specialized",
+    ranks: [
+      "ETO (Electro-Technical Officer)",
+      "DPO (Dynamic Positioning Operator)",
+      "Safety Officer",
+      "Cargo Officer",
+      "Pumpman Officer",
+    ],
+  },
+  {
+    label: "Deck Ratings",
+    ranks: ["Bosun", "AB (Able Seaman)", "OS (Ordinary Seaman)", "Deck Fitter"],
+  },
+  {
+    label: "Engine Ratings",
+    ranks: ["Motorman", "Oiler", "Fitter", "Wiper", "Pumpman", "Electrician"],
+  },
+  {
+    label: "Catering / Hotel",
+    ranks: [
+      "Chief Cook / Cook",
+      "2nd Cook",
+      "Messman / Steward",
+      "Chief Steward",
+      "Purser",
+      "Hotel Director",
+    ],
+  },
 ];
 
 type ExpForm = {
@@ -271,8 +383,12 @@ export default function ExperiencePage() {
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
                 <option value="">Select type...</option>
-                {VESSEL_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                {VESSEL_TYPE_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.types.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
@@ -286,8 +402,12 @@ export default function ExperiencePage() {
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
                 <option value="">Select rank...</option>
-                {RANKS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                {RANK_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.ranks.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
