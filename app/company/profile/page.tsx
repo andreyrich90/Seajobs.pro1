@@ -103,7 +103,7 @@ export default function CompanyProfilePage() {
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from("companies").update(payload).eq("id", userId);
+    const { error } = await supabase.from("companies").upsert({ id: userId, ...payload });
 
     if (error) {
       setMessage({ type: "error", text: "Failed to save: " + error.message });
