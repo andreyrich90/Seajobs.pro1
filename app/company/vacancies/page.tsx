@@ -159,6 +159,9 @@ export default function VacanciesPage() {
         closeForm();
       }
     } else {
+      // Ensure company record exists (foreign key requirement)
+      await supabase.from("companies").upsert({ id: userId }, { onConflict: "id" });
+
       const { data, error: insertError } = await supabase
         .from("vacancies")
         .insert({ ...payload, company_id: userId })
