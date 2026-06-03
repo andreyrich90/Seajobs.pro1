@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Award, Ship, Calendar, User, FileText, ChevronRight, Send } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
+import ContactForm from "@/components/ContactForm";
 
 interface DashboardStats {
   seafarer: Seafarer | null;
@@ -194,6 +195,16 @@ export default function DashboardPage() {
             <ChevronRight size={16} className="text-mist group-hover:text-brass2 transition" />
           </Link>
         ))}
+      </div>
+
+      {/* Contact / Suggestions */}
+      <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
+        <ContactForm
+          userId={stats.seafarer?.id ?? null}
+          title="Suggestions & Contact"
+          subtitle="Have a question or suggestion? Write to us — we read everything."
+          compact
+        />
       </div>
     </div>
   );

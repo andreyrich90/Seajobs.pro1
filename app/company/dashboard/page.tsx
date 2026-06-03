@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Building2, Briefcase, Plus, CheckCircle, Clock, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import ContactForm from "@/components/ContactForm";
 
 export default function CompanyDashboardPage() {
   const [companyName, setCompanyName] = useState<string | null>(null);
@@ -118,6 +119,15 @@ export default function CompanyDashboardPage() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Contact / Suggestions */}
+      <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
+        <ContactForm
+          title="Suggestions & Contact"
+          subtitle="Have a question or suggestion? Write to us — we read everything."
+          compact
+        />
       </div>
     </div>
   );
