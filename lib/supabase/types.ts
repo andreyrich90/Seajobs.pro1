@@ -228,6 +228,69 @@ export interface Database {
         };
         Relationships: [];
       };
+      forum_topics: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          author_name: string | null;
+          title: string;
+          content: string;
+          is_pinned: boolean;
+          created_at: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          author_name?: string | null;
+          title: string;
+          content: string;
+          is_pinned?: boolean;
+          created_at?: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          author_name?: string | null;
+          title?: string;
+          content?: string;
+          is_pinned?: boolean;
+          created_at?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      forum_posts: {
+        Row: {
+          id: string;
+          topic_id: string;
+          user_id: string | null;
+          author_name: string | null;
+          content: string;
+          created_at: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          topic_id: string;
+          user_id?: string | null;
+          author_name?: string | null;
+          content: string;
+          created_at?: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          topic_id?: string;
+          user_id?: string | null;
+          author_name?: string | null;
+          content?: string;
+          created_at?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };
@@ -243,3 +306,5 @@ export type Certificate = Database["public"]["Tables"]["certificates"]["Row"];
 export type SeaExperience = Database["public"]["Tables"]["sea_experience"]["Row"];
 export type Company = Database["public"]["Tables"]["companies"]["Row"];
 export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
+export type ForumTopic = Database["public"]["Tables"]["forum_topics"]["Row"];
+export type ForumPost = Database["public"]["Tables"]["forum_posts"]["Row"];
