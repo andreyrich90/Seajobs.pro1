@@ -1,24 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle, AlertCircle, Upload, User } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 
-const RANKS = [
-  "Master",
-  "Chief Officer",
-  "2nd Officer",
-  "3rd Officer",
-  "Chief Engineer",
-  "2nd Engineer",
-  "3rd Engineer",
-  "ETO",
-  "AB",
-  "OS",
-  "Cook",
-  "Bosun",
-  "Motorman",
+// ─── Deck Officers ───────────────────────────────────────────────
+// ─── Engine Officers ─────────────────────────────────────────────
+// ─── Electro-Technical ───────────────────────────────────────────
+// ─── Deck Ratings ────────────────────────────────────────────────
+// ─── Engine Ratings ──────────────────────────────────────────────
+// ─── Catering / Hotel ────────────────────────────────────────────
+const RANK_GROUPS: { label: string; ranks: string[] }[] = [
+  {
+    label: "Deck Officers",
+    ranks: [
+      "Master (Captain)",
+      "Chief Officer (Chief Mate)",
+      "2nd Officer",
+      "3rd Officer",
+      "Junior Officer",
+      "Deck Cadet",
+    ],
+  },
+  {
+    label: "Engine Officers",
+    ranks: [
+      "Chief Engineer",
+      "2nd Engineer",
+      "3rd Engineer",
+      "4th Engineer",
+      "Junior Engineer",
+      "Engine Cadet",
+    ],
+  },
+  {
+    label: "Electro-Technical / Specialized",
+    ranks: [
+      "ETO (Electro-Technical Officer)",
+      "DPO (Dynamic Positioning Operator)",
+      "Safety Officer",
+      "Cargo Officer",
+      "Pumpman Officer",
+    ],
+  },
+  {
+    label: "Deck Ratings",
+    ranks: ["Bosun", "AB (Able Seaman)", "OS (Ordinary Seaman)", "Deck Fitter"],
+  },
+  {
+    label: "Engine Ratings",
+    ranks: ["Motorman", "Oiler", "Fitter", "Wiper", "Pumpman", "Electrician"],
+  },
+  {
+    label: "Catering / Hotel",
+    ranks: [
+      "Chief Cook / Cook",
+      "2nd Cook",
+      "Messman / Steward",
+      "Chief Steward",
+      "Purser",
+      "Hotel Director",
+    ],
+  },
 ];
 
 type ProfileForm = Omit<Seafarer, "id" | "updated_at">;
@@ -39,8 +83,10 @@ export default function ProfilePage() {
   const [form, setForm] = useState<ProfileForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -77,13 +123,43 @@ export default function ProfilePage() {
     setMessage(null);
   }
 
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ type: "error", text: "File is too large. Max 5 MB." });
+      return;
+    }
+
+    setUploading(true);
+    setMessage(null);
+
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${userId}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      setMessage({ type: "error", text: "Photo upload failed: " + uploadError.message });
+      setUploading(false);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+    handleChange("photo_url", publicUrl);
+    setUploading(false);
+    setMessage({ type: "success", text: "Photo uploaded! Save your profile to apply." });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
     setSaving(true);
     setMessage(null);
 
-    // Convert empty strings to null for date fields
     const payload = {
       ...form,
       date_of_birth: form.date_of_birth || null,
@@ -98,10 +174,7 @@ export default function ProfilePage() {
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase
-      .from("seafarers")
-      .update(payload)
-      .eq("id", userId);
+    const { error } = await supabase.from("seafarers").update(payload).eq("id", userId);
 
     if (error) {
       setMessage({ type: "error", text: "Failed to save: " + error.message });
@@ -143,6 +216,46 @@ export default function ProfilePage() {
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+        {/* Photo upload */}
+        <div className="rounded-2xl border border-white/10 bg-card p-6">
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Profile Photo</h2>
+          <div className="flex items-center gap-5">
+            <div className="relative h-20 w-20 shrink-0">
+              {form.photo_url ? (
+                <img
+                  src={form.photo_url}
+                  alt="Profile"
+                  className="h-20 w-20 rounded-2xl object-cover border border-white/10"
+                />
+              ) : (
+                <div className="h-20 w-20 rounded-2xl bg-navy2 border border-white/10 flex items-center justify-center">
+                  <User size={32} className="text-mist" />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading || saving}
+                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+              >
+                <Upload size={16} />
+                {uploading ? "Uploading..." : "Upload photo"}
+              </button>
+              <p className="text-xs text-mist">JPG, PNG or WEBP · max 5 MB</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={handlePhotoUpload}
+                className="hidden"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Personal info */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
           <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Personal Information</h2>
@@ -150,70 +263,45 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">First name</label>
               <input
-                type="text"
-                value={form.first_name ?? ""}
+                type="text" value={form.first_name ?? ""}
                 onChange={(e) => handleChange("first_name", e.target.value)}
-                placeholder="John"
-                disabled={saving}
+                placeholder="John" disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">Last name</label>
               <input
-                type="text"
-                value={form.last_name ?? ""}
+                type="text" value={form.last_name ?? ""}
                 onChange={(e) => handleChange("last_name", e.target.value)}
-                placeholder="Smith"
-                disabled={saving}
+                placeholder="Smith" disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">Nationality</label>
               <input
-                type="text"
-                value={form.nationality ?? ""}
+                type="text" value={form.nationality ?? ""}
                 onChange={(e) => handleChange("nationality", e.target.value)}
-                placeholder="Ukrainian"
-                disabled={saving}
+                placeholder="Ukrainian" disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">Date of birth</label>
               <input
-                type="date"
-                value={form.date_of_birth ?? ""}
+                type="date" value={form.date_of_birth ?? ""}
                 onChange={(e) => handleChange("date_of_birth", e.target.value)}
                 disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
-
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">Phone</label>
               <input
-                type="tel"
-                value={form.phone ?? ""}
+                type="tel" value={form.phone ?? ""}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="+380 XX XXX XX XX"
-                disabled={saving}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Photo URL</label>
-              <input
-                type="url"
-                value={form.photo_url ?? ""}
-                onChange={(e) => handleChange("photo_url", e.target.value)}
-                placeholder="https://example.com/photo.jpg"
-                disabled={saving}
+                placeholder="+380 XX XXX XX XX" disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
@@ -225,39 +313,38 @@ export default function ProfilePage() {
           <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Professional Information</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Rank</label>
+              <label className="text-sm font-semibold text-foam">Rank / Position</label>
               <select
-                value={form.rank ?? ""}
-                onChange={(e) => handleChange("rank", e.target.value)}
+                value={form.rank ?? ""} onChange={(e) => handleChange("rank", e.target.value)}
                 disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
                 <option value="">Select rank...</option>
-                {RANKS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                {RANK_GROUPS.map((g) => (
+                  <optgroup key={g.label} label={g.label}>
+                    {g.ranks.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>
-
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">Readiness date</label>
               <input
-                type="date"
-                value={form.readiness_date ?? ""}
+                type="date" value={form.readiness_date ?? ""}
                 onChange={(e) => handleChange("readiness_date", e.target.value)}
                 disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
-
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">About / Summary</label>
               <textarea
                 value={form.about ?? ""}
                 onChange={(e) => handleChange("about", e.target.value)}
                 placeholder="Brief professional summary..."
-                rows={4}
-                disabled={saving}
+                rows={4} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
             </div>
@@ -265,8 +352,7 @@ export default function ProfilePage() {
         </div>
 
         <button
-          type="submit"
-          disabled={saving}
+          type="submit" disabled={saving || uploading}
           className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
           {saving ? "Saving..." : "Save Profile"}
