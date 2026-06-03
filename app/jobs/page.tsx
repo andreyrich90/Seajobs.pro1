@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, ShieldCheck, Building2 } from "lucide-react";
+import { Search, ShieldCheck, Building2, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase/client";
 
@@ -203,9 +203,14 @@ export default function JobsPage() {
                         </div>
                       </div>
 
-                      <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist">
-                        {v.joining_date && <span>Joining: {formatDate(v.joining_date)}</span>}
-                        <span>Posted: {formatDate(v.created_at)}</span>
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex flex-wrap gap-4 text-xs text-mist">
+                          {v.joining_date && <span>Joining: {formatDate(v.joining_date)}</span>}
+                          <span>Posted: {formatDate(v.created_at)}</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brass2 group-hover:gap-2.5 transition-all">
+                          View details & Apply <ArrowRight size={13} />
+                        </span>
                       </div>
                     </div>
                   </div>
