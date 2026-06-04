@@ -8,19 +8,20 @@ import Link from "next/link";
 import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { LANGS } from "@/lib/i18n";
+import { LANGS, T } from "@/lib/i18n";
 
-const navItems = [
-  { label: "Dashboard", href: "/company/dashboard", icon: LayoutDashboard },
-  { label: "Company Profile", href: "/company/profile", icon: Building2 },
-  { label: "Vacancies", href: "/company/vacancies", icon: Briefcase },
-  { label: "Applications", href: "/company/applications", icon: Users },
+const NAV_KEYS = [
+  { key: "cab_dashboard",       href: "/company/dashboard",    icon: LayoutDashboard },
+  { key: "cab_company_profile", href: "/company/profile",      icon: Building2 },
+  { key: "cab_vacancies",       href: "/company/vacancies",    icon: Briefcase },
+  { key: "cab_applicants",      href: "/company/applications", icon: Users },
 ];
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { lang, setLang } = useLang();
+  const t = T[lang];
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -87,7 +88,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-        {navItems.map((item) => {
+        {NAV_KEYS.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -100,7 +101,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
               }`}
             >
               <item.icon size={18} />
-              {item.label}
+              {t[item.key]}
             </Link>
           );
         })}
@@ -138,7 +139,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-mist transition hover:bg-coral/10 hover:text-coral"
         >
           <LogOut size={18} />
-          Logout
+          {t.cab_logout}
         </button>
       </div>
     </aside>

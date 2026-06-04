@@ -26,18 +26,38 @@ export const RANK_GROUPS = [
   {
     label: "Combined / Dual Roles",
     ranks: [
+      // Deck + Catering
       "AB Cook",
       "OS Cook",
+      "Bosun Cook",
+      "OS Messman",
+      "AB Messman",
+      // Engine + Catering
       "Motorman Cook",
       "Fitter Cook",
-      "Bosun Cook",
+      "Oiler Cook",
+      "Wiper Cook",
+      // Deck + Engine
+      "AB Motorman",
+      "OS Motorman",
+      "AB Oiler",
+      "Motorman Fitter",
+      // Deck + Technical
       "AB Welder",
+      "OS Welder",
+      "Fitter Welder",
+      // Deck + Equipment Operator
       "AB Crane Operator",
       "AB Excavator Operator",
-      "OS Messman",
+      "AB Bulldozer Operator",
+      "AB Dredge Operator",
+      "OS Crane Operator",
+      // Pump / Technical
       "AB Pumpman",
-      "Motorman Fitter",
-      "AB Motorman",
+      "Motorman Pumpman",
+      // Other
+      "Electrician Cook",
+      "AB Electrician",
     ],
   },
 ];
