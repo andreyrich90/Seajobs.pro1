@@ -23,8 +23,17 @@ export const T: Record<Lang, Record<string, string>> = {
     jobs_title: "Вакансії", jobs_found: "вакансій знайдено",
     f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Усі", nothing: "Нічого не знайдено",
     overview: "Опис", requirements: "Вимоги", we_offer: "Ми пропонуємо",
-details: "Детальніше", back: "Назад до вакансій", similar: "Схожі вакансії",
-orig_note: "Опис вакансії наведено мовою оригіналу (надано агенцією).",
+    details: "Детальніше", back: "Назад до вакансій", similar: "Схожі вакансії",
+    orig_note: "Опис вакансії наведено мовою оригіналу (надано агенцією).",
+    // Cabinet — seafarer
+    cab_dashboard: "Головна", cab_profile: "Мій профіль", cab_certificates: "Сертифікати",
+    cab_experience: "Досвід роботи", cab_cv: "Моє резюме", cab_applications: "Мої відгуки",
+    cab_saved: "Збережені", cab_logout: "Вийти", cab_loading: "Завантаження…",
+    // Cabinet — company
+    cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки",
+    // Common
+    save: "Зберегти", cancel: "Скасувати", delete: "Видалити", edit: "Редагувати",
+    add: "Додати", close: "Закрити", send: "Надіслати", search: "Пошук",
   },
   pl: {
     nav_jobs: "Oferty", nav_forum: "Forum", nav_news: "Aktualności", login: "Zaloguj",
@@ -41,8 +50,17 @@ orig_note: "Опис вакансії наведено мовою оригіна
     jobs_title: "Oferty pracy", jobs_found: "ofert znalezionych",
     f_rank: "Ranga", f_vessel: "Typ statku", f_all: "Wszystkie", nothing: "Nic nie znaleziono",
     overview: "Opis", requirements: "Wymagania", we_offer: "Oferujemy",
-details: "Szczegóły", back: "Powrót do ofert", similar: "Podobne oferty",
-orig_note: "Opis oferty podano w języku oryginału (dostarczony przez agencję).",
+    details: "Szczegóły", back: "Powrót do ofert", similar: "Podobne oferty",
+    orig_note: "Opis oferty podano w języku oryginału (dostarczony przez agencję).",
+    // Cabinet — seafarer
+    cab_dashboard: "Pulpit", cab_profile: "Mój profil", cab_certificates: "Certyfikaty",
+    cab_experience: "Doświadczenie", cab_cv: "Moje CV", cab_applications: "Moje aplikacje",
+    cab_saved: "Zapisane", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
+    // Cabinet — company
+    cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje",
+    // Common
+    save: "Zapisz", cancel: "Anuluj", delete: "Usuń", edit: "Edytuj",
+    add: "Dodaj", close: "Zamknij", send: "Wyślij", search: "Szukaj",
   },
   ru: {
     nav_jobs: "Вакансии", nav_forum: "Форум", nav_news: "Новости", login: "Войти",
@@ -59,8 +77,17 @@ orig_note: "Opis oferty podano w języku oryginału (dostarczony przez agencję)
     jobs_title: "Вакансии", jobs_found: "вакансий найдено",
     f_rank: "Ранг", f_vessel: "Тип судна", f_all: "Все", nothing: "Ничего не найдено",
     overview: "Описание", requirements: "Требования", we_offer: "Что предлагаем",
-details: "Подробнее", back: "Назад к вакансиям", similar: "Похожие вакансии",
-orig_note: "Описание вакансии приведено на языке оригинала (предоставлено агентством).",
+    details: "Подробнее", back: "Назад к вакансиям", similar: "Похожие вакансии",
+    orig_note: "Описание вакансии приведено на языке оригинала (предоставлено агентством).",
+    // Cabinet — seafarer
+    cab_dashboard: "Главная", cab_profile: "Мой профиль", cab_certificates: "Сертификаты",
+    cab_experience: "Опыт работы", cab_cv: "Моё резюме", cab_applications: "Мои отклики",
+    cab_saved: "Сохранённые", cab_logout: "Выйти", cab_loading: "Загрузка…",
+    // Cabinet — company
+    cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики",
+    // Common
+    save: "Сохранить", cancel: "Отмена", delete: "Удалить", edit: "Изменить",
+    add: "Добавить", close: "Закрыть", send: "Отправить", search: "Поиск",
   },
   en: {
     nav_jobs: "Vacancies", nav_forum: "Forum", nav_news: "News", login: "Log in",
@@ -77,7 +104,16 @@ orig_note: "Описание вакансии приведено на языке
     jobs_title: "Vacancies", jobs_found: "vacancies found",
     f_rank: "Rank", f_vessel: "Vessel type", f_all: "All", nothing: "Nothing found",
     overview: "Overview", requirements: "Requirements", we_offer: "We offer",
-details: "Details", back: "Back to vacancies", similar: "Similar vacancies",
-orig_note: "The vacancy description is shown in its original language (provided by the agency).",
+    details: "Details", back: "Back to vacancies", similar: "Similar vacancies",
+    orig_note: "The vacancy description is shown in its original language (provided by the agency).",
+    // Cabinet — seafarer
+    cab_dashboard: "Dashboard", cab_profile: "My Profile", cab_certificates: "Certificates",
+    cab_experience: "Sea Experience", cab_cv: "My CV", cab_applications: "Applications",
+    cab_saved: "Saved Jobs", cab_logout: "Logout", cab_loading: "Loading…",
+    // Cabinet — company
+    cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications",
+    // Common
+    save: "Save", cancel: "Cancel", delete: "Delete", edit: "Edit",
+    add: "Add", close: "Close", send: "Send", search: "Search",
   },
 };

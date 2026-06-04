@@ -30,6 +30,7 @@ type ArticleForm = {
   body:  Record<string, string>;
   tag:   string;
   cover_gradient: string;
+  cover_url:      string;
   is_published:   boolean;
 };
 
@@ -38,6 +39,7 @@ const EMPTY_FORM: ArticleForm = {
   body:  { en: "", ua: "", pl: "", ru: "" },
   tag:   "Industry",
   cover_gradient: GRADIENTS[0].value,
+  cover_url: "",
   is_published: false,
 };
 
@@ -81,6 +83,7 @@ export default function AdminNewsPage() {
       body:  { en: "", ua: "", pl: "", ru: "", ...(a.body  as Record<string, string>) },
       tag:   a.tag ?? "Industry",
       cover_gradient: a.cover_gradient ?? GRADIENTS[0].value,
+      cover_url: a.cover_url ?? "",
       is_published:   a.is_published,
     });
     setActiveLang("en");
@@ -101,6 +104,7 @@ export default function AdminNewsPage() {
       body:  form.body,
       tag:   form.tag,
       cover_gradient: form.cover_gradient,
+      cover_url: form.cover_url.trim() || null,
       is_published:   form.is_published,
       published_at:   form.is_published ? new Date().toISOString() : null,
       updated_at:     new Date().toISOString(),
@@ -234,6 +238,19 @@ export default function AdminNewsPage() {
               </div>
             </div>
 
+            {/* Cover photo URL */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Cover photo URL <span className="text-mist font-normal">(optional)</span></label>
+              <input
+                type="url"
+                value={form.cover_url}
+                onChange={(e) => setForm((f) => ({ ...f, cover_url: e.target.value }))}
+                placeholder="https://example.com/image.jpg"
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
+              />
+              <p className="text-xs text-mist">If set, the photo replaces the colour gradient on the news card.</p>
+            </div>
+
             {/* Published toggle */}
             <label className="flex items-center gap-3 cursor-pointer">
               <div onClick={() => setForm((f) => ({ ...f, is_published: !f.is_published }))}
@@ -246,8 +263,13 @@ export default function AdminNewsPage() {
             </label>
 
             {/* Cover preview */}
-            <div className="rounded-xl overflow-hidden h-20" style={{ background: form.cover_gradient }}>
-              <div className="h-full flex items-end p-3 bg-gradient-to-t from-black/50 to-transparent">
+            <div className="rounded-xl overflow-hidden h-20 relative">
+              {form.cover_url ? (
+                <img src={form.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+              ) : (
+                <div className="absolute inset-0" style={{ background: form.cover_gradient }} />
+              )}
+              <div className="relative h-full flex items-end p-3 bg-gradient-to-t from-black/60 to-transparent">
                 <p className="text-sm font-semibold text-white line-clamp-1">{form.title.en || "Preview title"}</p>
               </div>
             </div>
@@ -277,7 +299,9 @@ export default function AdminNewsPage() {
         <div className="flex flex-col gap-3">
           {articles.map((a) => (
             <div key={a.id} className="rounded-2xl border border-white/10 bg-card flex items-center gap-4 p-4">
-              <div className="h-14 w-20 shrink-0 rounded-xl overflow-hidden" style={{ background: a.cover_gradient ?? "" }} />
+              <div className="h-14 w-20 shrink-0 rounded-xl overflow-hidden relative" style={{ background: a.cover_gradient ?? "" }}>
+                {a.cover_url && <img src={a.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white truncate">
                   {(a.title as Record<string, string>).en ?? "(no title)"}

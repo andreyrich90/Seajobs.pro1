@@ -10,22 +10,23 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { LANGS } from "@/lib/i18n";
+import { LANGS, T } from "@/lib/i18n";
 
-const navItems = [
-  { label: "Dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
-  { label: "My Profile", href: "/seafarer/profile", icon: User },
-  { label: "Certificates", href: "/seafarer/certificates", icon: Award },
-  { label: "Sea Experience", href: "/seafarer/experience", icon: Ship },
-  { label: "My CV", href: "/seafarer/cv", icon: FileText },
-  { label: "Applications", href: "/seafarer/applications", icon: Send },
-  { label: "Saved Jobs", href: "/seafarer/saved", icon: Bookmark },
+const NAV_KEYS = [
+  { key: "cab_dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
+  { key: "cab_profile",   href: "/seafarer/profile",   icon: User },
+  { key: "cab_certificates", href: "/seafarer/certificates", icon: Award },
+  { key: "cab_experience",   href: "/seafarer/experience",   icon: Ship },
+  { key: "cab_cv",           href: "/seafarer/cv",           icon: FileText },
+  { key: "cab_applications", href: "/seafarer/applications", icon: Send },
+  { key: "cab_saved",        href: "/seafarer/saved",        icon: Bookmark },
 ];
 
 export default function SeafarerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { lang, setLang } = useLang();
+  const t = T[lang];
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -92,7 +93,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-        {navItems.map((item) => {
+        {NAV_KEYS.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -105,7 +106,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
               }`}
             >
               <item.icon size={18} />
-              {item.label}
+              {t[item.key]}
             </Link>
           );
         })}
@@ -143,7 +144,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-mist transition hover:bg-coral/10 hover:text-coral"
         >
           <LogOut size={18} />
-          Logout
+          {t.cab_logout}
         </button>
       </div>
     </aside>
