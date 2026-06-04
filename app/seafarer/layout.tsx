@@ -6,9 +6,11 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { LANGS } from "@/lib/i18n";
 
 const navItems = [
   { label: "Dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
@@ -16,13 +18,19 @@ const navItems = [
   { label: "Certificates", href: "/seafarer/certificates", icon: Award },
   { label: "Sea Experience", href: "/seafarer/experience", icon: Ship },
   { label: "My CV", href: "/seafarer/cv", icon: FileText },
+  { label: "Applications", href: "/seafarer/applications", icon: Send },
+  { label: "Saved Jobs", href: "/seafarer/saved", icon: Bookmark },
 ];
 
 export default function SeafarerLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { lang, setLang } = useLang();
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+
+  const currentLang = LANGS.find((l) => l.code === lang)!;
 
   useEffect(() => {
     async function checkAuth() {
@@ -103,7 +111,33 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-white/10">
+      <div className="px-3 py-4 border-t border-white/10 flex flex-col gap-1">
+        {/* Language switcher */}
+        <div className="relative">
+          <button
+            onClick={() => setLangOpen((o) => !o)}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-mist transition hover:bg-white/5 hover:text-white"
+          >
+            <Globe size={18} />
+            <span className="flex-1 text-left">{currentLang.flag} {currentLang.label}</span>
+          </button>
+          {langOpen && (
+            <div className="absolute bottom-full mb-1 left-0 w-full rounded-xl border border-white/10 bg-navy2 p-1.5 shadow-2xl z-10">
+              {LANGS.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => { setLang(l.code); setLangOpen(false); }}
+                  className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition hover:bg-white/5 ${
+                    lang === l.code ? "text-brass2 bg-brass/10" : "text-foam"
+                  }`}
+                >
+                  <span className="text-base">{l.flag}</span> {l.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-mist transition hover:bg-coral/10 hover:text-coral"
@@ -149,9 +183,9 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
           >
             <Menu size={22} />
           </button>
-          <span className="font-display text-lg font-bold text-white">
+          <Link href="/" className="font-display text-lg font-bold text-white">
             SeaJobs<span className="text-brass2">.pro</span>
-          </span>
+          </Link>
           {sidebarOpen && (
             <button
               onClick={() => setSidebarOpen(false)}

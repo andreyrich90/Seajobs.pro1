@@ -13,6 +13,7 @@ type UserRow = {
   is_admin: boolean;
   created_at: string;
   name: string;
+  is_verified?: boolean;
 };
 
 function formatDate(d: string) {
@@ -36,26 +37,37 @@ export default function AdminUsersPage() {
 
       const [{ data: seafarers }, { data: companies }] = await Promise.all([
         supabase.from("seafarers").select("id, first_name, last_name"),
-        supabase.from("companies").select("id, name"),
+        supabase.from("companies").select("id, name, is_verified"),
       ]);
 
       const sfMap: Record<string, string> = {};
       for (const s of seafarers ?? []) {
         sfMap[s.id] = [s.first_name, s.last_name].filter(Boolean).join(" ") || "(no name)";
       }
-      const coMap: Record<string, string> = {};
+      const coMap: Record<string, { name: string; is_verified: boolean }> = {};
       for (const c of companies ?? []) {
-        coMap[c.id] = c.name ?? "(no name)";
+        coMap[c.id] = { name: c.name ?? "(no name)", is_verified: c.is_verified ?? false };
       }
 
       setUsers(profiles.map((p) => ({
         ...p,
-        name: p.role === "seafarer" ? (sfMap[p.id] || "(no name)") : (coMap[p.id] || "(no name)"),
+        name: p.role === "seafarer" ? (sfMap[p.id] || "(no name)") : (coMap[p.id]?.name || "(no name)"),
+        is_verified: p.role === "company" ? (coMap[p.id]?.is_verified ?? false) : undefined,
       })));
       setLoading(false);
     }
     load();
   }, []);
+
+  async function toggleVerified(user: UserRow) {
+    if (user.role !== "company") return;
+    const newVal = !user.is_verified;
+    const { error } = await supabase
+      .from("companies")
+      .update({ is_verified: newVal })
+      .eq("id", user.id);
+    if (!error) setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, is_verified: newVal } : u));
+  }
 
   async function toggleBlock(user: UserRow) {
     const { error } = await supabase
@@ -117,11 +129,12 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Registered</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-mist uppercase">Actions</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-mist uppercase hidden lg:table-cell">Verified</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
+                <tr><td colSpan={6} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
               ) : filtered.map((u) => (
                 <tr key={u.id} className="bg-card hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
@@ -130,7 +143,12 @@ export default function AdminUsersPage() {
                         {u.name[0]?.toUpperCase() ?? "?"}
                       </div>
                       <div>
-                        <p className="font-semibold text-white">{u.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-semibold text-white">{u.name}</p>
+                          {u.role === "company" && u.is_verified && (
+                            <ShieldCheck size={13} className="text-teal" title="Verified company" />
+                          )}
+                        </div>
                         <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
                       </div>
                     </div>
@@ -171,6 +189,26 @@ export default function AdminUsersPage() {
                         <Trash2 size={14} />
                       </button>
                     </div>
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    {u.role === "company" ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => toggleVerified(u)}
+                          title={u.is_verified ? "Remove verified status" : "Mark as verified"}
+                          className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
+                            u.is_verified
+                              ? "border-teal/30 bg-teal/10 text-teal hover:bg-teal/20"
+                              : "border-white/10 bg-white/5 text-mist hover:text-white"
+                          }`}
+                        >
+                          {u.is_verified ? <ShieldCheck size={12} /> : <ShieldOff size={12} />}
+                          {u.is_verified ? "Verified" : "Unverified"}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-mist/40">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -4,13 +4,15 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Building2, Briefcase, Plus, CheckCircle, Clock } from "lucide-react";
+import { Building2, Briefcase, Plus, CheckCircle, Clock, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import ContactForm from "@/components/ContactForm";
 
 export default function CompanyDashboardPage() {
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [totalVacancies, setTotalVacancies] = useState(0);
   const [activeVacancies, setActiveVacancies] = useState(0);
+  const [applicationsCount, setApplicationsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,12 +22,22 @@ export default function CompanyDashboardPage() {
 
       const [{ data: company }, { data: vacancies }] = await Promise.all([
         supabase.from("companies").select("name").eq("id", session.user.id).single(),
-        supabase.from("vacancies").select("is_active").eq("company_id", session.user.id),
+        supabase.from("vacancies").select("id, is_active").eq("company_id", session.user.id),
       ]);
 
       setCompanyName(company?.name ?? null);
       setTotalVacancies(vacancies?.length ?? 0);
       setActiveVacancies(vacancies?.filter((v) => v.is_active).length ?? 0);
+
+      const vacancyIds = (vacancies ?? []).map((v) => v.id);
+      if (vacancyIds.length > 0) {
+        const { count } = await supabase
+          .from("applications")
+          .select("id", { count: "exact" })
+          .in("vacancy_id", vacancyIds);
+        setApplicationsCount(count ?? 0);
+      }
+
       setLoading(false);
     }
     load();
@@ -49,7 +61,7 @@ export default function CompanyDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
         <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center gap-4">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brass/10">
             <Briefcase size={22} className="text-brass2" />
@@ -67,6 +79,16 @@ export default function CompanyDashboardPage() {
           <div>
             <p className="text-2xl font-bold text-white">{activeVacancies}</p>
             <p className="text-sm text-mist">Active vacancies</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-coral/10">
+            <Users size={22} className="text-coral" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-white">{applicationsCount}</p>
+            <p className="text-sm text-mist">Applications received</p>
           </div>
         </div>
       </div>
@@ -97,6 +119,15 @@ export default function CompanyDashboardPage() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Contact / Suggestions */}
+      <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
+        <ContactForm
+          title="Suggestions & Contact"
+          subtitle="Have a question or suggestion? Write to us — we read everything."
+          compact
+        />
       </div>
     </div>
   );

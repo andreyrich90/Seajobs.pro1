@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search, Compass, ArrowRight, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import JobCard from "@/components/JobCard";
+import ContactForm from "@/components/ContactForm";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { JOBS } from "@/lib/data";
@@ -85,6 +86,18 @@ export default function Home() {
           {JOBS.map((job) => (
             <JobCard key={job.id} job={job} lang={lang} />
           ))}
+        </div>
+      </section>
+
+      {/* Contact / Suggestions */}
+      <section className="mx-auto max-w-7xl px-5 py-12">
+        <div className="rounded-2xl border border-white/10 bg-card p-8 sm:p-10">
+          <div className="mx-auto max-w-xl">
+            <ContactForm
+              title="Suggestions & Contact"
+              subtitle="Have a suggestion, question or feedback? Write to us — we read everything."
+            />
+          </div>
         </div>
       </section>
     </div>

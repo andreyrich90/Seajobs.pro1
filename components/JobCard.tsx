@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Ship, Send, CheckCircle2, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Ship, TrendingUp, ArrowRight } from "lucide-react";
 import { T, type Lang } from "@/lib/i18n";
 import type { Job } from "@/lib/data";
 
 export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
   const t = T[lang];
-  const [applied, setApplied] = useState(false);
 
   const joinDate = new Date(job.joining).toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -47,7 +46,7 @@ export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
         </div>
       </div>
 
-      {/* Middle: stats in fixed columns */}
+      {/* Middle: stats */}
       <div className="grid grid-cols-3 gap-3 lg:flex-1">
         {stats.map((s) => (
           <div key={s.label} className="min-w-0">
@@ -57,26 +56,13 @@ export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
         ))}
       </div>
 
-      {/* Right: apply button */}
-      <button
-        onClick={() => setApplied(true)}
-        disabled={applied}
-        className={`flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-6 py-2.5 text-sm font-bold transition lg:w-[180px] lg:shrink-0 ${
-          applied
-            ? "bg-teal/20 text-teal"
-            : "bg-gradient-to-br from-brass to-brass2 text-deep hover:-translate-y-0.5"
-        }`}
+      {/* Right: view all jobs link */}
+      <Link
+        href="/jobs"
+        className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-bold text-white transition hover:bg-white/10 hover:-translate-y-0.5 lg:w-[180px] lg:shrink-0"
       >
-        {applied ? (
-          <>
-            <CheckCircle2 size={16} /> {t.applied}
-          </>
-        ) : (
-          <>
-            <Send size={15} /> {t.apply}
-          </>
-        )}
-      </button>
+        {t.view_all} <ArrowRight size={15} />
+      </Link>
     </div>
   );
 }

@@ -198,6 +198,7 @@ export interface Database {
           description: string | null;
           website: string | null;
           updated_at: string | null;
+          is_verified: boolean;
         };
         Insert: {
           id: string;
@@ -207,6 +208,7 @@ export interface Database {
           description?: string | null;
           website?: string | null;
           updated_at?: string | null;
+          is_verified?: boolean;
         };
         Update: {
           id?: string;
@@ -216,6 +218,7 @@ export interface Database {
           description?: string | null;
           website?: string | null;
           updated_at?: string | null;
+          is_verified?: boolean;
         };
         Relationships: [];
       };
@@ -233,6 +236,7 @@ export interface Database {
           joining_date: string | null;
           description: string | null;
           is_active: boolean;
+          views_count: number;
           created_at: string;
           updated_at: string | null;
         };
@@ -249,6 +253,7 @@ export interface Database {
           joining_date?: string | null;
           description?: string | null;
           is_active?: boolean;
+          views_count?: number;
           created_at?: string;
           updated_at?: string | null;
         };
@@ -265,8 +270,54 @@ export interface Database {
           joining_date?: string | null;
           description?: string | null;
           is_active?: boolean;
+          views_count?: number;
           created_at?: string;
           updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      applications: {
+        Row: {
+          id: string;
+          vacancy_id: string;
+          seafarer_id: string;
+          cover_letter: string | null;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          vacancy_id: string;
+          seafarer_id: string;
+          cover_letter?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          vacancy_id?: string;
+          seafarer_id?: string;
+          cover_letter?: string | null;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      saved_vacancies: {
+        Row: {
+          vacancy_id: string;
+          seafarer_id: string;
+          created_at: string;
+        };
+        Insert: {
+          vacancy_id: string;
+          seafarer_id: string;
+          created_at?: string;
+        };
+        Update: {
+          vacancy_id?: string;
+          seafarer_id?: string;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -351,3 +402,5 @@ export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
 export type ForumTopic = Database["public"]["Tables"]["forum_topics"]["Row"];
 export type ForumPost = Database["public"]["Tables"]["forum_posts"]["Row"];
 export type NewsArticle = Database["public"]["Tables"]["news_articles"]["Row"];
+export type Application = Database["public"]["Tables"]["applications"]["Row"];
+export type SavedVacancy = Database["public"]["Tables"]["saved_vacancies"]["Row"];
