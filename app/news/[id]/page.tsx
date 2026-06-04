@@ -26,6 +26,7 @@ type Article = {
   body: string;
   tag: string;
   gradient: string;
+  coverUrl: string | null;
   date: string;
 };
 
@@ -60,6 +61,7 @@ export default function NewsArticlePage() {
             body:     bodyMap[lang]  || bodyMap.en  || "",
             tag:      a.tag ?? "News",
             gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+            coverUrl: a.cover_url ?? null,
             date:     a.published_at ?? a.created_at,
           });
         }
@@ -74,6 +76,7 @@ export default function NewsArticlePage() {
             body:     found.body[lang]  ?? found.body.en,
             tag:      found.tag,
             gradient: found.gradient,
+            coverUrl: null,
             date:     found.date,
           });
           setOthers(
@@ -118,7 +121,10 @@ export default function NewsArticlePage() {
           <ChevronLeft size={16} /> Back to News
         </Link>
 
-        <div className="mb-8 overflow-hidden rounded-2xl" style={{ background: article.gradient }}>
+        <div className="mb-8 overflow-hidden rounded-2xl relative" style={{ background: article.coverUrl ? undefined : article.gradient }}>
+          {article.coverUrl && (
+            <img src={article.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          )}
           <div className="relative min-h-[180px] flex items-end p-6">
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             <div className="relative">

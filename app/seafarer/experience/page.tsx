@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Ship } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { SeaExperience } from "@/lib/supabase/types";
+import { RANK_GROUPS } from "@/lib/ranks";
 
 const VESSEL_TYPE_GROUPS: { label: string; types: string[] }[] = [
   {
@@ -88,60 +89,6 @@ const VESSEL_TYPE_GROUPS: { label: string; types: string[] }[] = [
   {
     label: "Other",
     types: ["Fishing Vessel", "Training Vessel", "Patrol Vessel", "Navy / Military", "Yacht / Superyacht", "Other"],
-  },
-];
-
-const RANK_GROUPS: { label: string; ranks: string[] }[] = [
-  {
-    label: "Deck Officers",
-    ranks: [
-      "Master (Captain)",
-      "Chief Officer (Chief Mate)",
-      "2nd Officer",
-      "3rd Officer",
-      "Junior Officer",
-      "Deck Cadet",
-    ],
-  },
-  {
-    label: "Engine Officers",
-    ranks: [
-      "Chief Engineer",
-      "2nd Engineer",
-      "3rd Engineer",
-      "4th Engineer",
-      "Junior Engineer",
-      "Engine Cadet",
-    ],
-  },
-  {
-    label: "Electro-Technical / Specialized",
-    ranks: [
-      "ETO (Electro-Technical Officer)",
-      "DPO (Dynamic Positioning Operator)",
-      "Safety Officer",
-      "Cargo Officer",
-      "Pumpman Officer",
-    ],
-  },
-  {
-    label: "Deck Ratings",
-    ranks: ["Bosun", "AB (Able Seaman)", "OS (Ordinary Seaman)", "Deck Fitter"],
-  },
-  {
-    label: "Engine Ratings",
-    ranks: ["Motorman", "Oiler", "Fitter", "Wiper", "Pumpman", "Electrician"],
-  },
-  {
-    label: "Catering / Hotel",
-    ranks: [
-      "Chief Cook / Cook",
-      "2nd Cook",
-      "Messman / Steward",
-      "Chief Steward",
-      "Purser",
-      "Hotel Director",
-    ],
   },
 ];
 

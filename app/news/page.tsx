@@ -26,6 +26,7 @@ type DisplayItem = {
   tag: string;
   date: string;
   gradient: string;
+  coverUrl: string | null;
   source: "db" | "static";
 };
 
@@ -47,7 +48,7 @@ export default function NewsPage() {
       try {
         const { data: dbArticles } = await supabase
           .from("news_articles")
-          .select("id, title, tag, cover_gradient, published_at, created_at")
+          .select("id, title, tag, cover_gradient, cover_url, published_at, created_at")
           .eq("is_published", true)
           .order("published_at", { ascending: false });
 
@@ -55,18 +56,20 @@ export default function NewsPage() {
         const dbItems: DisplayItem[] = (dbArticles ?? []).map((a: any) => ({
           id: `db-${a.id}`,
           title: (a.title as Record<string, string>)[lang] || (a.title as Record<string, string>).en || "",
-          tag:   a.tag ?? "News",
-          date:  a.published_at ?? a.created_at,
+          tag:      a.tag ?? "News",
+          date:     a.published_at ?? a.created_at,
           gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+          coverUrl: a.cover_url ?? null,
           source: "db" as const,
         }));
 
         const staticItems: DisplayItem[] = NEWS.map((n) => ({
           id: `static-${n.id}`,
           title: n.title[lang] ?? n.title.en,
-          tag:   n.tag,
-          date:  n.date,
+          tag:      n.tag,
+          date:     n.date,
           gradient: n.gradient,
+          coverUrl: null,
           source: "static" as const,
         }));
 
@@ -113,7 +116,10 @@ export default function NewsPage() {
             <Link href={`/news/${items[0].id}`}
               className="group mb-8 block overflow-hidden rounded-2xl border border-white/10 transition hover:border-white/20">
               <div className="relative flex min-h-[200px] items-end p-6 sm:min-h-[260px]"
-                style={{ background: items[0].gradient }}>
+                style={{ background: items[0].coverUrl ? undefined : items[0].gradient }}>
+                {items[0].coverUrl && (
+                  <img src={items[0].coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="relative">
                   <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[items[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
@@ -134,7 +140,9 @@ export default function NewsPage() {
               {items.slice(1).map((item) => (
                 <Link key={item.id} href={`/news/${item.id}`}
                   className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
-                  <div className="h-32" style={{ background: item.gradient }} />
+                  <div className="relative h-32" style={{ background: item.coverUrl ? undefined : item.gradient }}>
+                    {item.coverUrl && <img src={item.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                  </div>
                   <div className="p-5">
                     <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                       <Tag size={11} /> {item.tag}
