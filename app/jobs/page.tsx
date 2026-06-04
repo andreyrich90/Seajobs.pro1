@@ -66,14 +66,17 @@ export default function JobsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("vacancies")
-        .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, created_at, companies(name, logo_url, location, is_verified)")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false });
+      try {
+        const { data } = await supabase
+          .from("vacancies")
+          .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, created_at, companies(name, logo_url, location, is_verified)")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false });
 
-      setVacancies((data as VacancyWithCompany[]) ?? []);
-      setLoading(false);
+        setVacancies((data as VacancyWithCompany[]) ?? []);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);

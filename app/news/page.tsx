@@ -44,34 +44,37 @@ export default function NewsPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: dbArticles } = await supabase
-        .from("news_articles")
-        .select("id, title, tag, cover_gradient, published_at, created_at")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false });
+      try {
+        const { data: dbArticles } = await supabase
+          .from("news_articles")
+          .select("id, title, tag, cover_gradient, published_at, created_at")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const dbItems: DisplayItem[] = (dbArticles ?? []).map((a: any) => ({
-        id: `db-${a.id}`,
-        title: (a.title as Record<string, string>)[lang] || (a.title as Record<string, string>).en || "",
-        tag:   a.tag ?? "News",
-        date:  a.published_at ?? a.created_at,
-        gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
-        source: "db" as const,
-      }));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dbItems: DisplayItem[] = (dbArticles ?? []).map((a: any) => ({
+          id: `db-${a.id}`,
+          title: (a.title as Record<string, string>)[lang] || (a.title as Record<string, string>).en || "",
+          tag:   a.tag ?? "News",
+          date:  a.published_at ?? a.created_at,
+          gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+          source: "db" as const,
+        }));
 
-      const staticItems: DisplayItem[] = NEWS.map((n) => ({
-        id: `static-${n.id}`,
-        title: n.title[lang] ?? n.title.en,
-        tag:   n.tag,
-        date:  n.date,
-        gradient: n.gradient,
-        source: "static" as const,
-      }));
+        const staticItems: DisplayItem[] = NEWS.map((n) => ({
+          id: `static-${n.id}`,
+          title: n.title[lang] ?? n.title.en,
+          tag:   n.tag,
+          date:  n.date,
+          gradient: n.gradient,
+          source: "static" as const,
+        }));
 
-      const all = [...dbItems, ...staticItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setItems(all);
-      setLoading(false);
+        const all = [...dbItems, ...staticItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setItems(all);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, [lang]);

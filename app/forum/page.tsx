@@ -54,26 +54,29 @@ export default function ForumPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
 
-      const [{ data: topicsData }, { data: postsData }] = await Promise.all([
-        supabase
-          .from("forum_topics")
-          .select("*")
-          .order("is_pinned", { ascending: false })
-          .order("created_at", { ascending: false }),
-        supabase.from("forum_posts").select("topic_id"),
-      ]);
+        const [{ data: topicsData }, { data: postsData }] = await Promise.all([
+          supabase
+            .from("forum_topics")
+            .select("*")
+            .order("is_pinned", { ascending: false })
+            .order("created_at", { ascending: false }),
+          supabase.from("forum_posts").select("topic_id"),
+        ]);
 
-      setTopics(topicsData ?? []);
+        setTopics(topicsData ?? []);
 
-      const map: Record<string, number> = {};
-      for (const p of postsData ?? []) {
-        map[p.topic_id] = (map[p.topic_id] ?? 0) + 1;
+        const map: Record<string, number> = {};
+        for (const p of postsData ?? []) {
+          map[p.topic_id] = (map[p.topic_id] ?? 0) + 1;
+        }
+        setCountMap(map);
+      } finally {
+        setLoading(false);
       }
-      setCountMap(map);
-      setLoading(false);
     }
     load();
   }, []);
