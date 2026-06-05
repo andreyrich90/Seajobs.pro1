@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { supabase } from "@/lib/supabase/client";
+import { supabase, notify } from "@/lib/supabase/client";
 
 type VacancyDetail = {
   id: string;
@@ -108,11 +108,8 @@ export default function VacancyDetailPage() {
 
       setVacancy(vacancyData as VacancyDetail);
 
-      // Increment views
-      await supabase
-        .from("vacancies")
-        .update({ views_count: (vacancyData.views_count ?? 0) + 1 })
-        .eq("id", id);
+      // Increment views (SECURITY DEFINER RPC — works for anonymous visitors)
+      supabase.rpc("increment_vacancy_views", { vid: id }).then(() => {});
 
       if (uid) {
         // Get role
@@ -173,11 +170,7 @@ export default function VacancyDetailPage() {
     }
 
     // Trigger notification (fire and forget)
-    fetch("/api/notify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId }),
-    }).catch(() => {});
+    notify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId });
 
     setApplicationStatus("pending");
     setShowModal(false);

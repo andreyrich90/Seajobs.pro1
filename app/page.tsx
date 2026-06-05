@@ -74,7 +74,7 @@ export default function Home() {
                 />
               </div>
               <Link
-                href="/jobs"
+                href={query.trim() ? `/jobs?q=${encodeURIComponent(query.trim())}` : "/jobs"}
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 px-6 py-3 text-base font-bold text-white transition hover:-translate-y-0.5"
               >
                 {t.hero_cta} <ArrowRight size={17} />

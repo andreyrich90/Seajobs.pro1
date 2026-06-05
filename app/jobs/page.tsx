@@ -2,8 +2,9 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search, ShieldCheck, Building2, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -50,10 +51,11 @@ function formatSalary(v: VacancyWithCompany): string {
   return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
 }
 
-export default function JobsPage() {
+function JobsContent() {
+  const searchParams = useSearchParams();
   const [vacancies, setVacancies] = useState<VacancyWithCompany[]>([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [rank, setRank] = useState("");
   const [vessel, setVessel] = useState("");
 
@@ -218,5 +220,13 @@ export default function JobsPage() {
       </div>
       <Footer />
     </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense>
+      <JobsContent />
+    </Suspense>
   );
 }

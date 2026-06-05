@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { supabase, notify } from "@/lib/supabase/client";
 import type { Vacancy } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 
@@ -183,11 +183,7 @@ export default function VacanciesPage() {
         setVacancies((prev) => [data, ...prev]);
         closeForm();
         // Notify subscribed seafarers (fire and forget)
-        fetch("/api/notify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "new_vacancy", vacancyId: data.id }),
-        }).catch(() => {});
+        notify({ type: "new_vacancy", vacancyId: data.id });
       }
     }
     setSubmitting(false);
