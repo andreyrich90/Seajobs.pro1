@@ -9,6 +9,7 @@ import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, 
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { LANGS, T } from "@/lib/i18n";
+import NotificationBell from "@/components/NotificationBell";
 
 const NAV_KEYS = [
   { key: "cab_dashboard",       href: "/company/dashboard",    icon: LayoutDashboard },
@@ -108,6 +109,12 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       </nav>
 
       <div className="px-3 py-4 border-t border-white/10 flex flex-col gap-1">
+        {/* Notifications */}
+        <div className="mb-1 flex items-center gap-3 px-3 py-1">
+          <NotificationBell />
+          <span className="text-sm font-semibold text-mist">Notifications</span>
+        </div>
+
         {/* Language switcher */}
         <div className="relative">
           <button
@@ -182,14 +189,17 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
           <Link href="/" className="font-display text-lg font-bold text-white">
             SeaJobs<span className="text-brass2">.pro</span>
           </Link>
-          {sidebarOpen && (
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="ml-auto text-mist hover:text-white transition"
-            >
-              <X size={22} />
-            </button>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            <NotificationBell />
+            {sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="text-mist hover:text-white transition"
+              >
+                <X size={22} />
+              </button>
+            )}
+          </div>
         </div>
 
         {children}

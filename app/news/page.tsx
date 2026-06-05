@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Newspaper, Calendar, Tag } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
@@ -160,6 +161,7 @@ export default function NewsPage() {
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

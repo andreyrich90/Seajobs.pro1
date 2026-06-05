@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
@@ -272,6 +273,7 @@ export default function TopicPage() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

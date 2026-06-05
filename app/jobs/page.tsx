@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, ShieldCheck, Building2, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
 
@@ -85,7 +86,7 @@ export default function JobsPage() {
   const selectClass = "rounded-xl border border-white/10 bg-navy2 px-3.5 py-3 text-sm font-semibold text-white outline-none focus:border-brass";
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       <div className="mx-auto max-w-7xl px-5 py-10">
@@ -215,6 +216,7 @@ export default function JobsPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

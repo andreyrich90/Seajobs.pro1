@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { MessageSquare, Pin, Plus, X, AlertCircle, LogIn } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
@@ -243,6 +244,7 @@ export default function ForumPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }
