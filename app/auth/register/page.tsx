@@ -92,8 +92,10 @@ export default function RegisterPage() {
           return;
         }
 
+        if (typeof window !== "undefined") localStorage.setItem("user_role", "seafarer");
         router.push("/seafarer/dashboard");
       } else {
+        if (typeof window !== "undefined") localStorage.setItem("user_role", "company");
         router.push("/company/dashboard");
       }
     } catch {
