@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Compass, ArrowRight, ChevronRight } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, Briefcase, ShieldCheck, Building2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
@@ -10,11 +10,35 @@ import ContactForm from "@/components/ContactForm";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { JOBS } from "@/lib/data";
+import { supabase } from "@/lib/supabase/client";
+
+type DbVacancy = {
+  id: string;
+  title: string;
+  rank: string | null;
+  vessel_type: string | null;
+  salary_from: number | null;
+  salary_to: number | null;
+  currency: string;
+  joining_date: string | null;
+  companies: { name: string | null; is_verified: boolean } | null;
+};
 
 export default function Home() {
   const { lang } = useLang();
   const [query, setQuery] = useState("");
+  const [dbVacancies, setDbVacancies] = useState<DbVacancy[]>([]);
   const t = T[lang];
+
+  useEffect(() => {
+    supabase
+      .from("vacancies")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => { if (data?.length) setDbVacancies(data as DbVacancy[]); });
+  }, []);
 
   const stats = [
     { n: "1 240+", l: t.stat_jobs },
@@ -84,7 +108,31 @@ export default function Home() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          {JOBS.map((job) => (
+          {dbVacancies.length > 0 ? dbVacancies.map((v) => (
+            <Link key={v.id} href={`/jobs/${v.id}`}
+              className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/10">
+                <Briefcase size={18} className="text-brass2" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-semibold text-white truncate">{v.title}</p>
+                  {v.companies?.is_verified && <ShieldCheck size={14} className="text-teal shrink-0" />}
+                </div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
+                  {v.companies?.name && <span className="flex items-center gap-1"><Building2 size={11} />{v.companies.name}</span>}
+                  {v.rank && <span className="rounded-full bg-brass/10 border border-brass/20 px-2 py-0.5 text-brass2 font-semibold">{v.rank}</span>}
+                  {v.vessel_type && <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-teal font-semibold">{v.vessel_type}</span>}
+                </div>
+              </div>
+              {(v.salary_from || v.salary_to) && (
+                <p className="shrink-0 text-sm font-semibold text-white">
+                  {v.salary_from && v.salary_to ? `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()}` : v.salary_from ? `from ${v.salary_from.toLocaleString()}` : `up to ${v.salary_to!.toLocaleString()}`}
+                  {" "}{v.currency}
+                </p>
+              )}
+            </Link>
+          )) : JOBS.map((job) => (
             <JobCard key={job.id} job={job} lang={lang} />
           ))}
         </div>

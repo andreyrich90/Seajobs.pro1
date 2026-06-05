@@ -61,36 +61,22 @@ export default function CompanyDashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
-        <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center gap-4">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brass/10">
-            <Briefcase size={22} className="text-brass2" />
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {[
+          { icon: Briefcase,    bg: "bg-brass/10",  color: "text-brass2", value: totalVacancies,   label: "Vacancies" },
+          { icon: CheckCircle,  bg: "bg-teal/10",   color: "text-teal",   value: activeVacancies,  label: "Active" },
+          { icon: Users,        bg: "bg-coral/10",  color: "text-coral",  value: applicationsCount, label: "Responses" },
+        ].map((card) => (
+          <div key={card.label} className="rounded-2xl border border-white/10 bg-card p-4 flex flex-col gap-3">
+            <div className={`grid h-9 w-9 place-items-center rounded-xl ${card.bg}`}>
+              <card.icon size={18} className={card.color} />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-white">{card.value}</p>
+              <p className="text-xs text-mist mt-0.5">{card.label}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{totalVacancies}</p>
-            <p className="text-sm text-mist">Total vacancies</p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center gap-4">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-teal/10">
-            <CheckCircle size={22} className="text-teal" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{activeVacancies}</p>
-            <p className="text-sm text-mist">Active vacancies</p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center gap-4">
-          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-coral/10">
-            <Users size={22} className="text-coral" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-white">{applicationsCount}</p>
-            <p className="text-sm text-mist">Applications received</p>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Quick actions */}
