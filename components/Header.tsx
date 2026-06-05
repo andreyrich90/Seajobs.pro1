@@ -30,17 +30,15 @@ export default function Header() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    async function loadAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setDashboardHref(null); return; }
-      const { data: profile } = await supabase
-        .from("profiles").select("role").eq("id", session.user.id).single();
-      if (profile?.role === "seafarer") setDashboardHref("/seafarer/dashboard");
-      else if (profile?.role === "company") setDashboardHref("/company/dashboard");
-      else setDashboardHref(null);
+    function applySession(hasSession: boolean) {
+      if (!hasSession) { setDashboardHref(null); return; }
+      const role = typeof window !== "undefined" ? localStorage.getItem("user_role") : null;
+      setDashboardHref(role === "company" ? "/company/dashboard" : "/seafarer/dashboard");
     }
-    loadAuth();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => loadAuth());
+    supabase.auth.getSession().then(({ data: { session } }) => applySession(!!session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      applySession(!!session);
+    });
     return () => subscription.unsubscribe();
   }, []);
 

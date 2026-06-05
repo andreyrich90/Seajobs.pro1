@@ -44,6 +44,7 @@ function LoginContent() {
       if (signInError) { setError(signInError.message); return; }
       if (!data.user) { setError("Sign in failed. Please try again."); return; }
 
+      if (typeof window !== "undefined") localStorage.setItem("user_role", role);
       router.push(role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
     } catch {
       setError("An unexpected error occurred.");

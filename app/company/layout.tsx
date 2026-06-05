@@ -55,6 +55,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   }, [pathname]);
 
   async function handleLogout() {
+    if (typeof window !== "undefined") localStorage.removeItem("user_role");
     await supabase.auth.signOut();
     router.push("/auth/login");
   }
