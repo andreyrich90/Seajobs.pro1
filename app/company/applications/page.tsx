@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Users, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { supabase, notify } from "@/lib/supabase/client";
 
 type ApplicationRow = {
   id: string;
@@ -106,11 +106,7 @@ export default function CompanyApplicationsPage() {
       );
       // Notify seafarer of status change (fire and forget)
       if (status !== "pending") {
-        fetch("/api/notify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: "status_changed", applicationId: id, status }),
-        }).catch(() => {});
+        notify({ type: "status_changed", applicationId: id, status });
       }
     }
     setUpdatingId(null);

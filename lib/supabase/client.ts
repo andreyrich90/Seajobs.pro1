@@ -30,3 +30,21 @@ export const supabase = new Proxy({} as TypedSupabaseClient, {
   },
 });
 
+// Fire-and-forget POST to /api/notify, authenticated with the user's token.
+export async function notify(payload: Record<string, unknown>): Promise<void> {
+  try {
+    const { data: { session } } = await getClient().auth.getSession();
+    if (!session) return;
+    await fetch("/api/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    // notifications are best-effort
+  }
+}
+
