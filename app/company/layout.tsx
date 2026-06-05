@@ -35,23 +35,14 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) { router.replace("/auth/login"); return; }
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role, is_blocked")
-          .eq("id", session.user.id)
-          .single();
-
-        if (!profile || profile.role !== "company") {
-          router.replace("/auth/login");
-          return;
-        }
-        if (profile.is_blocked) {
-          await supabase.auth.signOut();
-          router.replace("/auth/login?blocked=1");
-          return;
-        }
         setChecking(false);
+        // Check blocked status in background — doesn't delay render
+        supabase.from("profiles").select("is_blocked").eq("id", session.user.id).single()
+          .then(({ data }) => {
+            if (data?.is_blocked) {
+              supabase.auth.signOut().then(() => router.replace("/auth/login?blocked=1"));
+            }
+          });
       } catch {
         router.replace("/auth/login");
       }
