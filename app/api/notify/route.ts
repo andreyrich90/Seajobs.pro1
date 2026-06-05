@@ -98,6 +98,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    if (type === "new_vacancy") {
+      const { vacancyId } = body as { vacancyId: string };
+
+      const { data: vacancy } = await admin
+        .from("vacancies")
+        .select("title, rank, companies(name)")
+        .eq("id", vacancyId)
+        .single();
+
+      if (!vacancy || !vacancy.rank) return NextResponse.json({ ok: true });
+
+      const { data: alerts } = await admin
+        .from("job_alerts")
+        .select("seafarer_id")
+        .eq("rank", vacancy.rank);
+
+      const companyName = (vacancy.companies as { name: string | null } | null)?.name ?? "A company";
+
+      for (const alert of alerts ?? []) {
+        await admin.from("notifications").insert({
+          user_id: alert.seafarer_id,
+          type: "new_vacancy",
+          title: "New Job Match",
+          body: `${companyName} posted a new ${vacancy.rank} position: "${vacancy.title}"`,
+          link: `/jobs/${vacancyId}`,
+        });
+      }
+
+      return NextResponse.json({ ok: true });
+    }
+
     return NextResponse.json({ ok: false, error: "Unknown type" }, { status: 400 });
   } catch (err) {
     console.error("[notify]", err);

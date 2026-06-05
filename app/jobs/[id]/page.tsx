@@ -267,7 +267,13 @@ export default function VacancyDetailPage() {
                         <Building2 size={14} className="text-mist" />
                       </div>
                     )}
-                    <span className="text-sm text-mist">{company?.name ?? "Unknown company"}</span>
+                    {company?.id ? (
+                      <Link href={`/companies/${company.id}`} className="text-sm text-mist hover:text-brass2 transition">
+                        {company.name ?? "Unknown company"}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-mist">{company?.name ?? "Unknown company"}</span>
+                    )}
                     {company?.is_verified && (
                       <ShieldCheck size={14} className="text-teal" />
                     )}

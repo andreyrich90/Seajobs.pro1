@@ -182,6 +182,12 @@ export default function VacanciesPage() {
       } else if (data) {
         setVacancies((prev) => [data, ...prev]);
         closeForm();
+        // Notify subscribed seafarers (fire and forget)
+        fetch("/api/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "new_vacancy", vacancyId: data.id }),
+        }).catch(() => {});
       }
     }
     setSubmitting(false);

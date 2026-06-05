@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users } from "lucide-react";
+import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { LANGS, T } from "@/lib/i18n";
@@ -16,6 +16,7 @@ const NAV_KEYS = [
   { key: "cab_company_profile", href: "/company/profile",      icon: Building2 },
   { key: "cab_vacancies",       href: "/company/vacancies",    icon: Briefcase },
   { key: "cab_applicants",      href: "/company/applications", icon: Users },
+  { key: "cab_seafarers",       href: "/company/seafarers",    icon: Search },
 ];
 
 export default function CompanyLayout({ children }: { children: React.ReactNode }) {
