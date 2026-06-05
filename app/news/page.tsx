@@ -38,14 +38,31 @@ function formatDate(dateStr: string, lang: string): string {
   );
 }
 
+function toStaticItems(lang: string): DisplayItem[] {
+  return NEWS.map((n) => ({
+    id: `static-${n.id}`,
+    title: n.title[lang] ?? n.title.en,
+    tag: n.tag,
+    date: n.date,
+    gradient: n.gradient,
+    coverUrl: null,
+    source: "static" as const,
+  }));
+}
+
 export default function NewsPage() {
   const { lang } = useLang();
   const t = T[lang];
-  const [items, setItems] = useState<DisplayItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Start with static news immediately — no spinner needed
+  const [items, setItems] = useState<DisplayItem[]>(() => toStaticItems("en"));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function load() {
+    // Update static items whenever lang changes
+    setItems(toStaticItems(lang));
+
+    // Then merge DB articles on top
+    async function loadDb() {
       try {
         const { data: dbArticles } = await supabase
           .from("news_articles")
@@ -53,44 +70,30 @@ export default function NewsPage() {
           .eq("is_published", true)
           .order("published_at", { ascending: false });
 
+        if (!dbArticles || dbArticles.length === 0) return;
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dbItems: DisplayItem[] = (dbArticles ?? []).map((a: any) => ({
           id: `db-${a.id}`,
           title: (a.title as Record<string, string>)[lang] || (a.title as Record<string, string>).en || "",
-          tag:      a.tag ?? "News",
-          date:     a.published_at ?? a.created_at,
+          tag: a.tag ?? "News",
+          date: a.published_at ?? a.created_at,
           gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
           coverUrl: a.cover_url ?? null,
           source: "db" as const,
         }));
 
-        const staticItems: DisplayItem[] = NEWS.map((n) => ({
-          id: `static-${n.id}`,
-          title: n.title[lang] ?? n.title.en,
-          tag:      n.tag,
-          date:     n.date,
-          gradient: n.gradient,
-          coverUrl: null,
-          source: "static" as const,
-        }));
-
-        const all = [...dbItems, ...staticItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        setItems(all);
-      } finally {
-        setLoading(false);
+        setItems((prev) => {
+          const staticOnly = prev.filter((i) => i.source === "static");
+          const all = [...dbItems, ...staticOnly].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          return all;
+        });
+      } catch {
+        // DB unavailable — static items already shown
       }
     }
-    load();
+    loadDb();
   }, [lang]);
-
-  if (loading) return (
-    <div className="min-h-screen bg-navy">
-      <Header />
-      <div className="flex items-center justify-center py-32">
-        <p className="text-mist text-sm">Loading...</p>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-navy">
