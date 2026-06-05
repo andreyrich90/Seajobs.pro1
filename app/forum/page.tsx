@@ -54,6 +54,9 @@ export default function ForumPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Safety timeout: stop spinner after 8s even if DB is unreachable
+    const fallback = setTimeout(() => setLoading(false), 8000);
+
     async function load() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -76,10 +79,12 @@ export default function ForumPage() {
         }
         setCountMap(map);
       } finally {
+        clearTimeout(fallback);
         setLoading(false);
       }
     }
     load();
+    return () => clearTimeout(fallback);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
