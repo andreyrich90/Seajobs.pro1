@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Calendar, Tag } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { supabase } from "@/lib/supabase/client";
@@ -167,6 +168,7 @@ export default function NewsArticlePage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Award, Ship, Calendar, User, FileText, ChevronRight, Send } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
@@ -12,6 +12,7 @@ interface DashboardStats {
   certCount: number;
   expCount: number;
   applicationCount: number;
+  hasJobAlert: boolean;
 }
 
 function calcCompletion(seafarer: Seafarer | null): number {
@@ -37,19 +38,22 @@ export default function DashboardPage() {
     certCount: 0,
     expCount: 0,
     applicationCount: 0,
+    hasJobAlert: false,
   });
   const [loading, setLoading] = useState(true);
+  const [alertToggling, setAlertToggling] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const [seafarerRes, certsRes, expRes, appRes] = await Promise.all([
+      const [seafarerRes, certsRes, expRes, appRes, alertRes] = await Promise.all([
         supabase.from("seafarers").select("*").eq("id", session.user.id).single(),
         supabase.from("certificates").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("sea_experience").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("applications").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
+        supabase.from("job_alerts").select("seafarer_id").eq("seafarer_id", session.user.id).maybeSingle(),
       ]);
 
       setStats({
@@ -57,6 +61,7 @@ export default function DashboardPage() {
         certCount: certsRes.count ?? 0,
         expCount: expRes.count ?? 0,
         applicationCount: appRes.count ?? 0,
+        hasJobAlert: !!alertRes.data,
       });
       setLoading(false);
     }
@@ -66,6 +71,21 @@ export default function DashboardPage() {
 
   const completion = calcCompletion(stats.seafarer);
   const fullName = [stats.seafarer?.first_name, stats.seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
+
+  async function toggleJobAlert() {
+    if (!stats.seafarer?.id || alertToggling) return;
+    const rank = stats.seafarer.rank;
+    if (!rank && !stats.hasJobAlert) return;
+    setAlertToggling(true);
+    if (stats.hasJobAlert) {
+      await supabase.from("job_alerts").delete().eq("seafarer_id", stats.seafarer.id);
+      setStats((prev) => ({ ...prev, hasJobAlert: false }));
+    } else {
+      await supabase.from("job_alerts").upsert({ seafarer_id: stats.seafarer.id, rank: rank! });
+      setStats((prev) => ({ ...prev, hasJobAlert: true }));
+    }
+    setAlertToggling(false);
+  }
 
   if (loading) {
     return (
@@ -195,6 +215,55 @@ export default function DashboardPage() {
             <ChevronRight size={16} className="text-mist group-hover:text-brass2 transition" />
           </Link>
         ))}
+      </div>
+
+      {/* Job Alert */}
+      <div className={`mt-6 rounded-2xl border p-6 flex items-center justify-between gap-4 ${
+        stats.hasJobAlert
+          ? "border-brass/30 bg-brass/5"
+          : "border-white/10 bg-card"
+      }`}>
+        <div className="flex items-center gap-3">
+          <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${
+            stats.hasJobAlert ? "bg-brass/20" : "bg-white/5"
+          }`}>
+            {stats.hasJobAlert
+              ? <Bell size={18} className="text-brass2" />
+              : <BellOff size={18} className="text-mist" />
+            }
+          </div>
+          <div>
+            <p className="font-semibold text-white">Job Alerts</p>
+            {stats.hasJobAlert ? (
+              <p className="text-xs text-brass2">
+                Active — notifying you of new <strong>{stats.seafarer?.rank}</strong> positions
+              </p>
+            ) : stats.seafarer?.rank ? (
+              <p className="text-xs text-mist">
+                Get notified when new <strong className="text-foam">{stats.seafarer.rank}</strong> vacancies are posted
+              </p>
+            ) : (
+              <p className="text-xs text-mist">
+                Set your rank in{" "}
+                <Link href="/seafarer/profile" className="text-brass2 hover:underline">your profile</Link>{" "}
+                to enable job alerts
+              </p>
+            )}
+          </div>
+        </div>
+        {stats.seafarer?.rank && (
+          <button
+            onClick={toggleJobAlert}
+            disabled={alertToggling}
+            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
+              stats.hasJobAlert
+                ? "border border-coral/30 bg-coral/10 text-coral hover:bg-coral/20"
+                : "bg-gradient-to-br from-brass to-brass2 text-deep hover:-translate-y-0.5"
+            }`}
+          >
+            {alertToggling ? "…" : stats.hasJobAlert ? "Disable" : "Enable"}
+          </button>
+        )}
       </div>
 
       {/* Contact / Suggestions */}

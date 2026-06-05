@@ -11,6 +11,7 @@ import {
   Bookmark, BookmarkCheck, Send, X, AlertCircle,
 } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 
 type VacancyDetail = {
@@ -171,6 +172,13 @@ export default function VacancyDetailPage() {
       return;
     }
 
+    // Trigger notification (fire and forget)
+    fetch("/api/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId }),
+    }).catch(() => {});
+
     setApplicationStatus("pending");
     setShowModal(false);
     setCoverLetter("");
@@ -227,7 +235,7 @@ export default function VacancyDetailPage() {
   const company = vacancy.companies;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       <div className="mx-auto max-w-5xl px-5 py-10">
@@ -259,7 +267,13 @@ export default function VacancyDetailPage() {
                         <Building2 size={14} className="text-mist" />
                       </div>
                     )}
-                    <span className="text-sm text-mist">{company?.name ?? "Unknown company"}</span>
+                    {company?.id ? (
+                      <Link href={`/companies/${company.id}`} className="text-sm text-mist hover:text-brass2 transition">
+                        {company.name ?? "Unknown company"}
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-mist">{company?.name ?? "Unknown company"}</span>
+                    )}
                     {company?.is_verified && (
                       <ShieldCheck size={14} className="text-teal" />
                     )}
@@ -512,6 +526,7 @@ export default function VacancyDetailPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

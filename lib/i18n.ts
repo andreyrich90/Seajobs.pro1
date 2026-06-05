@@ -30,7 +30,7 @@ export const T: Record<Lang, Record<string, string>> = {
     cab_experience: "Досвід роботи", cab_cv: "Моє резюме", cab_applications: "Мої відгуки",
     cab_saved: "Збережені", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
-    cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки",
+    cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
     // Common
     save: "Зберегти", cancel: "Скасувати", delete: "Видалити", edit: "Редагувати",
     add: "Додати", close: "Закрити", send: "Надіслати", search: "Пошук",
@@ -57,7 +57,7 @@ export const T: Record<Lang, Record<string, string>> = {
     cab_experience: "Doświadczenie", cab_cv: "Moje CV", cab_applications: "Moje aplikacje",
     cab_saved: "Zapisane", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
-    cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje",
+    cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
     // Common
     save: "Zapisz", cancel: "Anuluj", delete: "Usuń", edit: "Edytuj",
     add: "Dodaj", close: "Zamknij", send: "Wyślij", search: "Szukaj",
@@ -84,7 +84,7 @@ export const T: Record<Lang, Record<string, string>> = {
     cab_experience: "Опыт работы", cab_cv: "Моё резюме", cab_applications: "Мои отклики",
     cab_saved: "Сохранённые", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
-    cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики",
+    cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
     // Common
     save: "Сохранить", cancel: "Отмена", delete: "Удалить", edit: "Изменить",
     add: "Добавить", close: "Закрыть", send: "Отправить", search: "Поиск",
@@ -111,7 +111,7 @@ export const T: Record<Lang, Record<string, string>> = {
     cab_experience: "Sea Experience", cab_cv: "My CV", cab_applications: "Applications",
     cab_saved: "Saved Jobs", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
-    cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications",
+    cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",
     // Common
     save: "Save", cancel: "Cancel", delete: "Delete", edit: "Edit",
     add: "Add", close: "Close", send: "Send", search: "Search",

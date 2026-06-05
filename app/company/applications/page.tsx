@@ -3,7 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Users, ChevronDown, ChevronUp } from "lucide-react";
+import Link from "next/link";
+import { Users, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 type ApplicationRow = {
@@ -87,6 +88,14 @@ export default function CompanyApplicationsPage() {
       setApplications((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status: data.status } : a))
       );
+      // Notify seafarer of status change (fire and forget)
+      if (status !== "pending") {
+        fetch("/api/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "status_changed", applicationId: id, status }),
+        }).catch(() => {});
+      }
     }
     setUpdatingId(null);
   }
@@ -150,7 +159,17 @@ export default function CompanyApplicationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-white">{fullName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-semibold text-white">{fullName}</p>
+                          <Link
+                            href={`/seafarers/${app.seafarer_id}`}
+                            target="_blank"
+                            title="View public profile"
+                            className="text-mist hover:text-brass2 transition"
+                          >
+                            <ExternalLink size={14} />
+                          </Link>
+                        </div>
                         {seafarer?.rank && (
                           <span className="mt-1 inline-block rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
                             {seafarer.rank}

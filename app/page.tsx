@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, Compass, ArrowRight, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
 import ContactForm from "@/components/ContactForm";
 import { T } from "@/lib/i18n";
@@ -100,6 +101,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

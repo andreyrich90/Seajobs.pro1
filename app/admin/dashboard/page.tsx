@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Users, Anchor, Briefcase, MessageSquare, Newspaper, Building2, ShieldOff } from "lucide-react";
+import { Users, Anchor, Briefcase, MessageSquare, Newspaper, Building2, ShieldOff, Send, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 type Stats = {
@@ -12,9 +12,11 @@ type Stats = {
   blocked: number;
   vacancies: number;
   activeVacancies: number;
+  applications: number;
   topics: number;
   posts: number;
   news: number;
+  messages: number;
 };
 
 const STAT_CARDS = (s: Stats) => [
@@ -23,9 +25,11 @@ const STAT_CARDS = (s: Stats) => [
   { label: "Blocked users",    value: s.blocked,         icon: ShieldOff,    color: "text-coral",  bg: "bg-coral/10" },
   { label: "Vacancies",        value: s.vacancies,       icon: Briefcase,    color: "text-foam",   bg: "bg-white/10" },
   { label: "Active vacancies", value: s.activeVacancies, icon: Briefcase,    color: "text-teal",  bg: "bg-teal/10" },
+  { label: "Applications",     value: s.applications,    icon: Send,         color: "text-brass2", bg: "bg-brass/10" },
   { label: "Forum topics",     value: s.topics,          icon: MessageSquare,color: "text-foam",   bg: "bg-white/10" },
   { label: "Forum replies",    value: s.posts,           icon: MessageSquare,color: "text-mist",   bg: "bg-white/5"  },
   { label: "News articles",    value: s.news,            icon: Newspaper,    color: "text-brass2", bg: "bg-brass/10" },
+  { label: "Messages",         value: s.messages,        icon: Mail,         color: "text-teal",   bg: "bg-teal/10"  },
 ];
 
 export default function AdminDashboard() {
@@ -40,18 +44,22 @@ export default function AdminDashboard() {
         { count: blocked },
         { count: vacancies },
         { count: activeVacancies },
+        { count: applications },
         { count: topics },
         { count: posts },
         { count: news },
+        { count: messages },
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "seafarer"),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "company"),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("is_blocked", true),
         supabase.from("vacancies").select("*", { count: "exact", head: true }),
         supabase.from("vacancies").select("*", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("applications").select("*", { count: "exact", head: true }),
         supabase.from("forum_topics").select("*", { count: "exact", head: true }),
         supabase.from("forum_posts").select("*", { count: "exact", head: true }),
         supabase.from("news_articles").select("*", { count: "exact", head: true }),
+        supabase.from("messages").select("*", { count: "exact", head: true }),
       ]);
 
       setStats({
@@ -60,9 +68,11 @@ export default function AdminDashboard() {
         blocked: blocked ?? 0,
         vacancies: vacancies ?? 0,
         activeVacancies: activeVacancies ?? 0,
+        applications: applications ?? 0,
         topics: topics ?? 0,
         posts: posts ?? 0,
         news: news ?? 0,
+        messages: messages ?? 0,
       });
       setLoading(false);
     }
@@ -82,7 +92,7 @@ export default function AdminDashboard() {
         <p className="mt-1 text-sm text-mist">Overview of SeaJobs.pro</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
         {stats && STAT_CARDS(stats).map((card) => (
           <div key={card.label} className="rounded-2xl border border-white/10 bg-card p-5 flex flex-col gap-3">
             <div className={`grid h-10 w-10 place-items-center rounded-xl ${card.bg}`}>
