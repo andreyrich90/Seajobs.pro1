@@ -44,11 +44,7 @@ function LoginContent() {
       if (signInError) { setError(signInError.message); return; }
       if (!data.user) { setError("Sign in failed. Please try again."); return; }
 
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
-      if (!profile) { setError("Profile not found. Please register first."); return; }
-
-      if ((profile as { role: string }).role === "seafarer") router.push("/seafarer/dashboard");
-      else router.push("/company/dashboard");
+      router.push(role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
     } catch {
       setError("An unexpected error occurred.");
     } finally {
