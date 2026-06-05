@@ -51,25 +51,41 @@ export default function CompanyApplicationsPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      // Get company's vacancy IDs
       const { data: vacancyData } = await supabase
         .from("vacancies")
-        .select("id")
+        .select("id, title")
         .eq("company_id", session.user.id);
 
       const vacancyIds = (vacancyData ?? []).map((v) => v.id);
-      if (vacancyIds.length === 0) {
-        setLoading(false);
-        return;
-      }
+      if (vacancyIds.length === 0) { setLoading(false); return; }
 
-      const { data } = await supabase
+      const vacancyMap: Record<string, { id: string; title: string }> = {};
+      for (const v of vacancyData ?? []) vacancyMap[v.id] = { id: v.id, title: v.title };
+
+      const { data: appsData } = await supabase
         .from("applications")
-        .select("id, status, created_at, cover_letter, seafarer_id, vacancies(id, title), seafarers(first_name, last_name, photo_url, rank)")
+        .select("id, status, created_at, cover_letter, seafarer_id, vacancy_id")
         .in("vacancy_id", vacancyIds)
         .order("created_at", { ascending: false });
 
-      setApplications((data as ApplicationRow[]) ?? []);
+      if (!appsData || appsData.length === 0) { setLoading(false); return; }
+
+      const seafarerIds = [...new Set(appsData.map((a) => a.seafarer_id).filter(Boolean))];
+      const { data: seafarersData } = await supabase
+        .from("seafarers")
+        .select("id, first_name, last_name, photo_url, rank")
+        .in("id", seafarerIds);
+
+      const seafarerMap: Record<string, ApplicationRow["seafarers"]> = {};
+      for (const s of seafarersData ?? [])
+        seafarerMap[s.id] = { first_name: s.first_name, last_name: s.last_name, photo_url: s.photo_url, rank: s.rank };
+
+      setApplications(appsData.map((a) => ({
+        id: a.id, status: a.status, created_at: a.created_at,
+        cover_letter: a.cover_letter, seafarer_id: a.seafarer_id,
+        vacancies: vacancyMap[(a as { vacancy_id: string }).vacancy_id] ?? null,
+        seafarers: seafarerMap[a.seafarer_id] ?? null,
+      })));
       setLoading(false);
     }
     load();
