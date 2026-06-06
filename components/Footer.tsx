@@ -10,6 +10,7 @@ const PLATFORM = [
 ];
 
 const COMPANY = [
+  { label: "For Companies", href: "/for-companies" },
   { label: "About", href: "/about" },
   { label: "Terms of Service", href: "/terms" },
   { label: "Privacy Policy", href: "/privacy" },
