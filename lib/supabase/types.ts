@@ -239,6 +239,8 @@ export interface Database {
           joining_date: string | null;
           description: string | null;
           is_active: boolean;
+          is_imported: boolean;
+          source_url: string | null;
           views_count: number;
           created_at: string;
           updated_at: string | null;
@@ -256,6 +258,8 @@ export interface Database {
           joining_date?: string | null;
           description?: string | null;
           is_active?: boolean;
+          is_imported?: boolean;
+          source_url?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
@@ -273,6 +277,8 @@ export interface Database {
           joining_date?: string | null;
           description?: string | null;
           is_active?: boolean;
+          is_imported?: boolean;
+          source_url?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;

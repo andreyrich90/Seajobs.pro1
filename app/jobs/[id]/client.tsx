@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
-  Briefcase, Ship, DollarSign, Clock, Calendar,
-  Bookmark, BookmarkCheck, Send, X, AlertCircle,
+  Briefcase, DollarSign, Clock, Calendar,
+  Bookmark, BookmarkCheck, Send, X, AlertCircle, ExternalLink,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -24,6 +24,8 @@ export type VacancyDetail = {
   description: string | null;
   views_count: number;
   created_at: string;
+  is_imported?: boolean;
+  source_url?: string | null;
   companies: {
     id: string;
     name: string | null;
@@ -235,6 +237,24 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 </div>
               </div>
             </div>
+
+            {/* Source banner for imported vacancies */}
+            {vacancy.is_imported && vacancy.source_url && (
+              <div className="rounded-2xl border border-brass/20 bg-brass/5 px-5 py-3 flex items-center gap-3">
+                <ExternalLink size={15} className="text-brass2 shrink-0" />
+                <p className="text-xs text-mist flex-1">
+                  This vacancy was imported from an external source.
+                </p>
+                <a
+                  href={vacancy.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-brass2 hover:underline shrink-0"
+                >
+                  View original →
+                </a>
+              </div>
+            )}
 
             {/* Description */}
             {vacancy.description && (

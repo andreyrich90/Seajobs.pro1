@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
+type VacancyFull = VacancyDetail & { is_imported: boolean; source_url: string | null };
+
 const BASE_URL = "https://seajobs.pro";
 
 function getAdminClient() {
@@ -13,13 +15,13 @@ function getAdminClient() {
   );
 }
 
-async function fetchVacancy(id: string): Promise<VacancyDetail | null> {
+async function fetchVacancy(id: string): Promise<VacancyFull | null> {
   const { data } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
-  return (data as VacancyDetail | null);
+  return (data as VacancyFull | null);
 }
 
 export async function generateMetadata(
@@ -73,55 +75,58 @@ export default async function VacancyPage(
 
   const company = vacancy.companies;
 
-  // Google for Jobs structured data (JobPosting schema)
-  const jsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org/",
-    "@type": "JobPosting",
-    "title": vacancy.title,
-    "description": vacancy.description
-      ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}.`,
-    "datePosted": vacancy.created_at,
-    "employmentType": "CONTRACT",
-    "hiringOrganization": {
-      "@type": "Organization",
-      "name": company?.name ?? "SeaJobs.pro",
-      ...(company?.website ? { "sameAs": company.website } : {}),
-    },
-    "jobLocation": {
-      "@type": "Place",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": company?.location ?? "International Waters",
-        "addressCountry": "International",
+  // Skip Google for Jobs structured data for imported/aggregated vacancies
+  let jsonLd: Record<string, unknown> | null = null;
+  if (!vacancy.is_imported) {
+    jsonLd = {
+      "@context": "https://schema.org/",
+      "@type": "JobPosting",
+      "title": vacancy.title,
+      "description": vacancy.description
+        ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}.`,
+      "datePosted": vacancy.created_at,
+      "employmentType": "CONTRACT",
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": company?.name ?? "SeaJobs.pro",
+        ...(company?.website ? { "sameAs": company.website } : {}),
       },
-    },
-    "directApply": true,
-    "url": `${BASE_URL}/jobs/${vacancy.id}`,
-  };
-
-  if (vacancy.joining_date) {
-    jsonLd["validThrough"] = vacancy.joining_date;
-  }
-
-  if (vacancy.salary_from || vacancy.salary_to) {
-    jsonLd["baseSalary"] = {
-      "@type": "MonetaryAmount",
-      "currency": vacancy.currency,
-      "value": {
-        "@type": "QuantitativeValue",
-        ...(vacancy.salary_from ? { "minValue": vacancy.salary_from } : {}),
-        ...(vacancy.salary_to ? { "maxValue": vacancy.salary_to } : {}),
-        "unitText": "MONTH",
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": company?.location ?? "International Waters",
+          "addressCountry": "International",
+        },
       },
+      "directApply": true,
+      "url": `${BASE_URL}/jobs/${vacancy.id}`,
     };
+
+    if (vacancy.joining_date) jsonLd["validThrough"] = vacancy.joining_date;
+
+    if (vacancy.salary_from || vacancy.salary_to) {
+      jsonLd["baseSalary"] = {
+        "@type": "MonetaryAmount",
+        "currency": vacancy.currency,
+        "value": {
+          "@type": "QuantitativeValue",
+          ...(vacancy.salary_from ? { "minValue": vacancy.salary_from } : {}),
+          ...(vacancy.salary_to ? { "maxValue": vacancy.salary_to } : {}),
+          "unitText": "MONTH",
+        },
+      };
+    }
   }
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       <VacancyDetailClient vacancy={vacancy} />
     </>
   );
