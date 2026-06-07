@@ -39,6 +39,9 @@ async function resolveAuthorName(userId: string): Promise<string> {
     .single();
   if (company?.name) return company.name;
   const { data: { user } } = await supabase.auth.getUser();
+  const meta = user?.user_metadata;
+  const googleName = meta?.full_name || meta?.name;
+  if (googleName) return googleName;
   return user?.email?.split("@")[0] ?? "User";
 }
 
