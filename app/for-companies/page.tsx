@@ -3,117 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Anchor, CheckCircle, ArrowRight, Send, Users, Briefcase,
-  Globe, ShieldCheck, Bell, BarChart3, Zap, Star,
+  Anchor, CheckCircle, ArrowRight, Send,
+  Users, Briefcase, Globe, ShieldCheck, Bell, BarChart3, Zap,
   Building2, ChevronRight, AlertCircle, Mail,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
-
-const BENEFITS = [
-  {
-    icon: Users,
-    title: "Verified seafarer pool",
-    description: "Access thousands of verified seafarers filtered by rank, nationality, and vessel type.",
-    color: "text-teal",
-    bg: "bg-teal/10 border-teal/20",
-  },
-  {
-    icon: Bell,
-    title: "Instant notifications",
-    description: "Seafarers with matching job alerts are notified the moment you post a new vacancy.",
-    color: "text-brass2",
-    bg: "bg-brass/10 border-brass/20",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Verified company badge",
-    description: "Get the blue verified badge — increases application rates significantly.",
-    color: "text-teal",
-    bg: "bg-teal/10 border-teal/20",
-  },
-  {
-    icon: BarChart3,
-    title: "Application tracking",
-    description: "Manage all incoming applications in one dashboard. Mark as viewed, accepted, or rejected.",
-    color: "text-brass2",
-    bg: "bg-brass/10 border-brass/20",
-  },
-  {
-    icon: Globe,
-    title: "Google for Jobs",
-    description: "Every vacancy is indexed by Google for Jobs automatically — free extra traffic.",
-    color: "text-teal",
-    bg: "bg-teal/10 border-teal/20",
-  },
-  {
-    icon: Zap,
-    title: "Post in 2 minutes",
-    description: "Simple form, no bureaucracy. Post a vacancy faster than sending an email.",
-    color: "text-brass2",
-    bg: "bg-brass/10 border-brass/20",
-  },
-];
-
-const STEPS = [
-  {
-    n: "01",
-    title: "Create a free account",
-    description: "Register as a company, fill in your profile and get verified.",
-  },
-  {
-    n: "02",
-    title: "Post your vacancy",
-    description: "Fill in rank, vessel type, salary and joining date. Takes 2 minutes.",
-  },
-  {
-    n: "03",
-    title: "Receive applications",
-    description: "Seafarers apply directly. You review CVs and respond in your dashboard.",
-  },
-];
-
-const PRICING = [
-  {
-    name: "Launch",
-    price: "Free",
-    period: "forever",
-    highlight: false,
-    features: [
-      "Up to 3 active vacancies",
-      "Unlimited applications",
-      "Company profile page",
-      "Email notifications",
-      "Google for Jobs indexing",
-    ],
-    cta: "Get started free",
-    href: "/auth/register?role=company",
-  },
-  {
-    name: "Professional",
-    price: "$49",
-    period: "/ month",
-    highlight: true,
-    features: [
-      "Unlimited vacancies",
-      "Verified company badge",
-      "Priority placement in search",
-      "Seafarer database access",
-      "Dedicated account manager",
-    ],
-    cta: "Start free trial",
-    href: "/auth/register?role=company",
-  },
-];
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 export default function ForCompaniesPage() {
+  const { lang } = useLang();
+  const t = T[lang];
+
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const BENEFITS = [
+    { icon: Users,      title: t.fc_b1_t, description: t.fc_b1_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
+    { icon: Bell,       title: t.fc_b2_t, description: t.fc_b2_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+    { icon: ShieldCheck,title: t.fc_b3_t, description: t.fc_b3_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
+    { icon: BarChart3,  title: t.fc_b4_t, description: t.fc_b4_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+    { icon: Globe,      title: t.fc_b5_t, description: t.fc_b5_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
+    { icon: Zap,        title: t.fc_b6_t, description: t.fc_b6_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+  ];
+
+  const STEPS = [
+    { n: "01", title: t.fc_s1_t, description: t.fc_s1_d },
+    { n: "02", title: t.fc_s2_t, description: t.fc_s2_d },
+    { n: "03", title: t.fc_s3_t, description: t.fc_s3_d },
+  ];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -147,43 +71,36 @@ export default function ForCompaniesPage() {
         <div className="relative mx-auto max-w-7xl px-5 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-teal/30 bg-teal/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-teal">
-              <Building2 size={13} /> For crewing companies & agencies
+              <Building2 size={13} /> {t.fc_badge}
             </div>
 
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
-              Find the right seafarer.<br />
-              <span className="text-brass2">Post free — no strings attached.</span>
+              {t.fc_hero_title}<br />
+              <span className="text-brass2">{t.fc_hero_title2}</span>
             </h1>
 
-            <p className="mt-5 text-lg leading-relaxed text-mist">
-              SeaJobs.pro connects crewing companies with thousands of verified seafarers worldwide.
-              Start posting vacancies today at zero cost — upgrade only when you're ready.
-            </p>
+            <p className="mt-5 text-lg leading-relaxed text-mist">{t.fc_hero_sub}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/auth/register?role=company"
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
               >
-                Post your first vacancy free <ArrowRight size={17} />
+                {t.fc_cta_post} <ArrowRight size={17} />
               </Link>
               <a
                 href="#contact"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-base font-semibold text-white transition hover:bg-white/10"
               >
-                Talk to us first
+                {t.fc_cta_talk}
               </a>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-5">
-              {[
-                "No credit card required",
-                "Setup in 5 minutes",
-                "Google for Jobs included",
-              ].map((t) => (
-                <div key={t} className="flex items-center gap-2 text-sm text-mist">
+              {[t.fc_trust_1, t.fc_trust_2, t.fc_trust_3].map((text) => (
+                <div key={text} className="flex items-center gap-2 text-sm text-mist">
                   <CheckCircle size={15} className="text-teal shrink-0" />
-                  {t}
+                  {text}
                 </div>
               ))}
             </div>
@@ -196,14 +113,14 @@ export default function ForCompaniesPage() {
         <div className="mx-auto max-w-7xl px-5 py-10">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {[
-              { n: "12 000+", l: "Registered seafarers" },
-              { n: "40+",     l: "Countries represented" },
-              { n: "2 min",   l: "Average time to post" },
-              { n: "Free",    l: "To get started" },
-            ].map((s) => (
-              <div key={s.l} className="text-center">
+              { n: "12 000+", l: t.fc_stat_1 },
+              { n: "40+",     l: t.fc_stat_2 },
+              { n: "2 min",   l: t.fc_stat_3 },
+              { n: t.fc_stat_4, l: "" },
+            ].map((s, i) => (
+              <div key={i} className="text-center">
                 <div className="font-display text-3xl font-bold text-brass2">{s.n}</div>
-                <div className="mt-1 text-xs font-medium text-mist">{s.l}</div>
+                {s.l && <div className="mt-1 text-xs font-medium text-mist">{s.l}</div>}
               </div>
             ))}
           </div>
@@ -214,19 +131,14 @@ export default function ForCompaniesPage() {
       <section className="mx-auto max-w-7xl px-5 py-16">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
-            Everything you need to hire at sea
+            {t.fc_benefits_title}
           </h2>
-          <p className="mt-3 text-mist max-w-xl mx-auto">
-            Built specifically for maritime crewing — not a generic job board.
-          </p>
+          <p className="mt-3 text-mist max-w-xl mx-auto">{t.fc_benefits_sub}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {BENEFITS.map((b) => (
-            <div
-              key={b.title}
-              className={`rounded-2xl border p-6 ${b.bg} transition hover:scale-[1.01]`}
-            >
+            <div key={b.title} className={`rounded-2xl border p-6 ${b.bg} transition hover:scale-[1.01]`}>
               <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 ${b.color}`}>
                 <b.icon size={20} />
               </div>
@@ -242,9 +154,9 @@ export default function ForCompaniesPage() {
         <div className="mx-auto max-w-7xl px-5 py-16">
           <div className="text-center mb-12">
             <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
-              How it works
+              {t.fc_how_title}
             </h2>
-            <p className="mt-3 text-mist">From sign-up to first application in under 10 minutes.</p>
+            <p className="mt-3 text-mist">{t.fc_how_sub}</p>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -256,10 +168,7 @@ export default function ForCompaniesPage() {
                   <p className="text-sm text-mist leading-relaxed">{s.description}</p>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight
-                    size={22}
-                    className="absolute -right-4 top-1/2 -translate-y-1/2 text-brass2/40 hidden md:block"
-                  />
+                  <ChevronRight size={22} className="absolute -right-4 top-1/2 -translate-y-1/2 text-brass2/40 hidden md:block" />
                 )}
               </div>
             ))}
@@ -270,90 +179,28 @@ export default function ForCompaniesPage() {
               href="/auth/register?role=company"
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-7 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
             >
-              Create company account <ArrowRight size={16} />
+              {t.fc_cta_create} <ArrowRight size={16} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── PRICING ── */}
-      <section className="mx-auto max-w-7xl px-5 py-16">
-        <div className="text-center mb-12">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
-            Simple, transparent pricing
-          </h2>
-          <p className="mt-3 text-mist">Start free. Upgrade when your team grows.</p>
-        </div>
-
-        <div className="mx-auto max-w-3xl grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {PRICING.map((plan) => (
-            <div
-              key={plan.name}
-              className={`rounded-2xl border p-7 flex flex-col ${
-                plan.highlight
-                  ? "border-brass/40 bg-gradient-to-br from-brass/10 to-brass2/5"
-                  : "border-white/10 bg-card"
-              }`}
-            >
-              {plan.highlight && (
-                <div className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-brass/20 border border-brass/30 px-3 py-1 text-xs font-bold text-brass2">
-                  <Star size={11} /> Most popular
-                </div>
-              )}
-              <div className="mb-1 text-sm font-semibold text-mist uppercase tracking-wider">{plan.name}</div>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="font-display text-4xl font-bold text-white">{plan.price}</span>
-                <span className="text-sm text-mist">{plan.period}</span>
-              </div>
-
-              <ul className="flex flex-col gap-3 mb-8 flex-1">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-foam">
-                    <CheckCircle size={15} className="text-teal shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href={plan.href}
-                className={`w-full rounded-xl py-3 text-sm font-bold text-center transition hover:-translate-y-0.5 ${
-                  plan.highlight
-                    ? "bg-gradient-to-br from-brass to-brass2 text-deep shadow-lg"
-                    : "border border-white/15 bg-white/5 text-white hover:bg-white/10"
-                }`}
-              >
-                {plan.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-center mt-6 text-xs text-mist">
-          Professional plan pricing is indicative — contact us for agency rates and annual discounts.
-        </p>
-      </section>
-
       {/* ── CONTACT FORM ── */}
-      <section id="contact" className="bg-card border-t border-white/10">
+      <section id="contact" className="bg-navy border-t border-white/10">
         <div className="mx-auto max-w-xl px-5 py-16">
           <div className="text-center mb-10">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brass/10 border border-brass/20 mb-4">
               <Mail size={26} className="text-brass2" />
             </div>
-            <h2 className="font-display text-2xl font-semibold text-white">
-              Want to discuss first?
-            </h2>
-            <p className="mt-2 text-sm text-mist">
-              Leave your contacts — we'll reach out within 24 hours and help you get set up.
-            </p>
+            <h2 className="font-display text-2xl font-semibold text-white">{t.fc_contact_title}</h2>
+            <p className="mt-2 text-sm text-mist">{t.fc_contact_sub}</p>
           </div>
 
           {sent ? (
             <div className="rounded-2xl border border-teal/20 bg-teal/10 p-8 text-center">
               <CheckCircle size={32} className="mx-auto mb-3 text-teal" />
-              <p className="font-semibold text-white">Message received!</p>
-              <p className="mt-1 text-sm text-mist">We'll contact you within 24 hours.</p>
+              <p className="font-semibold text-white">{t.fc_ok_title}</p>
+              <p className="mt-1 text-sm text-mist">{t.fc_ok_sub}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -363,43 +210,23 @@ export default function ForCompaniesPage() {
                   <p className="text-sm text-coral">{error}</p>
                 </div>
               )}
-
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
-              />
-              <input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="Company name *"
-                required
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
-              />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Work email *"
-                required
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
-              />
-
-              <button
-                type="submit"
-                disabled={sending || !email.trim() || !company.trim()}
-                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
-              >
+              <input value={name} onChange={(e) => setName(e.target.value)}
+                placeholder={t.fc_name_ph}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50" />
+              <input value={company} onChange={(e) => setCompany(e.target.value)}
+                placeholder={`${t.fc_company_ph} *`} required
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder={`${t.fc_email_ph} *`} required
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50" />
+              <button type="submit" disabled={sending || !email.trim() || !company.trim()}
+                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0">
                 <Send size={15} />
-                {sending ? "Sending..." : "Request free setup"}
+                {sending ? t.fc_sending : t.fc_send_btn}
               </button>
-
               <p className="text-center text-xs text-mist/60">
-                Or email us directly:{" "}
-                <a href="mailto:hello@seajobs.pro" className="text-brass2 hover:underline">
-                  hello@seajobs.pro
-                </a>
+                Or email us:{" "}
+                <a href="mailto:hello@seajobs.pro" className="text-brass2 hover:underline">hello@seajobs.pro</a>
               </p>
             </form>
           )}
