@@ -36,7 +36,7 @@ export default function Home() {
       .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
-      .limit(6)
+      .limit(25)
       .then(({ data }) => { if (data?.length) setDbVacancies(data as DbVacancy[]); });
   }, []);
 
