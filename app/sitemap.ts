@@ -20,11 +20,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { data: vacancies } = await admin
-      .from("vacancies")
-      .select("id, updated_at, created_at")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
+    const [{ data: vacancies }, { data: topics }] = await Promise.all([
+      admin
+        .from("vacancies")
+        .select("id, updated_at, created_at")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false }),
+      admin
+        .from("forum_topics")
+        .select("id, updated_at, created_at")
+        .order("created_at", { ascending: false }),
+    ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).map((v) => ({
       url: `${BASE}/jobs/${v.id}`,
@@ -33,7 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticRoutes, ...vacancyRoutes];
+    const forumRoutes: MetadataRoute.Sitemap = (topics ?? []).map((t) => ({
+      url: `${BASE}/forum/${t.id}`,
+      lastModified: new Date(t.updated_at ?? t.created_at),
+      changeFrequency: "weekly",
+      priority: 0.6,
+    }));
+
+    return [...staticRoutes, ...vacancyRoutes, ...forumRoutes];
   } catch {
     return staticRoutes;
   }
