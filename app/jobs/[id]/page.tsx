@@ -75,58 +75,56 @@ export default async function VacancyPage(
 
   const company = vacancy.companies;
 
-  // Skip Google for Jobs structured data for imported/aggregated vacancies
-  let jsonLd: Record<string, unknown> | null = null;
-  if (!vacancy.is_imported) {
-    jsonLd = {
-      "@context": "https://schema.org/",
-      "@type": "JobPosting",
-      "title": vacancy.title,
-      "description": vacancy.description
-        ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}.`,
-      "datePosted": vacancy.created_at,
-      "employmentType": "CONTRACT",
-      "hiringOrganization": {
-        "@type": "Organization",
-        "name": company?.name ?? "SeaJobs.pro",
-        ...(company?.website ? { "sameAs": company.website } : {}),
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": "SeaJobs.pro",
+      "value": vacancy.id,
+    },
+    "title": vacancy.title,
+    "description": vacancy.description
+      ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}. Apply on SeaJobs.pro — maritime job board for seafarers.`,
+    "datePosted": vacancy.created_at,
+    "employmentType": "CONTRACT",
+    "industry": "Maritime / Shipping",
+    ...(vacancy.rank ? { "occupationalCategory": vacancy.rank } : {}),
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": company?.name ?? "SeaJobs.pro",
+      "sameAs": company?.website ?? BASE_URL,
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": company?.location ?? "International Waters",
       },
-      "jobLocation": {
-        "@type": "Place",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": company?.location ?? "International Waters",
-          "addressCountry": "International",
-        },
+    },
+    "directApply": !vacancy.is_imported,
+    "url": vacancy.is_imported && vacancy.source_url ? vacancy.source_url : `${BASE_URL}/jobs/${vacancy.id}`,
+  };
+
+  if (vacancy.salary_from || vacancy.salary_to) {
+    jsonLd["baseSalary"] = {
+      "@type": "MonetaryAmount",
+      "currency": vacancy.currency,
+      "value": {
+        "@type": "QuantitativeValue",
+        ...(vacancy.salary_from ? { "minValue": vacancy.salary_from } : {}),
+        ...(vacancy.salary_to ? { "maxValue": vacancy.salary_to } : {}),
+        "unitText": "MONTH",
       },
-      "directApply": true,
-      "url": `${BASE_URL}/jobs/${vacancy.id}`,
     };
-
-    if (vacancy.joining_date) jsonLd["validThrough"] = vacancy.joining_date;
-
-    if (vacancy.salary_from || vacancy.salary_to) {
-      jsonLd["baseSalary"] = {
-        "@type": "MonetaryAmount",
-        "currency": vacancy.currency,
-        "value": {
-          "@type": "QuantitativeValue",
-          ...(vacancy.salary_from ? { "minValue": vacancy.salary_from } : {}),
-          ...(vacancy.salary_to ? { "maxValue": vacancy.salary_to } : {}),
-          "unitText": "MONTH",
-        },
-      };
-    }
   }
 
   return (
     <>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <VacancyDetailClient vacancy={vacancy} />
     </>
   );

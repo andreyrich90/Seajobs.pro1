@@ -20,6 +20,38 @@ export const metadata = {
   },
 };
 
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://seajobs.pro/#organization",
+      "name": "SeaJobs.pro",
+      "url": "https://seajobs.pro",
+      "description": "Maritime job board connecting seafarers with crewing companies worldwide",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://seajobs.pro/opengraph-image",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://seajobs.pro/#website",
+      "url": "https://seajobs.pro",
+      "name": "SeaJobs.pro",
+      "publisher": { "@id": "https://seajobs.pro/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://seajobs.pro/jobs?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -28,6 +60,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-navy text-foam font-body overflow-x-hidden">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"
           strategy="afterInteractive"
