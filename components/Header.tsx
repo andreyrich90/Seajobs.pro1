@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare,
-  Newspaper, LayoutDashboard, Menu, X,
+  Newspaper, LayoutDashboard, Menu, X, ShieldCheck,
 } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
@@ -17,6 +17,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dashboardHref, setDashboardHref] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const t = T[lang];
   const current = LANGS.find((l) => l.code === lang)!;
 
@@ -30,14 +31,17 @@ export default function Header() {
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    function applySession(hasSession: boolean) {
-      if (!hasSession) { setDashboardHref(null); return; }
+    async function applySession(session: import("@supabase/supabase-js").Session | null) {
+      if (!session) { setDashboardHref(null); setIsAdmin(false); return; }
       const role = typeof window !== "undefined" ? localStorage.getItem("user_role") : null;
       setDashboardHref(role === "company" ? "/company/dashboard" : "/seafarer/dashboard");
+      const { data: profile } = await supabase
+        .from("profiles").select("is_admin").eq("id", session.user.id).single();
+      setIsAdmin(!!profile?.is_admin);
     }
-    supabase.auth.getSession().then(({ data: { session } }) => applySession(!!session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      applySession(!!session);
+    supabase.auth.getSession().then(({ data: { session } }) => applySession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      applySession(session);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -110,6 +114,17 @@ export default function Header() {
             )}
           </div>
 
+          {/* Admin button — desktop */}
+          {isAdmin && (
+            <div className="hidden sm:block">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+              >
+                <ShieldCheck size={15} /> Admin
+              </Link>
+            </div>
+          )}
           {/* Auth button — desktop */}
           <div className="hidden sm:block">{authButton}</div>
 
@@ -134,7 +149,15 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-          <div className="mt-3 border-t border-white/10 pt-3">
+          <div className="mt-3 border-t border-white/10 pt-3 flex flex-col gap-2">
+            {isAdmin && (
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-3 rounded-xl border border-brass/30 bg-brass/10 px-3 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+              >
+                <ShieldCheck size={18} /> Admin Panel
+              </Link>
+            )}
             {authButton}
           </div>
         </div>
