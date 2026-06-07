@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from "next/script";
 import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
 
@@ -27,6 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-navy text-foam font-body">
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-1H5KRW7TS9');
+          `}
+        </Script>
         <LangProvider>{children}</LangProvider>
         <CookieBanner />
       </body>
