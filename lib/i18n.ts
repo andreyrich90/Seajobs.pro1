@@ -139,6 +139,16 @@ export const T: Record<Lang, Record<string, string>> = {
     fc_name_ph: "Your name", fc_company_ph: "Company name", fc_email_ph: "Work email",
     fc_send_btn: "Request free setup", fc_sending: "Sending...",
     fc_ok_title: "Message received!", fc_ok_sub: "We'll contact you within 24 hours.",
+    // About page
+    about_hero_sub: "SeaJobs.pro is a modern maritime career platform connecting seafarers with verified crewing agencies across Europe and beyond.",
+    about_mission_title: "Our Mission",
+    about_mission_p1: "Maritime careers are built on trust, expertise, and the right connections. SeaJobs.pro was created to be the definitive digital harbour where experienced seafarers can find their next voyage and crewing companies can discover the talent they need.",
+    about_mission_p2: "We believe that finding maritime work should be transparent, efficient, and dignified. That's why we provide a platform where your CV, certificates, and experience speak for themselves — no middlemen, no hidden fees.",
+    about_values_title: "What We Stand For",
+    about_v1_title: "Built for Seafarers", about_v1_text: "We understand the maritime world because we come from it. Every feature is designed around the real needs of seafarers and crewing agencies.",
+    about_v2_title: "Trusted Network", about_v2_text: "We verify crewing companies to ensure seafarers only see legitimate, professional job offers from reputable agencies across Europe.",
+    about_v3_title: "Global Reach", about_v3_text: "From the Baltic to the Mediterranean, our platform connects maritime talent with opportunities across all major shipping routes and registries.",
+    about_cta_title: "Have Questions?", about_cta_sub: "Use our contact form on the home page or reach out directly.", about_cta_btn: "Contact Us",
   },
 };
 
@@ -224,3 +234,43 @@ const FC_RU: Record<string, string> = {
 Object.assign(T.ua, FC_UA);
 Object.assign(T.pl, FC_PL);
 Object.assign(T.ru, FC_RU);
+
+const ABOUT_UA: Record<string, string> = {
+  about_hero_sub: "SeaJobs.pro — сучасна морська кар'єрна платформа, що з'єднує моряків із перевіреними крюїнговими агенціями по всій Європі та за її межами.",
+  about_mission_title: "Наша місія",
+  about_mission_p1: "Морська кар'єра будується на довірі, досвіді та правильних зв'язках. SeaJobs.pro створено як справжню цифрову гавань, де досвідчені моряки можуть знайти свій наступний рейс, а крюїнгові компанії — талановитих спеціалістів.",
+  about_mission_p2: "Ми переконані, що пошук роботи на морі має бути прозорим, ефективним і гідним. Тому ми створили платформу, де ваше резюме, сертифікати та досвід говорять самі за себе — без посередників і прихованих комісій.",
+  about_values_title: "Наші цінності",
+  about_v1_title: "Для моряків", about_v1_text: "Ми розуміємо морський світ, бо самі з нього вийшли. Кожна функція платформи створена з урахуванням реальних потреб моряків і крюїнгових агентств.",
+  about_v2_title: "Перевірена мережа", about_v2_text: "Ми верифікуємо крюїнгові компанії, щоб моряки бачили лише справжні, професійні пропозиції від авторитетних агентств по всій Європі.",
+  about_v3_title: "Глобальне охоплення", about_v3_text: "Від Балтики до Середземномор'я — наша платформа з'єднує морських фахівців з можливостями на всіх основних судноплавних маршрутах і регістрах.",
+  about_cta_title: "Є запитання?", about_cta_sub: "Скористайтесь контактною формою на головній сторінці або зв'яжіться з нами напряму.", about_cta_btn: "Написати нам",
+};
+
+const ABOUT_PL: Record<string, string> = {
+  about_hero_sub: "SeaJobs.pro to nowoczesna platforma kariery morskiej łącząca marynarzy z zweryfikowanymi agencjami crewingowymi w całej Europie i poza nią.",
+  about_mission_title: "Nasza misja",
+  about_mission_p1: "Kariery morskie buduje się na zaufaniu, doświadczeniu i odpowiednich kontaktach. SeaJobs.pro powstało jako cyfrowy port, gdzie doświadczeni marynarze mogą znaleźć swój kolejny rejs, a firmy crewingowe — potrzebnych specjalistów.",
+  about_mission_p2: "Wierzymy, że szukanie pracy na morzu powinno być przejrzyste, efektywne i godne. Dlatego stworzyliśmy platformę, gdzie Twoje CV, certyfikaty i doświadczenie mówią same za siebie — bez pośredników i ukrytych opłat.",
+  about_values_title: "Nasze wartości",
+  about_v1_title: "Dla marynarzy", about_v1_text: "Rozumiemy świat morski, bo sami z niego pochodzimy. Każda funkcja platformy jest zaprojektowana z myślą o realnych potrzebach marynarzy i agencji crewingowych.",
+  about_v2_title: "Zaufana sieć", about_v2_text: "Weryfikujemy firmy crewingowe, aby marynarze widzieli tylko prawdziwe, profesjonalne oferty od renomowanych agencji w całej Europie.",
+  about_v3_title: "Globalny zasięg", about_v3_text: "Od Bałtyku po Morze Śródziemne — nasza platforma łączy talenty morskie z możliwościami na wszystkich głównych trasach żeglugowych i rejestrach.",
+  about_cta_title: "Masz pytania?", about_cta_sub: "Skorzystaj z formularza kontaktowego na stronie głównej lub skontaktuj się bezpośrednio.", about_cta_btn: "Napisz do nas",
+};
+
+const ABOUT_RU: Record<string, string> = {
+  about_hero_sub: "SeaJobs.pro — современная морская карьерная платформа, объединяющая моряков с проверенными крюинговыми агентствами по всей Европе и за её пределами.",
+  about_mission_title: "Наша миссия",
+  about_mission_p1: "Морская карьера строится на доверии, опыте и правильных связях. SeaJobs.pro создан как настоящая цифровая гавань, где опытные моряки могут найти следующий рейс, а крюинговые компании — нужных специалистов.",
+  about_mission_p2: "Мы убеждены, что поиск работы на море должен быть прозрачным, эффективным и достойным. Поэтому мы создали платформу, где ваше резюме, сертификаты и опыт говорят сами за себя — без посредников и скрытых комиссий.",
+  about_values_title: "Наши ценности",
+  about_v1_title: "Для моряков", about_v1_text: "Мы понимаем морской мир, потому что сами из него. Каждая функция платформы создана с учётом реальных потребностей моряков и крюинговых агентств.",
+  about_v2_title: "Проверенная сеть", about_v2_text: "Мы верифицируем крюинговые компании, чтобы моряки видели только настоящие, профессиональные предложения от авторитетных агентств по всей Европе.",
+  about_v3_title: "Глобальный охват", about_v3_text: "От Балтики до Средиземноморья — наша платформа соединяет морских специалистов с возможностями на всех основных судоходных маршрутах и регистрах.",
+  about_cta_title: "Есть вопросы?", about_cta_sub: "Воспользуйтесь контактной формой на главной странице или свяжитесь с нами напрямую.", about_cta_btn: "Написать нам",
+};
+
+Object.assign(T.ua, ABOUT_UA);
+Object.assign(T.pl, ABOUT_PL);
+Object.assign(T.ru, ABOUT_RU);
