@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare,
-  Newspaper, LayoutDashboard, Menu, X,
+  Newspaper, LayoutDashboard, Menu, X, ShieldCheck,
 } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
@@ -17,6 +17,7 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dashboardHref, setDashboardHref] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const t = T[lang];
   const current = LANGS.find((l) => l.code === lang)!;
 
@@ -26,18 +27,20 @@ export default function Header() {
     { label: t.nav_news,  icon: Newspaper,     href: "/news" },
   ];
 
-  // Close mobile menu on navigation
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => {
-    function applySession(hasSession: boolean) {
-      if (!hasSession) { setDashboardHref(null); return; }
+    async function applySession(session: import("@supabase/supabase-js").Session | null) {
+      if (!session) { setDashboardHref(null); setIsAdmin(false); return; }
       const role = typeof window !== "undefined" ? localStorage.getItem("user_role") : null;
       setDashboardHref(role === "company" ? "/company/dashboard" : "/seafarer/dashboard");
+      const { data: profile } = await supabase
+        .from("profiles").select("is_admin").eq("id", session.user.id).single();
+      setIsAdmin(!!profile?.is_admin);
     }
-    supabase.auth.getSession().then(({ data: { session } }) => applySession(!!session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      applySession(!!session);
+    supabase.auth.getSession().then(({ data: { session } }) => applySession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      applySession(session);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -45,28 +48,30 @@ export default function Header() {
   const authButton = dashboardHref ? (
     <Link
       href={dashboardHref}
-      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
-      <LayoutDashboard size={16} /> Cabinet
+      <LayoutDashboard size={16} />
+      <span className="hidden lg:inline">Cabinet</span>
     </Link>
   ) : (
     <Link
       href="/auth/login"
-      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
-      <LogIn size={16} /> {t.login}
+      <LogIn size={16} />
+      <span className="hidden lg:inline">{t.login}</span>
     </Link>
   );
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-deep/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center gap-3 px-5 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-2 px-4 py-3 md:gap-3 md:px-5">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
-            <Anchor size={22} className="text-deep" strokeWidth={2.4} />
+        <Link href="/" className="flex items-center gap-2">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg md:h-10 md:w-10">
+            <Anchor size={20} className="text-deep" strokeWidth={2.4} />
           </div>
-          <span className="font-display text-2xl font-bold text-white">
+          <span className="font-display text-xl font-bold text-white md:text-2xl">
             SeaJobs<span className="text-brass2">.pro</span>
           </span>
         </Link>
@@ -87,7 +92,7 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
-              className="flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-2 text-sm font-semibold text-white transition hover:bg-white/10 md:px-3"
             >
               <Globe size={16} />
               <span className="hidden sm:inline">{current.label}</span>
@@ -110,8 +115,21 @@ export default function Header() {
             )}
           </div>
 
-          {/* Auth button — desktop */}
-          <div className="hidden sm:block">{authButton}</div>
+          {/* Admin button — md+ only */}
+          {isAdmin && (
+            <div className="hidden md:block">
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+              >
+                <ShieldCheck size={15} />
+                <span className="hidden lg:inline">Admin</span>
+              </Link>
+            </div>
+          )}
+
+          {/* Auth button — md+ only */}
+          <div className="hidden md:block">{authButton}</div>
 
           {/* Mobile burger */}
           <button
@@ -134,8 +152,30 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-          <div className="mt-3 border-t border-white/10 pt-3">
-            {authButton}
+          <div className="mt-3 border-t border-white/10 pt-3 flex flex-col gap-2">
+            {isAdmin && (
+              <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-3 rounded-xl border border-brass/30 bg-brass/10 px-3 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+              >
+                <ShieldCheck size={18} /> Admin Panel
+              </Link>
+            )}
+            {dashboardHref ? (
+              <Link
+                href={dashboardHref}
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+              >
+                <LayoutDashboard size={16} /> Cabinet
+              </Link>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+              >
+                <LogIn size={16} /> {t.login}
+              </Link>
+            )}
           </div>
         </div>
       )}
