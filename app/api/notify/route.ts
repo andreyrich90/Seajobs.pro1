@@ -143,7 +143,24 @@ export async function POST(req: Request) {
         body: `${companyName} posted a new ${vacancy.rank} position: "${vacancy.title}"`,
         link: `/jobs/${vacancyId}`,
       }));
-      if (rows.length > 0) await admin.from("notifications").insert(rows); // batch insert
+      if (rows.length > 0) await admin.from("notifications").insert(rows);
+
+      // Send email to each subscribed seafarer
+      for (const a of alerts ?? []) {
+        const { data: { user } } = await admin.auth.admin.getUserById(a.seafarer_id);
+        if (user?.email) {
+          await sendEmail(
+            user.email,
+            `New ${vacancy.rank} job: "${vacancy.title}"`,
+            `<p>Hello,</p>
+<p><strong>${companyName}</strong> posted a new <strong>${vacancy.rank}</strong> position:</p>
+<p style="font-size:18px"><strong>${vacancy.title}</strong></p>
+<p><a href="https://seajobs.pro/jobs/${vacancyId}" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View Vacancy →</a></p>
+<hr style="margin:24px 0;border:none;border-top:1px solid #eee"/>
+<p style="color:#999;font-size:12px;">You receive this because you set up a job alert for <strong>${vacancy.rank}</strong> on SeaJobs.pro. <a href="https://seajobs.pro/seafarer/dashboard">Manage alerts →</a></p>`,
+          );
+        }
+      }
 
       return NextResponse.json({ ok: true });
     }
