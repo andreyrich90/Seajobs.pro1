@@ -39,6 +39,7 @@ export default function AuthCallbackPage() {
         setLoading(false);
       } else {
         const r = (profile as { role: string }).role;
+        localStorage.setItem("user_role", r);
         router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
       }
     }
@@ -62,6 +63,7 @@ export default function AuthCallbackPage() {
       return;
     }
 
+    localStorage.setItem("user_role", role);
     if (role === "seafarer") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await supabase.from("seafarers").insert({ id: userId } as any);
