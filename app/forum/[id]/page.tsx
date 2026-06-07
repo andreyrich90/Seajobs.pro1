@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin } from "lucide-react";
@@ -11,6 +11,42 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
+
+function renderInline(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>
+    ) : (
+      <Fragment key={i}>{part}</Fragment>
+    )
+  );
+}
+
+function renderMarkdown(content: string) {
+  const blocks = content.split(/\n\n+/);
+  return blocks.map((block, bi) => {
+    const trimmed = block.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith("## ")) {
+      return (
+        <h2 key={bi} className="mt-5 mb-2 font-display text-base font-semibold text-white">
+          {trimmed.slice(3)}
+        </h2>
+      );
+    }
+    return (
+      <p key={bi} className="mb-3 text-sm text-foam leading-relaxed">
+        {trimmed.split("\n").map((line, li) => (
+          <Fragment key={li}>
+            {li > 0 && <br />}
+            {renderInline(line)}
+          </Fragment>
+        ))}
+      </p>
+    );
+  });
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -82,7 +118,7 @@ function PostCard({
           </button>
         )}
       </div>
-      <p className="text-sm text-foam whitespace-pre-wrap leading-relaxed">{content}</p>
+      <div className="leading-relaxed">{renderMarkdown(content)}</div>
     </div>
   );
 }

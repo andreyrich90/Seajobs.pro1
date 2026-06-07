@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-navy text-foam font-body">
+      <body className="bg-navy text-foam font-body overflow-x-hidden">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"
           strategy="afterInteractive"
