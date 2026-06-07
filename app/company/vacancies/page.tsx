@@ -23,8 +23,7 @@ type VacancyForm = {
   title: string;
   rank: string;
   vessel_type: string;
-  salary_from: string;
-  salary_to: string;
+  salary: string;
   currency: string;
   contract_duration: string;
   joining_date: string;
@@ -36,8 +35,7 @@ const EMPTY_FORM: VacancyForm = {
   title: "",
   rank: "",
   vessel_type: "",
-  salary_from: "",
-  salary_to: "",
+  salary: "",
   currency: "USD",
   contract_duration: "",
   joining_date: "",
@@ -113,8 +111,7 @@ export default function VacanciesPage() {
       title: v.title ?? "",
       rank: v.rank ?? "",
       vessel_type: v.vessel_type ?? "",
-      salary_from: v.salary_from != null ? String(v.salary_from) : "",
-      salary_to: v.salary_to != null ? String(v.salary_to) : "",
+      salary: v.salary_from != null ? String(v.salary_from) : (v.salary_to != null ? String(v.salary_to) : ""),
       currency: v.currency ?? "USD",
       contract_duration: v.contract_duration ?? "",
       joining_date: v.joining_date ?? "",
@@ -143,8 +140,8 @@ export default function VacanciesPage() {
       title: form.title.trim(),
       rank: form.rank || null,
       vessel_type: form.vessel_type || null,
-      salary_from: form.salary_from ? parseInt(form.salary_from) : null,
-      salary_to: form.salary_to ? parseInt(form.salary_to) : null,
+      salary_from: form.salary ? parseInt(form.salary) : null,
+      salary_to: null,
       currency: form.currency,
       contract_duration: form.contract_duration || null,
       joining_date: form.joining_date || null,
@@ -291,25 +288,14 @@ export default function VacanciesPage() {
               </select>
             </div>
 
-            {/* Salary from */}
+            {/* Salary */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Salary from</label>
-              <input
-                type="number" value={form.salary_from}
-                onChange={(e) => handleChange("salary_from", e.target.value)}
-                placeholder="e.g. 5000" min={0} disabled={submitting}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
-              />
-            </div>
-
-            {/* Salary to */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Salary to</label>
+              <label className="text-sm font-semibold text-foam">Salary</label>
               <div className="flex gap-2">
                 <input
-                  type="number" value={form.salary_to}
-                  onChange={(e) => handleChange("salary_to", e.target.value)}
-                  placeholder="e.g. 7000" min={0} disabled={submitting}
+                  type="number" value={form.salary}
+                  onChange={(e) => handleChange("salary", e.target.value)}
+                  placeholder="e.g. 5000" min={0} disabled={submitting}
                   className="flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                 />
                 <select
@@ -430,13 +416,9 @@ export default function VacanciesPage() {
                     </div>
                   </div>
                   <div className="shrink-0 text-right">
-                    {(v.salary_from || v.salary_to) && (
+                    {v.salary_from && (
                       <p className="text-sm font-semibold text-white">
-                        {v.salary_from && v.salary_to
-                          ? `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`
-                          : v.salary_from
-                          ? `from ${v.salary_from.toLocaleString()} ${v.currency}`
-                          : `up to ${v.salary_to!.toLocaleString()} ${v.currency}`}
+                        {v.salary_from.toLocaleString()} {v.currency}
                       </p>
                     )}
                     {v.joining_date && (
