@@ -34,9 +34,17 @@ export default function AuthCallbackPage() {
         .single();
 
       if (!profile) {
-        setUserId(user.id);
-        setNeedsRole(true);
-        setLoading(false);
+        const pendingRole = localStorage.getItem("oauth_role") as Role | null;
+        if (pendingRole === "seafarer" || pendingRole === "company") {
+          localStorage.removeItem("oauth_role");
+          setUserId(user.id);
+          setLoading(false);
+          await handleRoleSelectInner(user.id, pendingRole);
+        } else {
+          setUserId(user.id);
+          setNeedsRole(true);
+          setLoading(false);
+        }
       } else {
         const r = (profile as { role: string }).role;
         localStorage.setItem("user_role", r);
@@ -47,15 +55,11 @@ export default function AuthCallbackPage() {
     handleCallback();
   }, [router]);
 
-  async function handleRoleSelect(role: Role) {
-    if (!userId) return;
-    setSaving(true);
-    setError(null);
-
+  async function handleRoleSelectInner(uid: string, role: Role) {
     const { error: profileError } = await supabase
       .from("profiles")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .insert({ id: userId, role } as any);
+      .insert({ id: uid, role } as any);
 
     if (profileError) {
       setError("Failed to save role: " + profileError.message);
@@ -66,11 +70,18 @@ export default function AuthCallbackPage() {
     localStorage.setItem("user_role", role);
     if (role === "seafarer") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await supabase.from("seafarers").insert({ id: userId } as any);
+      await supabase.from("seafarers").insert({ id: uid } as any);
       router.push("/seafarer/dashboard");
     } else {
       router.push("/company/dashboard");
     }
+  }
+
+  async function handleRoleSelect(role: Role) {
+    if (!userId) return;
+    setSaving(true);
+    setError(null);
+    await handleRoleSelectInner(userId, role);
   }
 
   if (loading) {
