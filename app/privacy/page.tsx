@@ -118,7 +118,7 @@ const TRANSLATIONS = {
   pl: {
     title: "Polityka prywatności",
     updated: "Ostatnia aktualizacja: czerwiec 2026",
-    intro: "SeaJobs.pro („my", „nas" lub „nasz") zobowiązuje się do ochrony Twojej prywatności. Niniejsza polityka wyjaśnia, jakie informacje zbieramy, jak je wykorzystujemy i jakie masz prawa w odniesieniu do swoich danych.",
+    intro: "SeaJobs.pro ('my', 'nas' lub 'nasz') zobowiązuje się do ochrony Twojej prywatności. Niniejsza polityka wyjaśnia, jakie informacje zbieramy, jak je wykorzystujemy i jakie masz prawa w odniesieniu do swoich danych.",
     sections: [
       {
         title: "1. Informacje, które zbieramy",
