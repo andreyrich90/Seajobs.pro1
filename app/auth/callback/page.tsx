@@ -19,29 +19,27 @@ export default function AuthCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function handleCallback() {
-      const { data: { user } } = await supabase.auth.getUser();
+    let handled = false;
 
-      if (!user) {
-        router.push("/auth/login");
-        return;
-      }
+    async function handleUser(userId: string) {
+      if (handled) return;
+      handled = true;
 
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
-        .eq("id", user.id)
+        .eq("id", userId)
         .single();
 
       if (!profile) {
         const pendingRole = localStorage.getItem("oauth_role") as Role | null;
         if (pendingRole === "seafarer" || pendingRole === "company") {
           localStorage.removeItem("oauth_role");
-          setUserId(user.id);
+          setUserId(userId);
           setLoading(false);
-          await handleRoleSelectInner(user.id, pendingRole);
+          await handleRoleSelectInner(userId, pendingRole);
         } else {
-          setUserId(user.id);
+          setUserId(userId);
           setNeedsRole(true);
           setLoading(false);
         }
@@ -52,7 +50,36 @@ export default function AuthCallbackPage() {
       }
     }
 
-    handleCallback();
+    // Use onAuthStateChange so we wait for PKCE code exchange to complete
+    // before checking the user — getUser() called immediately can race
+    // against the code exchange and return null (especially when opening
+    // from an email link in a fresh browser context).
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
+          await handleUser(session.user.id);
+        } else if (event === "INITIAL_SESSION" && !session) {
+          // No existing session and no code to exchange — send to login
+          if (!handled) {
+            handled = true;
+            router.push("/auth/login");
+          }
+        }
+      }
+    );
+
+    // Fallback timeout in case auth state never fires (network error etc.)
+    const timeout = setTimeout(() => {
+      if (!handled) {
+        handled = true;
+        router.push("/auth/login");
+      }
+    }, 12000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, [router]);
 
   async function handleRoleSelectInner(uid: string, role: Role) {
