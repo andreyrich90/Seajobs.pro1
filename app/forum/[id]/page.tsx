@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState, Fragment } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin } from "lucide-react";
+import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -88,6 +88,7 @@ function PostCard({
   content,
   isOwn,
   onDelete,
+  onSaveEdit,
   highlight,
 }: {
   authorName: string | null;
@@ -95,8 +96,26 @@ function PostCard({
   content: string;
   isOwn: boolean;
   onDelete?: () => void;
+  onSaveEdit?: (newContent: string) => Promise<void>;
   highlight?: boolean;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(content);
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    if (!draft.trim() || !onSaveEdit) return;
+    setSaving(true);
+    await onSaveEdit(draft.trim());
+    setSaving(false);
+    setEditing(false);
+  }
+
+  function cancel() {
+    setDraft(content);
+    setEditing(false);
+  }
+
   return (
     <div className={`rounded-2xl border p-5 ${highlight ? "border-brass/20 bg-brass/5" : "border-white/10 bg-card"}`}>
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -109,16 +128,59 @@ function PostCard({
             <p className="text-xs text-mist">{timeAgo(date)}</p>
           </div>
         </div>
-        {isOwn && onDelete && (
-          <button
-            onClick={onDelete}
-            className="rounded-lg bg-coral/10 border border-coral/20 p-1.5 text-coral hover:bg-coral/20 transition"
-          >
-            <Trash2 size={13} />
-          </button>
+        {isOwn && (
+          <div className="flex items-center gap-1.5">
+            {onSaveEdit && !editing && (
+              <button
+                onClick={() => { setDraft(content); setEditing(true); }}
+                className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-mist hover:text-white transition"
+                title="Edit"
+              >
+                <Pencil size={13} />
+              </button>
+            )}
+            {onDelete && !editing && (
+              <button
+                onClick={onDelete}
+                className="rounded-lg bg-coral/10 border border-coral/20 p-1.5 text-coral hover:bg-coral/20 transition"
+                title="Delete"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
+          </div>
         )}
       </div>
-      <div className="leading-relaxed">{renderMarkdown(content)}</div>
+
+      {editing ? (
+        <div className="flex flex-col gap-2">
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={5}
+            disabled={saving}
+            className="w-full resize-none rounded-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={save}
+              disabled={saving || !draft.trim()}
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+            >
+              <Check size={13} /> {saving ? "Saving…" : "Save"}
+            </button>
+            <button
+              onClick={cancel}
+              disabled={saving}
+              className="flex items-center gap-1.5 rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-mist transition hover:bg-white/5"
+            >
+              <X size={13} /> Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="leading-relaxed">{renderMarkdown(content)}</div>
+      )}
     </div>
   );
 }
@@ -133,6 +195,12 @@ export default function TopicPage() {
   const [replyText, setReplyText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Topic inline edit state
+  const [editingTopic, setEditingTopic] = useState(false);
+  const [topicTitleDraft, setTopicTitleDraft] = useState("");
+  const [topicContentDraft, setTopicContentDraft] = useState("");
+  const [savingTopic, setSavingTopic] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -162,12 +230,7 @@ export default function TopicPage() {
 
     const { data, error: insertError } = await supabase
       .from("forum_posts")
-      .insert({
-        topic_id: id,
-        user_id: session.user.id,
-        author_name: authorName,
-        content: replyText.trim(),
-      })
+      .insert({ topic_id: id, user_id: session.user.id, author_name: authorName, content: replyText.trim() })
       .select()
       .single();
 
@@ -186,10 +249,45 @@ export default function TopicPage() {
     if (!error) setPosts((prev) => prev.filter((p) => p.id !== postId));
   }
 
+  async function handleEditPost(postId: string, newContent: string) {
+    const { data, error } = await supabase
+      .from("forum_posts")
+      .update({ content: newContent, updated_at: new Date().toISOString() })
+      .eq("id", postId)
+      .select()
+      .single();
+    if (!error && data) {
+      setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, content: newContent } : p));
+    }
+  }
+
   async function handleDeleteTopic() {
     if (!confirm("Delete this topic and all its replies?")) return;
     const { error } = await supabase.from("forum_topics").delete().eq("id", id);
     if (!error) router.push("/forum");
+  }
+
+  function startEditTopic() {
+    if (!topic) return;
+    setTopicTitleDraft(topic.title);
+    setTopicContentDraft(topic.content);
+    setEditingTopic(true);
+  }
+
+  async function saveTopicEdit() {
+    if (!topic || !topicTitleDraft.trim() || !topicContentDraft.trim()) return;
+    setSavingTopic(true);
+    const { data, error } = await supabase
+      .from("forum_topics")
+      .update({ title: topicTitleDraft.trim(), content: topicContentDraft.trim(), updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+    if (!error && data) {
+      setTopic(data);
+    }
+    setSavingTopic(false);
+    setEditingTopic(false);
   }
 
   if (loading) {
@@ -205,48 +303,99 @@ export default function TopicPage() {
 
   if (!topic) return null;
 
+  const isTopicOwn = session?.user.id === topic.user_id;
+
   return (
     <div className="min-h-screen bg-navy">
       <Header />
 
       <div className="mx-auto max-w-4xl px-5 py-10">
 
-        {/* Back */}
-        <Link
-          href="/forum"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-mist hover:text-white transition"
-        >
+        <Link href="/forum" className="mb-6 inline-flex items-center gap-1.5 text-sm text-mist hover:text-white transition">
           <ChevronLeft size={16} /> Back to Forum
         </Link>
 
         {/* Topic header */}
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            {topic.is_pinned && (
-              <span className="flex items-center gap-1.5 rounded-full bg-brass/15 border border-brass/20 px-3 py-1 text-xs font-semibold text-brass2">
-                <Pin size={12} /> Pinned
-              </span>
-            )}
-            <h1 className="font-display text-2xl font-semibold text-white">{topic.title}</h1>
+        {editingTopic ? (
+          <div className="mb-6 rounded-2xl border border-brass/20 bg-card p-6">
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-mist">Title</label>
+                <input
+                  type="text"
+                  value={topicTitleDraft}
+                  onChange={(e) => setTopicTitleDraft(e.target.value)}
+                  disabled={savingTopic}
+                  className="w-full rounded-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-mist">Content</label>
+                <textarea
+                  value={topicContentDraft}
+                  onChange={(e) => setTopicContentDraft(e.target.value)}
+                  rows={8}
+                  disabled={savingTopic}
+                  className="w-full resize-none rounded-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={saveTopicEdit}
+                  disabled={savingTopic || !topicTitleDraft.trim() || !topicContentDraft.trim()}
+                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+                >
+                  <Check size={14} /> {savingTopic ? "Saving…" : "Save changes"}
+                </button>
+                <button
+                  onClick={() => setEditingTopic(false)}
+                  disabled={savingTopic}
+                  className="flex items-center gap-1.5 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
+                >
+                  <X size={14} /> Cancel
+                </button>
+              </div>
+            </div>
           </div>
-          {session?.user.id === topic.user_id && (
-            <button
-              onClick={handleDeleteTopic}
-              className="shrink-0 rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm font-semibold text-coral hover:bg-coral/20 transition"
-            >
-              Delete topic
-            </button>
-          )}
-        </div>
+        ) : (
+          <div className="mb-6 flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              {topic.is_pinned && (
+                <span className="flex items-center gap-1.5 rounded-full bg-brass/15 border border-brass/20 px-3 py-1 text-xs font-semibold text-brass2">
+                  <Pin size={12} /> Pinned
+                </span>
+              )}
+              <h1 className="font-display text-2xl font-semibold text-white">{topic.title}</h1>
+            </div>
+            {isTopicOwn && (
+              <div className="flex shrink-0 items-center gap-2">
+                <button
+                  onClick={startEditTopic}
+                  className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-mist hover:text-white transition"
+                >
+                  <Pencil size={14} /> Edit
+                </button>
+                <button
+                  onClick={handleDeleteTopic}
+                  className="flex items-center gap-1.5 rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm font-semibold text-coral hover:bg-coral/20 transition"
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Original post */}
-        <PostCard
-          authorName={topic.author_name}
-          date={topic.created_at}
-          content={topic.content}
-          isOwn={session?.user.id === topic.user_id}
-          highlight
-        />
+        {/* Original post body */}
+        {!editingTopic && (
+          <PostCard
+            authorName={topic.author_name}
+            date={topic.created_at}
+            content={topic.content}
+            isOwn={false}
+            highlight
+          />
+        )}
 
         {/* Replies */}
         <div className="mt-8">
@@ -264,6 +413,7 @@ export default function TopicPage() {
                 content={post.content}
                 isOwn={session?.user.id === post.user_id}
                 onDelete={() => handleDeletePost(post.id)}
+                onSaveEdit={(newContent) => handleEditPost(post.id, newContent)}
               />
             ))}
           </div>
