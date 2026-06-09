@@ -45,7 +45,7 @@ function toStaticItems(lang: string): DisplayItem[] {
     tag: n.tag,
     date: n.date,
     gradient: n.gradient,
-    coverUrl: null,
+    coverUrl: n.coverUrl ?? null,
     source: "static" as const,
   }));
 }

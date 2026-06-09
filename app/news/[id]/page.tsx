@@ -155,7 +155,7 @@ export default function NewsArticlePage() {
             body: found.body[lang] ?? found.body.en,
             tag: found.tag,
             gradient: found.gradient,
-            coverUrl: null,
+            coverUrl: found.coverUrl ?? null,
             date: found.date,
           });
           setOthers(

@@ -28,6 +28,7 @@ export type NewsItem = {
   tag: string;
   date: string;
   gradient: string;
+  coverUrl?: string;
 };
 
 export const NEWS: NewsItem[] = [
@@ -102,5 +103,6 @@ export const NEWS: NewsItem[] = [
     tag: "Industry",
     date: "2026-06-09",
     gradient: "linear-gradient(135deg,#1e3a5f,#7c2d12)",
+    coverUrl: "https://images.unsplash.com/photo-1585713181935-d5f622cc2415?auto=format&fit=crop&w=1200&q=80",
   },
 ];
