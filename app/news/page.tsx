@@ -45,7 +45,7 @@ function toStaticItems(lang: string): DisplayItem[] {
       return diff !== 0 ? diff : b.id - a.id;
     })
     .map((n) => ({
-      id: `static-${n.id}`,
+      id: n.slug,
       title: n.title[lang] ?? n.title.en,
       tag: n.tag,
       date: n.date,

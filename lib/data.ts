@@ -23,6 +23,7 @@ export const JOBS: Job[] = [
 ];
 export type NewsItem = {
   id: number;
+  slug: string;
   title: Record<string, string>;
   body: Record<string, string>;
   tag: string;
@@ -34,6 +35,7 @@ export type NewsItem = {
 export const NEWS: NewsItem[] = [
   {
     id: 1,
+    slug: "imo-stcw-rest-hours-2026",
     title: {
       ua: "IMO оновлює вимоги STCW щодо годин відпочинку у 2026",
       pl: "IMO aktualizuje wymogi STCW dotyczące godzin odpoczynku w 2026",
@@ -53,6 +55,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     id: 2,
+    slug: "officer-salaries-rise-crew-shortage",
     title: {
       ua: "Зарплати офіцерів зросли на 8% через дефіцит екіпажів",
       pl: "Pensje oficerów wzrosły o 8% z powodu niedoboru załóg",
@@ -72,6 +75,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     id: 3,
+    slug: "green-fuel-vessels-engineers-2028",
     title: {
       ua: "Новим суднам на зеленому паливі потрібно 4000 інженерів",
       pl: "Nowe statki na zielone paliwo potrzebują 4000 inżynierów",
@@ -91,6 +95,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     id: 4,
+    slug: "pgsa-permits-hormuz-traffic-slowdown",
     title: {
       en: "Over 300 Vessels File for PGSA Permits as Hormuz Traffic Slows to a Trickle",
       ua: "Понад 300 суден подали заявки на дозволи PGSA — трафік через Ормузьку протоку впав до мінімуму",
@@ -110,6 +115,7 @@ export const NEWS: NewsItem[] = [
   },
   {
     id: 5,
+    slug: "us-strike-tanker-eu-shadow-fleet-crackdown",
     title: {
       en: "US Strike on Tanker and EU Shadow Fleet Crackdown Signal Widening Maritime Enforcement",
       ua: "Удар по танкеру та операція проти «тіньового флоту» — морське правозастосування виходить за межі Ормуза",

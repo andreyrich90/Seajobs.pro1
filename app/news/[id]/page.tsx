@@ -146,8 +146,12 @@ export default function NewsArticlePage() {
           });
         }
       } else {
-        const numId = id.startsWith("static-") ? parseInt(id.slice(7)) : parseInt(id);
-        const found = NEWS.find((n) => n.id === numId);
+        // Support both slug and legacy static-N / numeric formats
+        const found = NEWS.find((n) =>
+          n.slug === id ||
+          `static-${n.id}` === id ||
+          n.id === parseInt(id)
+        );
         if (found) {
           setArticle({
             id,
@@ -159,13 +163,13 @@ export default function NewsArticlePage() {
             date: found.date,
           });
           setOthers(
-            NEWS.filter((n) => n.id !== numId).slice(0, 2).map((n) => ({
-              id: `static-${n.id}`,
+            NEWS.filter((n) => n.slug !== found.slug).slice(0, 2).map((n) => ({
+              id: n.slug,
               title: n.title[lang] ?? n.title.en,
               body: "",
               tag: n.tag,
               gradient: n.gradient,
-              coverUrl: null,
+              coverUrl: n.coverUrl ?? null,
               date: n.date,
             }))
           );
@@ -214,7 +218,8 @@ export default function NewsArticlePage() {
     } catch {}
   }
 
-  const shareUrl = `https://seajobs.pro/news/${id}`;
+  const canonicalId = id.startsWith("db-") ? id : (NEWS.find(n => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id))?.slug ?? id);
+  const shareUrl = `https://seajobs.pro/news/${canonicalId}`;
   const shareTitle = article?.title ?? "SeaJobs.pro";
 
   if (loading) return (
