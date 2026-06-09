@@ -149,6 +149,17 @@ export const T: Record<Lang, Record<string, string>> = {
     about_v2_title: "Trusted Network", about_v2_text: "We verify crewing companies to ensure seafarers only see legitimate, professional job offers from reputable agencies across Europe.",
     about_v3_title: "Global Reach", about_v3_text: "From the Baltic to the Mediterranean, our platform connects maritime talent with opportunities across all major shipping routes and registries.",
     about_cta_title: "Have Questions?", about_cta_sub: "Use our contact form on the home page or reach out directly.", about_cta_btn: "Contact Us",
+    // News comments & share
+    news_share: "Share",
+    news_copy_link: "Copy link",
+    news_copied: "Copied!",
+    news_comments: "Comments",
+    news_comment_name_ph: "Your name",
+    news_comment_text_ph: "Write a comment…",
+    news_post_comment: "Post comment",
+    news_posting: "Posting…",
+    news_no_comments: "Be the first to comment",
+    news_comment_error: "Failed to post. Try again.",
     // Home SEO section
     home_seo_title: "Why SeaJobs.pro?",
     home_seo_p1: "SeaJobs.pro is a free maritime job board built exclusively for seafarers and crewing companies. Whether you are a Captain, Chief Engineer, Deck Officer or any other maritime professional, you will find thousands of verified vacancies from certified crewing agencies across Europe. Create your CV, upload certificates, set your readiness date and receive alerts when matching vacancies appear.",
@@ -325,3 +336,46 @@ const HOME_FOOTER_RU: Record<string, string> = {
 Object.assign(T.ua, HOME_FOOTER_UA);
 Object.assign(T.pl, HOME_FOOTER_PL);
 Object.assign(T.ru, HOME_FOOTER_RU);
+
+const COMMENTS_UA: Record<string, string> = {
+  news_share: "Поділитись",
+  news_copy_link: "Скопіювати",
+  news_copied: "Скопійовано!",
+  news_comments: "Коментарі",
+  news_comment_name_ph: "Ваше ім'я",
+  news_comment_text_ph: "Напишіть коментар…",
+  news_post_comment: "Надіслати",
+  news_posting: "Надсилання…",
+  news_no_comments: "Станьте першим коментатором",
+  news_comment_error: "Помилка. Спробуйте ще раз.",
+};
+
+const COMMENTS_PL: Record<string, string> = {
+  news_share: "Udostępnij",
+  news_copy_link: "Kopiuj link",
+  news_copied: "Skopiowano!",
+  news_comments: "Komentarze",
+  news_comment_name_ph: "Twoje imię",
+  news_comment_text_ph: "Napisz komentarz…",
+  news_post_comment: "Wyślij",
+  news_posting: "Wysyłanie…",
+  news_no_comments: "Bądź pierwszym komentatorem",
+  news_comment_error: "Błąd. Spróbuj ponownie.",
+};
+
+const COMMENTS_RU: Record<string, string> = {
+  news_share: "Поделиться",
+  news_copy_link: "Скопировать",
+  news_copied: "Скопировано!",
+  news_comments: "Комментарии",
+  news_comment_name_ph: "Ваше имя",
+  news_comment_text_ph: "Напишите комментарий…",
+  news_post_comment: "Отправить",
+  news_posting: "Отправка…",
+  news_no_comments: "Станьте первым комментатором",
+  news_comment_error: "Ошибка. Попробуйте ещё раз.",
+};
+
+Object.assign(T.ua, COMMENTS_UA);
+Object.assign(T.pl, COMMENTS_PL);
+Object.assign(T.ru, COMMENTS_RU);

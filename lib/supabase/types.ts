@@ -393,6 +393,30 @@ export interface Database {
         };
         Relationships: [];
       };
+      news_comments: {
+        Row: {
+          id: string;
+          article_id: string;
+          author_name: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          article_id: string;
+          author_name: string;
+          content: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          article_id?: string;
+          author_name?: string;
+          content?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       messages: {
         Row: {
           id: string;
@@ -502,3 +526,4 @@ export type ForumPost = Database["public"]["Tables"]["forum_posts"]["Row"];
 export type NewsArticle = Database["public"]["Tables"]["news_articles"]["Row"];
 export type Application = Database["public"]["Tables"]["applications"]["Row"];
 export type SavedVacancy = Database["public"]["Tables"]["saved_vacancies"]["Row"];
+export type NewsComment = Database["public"]["Tables"]["news_comments"]["Row"];
