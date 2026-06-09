@@ -138,6 +138,15 @@ export default function Home() {
         </div>
       </section>
 
+      {/* SEO TEXT SECTION */}
+      <section className="mx-auto max-w-7xl px-5 pb-4 pt-2">
+        <div className="rounded-2xl border border-white/10 bg-card px-8 py-8">
+          <h2 className="font-display text-2xl font-semibold text-white mb-4">{t.home_seo_title}</h2>
+          <p className="text-sm text-mist leading-relaxed mb-3">{t.home_seo_p1}</p>
+          <p className="text-sm text-mist leading-relaxed">{t.home_seo_p2}</p>
+        </div>
+      </section>
+
       {/* Contact / Suggestions */}
       <section className="mx-auto max-w-7xl px-5 py-12">
         <div className="rounded-2xl border border-white/10 bg-card p-8 sm:p-10">

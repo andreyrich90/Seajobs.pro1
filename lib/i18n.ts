@@ -149,6 +149,17 @@ export const T: Record<Lang, Record<string, string>> = {
     about_v2_title: "Trusted Network", about_v2_text: "We verify crewing companies to ensure seafarers only see legitimate, professional job offers from reputable agencies across Europe.",
     about_v3_title: "Global Reach", about_v3_text: "From the Baltic to the Mediterranean, our platform connects maritime talent with opportunities across all major shipping routes and registries.",
     about_cta_title: "Have Questions?", about_cta_sub: "Use our contact form on the home page or reach out directly.", about_cta_btn: "Contact Us",
+    // Home SEO section
+    home_seo_title: "Why SeaJobs.pro?",
+    home_seo_p1: "SeaJobs.pro is a free maritime job board built exclusively for seafarers and crewing companies. Whether you are a Captain, Chief Engineer, Deck Officer or any other maritime professional, you will find thousands of verified vacancies from certified crewing agencies across Europe. Create your CV, upload certificates, set your readiness date and receive alerts when matching vacancies appear.",
+    home_seo_p2: "Crewing companies post vacancies for free and instantly reach over 32,000 registered seafarers. Every vacancy is automatically structured for Google for Jobs — maximising your reach with zero extra effort or cost. Join 180+ crewing companies that already trust SeaJobs.pro for their maritime recruitment.",
+    // Footer
+    footer_tagline: "The harbour for maritime careers. Connecting seafarers with crewing agencies worldwide.",
+    footer_platform: "Platform", footer_company_col: "Company", footer_get_started: "Get Started", footer_follow: "Follow us",
+    footer_rights: "All rights reserved.", footer_built: "Built for seafarers, by seafarers.",
+    footer_vacancies: "Vacancies", footer_forum: "Forum", footer_news: "News",
+    footer_for_companies: "For Companies", footer_about: "About", footer_terms: "Terms of Service", footer_privacy: "Privacy Policy",
+    footer_reg_seafarer: "Register as Seafarer", footer_reg_company: "Register as Company", footer_signin: "Sign In",
   },
 };
 
@@ -274,3 +285,43 @@ const ABOUT_RU: Record<string, string> = {
 Object.assign(T.ua, ABOUT_UA);
 Object.assign(T.pl, ABOUT_PL);
 Object.assign(T.ru, ABOUT_RU);
+
+const HOME_FOOTER_UA: Record<string, string> = {
+  home_seo_title: "Чому SeaJobs.pro?",
+  home_seo_p1: "SeaJobs.pro — безкоштовна морська платформа для моряків і крюїнгових компаній. Тут ви знайдете тисячі перевірених вакансій від сертифікованих агентств по всій Європі. Капітани, старші механіки, штурмани та інші морські спеціалісти знаходять роботу тут. Створіть резюме, завантажте сертифікати, вкажіть дату готовності й отримуйте сповіщення про підходящі вакансії.",
+  home_seo_p2: "Крюїнгові компанії розміщують вакансії безкоштовно і миттєво охоплюють понад 32 000 зареєстрованих моряків. Кожна вакансія автоматично індексується в Google for Jobs — максимальне охоплення без жодних додаткових витрат. Приєднуйтесь до 180+ крюїнгових компаній, які вже довіряють SeaJobs.pro.",
+  footer_tagline: "Гавань для морської кар'єри. З'єднуємо моряків із крюїнговими агентствами по всьому світу.",
+  footer_platform: "Платформа", footer_company_col: "Компанія", footer_get_started: "Почати", footer_follow: "Ми в соцмережах",
+  footer_rights: "Усі права захищені.", footer_built: "Для моряків, від моряків.",
+  footer_vacancies: "Вакансії", footer_forum: "Форум", footer_news: "Новини",
+  footer_for_companies: "Для компаній", footer_about: "Про нас", footer_terms: "Умови використання", footer_privacy: "Конфіденційність",
+  footer_reg_seafarer: "Реєстрація моряка", footer_reg_company: "Реєстрація компанії", footer_signin: "Увійти",
+};
+
+const HOME_FOOTER_PL: Record<string, string> = {
+  home_seo_title: "Dlaczego SeaJobs.pro?",
+  home_seo_p1: "SeaJobs.pro to bezpłatna platforma morska stworzona dla marynarzy i firm crewingowych. Znajdziesz tu tysiące zweryfikowanych ofert od certyfikowanych agencji w całej Europie. Kapitanowie, starsi mechanicy, oficerowie pokładowi i inni specjalisci morscy — wszyscy znajda tu prace. Stwórz CV, dodaj certyfikaty, ustaw date gotowosci i otrzymuj alerty o pasujacych ofertach.",
+  home_seo_p2: "Firmy crewingowe publikuja oferty bezplatnie i natychmiast docieraja do ponad 32 000 zarejestrowanych marynarzy. Kazda oferta jest automatycznie indeksowana w Google for Jobs — maksymalny zasieg bez dodatkowych kosztów. Dolacz do 180+ firm crewingowych, które juz ufa SeaJobs.pro.",
+  footer_tagline: "Port kariery morskiej. Laczymy marynarzy z agencjami crewingowymi na calym swiecie.",
+  footer_platform: "Platforma", footer_company_col: "Firma", footer_get_started: "Zaczynamy", footer_follow: "Sledz nas",
+  footer_rights: "Wszelkie prawa zastrzezone.", footer_built: "Dla marynarzy, przez marynarzy.",
+  footer_vacancies: "Oferty pracy", footer_forum: "Forum", footer_news: "Aktualnosci",
+  footer_for_companies: "Dla firm", footer_about: "O nas", footer_terms: "Regulamin", footer_privacy: "Prywatnosc",
+  footer_reg_seafarer: "Rejestracja marynarza", footer_reg_company: "Rejestracja firmy", footer_signin: "Zaloguj",
+};
+
+const HOME_FOOTER_RU: Record<string, string> = {
+  home_seo_title: "Почему SeaJobs.pro?",
+  home_seo_p1: "SeaJobs.pro — бесплатная морская платформа для моряков и крюинговых компаний. Здесь вы найдёте тысячи проверенных вакансий от сертифицированных агентств по всей Европе. Капитаны, старшие механики, штурманы и другие морские специалисты находят работу здесь. Создайте резюме, загрузите сертификаты, укажите дату готовности и получайте уведомления о подходящих вакансиях.",
+  home_seo_p2: "Крюинговые компании размещают вакансии бесплатно и мгновенно охватывают более 32 000 зарегистрированных моряков. Каждая вакансия автоматически индексируется в Google for Jobs — максимальный охват без лишних затрат. Присоединяйтесь к 180+ крюинговым компаниям, которые уже доверяют SeaJobs.pro.",
+  footer_tagline: "Гавань для морской карьеры. Соединяем моряков с крюинговыми агентствами по всему миру.",
+  footer_platform: "Платформа", footer_company_col: "Компания", footer_get_started: "Начать", footer_follow: "Мы в соцсетях",
+  footer_rights: "Все права защищены.", footer_built: "Для моряков, от моряков.",
+  footer_vacancies: "Вакансии", footer_forum: "Форум", footer_news: "Новости",
+  footer_for_companies: "Для компаний", footer_about: "О нас", footer_terms: "Условия использования", footer_privacy: "Конфиденциальность",
+  footer_reg_seafarer: "Регистрация моряка", footer_reg_company: "Регистрация компании", footer_signin: "Войти",
+};
+
+Object.assign(T.ua, HOME_FOOTER_UA);
+Object.assign(T.pl, HOME_FOOTER_PL);
+Object.assign(T.ru, HOME_FOOTER_RU);
