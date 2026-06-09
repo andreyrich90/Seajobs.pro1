@@ -4,19 +4,19 @@ import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
-  title: "SeaJobs.pro — Maritime Jobs for Seafarers",
-  description: "Find maritime jobs worldwide. Platform for seafarers and crewing companies. Search vacancies by rank, vessel type, salary.",
+  title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
+  description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. Free platform for seafarers and crewing companies.",
   keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs",
   openGraph: {
-    title: "SeaJobs.pro — Maritime Jobs",
-    description: "Find maritime jobs worldwide for seafarers",
+    title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
+    description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary.",
     type: "website",
     siteName: "SeaJobs.pro",
   },
   twitter: {
     card: "summary",
-    title: "SeaJobs.pro — Maritime Jobs",
-    description: "Find maritime jobs worldwide for seafarers",
+    title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
+    description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary.",
   },
 };
 
