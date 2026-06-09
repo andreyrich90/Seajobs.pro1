@@ -39,15 +39,20 @@ function formatDate(dateStr: string, lang: string): string {
 }
 
 function toStaticItems(lang: string): DisplayItem[] {
-  return NEWS.map((n) => ({
-    id: `static-${n.id}`,
-    title: n.title[lang] ?? n.title.en,
-    tag: n.tag,
-    date: n.date,
-    gradient: n.gradient,
-    coverUrl: n.coverUrl ?? null,
-    source: "static" as const,
-  }));
+  return [...NEWS]
+    .sort((a, b) => {
+      const diff = new Date(b.date).getTime() - new Date(a.date).getTime();
+      return diff !== 0 ? diff : b.id - a.id;
+    })
+    .map((n) => ({
+      id: `static-${n.id}`,
+      title: n.title[lang] ?? n.title.en,
+      tag: n.tag,
+      date: n.date,
+      gradient: n.gradient,
+      coverUrl: n.coverUrl ?? null,
+      source: "static" as const,
+    }));
 }
 
 export default function NewsPage() {
