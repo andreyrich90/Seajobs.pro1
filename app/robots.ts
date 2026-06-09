@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/seafarer/", "/company/", "/admin/", "/auth/", "/forum", "/news"],
+        disallow: ["/seafarer/", "/company/", "/admin/", "/auth/"],
       },
     ],
     sitemap: "https://seajobs.pro/sitemap.xml",
