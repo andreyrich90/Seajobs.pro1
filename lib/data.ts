@@ -49,6 +49,7 @@ export const NEWS: NewsItem[] = [
     tag: "Regulation",
     date: "2026-05-24",
     gradient: "linear-gradient(135deg,#0c4a6e,#155e75)",
+    coverUrl: "https://images.unsplash.com/photo-1508962914676-134849a727f0?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: 2,
