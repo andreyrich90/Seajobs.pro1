@@ -386,7 +386,9 @@ export default function NewsArticlePage() {
               {others.map((item) => (
                 <Link key={item.id} href={`/news/${item.id}`}
                   className="group rounded-2xl border border-white/10 bg-card overflow-hidden transition hover:border-white/20">
-                  <div className="h-24" style={{ background: item.coverUrl ? undefined : item.gradient }} />
+                  <div className="relative h-24" style={{ background: item.coverUrl ? undefined : item.gradient }}>
+                    {item.coverUrl && <img src={item.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                  </div>
                   <div className="p-4">
                     <span className={`mb-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                       <Tag size={10} /> {item.tag}
