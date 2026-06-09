@@ -87,6 +87,7 @@ export const NEWS: NewsItem[] = [
     tag: "Industry",
     date: "2026-05-15",
     gradient: "linear-gradient(135deg,#14532d,#166534)",
+    coverUrl: "https://images.unsplash.com/photo-1589640895954-f22928e3fa9a?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: 4,
