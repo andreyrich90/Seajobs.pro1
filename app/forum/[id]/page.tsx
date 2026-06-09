@@ -11,6 +11,12 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
+import { useLang } from "@/components/LangProvider";
+
+function loc(field: Record<string, string> | string, lang: string): string {
+  if (typeof field === "string") return field;
+  return field[lang] || field.en || field.ru || Object.values(field)[0] || "";
+}
 
 function renderInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/);
@@ -188,6 +194,7 @@ function PostCard({
 export default function TopicPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { lang } = useLang();
   const [topic, setTopic] = useState<ForumTopic | null>(null);
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [session, setSession] = useState<Session | null>(null);
@@ -269,17 +276,19 @@ export default function TopicPage() {
 
   function startEditTopic() {
     if (!topic) return;
-    setTopicTitleDraft(topic.title);
-    setTopicContentDraft(topic.content);
+    setTopicTitleDraft(loc(topic.title, lang));
+    setTopicContentDraft(loc(topic.content, lang));
     setEditingTopic(true);
   }
 
   async function saveTopicEdit() {
     if (!topic || !topicTitleDraft.trim() || !topicContentDraft.trim()) return;
     setSavingTopic(true);
+    const newTitle = { ...(typeof topic.title === "object" ? topic.title : { ru: topic.title }), [lang]: topicTitleDraft.trim() };
+    const newContent = { ...(typeof topic.content === "object" ? topic.content : { ru: topic.content }), [lang]: topicContentDraft.trim() };
     const { data, error } = await supabase
       .from("forum_topics")
-      .update({ title: topicTitleDraft.trim(), content: topicContentDraft.trim(), updated_at: new Date().toISOString() })
+      .update({ title: newTitle, content: newContent, updated_at: new Date().toISOString() })
       .eq("id", id)
       .select()
       .single();
@@ -365,7 +374,7 @@ export default function TopicPage() {
                   <Pin size={12} /> Pinned
                 </span>
               )}
-              <h1 className="font-display text-2xl font-semibold text-white">{topic.title}</h1>
+              <h1 className="font-display text-2xl font-semibold text-white">{loc(topic.title, lang)}</h1>
             </div>
             {isTopicOwn && (
               <div className="flex shrink-0 items-center gap-2">
@@ -391,7 +400,7 @@ export default function TopicPage() {
           <PostCard
             authorName={topic.author_name}
             date={topic.created_at}
-            content={topic.content}
+            content={loc(topic.content, lang)}
             isOwn={false}
             highlight
           />

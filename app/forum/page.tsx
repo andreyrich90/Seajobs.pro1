@@ -10,6 +10,12 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
+import { useLang } from "@/components/LangProvider";
+
+function loc(field: Record<string, string> | string, lang: string): string {
+  if (typeof field === "string") return field;
+  return field[lang] || field.en || field.ru || Object.values(field)[0] || "";
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -46,6 +52,7 @@ async function resolveAuthorName(userId: string): Promise<string> {
 }
 
 export default function ForumPage() {
+  const { lang } = useLang();
   const [topics, setTopics] = useState<ForumTopic[]>([]);
   const [countMap, setCountMap] = useState<Record<string, number>>({});
   const [session, setSession] = useState<Session | null>(null);
@@ -234,7 +241,7 @@ export default function ForumPage() {
                         Pinned
                       </span>
                     )}
-                    <h3 className="font-semibold text-white truncate">{topic.title}</h3>
+                    <h3 className="font-semibold text-white truncate">{loc(topic.title, lang)}</h3>
                   </div>
                   <p className="mt-0.5 text-xs text-mist">
                     by <span className="text-foam">{topic.author_name ?? "Anonymous"}</span>

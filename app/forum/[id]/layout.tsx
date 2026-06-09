@@ -19,7 +19,15 @@ export async function generateMetadata({
 
   if (!data) return { title: "Forum | SeaJobs.pro" };
 
-  const description = data.content
+  const titleStr = typeof data.title === "object"
+    ? ((data.title as Record<string, string>).en || (data.title as Record<string, string>).ru || Object.values(data.title as Record<string, string>)[0] || "")
+    : (data.title as string);
+
+  const contentStr = typeof data.content === "object"
+    ? ((data.content as Record<string, string>).en || (data.content as Record<string, string>).ru || Object.values(data.content as Record<string, string>)[0] || "")
+    : (data.content as string);
+
+  const description = contentStr
     .replace(/^#+ .*/gm, "")
     .replace(/\*\*/g, "")
     .replace(/\n+/g, " ")
@@ -27,17 +35,17 @@ export async function generateMetadata({
     .slice(0, 160);
 
   return {
-    title: `${data.title} | SeaJobs.pro`,
+    title: `${titleStr} | SeaJobs.pro`,
     description,
     openGraph: {
-      title: `${data.title} | SeaJobs.pro`,
+      title: `${titleStr} | SeaJobs.pro`,
       description,
       type: "article",
       siteName: "SeaJobs.pro",
     },
     twitter: {
       card: "summary",
-      title: `${data.title} | SeaJobs.pro`,
+      title: `${titleStr} | SeaJobs.pro`,
       description,
     },
   };

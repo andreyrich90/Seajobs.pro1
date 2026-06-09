@@ -335,8 +335,8 @@ export interface Database {
           id: string;
           user_id: string | null;
           author_name: string | null;
-          title: string;
-          content: string;
+          title: Record<string, string>;
+          content: Record<string, string>;
           is_pinned: boolean;
           created_at: string;
           updated_at: string | null;
@@ -345,8 +345,8 @@ export interface Database {
           id?: string;
           user_id?: string | null;
           author_name?: string | null;
-          title: string;
-          content: string;
+          title: Record<string, string>;
+          content: Record<string, string>;
           is_pinned?: boolean;
           created_at?: string;
           updated_at?: string | null;
@@ -355,8 +355,8 @@ export interface Database {
           id?: string;
           user_id?: string | null;
           author_name?: string | null;
-          title?: string;
-          content?: string;
+          title?: Record<string, string>;
+          content?: Record<string, string>;
           is_pinned?: boolean;
           created_at?: string;
           updated_at?: string | null;
