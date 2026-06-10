@@ -87,7 +87,12 @@ export default async function VacancyPage(
     "description": vacancy.description
       ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}. Apply on SeaJobs.pro — maritime job board for seafarers.`,
     "datePosted": vacancy.created_at,
-    "employmentType": "CONTRACT",
+    "validThrough": (() => {
+      const expiry = new Date(vacancy.created_at);
+      expiry.setDate(expiry.getDate() + 60);
+      return expiry.toISOString();
+    })(),
+    "employmentType": "CONTRACTOR",
     "industry": "Maritime / Shipping",
     ...(vacancy.rank ? { "occupationalCategory": vacancy.rank } : {}),
     "hiringOrganization": {

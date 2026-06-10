@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Search, ShieldCheck, Building2, ArrowRight } from "lucide-react";
+import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -58,6 +58,8 @@ function JobsContent() {
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [rank, setRank] = useState("");
   const [vessel, setVessel] = useState("");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     async function load() {
@@ -74,7 +76,39 @@ function JobsContent() {
       }
     }
     load();
+
+    async function loadSaved() {
+      const { data: { session } } = await supabase.auth.getSession();
+      const uid = session?.user?.id ?? null;
+      setUserId(uid);
+      if (!uid) return;
+
+      const { data } = await supabase
+        .from("saved_vacancies")
+        .select("vacancy_id")
+        .eq("seafarer_id", uid);
+      setSavedIds(new Set((data ?? []).map((r) => r.vacancy_id as string)));
+    }
+    loadSaved();
   }, []);
+
+  async function toggleSave(e: React.MouseEvent, vacancyId: string) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userId) return;
+
+    if (savedIds.has(vacancyId)) {
+      await supabase.from("saved_vacancies").delete().eq("vacancy_id", vacancyId).eq("seafarer_id", userId);
+      setSavedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(vacancyId);
+        return next;
+      });
+    } else {
+      await supabase.from("saved_vacancies").insert({ vacancy_id: vacancyId, seafarer_id: userId });
+      setSavedIds((prev) => new Set(prev).add(vacancyId));
+    }
+  }
 
   const filtered = vacancies.filter((v) => {
     const q = query.toLowerCase();
@@ -191,12 +225,27 @@ function JobsContent() {
                             )}
                           </div>
                         </div>
-                        <div className="shrink-0 text-right">
-                          {salary && (
-                            <p className="text-sm font-bold text-white">{salary}</p>
-                          )}
-                          {v.contract_duration && (
-                            <p className="text-xs text-mist mt-0.5">{v.contract_duration}</p>
+                        <div className="flex shrink-0 items-start gap-2">
+                          <div className="text-right">
+                            {salary && (
+                              <p className="text-sm font-bold text-white">{salary}</p>
+                            )}
+                            {v.contract_duration && (
+                              <p className="text-xs text-mist mt-0.5">{v.contract_duration}</p>
+                            )}
+                          </div>
+                          {userId && (
+                            <button
+                              onClick={(e) => toggleSave(e, v.id)}
+                              className="rounded-lg p-1.5 text-mist transition hover:bg-white/10 hover:text-brass2"
+                              aria-label={savedIds.has(v.id) ? "Unsave job" : "Save job"}
+                            >
+                              {savedIds.has(v.id) ? (
+                                <BookmarkCheck size={18} className="text-brass2" />
+                              ) : (
+                                <Bookmark size={18} />
+                              )}
+                            </button>
                           )}
                         </div>
                       </div>
