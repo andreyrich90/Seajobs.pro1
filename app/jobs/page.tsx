@@ -80,7 +80,11 @@ function JobsContent() {
     const q = query.toLowerCase();
     const companyName = v.companies?.name?.toLowerCase() ?? "";
     const matchQuery = !q || v.title.toLowerCase().includes(q) || (v.rank?.toLowerCase().includes(q) ?? false) || (v.vessel_type?.toLowerCase().includes(q) ?? false) || companyName.includes(q);
-    const matchRank = !rank || v.rank === rank;
+    const matchRank =
+      !rank ||
+      v.rank === rank ||
+      (rank === "AB (Able Seaman)" && (v.rank?.startsWith("AB ") ?? false)) ||
+      (rank === "OS (Ordinary Seaman)" && (v.rank?.startsWith("OS ") ?? false));
     const matchVessel = !vessel || v.vessel_type === vessel;
     return matchQuery && matchRank && matchVessel;
   });
