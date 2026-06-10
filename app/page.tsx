@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Compass, ArrowRight, ChevronRight, Briefcase, ShieldCheck, Building2 } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ShieldCheck, Building2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JobCard from "@/components/JobCard";
@@ -111,12 +111,9 @@ export default function Home() {
           {dbVacancies.length > 0 ? dbVacancies.map((v) => (
             <Link key={v.id} href={`/jobs/${v.id}`}
               className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/10">
-                <Briefcase size={18} className="text-brass2" />
-              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-sm text-white truncate">{v.title}</p>
+                  <p className="font-semibold text-sm text-white leading-snug">{v.title}</p>
                   {v.companies?.is_verified && <ShieldCheck size={14} className="text-teal shrink-0" />}
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
