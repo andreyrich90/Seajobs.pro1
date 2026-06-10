@@ -241,6 +241,7 @@ export interface Database {
           is_active: boolean;
           is_imported: boolean;
           source_url: string | null;
+          contact_email: string | null;
           views_count: number;
           created_at: string;
           updated_at: string | null;
@@ -260,6 +261,7 @@ export interface Database {
           is_active?: boolean;
           is_imported?: boolean;
           source_url?: string | null;
+          contact_email?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
@@ -279,6 +281,7 @@ export interface Database {
           is_active?: boolean;
           is_imported?: boolean;
           source_url?: string | null;
+          contact_email?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;

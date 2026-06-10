@@ -78,6 +78,79 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    // ── A seafarer applied to an imported vacancy → email the crewing agency ──
+    if (type === "external_application") {
+      const { vacancyId, seafarerId } = body as { vacancyId: string; seafarerId: string };
+      if (!isUuid(vacancyId) || !isUuid(seafarerId)) {
+        return NextResponse.json({ ok: false, error: "Bad input" }, { status: 400 });
+      }
+      if (caller.id !== seafarerId) {
+        return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+      }
+      const { data: appExists } = await admin
+        .from("applications").select("id, cover_letter").eq("vacancy_id", vacancyId).eq("seafarer_id", seafarerId).maybeSingle();
+      if (!appExists) return NextResponse.json({ ok: false }, { status: 404 });
+
+      const { data: vacancy } = await admin
+        .from("vacancies").select("title, contact_email").eq("id", vacancyId).single();
+      if (!vacancy?.contact_email) return NextResponse.json({ ok: false }, { status: 404 });
+
+      const [{ data: seafarer }, { data: experience }, { data: certificates }] = await Promise.all([
+        admin.from("seafarers").select("first_name, last_name, nationality, phone, rank, readiness_date, about").eq("id", seafarerId).single(),
+        admin.from("sea_experience").select("vessel_name, vessel_type, rank, company, from_date, to_date").eq("seafarer_id", seafarerId).order("from_date", { ascending: false }),
+        admin.from("certificates").select("name, issuing_authority, expiry_date").eq("seafarer_id", seafarerId).order("expiry_date", { ascending: false }),
+      ]);
+
+      const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
+
+      // Total sea time across all experience entries, in months.
+      let totalMonths = 0;
+      for (const e of experience ?? []) {
+        if (!e.from_date) continue;
+        const start = new Date(e.from_date);
+        const end = e.to_date ? new Date(e.to_date) : new Date();
+        totalMonths += Math.max(0, (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()));
+      }
+      const seaTime = totalMonths > 0
+        ? `${Math.floor(totalMonths / 12)}y ${totalMonths % 12}m`
+        : "—";
+
+      const expRows = (experience ?? []).map((e) => {
+        const period = e.from_date
+          ? `${new Date(e.from_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })} – ${e.to_date ? new Date(e.to_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "present"}`
+          : "";
+        return `<li>${[e.rank, e.vessel_name, e.vessel_type, e.company, period].filter(Boolean).join(" — ")}</li>`;
+      }).join("");
+
+      const certRows = (certificates ?? []).map((c) => {
+        const expiry = c.expiry_date ? `, exp. ${new Date(c.expiry_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}` : "";
+        return `<li>${[c.name, c.issuing_authority].filter(Boolean).join(" — ")}${expiry}</li>`;
+      }).join("");
+
+      await sendEmail(
+        vacancy.contact_email,
+        `New application for "${vacancy.title}" — ${name}`,
+        `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro.</p>
+<h3>Candidate</h3>
+<ul>
+  <li>Name: ${name}</li>
+  <li>Rank: ${seafarer?.rank ?? "—"}</li>
+  <li>Nationality: ${seafarer?.nationality ?? "—"}</li>
+  <li>Total sea time: ${seaTime}</li>
+  <li>Available from: ${seafarer?.readiness_date ? new Date(seafarer.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}</li>
+  <li>Phone: ${seafarer?.phone ?? "—"}</li>
+  <li>Email: ${caller.email ?? "—"}</li>
+</ul>
+${seafarer?.about ? `<h3>About</h3><p>${seafarer.about}</p>` : ""}
+${appExists.cover_letter ? `<h3>Cover letter</h3><p>${appExists.cover_letter}</p>` : ""}
+${expRows ? `<h3>Sea experience</h3><ul>${expRows}</ul>` : ""}
+${certRows ? `<h3>Certificates</h3><ul>${certRows}</ul>` : ""}
+<p><a href="https://seajobs.pro/seafarers/${seafarerId}">View full profile →</a></p>`,
+      );
+
+      return NextResponse.json({ ok: true });
+    }
+
     // ── Company changed an application's status → notify the seafarer ─────────
     if (type === "status_changed") {
       const { applicationId, status } = body as { applicationId: string; status: string };

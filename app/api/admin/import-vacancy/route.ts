@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const {
       companyName, companyLocation, companyWebsite,
       title, rank, vesselType, salaryFrom, salaryTo, currency,
-      contractDuration, joiningDate, description, sourceUrl,
+      contractDuration, joiningDate, description, sourceUrl, contactEmail,
     } = body;
 
     if (!title?.trim() || !companyName?.trim()) {
@@ -70,6 +70,7 @@ export async function POST(req: Request) {
       is_active: true,
       is_imported: true,
       source_url: sourceUrl?.trim() || null,
+      contact_email: contactEmail?.trim() || null,
     }).select("id").single();
 
     if (vacErr) return NextResponse.json({ ok: false, error: vacErr.message }, { status: 500 });

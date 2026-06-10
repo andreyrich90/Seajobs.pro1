@@ -18,7 +18,7 @@ function getAdminClient() {
 async function fetchVacancy(id: string): Promise<VacancyFull | null> {
   const { data } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
   return (data as VacancyFull | null);

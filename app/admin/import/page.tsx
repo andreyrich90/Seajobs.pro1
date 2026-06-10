@@ -23,7 +23,7 @@ const empty = () => ({
   companyName: "", companyLocation: "", companyWebsite: "",
   title: "", rank: "", vesselType: "",
   salaryFrom: "", salaryTo: "", currency: "USD",
-  contractDuration: "", joiningDate: "", description: "", sourceUrl: "",
+  contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "",
 });
 
 type Form = ReturnType<typeof empty>;
@@ -68,6 +68,7 @@ export default function ImportVacancyPage() {
         joiningDate:      form.joiningDate || null,
         description:      form.description,
         sourceUrl:        form.sourceUrl,
+        contactEmail:     form.contactEmail,
       }),
     });
 
@@ -272,6 +273,20 @@ export default function ImportVacancyPage() {
             className={inputClass}
           />
           <p className="mt-2 text-xs text-mist">Shown as reference. Not indexed by Google for Jobs.</p>
+
+          <div className="mt-4">
+            <label className={labelClass}>Crewing contact email (optional)</label>
+            <input
+              type="email"
+              value={form.contactEmail}
+              onChange={set("contactEmail")}
+              placeholder="crew@agency.com"
+              className={inputClass}
+            />
+            <p className="mt-2 text-xs text-mist">
+              If set, &quot;Apply&quot; sends the seafarer&apos;s profile (name, rank, experience, certificates, contacts) directly to this email instead of the in-app inbox.
+            </p>
+          </div>
         </div>
 
         {/* Actions */}

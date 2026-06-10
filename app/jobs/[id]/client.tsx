@@ -26,6 +26,7 @@ export type VacancyDetail = {
   created_at: string;
   is_imported?: boolean;
   source_url?: string | null;
+  contact_email?: string | null;
   companies: {
     id: string;
     name: string | null;
@@ -111,7 +112,11 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
       return;
     }
 
-    notify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId });
+    if (vacancy.contact_email) {
+      notify({ type: "external_application", vacancyId: vacancy.id, seafarerId: userId });
+    } else {
+      notify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId });
+    }
     setApplicationStatus("pending");
     setShowModal(false);
     setCoverLetter("");
@@ -375,6 +380,12 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
             <p className="text-sm text-mist mb-4">
               Applying for: <span className="font-semibold text-foam">{vacancy.title}</span>
             </p>
+
+            {vacancy.contact_email && (
+              <p className="mb-4 text-xs text-mist">
+                Your profile (rank, experience, certificates, contacts) will be sent directly to the crewing agency&apos;s email.
+              </p>
+            )}
 
             {applyError && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
