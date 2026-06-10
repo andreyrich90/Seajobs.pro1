@@ -12,10 +12,14 @@ import type { ForumTopic } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 
-function loc(field: Record<string, string> | string | null | undefined, lang: string): string {
+function loc(field: unknown, lang: string): string {
   if (!field) return "";
   if (typeof field === "string") return field;
-  return field[lang] || field.en || field.ru || Object.values(field)[0] || "";
+  if (typeof field === "object") {
+    const obj = field as Record<string, unknown>;
+    return loc(obj[lang] ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
+  }
+  return "";
 }
 
 function timeAgo(dateStr: string): string {

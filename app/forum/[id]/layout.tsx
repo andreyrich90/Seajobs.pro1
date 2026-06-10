@@ -1,6 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 
+function loc(field: unknown, lang = "en"): string {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  if (typeof field === "object") {
+    const obj = field as Record<string, unknown>;
+    return loc(obj[lang] ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
+  }
+  return "";
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -19,13 +29,8 @@ export async function generateMetadata({
 
   if (!data) return { title: "Forum | SeaJobs.pro" };
 
-  const titleStr = data.title && typeof data.title === "object"
-    ? ((data.title as Record<string, string>).en || (data.title as Record<string, string>).ru || Object.values(data.title as Record<string, string>)[0] || "")
-    : ((data.title as string) || "");
-
-  const contentStr = data.content && typeof data.content === "object"
-    ? ((data.content as Record<string, string>).en || (data.content as Record<string, string>).ru || Object.values(data.content as Record<string, string>)[0] || "")
-    : ((data.content as string) || "");
+  const titleStr = loc(data.title);
+  const contentStr = loc(data.content);
 
   const description = contentStr
     .replace(/^#+ .*/gm, "")

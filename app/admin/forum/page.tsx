@@ -7,6 +7,16 @@ import { Trash2, Pin, PinOff, MessageSquare, ChevronDown, ChevronRight } from "l
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 
+function loc(field: unknown, lang = "ru"): string {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  if (typeof field === "object") {
+    const obj = field as Record<string, unknown>;
+    return loc(obj[lang] ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
+  }
+  return "";
+}
+
 function timeAgo(d: string) {
   const diff = Date.now() - new Date(d).getTime();
   const h = Math.floor(diff / 3600000);
@@ -86,7 +96,7 @@ export default function AdminForumPage() {
                   {expanded === topic.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white truncate">{topic.title}</p>
+                  <p className="font-semibold text-white truncate">{loc(topic.title)}</p>
                   <p className="text-xs text-mist">
                     by <span className="text-foam">{topic.author_name ?? "anon"}</span>
                     {" · "}{timeAgo(topic.created_at)}
