@@ -25,35 +25,50 @@ export default function AuthCallbackPage() {
       if (handled) return;
       handled = true;
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", userId)
-        .single();
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", userId)
+          .single();
 
-      if (!profile) {
-        const pendingRole = localStorage.getItem("oauth_role") as Role | null;
-        if (pendingRole === "seafarer" || pendingRole === "company") {
-          localStorage.removeItem("oauth_role");
-          setUserId(userId);
-          setLoading(false);
-          await handleRoleSelectInner(userId, pendingRole);
+        if (!profile) {
+          const pendingRole = localStorage.getItem("oauth_role") as Role | null;
+          if (pendingRole === "seafarer" || pendingRole === "company") {
+            localStorage.removeItem("oauth_role");
+            setUserId(userId);
+            setLoading(false);
+            await handleRoleSelectInner(userId, pendingRole);
+          } else {
+            setUserId(userId);
+            setNeedsRole(true);
+            setLoading(false);
+          }
         } else {
-          setUserId(userId);
-          setNeedsRole(true);
-          setLoading(false);
+          const r = (profile as { role: string }).role;
+          localStorage.setItem("user_role", r);
+          router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
         }
-      } else {
-        const r = (profile as { role: string }).role;
-        localStorage.setItem("user_role", r);
-        router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
+      } catch {
+        // Profile lookup failed (e.g. transient API/schema issue) but the
+        // user IS signed in — let them pick a role rather than bouncing
+        // them back to /auth/login as if auth itself failed.
+        setUserId(userId);
+        setNeedsRole(true);
+        setLoading(false);
       }
     }
 
-    // Use onAuthStateChange so we wait for PKCE code exchange to complete
-    // before checking the user — getUser() called immediately can race
-    // against the code exchange and return null (especially when opening
-    // from an email link in a fresh browser context).
+    // Some browsers/contexts don't reliably re-fire INITIAL_SESSION once a
+    // session already exists in storage, so check directly first...
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) handleUser(session.user.id);
+    });
+
+    // ...and also listen for the auth state change that follows PKCE code
+    // exchange — getUser() called immediately can race against the code
+    // exchange and return null (especially when opening from an email link
+    // in a fresh browser context).
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
