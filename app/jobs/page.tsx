@@ -147,19 +147,15 @@ function JobsContent() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Company logo */}
-                    <div className="shrink-0">
-                      {v.companies?.logo_url ? (
+                    {v.companies?.logo_url && (
+                      <div className="shrink-0">
                         <img
                           src={v.companies.logo_url}
                           alt={v.companies.name ?? ""}
                           className="h-12 w-12 rounded-xl object-cover"
                         />
-                      ) : (
-                        <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/10">
-                          <Building2 size={22} className="text-mist" />
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3">
