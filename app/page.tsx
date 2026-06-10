@@ -116,7 +116,7 @@ export default function Home() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-white truncate">{v.title}</p>
+                  <p className="font-semibold text-sm text-white truncate">{v.title}</p>
                   {v.companies?.is_verified && <ShieldCheck size={14} className="text-teal shrink-0" />}
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
