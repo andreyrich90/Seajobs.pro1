@@ -6,6 +6,10 @@ import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOf
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
+import { T, type Lang } from "@/lib/i18n";
+import { useLang } from "@/components/LangProvider";
+
+const DATE_LOCALES: Record<Lang, string> = { ua: "uk-UA", pl: "pl-PL", ru: "ru-RU", en: "en-GB" };
 
 interface DashboardStats {
   seafarer: Seafarer | null;
@@ -33,6 +37,8 @@ function calcCompletion(seafarer: Seafarer | null): number {
 }
 
 export default function DashboardPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [stats, setStats] = useState<DashboardStats>({
     seafarer: null,
     certCount: 0,
@@ -70,7 +76,7 @@ export default function DashboardPage() {
   }, []);
 
   const completion = calcCompletion(stats.seafarer);
-  const fullName = [stats.seafarer?.first_name, stats.seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
+  const fullName = [stats.seafarer?.first_name, stats.seafarer?.last_name].filter(Boolean).join(" ") || t.dash_seafarer_default;
 
   async function toggleJobAlert() {
     if (!stats.seafarer?.id || alertToggling) return;
@@ -90,7 +96,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.cab_loading}</p>
       </div>
     );
   }
@@ -101,7 +107,7 @@ export default function DashboardPage() {
       <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-mist mb-1">Welcome back,</p>
+            <p className="text-sm text-mist mb-1">{t.dash_welcome}</p>
             <h1 className="font-display text-3xl font-semibold text-white">{fullName}</h1>
             {stats.seafarer?.rank && (
               <span className="mt-2 inline-block rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-semibold text-teal">
@@ -110,7 +116,7 @@ export default function DashboardPage() {
             )}
           </div>
           <div className="text-right shrink-0">
-            <p className="text-xs text-mist mb-1">Profile completion</p>
+            <p className="text-xs text-mist mb-1">{t.dash_profile_completion}</p>
             <p className="font-display text-3xl font-bold text-brass2">{completion}%</p>
           </div>
         </div>
@@ -125,9 +131,9 @@ export default function DashboardPage() {
           </div>
           {completion < 100 && (
             <p className="mt-2 text-xs text-mist">
-              Complete your profile to increase visibility to recruiters.{" "}
+              {t.dash_complete_profile}{" "}
               <Link href="/seafarer/profile" className="text-brass2 hover:underline">
-                Update now
+                {t.dash_update_now}
               </Link>
             </p>
           )}
@@ -138,65 +144,65 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-mist">Certificates</p>
+            <p className="text-sm font-semibold text-mist">{t.dash_certificates}</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-brass/10">
               <Award size={18} className="text-brass2" />
             </div>
           </div>
           <p className="font-display text-3xl font-bold text-white">{stats.certCount}</p>
-          <p className="text-xs text-mist mt-1">documents stored</p>
+          <p className="text-xs text-mist mt-1">{t.dash_documents_stored}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-mist">Sea Experience</p>
+            <p className="text-sm font-semibold text-mist">{t.dash_sea_experience}</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-teal/10">
               <Ship size={18} className="text-teal" />
             </div>
           </div>
           <p className="font-display text-3xl font-bold text-white">{stats.expCount}</p>
-          <p className="text-xs text-mist mt-1">voyages logged</p>
+          <p className="text-xs text-mist mt-1">{t.dash_voyages_logged}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-mist">Applications</p>
+            <p className="text-sm font-semibold text-mist">{t.dash_applications}</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-coral/10">
               <Send size={18} className="text-coral" />
             </div>
           </div>
           <p className="font-display text-3xl font-bold text-white">{stats.applicationCount}</p>
-          <p className="text-xs text-mist mt-1">jobs applied to</p>
+          <p className="text-xs text-mist mt-1">{t.dash_jobs_applied}</p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-mist">Ready to Sail</p>
+            <p className="text-sm font-semibold text-mist">{t.dash_ready_to_sail}</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-teal/10">
               <Calendar size={18} className="text-teal" />
             </div>
           </div>
           <p className="font-display text-lg font-bold text-white">
             {stats.seafarer?.readiness_date
-              ? new Date(stats.seafarer.readiness_date).toLocaleDateString("en-GB", {
+              ? new Date(stats.seafarer.readiness_date).toLocaleDateString(DATE_LOCALES[lang], {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
                 })
-              : "Not set"}
+              : t.dash_not_set}
           </p>
-          <p className="text-xs text-mist mt-1">readiness date</p>
+          <p className="text-xs text-mist mt-1">{t.dash_readiness_date}</p>
         </div>
       </div>
 
       {/* Quick actions */}
-      <h2 className="font-display text-xl font-semibold text-white mb-4">Quick actions</h2>
+      <h2 className="font-display text-xl font-semibold text-white mb-4">{t.dash_quick_actions}</h2>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Edit Profile", href: "/seafarer/profile", icon: User, desc: "Update your personal info" },
-          { label: "Certificates", href: "/seafarer/certificates", icon: Award, desc: "Add or manage certs" },
-          { label: "Experience", href: "/seafarer/experience", icon: Ship, desc: "Log sea experience" },
-          { label: "Download CV", href: "/seafarer/cv", icon: FileText, desc: "Generate your CV" },
+          { label: t.dash_edit_profile, href: "/seafarer/profile", icon: User, desc: t.dash_edit_profile_desc },
+          { label: t.dash_certificates, href: "/seafarer/certificates", icon: Award, desc: t.dash_certificates_desc },
+          { label: t.dash_experience, href: "/seafarer/experience", icon: Ship, desc: t.dash_experience_desc },
+          { label: t.dash_download_cv, href: "/seafarer/cv", icon: FileText, desc: t.dash_download_cv_desc },
         ].map((action) => (
           <Link
             key={action.href}
@@ -233,20 +239,24 @@ export default function DashboardPage() {
             }
           </div>
           <div>
-            <p className="font-semibold text-white">Job Alerts</p>
+            <p className="font-semibold text-white">{t.dash_job_alerts}</p>
             {stats.hasJobAlert ? (
               <p className="text-xs text-brass2">
-                Active — notifying you of new <strong>{stats.seafarer?.rank}</strong> positions
+                {t.dash_alert_active.split("{rank}")[0]}
+                <strong>{stats.seafarer?.rank}</strong>
+                {t.dash_alert_active.split("{rank}")[1]}
               </p>
             ) : stats.seafarer?.rank ? (
               <p className="text-xs text-mist">
-                Get notified when new <strong className="text-foam">{stats.seafarer.rank}</strong> vacancies are posted
+                {t.dash_alert_get_notified.split("{rank}")[0]}
+                <strong className="text-foam">{stats.seafarer.rank}</strong>
+                {t.dash_alert_get_notified.split("{rank}")[1]}
               </p>
             ) : (
               <p className="text-xs text-mist">
-                Set your rank in{" "}
-                <Link href="/seafarer/profile" className="text-brass2 hover:underline">your profile</Link>{" "}
-                to enable job alerts
+                {t.dash_alert_set_rank.split("{link}")[0]}
+                <Link href="/seafarer/profile" className="text-brass2 hover:underline">{t.dash_alert_set_rank_link}</Link>
+                {t.dash_alert_set_rank.split("{link}")[1]}
               </p>
             )}
           </div>
@@ -261,7 +271,7 @@ export default function DashboardPage() {
                 : "bg-gradient-to-br from-brass to-brass2 text-deep hover:-translate-y-0.5"
             }`}
           >
-            {alertToggling ? "…" : stats.hasJobAlert ? "Disable" : "Enable"}
+            {alertToggling ? "…" : stats.hasJobAlert ? t.dash_disable : t.dash_enable}
           </button>
         )}
       </div>
@@ -270,8 +280,8 @@ export default function DashboardPage() {
       <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
         <ContactForm
           userId={stats.seafarer?.id ?? null}
-          title="Suggestions & Contact"
-          subtitle="Have a question or suggestion? Write to us — we read everything."
+          title={t.dash_suggestions_title}
+          subtitle={t.dash_suggestions_subtitle}
           compact
         />
       </div>
