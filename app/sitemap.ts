@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { MetadataRoute } from "next";
+import { NEWS } from "@/lib/data";
 
 const BASE = "https://seajobs.pro";
 
@@ -12,6 +13,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/forum`,    lastModified: new Date(), changeFrequency: "daily",  priority: 0.7 },
     { url: `${BASE}/news`,     lastModified: new Date(), changeFrequency: "daily",  priority: 0.7 },
   ];
+
+  const newsRoutes: MetadataRoute.Sitemap = NEWS.map((n) => ({
+    url: `${BASE}/news/${n.slug}`,
+    lastModified: new Date(n.date),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
 
   try {
     const admin = createClient(
@@ -46,8 +54,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-    return [...staticRoutes, ...vacancyRoutes, ...forumRoutes];
+    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes];
   } catch {
-    return staticRoutes;
+    return [...staticRoutes, ...newsRoutes];
   }
 }
