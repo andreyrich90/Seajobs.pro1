@@ -19,13 +19,13 @@ export async function generateMetadata({
 
   if (!data) return { title: "Forum | SeaJobs.pro" };
 
-  const titleStr = typeof data.title === "object"
+  const titleStr = data.title && typeof data.title === "object"
     ? ((data.title as Record<string, string>).en || (data.title as Record<string, string>).ru || Object.values(data.title as Record<string, string>)[0] || "")
-    : (data.title as string);
+    : ((data.title as string) || "");
 
-  const contentStr = typeof data.content === "object"
+  const contentStr = data.content && typeof data.content === "object"
     ? ((data.content as Record<string, string>).en || (data.content as Record<string, string>).ru || Object.values(data.content as Record<string, string>)[0] || "")
-    : (data.content as string);
+    : ((data.content as string) || "");
 
   const description = contentStr
     .replace(/^#+ .*/gm, "")

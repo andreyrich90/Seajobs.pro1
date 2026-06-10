@@ -13,7 +13,8 @@ import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 
-function loc(field: Record<string, string> | string, lang: string): string {
+function loc(field: Record<string, string> | string | null | undefined, lang: string): string {
+  if (!field) return "";
   if (typeof field === "string") return field;
   return field[lang] || field.en || field.ru || Object.values(field)[0] || "";
 }
