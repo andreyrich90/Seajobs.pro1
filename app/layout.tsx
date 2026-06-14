@@ -4,6 +4,7 @@ import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
+  metadataBase: new URL("https://seajobs.pro"),
   title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
   description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков по всему миру — поиск по рангу, типу судна и зарплате. Free platform for seafarers and crewing companies.",
   keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs, jobs for seamen, crew jobs, sailor jobs, marine jobs, able seaman jobs, chief engineer jobs, deck officer jobs, crewing agency vacancies, " +
