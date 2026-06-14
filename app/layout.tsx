@@ -1,7 +1,9 @@
 import "./globals.css";
 import Script from "next/script";
+import { NextIntlClientProvider } from "next-intl";
 import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
+import enMessages from "@/messages/en.json";
 
 export const metadata = {
   metadataBase: new URL("https://seajobs.pro"),
@@ -84,8 +86,10 @@ export default function RootLayout({
             gtag('config', 'G-1H5KRW7TS9');
           `}
         </Script>
-        <LangProvider>{children}</LangProvider>
-        <CookieBanner />
+        <NextIntlClientProvider locale="en" messages={enMessages}>
+          <LangProvider>{children}</LangProvider>
+          <CookieBanner />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

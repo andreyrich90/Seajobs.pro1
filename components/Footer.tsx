@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";

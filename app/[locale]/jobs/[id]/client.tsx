@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,

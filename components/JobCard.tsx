@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Ship, TrendingUp, ArrowRight } from "lucide-react";
 import { T, type Lang } from "@/lib/i18n";
 import type { Job } from "@/lib/data";

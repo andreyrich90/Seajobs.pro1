@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import Header from "@/components/Header";

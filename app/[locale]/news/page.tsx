@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Newspaper, Calendar, Tag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";

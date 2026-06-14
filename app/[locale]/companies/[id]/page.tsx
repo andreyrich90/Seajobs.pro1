@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   ArrowLeft, Building2, Globe, MapPin, ShieldCheck, Briefcase, DollarSign, Clock, Calendar,
 } from "lucide-react";

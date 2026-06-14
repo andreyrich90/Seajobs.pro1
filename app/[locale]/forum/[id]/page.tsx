@@ -3,8 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Fragment } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
