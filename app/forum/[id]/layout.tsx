@@ -6,7 +6,9 @@ function loc(field: unknown, lang = "en"): string {
   if (typeof field === "string") return field;
   if (typeof field === "object") {
     const obj = field as Record<string, unknown>;
-    return loc(obj[lang] ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
+    // Legacy rows may store Ukrainian text under the old "ua" key.
+    const ukFallback = lang === "uk" ? obj.ua : undefined;
+    return loc(obj[lang] ?? ukFallback ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
   }
   return "";
 }

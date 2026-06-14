@@ -1,14 +1,14 @@
-export type Lang = "ua" | "pl" | "ru" | "en";
+export type Lang = "uk" | "pl" | "ru" | "en";
 
 export const LANGS: { code: Lang; label: string; flag: string }[] = [
-  { code: "ua", label: "UA", flag: "🇺🇦" },
+  { code: "uk", label: "UA", flag: "🇺🇦" },
   { code: "pl", label: "PL", flag: "🇵🇱" },
   { code: "ru", label: "RU", flag: "🌐" },
   { code: "en", label: "EN", flag: "🇬🇧" },
 ];
 
 export const T: Record<Lang, Record<string, string>> = {
-  ua: {
+  uk: {
     nav_jobs: "Вакансії", nav_forum: "Форум", nav_news: "Новини", login: "Увійти",
     tagline: "Гавань для морської кар'єри",
     hero_kicker: "Платформа морської кар'єри",
@@ -341,7 +341,7 @@ const FC_RU: Record<string, string> = {
   fc_ok_title: "Сообщение получено!", fc_ok_sub: "Мы свяжемся с вами в течение 24 часов.",
 };
 
-Object.assign(T.ua, FC_UA);
+Object.assign(T.uk, FC_UA);
 Object.assign(T.pl, FC_PL);
 Object.assign(T.ru, FC_RU);
 
@@ -381,7 +381,7 @@ const ABOUT_RU: Record<string, string> = {
   about_cta_title: "Есть вопросы?", about_cta_sub: "Воспользуйтесь контактной формой на главной странице или свяжитесь с нами напрямую.", about_cta_btn: "Написать нам",
 };
 
-Object.assign(T.ua, ABOUT_UA);
+Object.assign(T.uk, ABOUT_UA);
 Object.assign(T.pl, ABOUT_PL);
 Object.assign(T.ru, ABOUT_RU);
 
@@ -421,7 +421,7 @@ const HOME_FOOTER_RU: Record<string, string> = {
   footer_reg_seafarer: "Регистрация моряка", footer_reg_company: "Регистрация компании", footer_signin: "Войти",
 };
 
-Object.assign(T.ua, HOME_FOOTER_UA);
+Object.assign(T.uk, HOME_FOOTER_UA);
 Object.assign(T.pl, HOME_FOOTER_PL);
 Object.assign(T.ru, HOME_FOOTER_RU);
 
@@ -464,6 +464,6 @@ const COMMENTS_RU: Record<string, string> = {
   news_comment_error: "Ошибка. Попробуйте ещё раз.",
 };
 
-Object.assign(T.ua, COMMENTS_UA);
+Object.assign(T.uk, COMMENTS_UA);
 Object.assign(T.pl, COMMENTS_PL);
 Object.assign(T.ru, COMMENTS_RU);

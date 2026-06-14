@@ -33,7 +33,7 @@ type DisplayItem = {
 
 function formatDate(dateStr: string, lang: string): string {
   return new Date(dateStr).toLocaleDateString(
-    lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
+    lang === "uk" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
     { day: "numeric", month: "long", year: "numeric" }
   );
 }
@@ -107,7 +107,7 @@ export default function NewsPage() {
         <div className="mb-10">
           <h1 className="font-display text-3xl font-semibold text-white">{t.nav_news}</h1>
           <p className="mt-2 text-sm text-mist">
-            {lang === "ua" && "Останні новини морської індустрії"}
+            {lang === "uk" && "Останні новини морської індустрії"}
             {lang === "pl" && "Najnowsze wiadomości z branży morskiej"}
             {lang === "ru" && "Последние новости морской отрасли"}
             {lang === "en" && "Latest news from the maritime industry"}

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { Lang } from "@/lib/i18n";
 
-const VALID_LANGS: Lang[] = ["en", "ua", "pl", "ru"];
+const VALID_LANGS: Lang[] = ["en", "uk", "pl", "ru"];
 
 type LangContextType = {
   lang: Lang;
@@ -16,9 +16,10 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en");
 
   useEffect(() => {
-    const stored = localStorage.getItem("lang") as Lang | null;
-    if (stored && VALID_LANGS.includes(stored)) {
-      setLangState(stored);
+    const stored = localStorage.getItem("lang") as Lang | "ua" | null;
+    const normalized = stored === "ua" ? "uk" : stored;
+    if (normalized && VALID_LANGS.includes(normalized)) {
+      setLangState(normalized);
     }
   }, []);
 

@@ -20,7 +20,7 @@ const GRADIENTS = [
 
 const LANGS = [
   { code: "en", label: "EN" },
-  { code: "ua", label: "UA" },
+  { code: "uk", label: "UA" },
   { code: "pl", label: "PL" },
   { code: "ru", label: "RU" },
 ];
@@ -35,8 +35,8 @@ type ArticleForm = {
 };
 
 const EMPTY_FORM: ArticleForm = {
-  title: { en: "", ua: "", pl: "", ru: "" },
-  body:  { en: "", ua: "", pl: "", ru: "" },
+  title: { en: "", uk: "", pl: "", ru: "" },
+  body:  { en: "", uk: "", pl: "", ru: "" },
   tag:   "Industry",
   cover_gradient: GRADIENTS[0].value,
   cover_url: "",
@@ -78,9 +78,12 @@ export default function AdminNewsPage() {
 
   function openEdit(a: NewsArticle) {
     setEditingId(a.id);
+    // Legacy rows may store Ukrainian text under the old "ua" key; migrate it to "uk".
+    const title = a.title as Record<string, string>;
+    const body = a.body as Record<string, string>;
     setForm({
-      title: { en: "", ua: "", pl: "", ru: "", ...(a.title as Record<string, string>) },
-      body:  { en: "", ua: "", pl: "", ru: "", ...(a.body  as Record<string, string>) },
+      title: { en: "", uk: title?.ua ?? "", pl: "", ru: "", ...title },
+      body:  { en: "", uk: body?.ua ?? "", pl: "", ru: "", ...body },
       tag:   a.tag ?? "Industry",
       cover_gradient: a.cover_gradient ?? GRADIENTS[0].value,
       cover_url: a.cover_url ?? "",
