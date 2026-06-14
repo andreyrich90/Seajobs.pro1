@@ -1,11 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { NEWS } from "@/lib/data";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
 import ArticleClient from "./ArticleClient";
 
 export const dynamicParams = true;
-
-const BASE_URL = "https://seajobs.pro";
 
 export async function generateStaticParams() {
   return NEWS.map((n) => ({ id: n.slug }));
@@ -33,25 +32,25 @@ function excerpt(text: string, max = 160): string {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; locale: string }> }
 ): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
 
   // Static news (lib/data) are addressed by slug
   const staticItem = NEWS.find((n) => n.slug === id);
 
+  let titleLoc = "";
   let titleEn = "";
-  let titleRu = "";
+  let bodyLoc = "";
   let bodyEn = "";
-  let bodyRu = "";
   let date = "";
   let cover = "";
 
   if (staticItem) {
+    titleLoc = loc(staticItem.title, locale);
     titleEn = loc(staticItem.title, "en");
-    titleRu = loc(staticItem.title, "ru");
+    bodyLoc = loc(staticItem.body, locale);
     bodyEn = loc(staticItem.body, "en");
-    bodyRu = loc(staticItem.body, "ru");
     date = staticItem.date;
     cover = staticItem.coverUrl ?? "";
   } else {
@@ -67,10 +66,10 @@ export async function generateMetadata(
         .eq("id", id)
         .single();
       if (data) {
+        titleLoc = loc(data.title, locale);
         titleEn = loc(data.title, "en");
-        titleRu = loc(data.title, "ru");
+        bodyLoc = loc(data.body, locale);
         bodyEn = loc(data.body, "en");
-        bodyRu = loc(data.body, "ru");
         date = data.published_at ?? data.created_at ?? "";
         cover = data.cover_url ?? "";
       }
@@ -79,7 +78,7 @@ export async function generateMetadata(
     }
   }
 
-  if (!titleEn && !titleRu) {
+  if (!titleLoc && !titleEn) {
     return {
       title: "Maritime News for Seafarers | SeaJobs.pro",
       description:
@@ -87,15 +86,14 @@ export async function generateMetadata(
     };
   }
 
-  const title = `${titleEn || titleRu} | SeaJobs.pro`;
-  const descParts = [excerpt(bodyEn || bodyRu, 160)];
-  if (titleRu && titleRu !== titleEn) descParts.push(titleRu);
-  const description = descParts.filter(Boolean).join(" / ").slice(0, 300);
+  const title = `${titleLoc || titleEn} | SeaJobs.pro`;
+  const description = excerpt(bodyLoc || bodyEn, 160);
+  const languages = hreflangAlternates(`/news/${id}`);
 
   return {
     title,
     description,
-    keywords: [titleEn, titleRu, "maritime news", "морские новости", "seafarer news", "новости для моряков"]
+    keywords: [titleLoc, titleEn, "maritime news", "морские новости", "seafarer news", "новости для моряков"]
       .filter(Boolean)
       .join(", "),
     openGraph: {
@@ -103,9 +101,9 @@ export async function generateMetadata(
       description,
       type: "article",
       siteName: "SeaJobs.pro",
-      url: `${BASE_URL}/news/${id}`,
-      locale: "en_US",
-      alternateLocale: ["ru_RU", "uk_UA", "pl_PL"],
+      url: languages[locale],
+      locale: OG_LOCALE[locale],
+      alternateLocale: alternateOgLocales(locale),
       ...(date ? { publishedTime: new Date(date).toISOString() } : {}),
       ...(cover ? { images: [{ url: cover }] } : {}),
     },
@@ -116,7 +114,8 @@ export async function generateMetadata(
       ...(cover ? { images: [cover] } : {}),
     },
     alternates: {
-      canonical: `${BASE_URL}/news/${id}`,
+      canonical: languages[locale],
+      languages,
     },
   };
 }

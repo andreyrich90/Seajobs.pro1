@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
 
 function loc(field: unknown, lang = "en"): string {
   if (!field) return "";
@@ -16,9 +17,9 @@ function loc(field: unknown, lang = "en"): string {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -31,8 +32,8 @@ export async function generateMetadata({
 
   if (!data) return { title: "Forum | SeaJobs.pro" };
 
-  const titleStr = loc(data.title);
-  const contentStr = loc(data.content);
+  const titleStr = loc(data.title, locale);
+  const contentStr = loc(data.content, locale);
 
   const description = contentStr
     .replace(/^#+ .*/gm, "")
@@ -40,6 +41,8 @@ export async function generateMetadata({
     .replace(/\n+/g, " ")
     .trim()
     .slice(0, 160);
+
+  const languages = hreflangAlternates(`/forum/${id}`);
 
   return {
     title: `${titleStr} | SeaJobs.pro`,
@@ -49,11 +52,18 @@ export async function generateMetadata({
       description,
       type: "article",
       siteName: "SeaJobs.pro",
+      url: languages[locale],
+      locale: OG_LOCALE[locale],
+      alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
       card: "summary",
       title: `${titleStr} | SeaJobs.pro`,
       description,
+    },
+    alternates: {
+      canonical: languages[locale],
+      languages,
     },
   };
 }
