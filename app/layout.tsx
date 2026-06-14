@@ -5,13 +5,18 @@ import CookieBanner from "@/components/CookieBanner";
 
 export const metadata = {
   title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
-  description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. Free platform for seafarers and crewing companies.",
-  keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs",
+  description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков по всему миру — поиск по рангу, типу судна и зарплате. Free platform for seafarers and crewing companies.",
+  keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs, jobs for seamen, crew jobs, sailor jobs, marine jobs, able seaman jobs, chief engineer jobs, deck officer jobs, crewing agency vacancies, " +
+    "вакансии для моряков, работа в море, работа на судне, крюинг вакансии, работа моряком, морские вакансии, вакансии моряк, контракт на судно, крюинговая компания вакансии, " +
+    "робота для моряків, вакансії моряк, робота на судні, " +
+    "praca dla marynarzy, oferty pracy marynarz",
   openGraph: {
     title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
-    description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary.",
+    description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков — поиск по рангу, типу судна и зарплате.",
     type: "website",
     siteName: "SeaJobs.pro",
+    locale: "en_US",
+    alternateLocale: ["ru_RU", "uk_UA", "pl_PL"],
   },
   twitter: {
     card: "summary",
@@ -27,6 +32,7 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": "https://seajobs.pro/#organization",
       "name": "SeaJobs.pro",
+      "alternateName": ["Вакансии для моряков", "Робота для моряків", "Praca dla marynarzy"],
       "url": "https://seajobs.pro",
       "description": "Maritime job board connecting seafarers with crewing companies worldwide",
       "logo": {
@@ -39,6 +45,7 @@ const orgJsonLd = {
       "@id": "https://seajobs.pro/#website",
       "url": "https://seajobs.pro",
       "name": "SeaJobs.pro",
+      "inLanguage": ["en", "ru", "uk", "pl"],
       "publisher": { "@id": "https://seajobs.pro/#organization" },
       "potentialAction": {
         "@type": "SearchAction",
