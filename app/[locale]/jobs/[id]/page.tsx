@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
 type VacancyFull = VacancyDetail & { is_imported: boolean; source_url: string | null };
@@ -25,9 +26,9 @@ async function fetchVacancy(id: string): Promise<VacancyFull | null> {
 }
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; locale: string }> }
 ): Promise<Metadata> {
-  const { id } = await params;
+  const { id, locale } = await params;
   const vacancy = await fetchVacancy(id);
   if (!vacancy) return { title: "Vacancy not found — SeaJobs.pro" };
 
@@ -44,6 +45,7 @@ export async function generateMetadata(
 
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;
   const description = `${rankPart}position${vesselPart}${locationPart}.${salaryPart} Apply on SeaJobs.pro — the maritime job board for seafarers.`;
+  const languages = hreflangAlternates(`/jobs/${vacancy.id}`);
 
   return {
     title,
@@ -53,7 +55,9 @@ export async function generateMetadata(
       description,
       type: "website",
       siteName: "SeaJobs.pro",
-      url: `${BASE_URL}/jobs/${vacancy.id}`,
+      url: languages[locale],
+      locale: OG_LOCALE[locale],
+      alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
       card: "summary",
@@ -61,7 +65,8 @@ export async function generateMetadata(
       description,
     },
     alternates: {
-      canonical: `${BASE_URL}/jobs/${vacancy.id}`,
+      canonical: languages[locale],
+      languages,
     },
   };
 }
