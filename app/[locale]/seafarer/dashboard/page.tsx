@@ -9,7 +9,7 @@ import ContactForm from "@/components/ContactForm";
 import { T, type Lang } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
-const DATE_LOCALES: Record<Lang, string> = { uk: "uk-UA", pl: "pl-PL", ru: "ru-RU", en: "en-GB" };
+const DATE_LOCALES: Record<Lang, string> = { ua: "uk-UA", pl: "pl-PL", ru: "ru-RU", en: "en-GB" };
 
 interface DashboardStats {
   seafarer: Seafarer | null;

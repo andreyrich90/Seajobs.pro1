@@ -14,7 +14,7 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "SeaJobs.pro соединяет моряков с проверенными крюинговыми агентствами по всей Европе и миру.",
   },
-  uk: {
+  ua: {
     title: "Про SeaJobs.pro — платформа морської кар'єри для моряків | SeaJobs.pro",
     description:
       "SeaJobs.pro з'єднує моряків з перевіреними крюїнговими агентствами по всій Європі та світу.",

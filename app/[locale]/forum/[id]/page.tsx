@@ -20,7 +20,7 @@ function loc(field: unknown, lang: string): string {
   if (typeof field === "object") {
     const obj = field as Record<string, unknown>;
     // Legacy rows may store Ukrainian text under the old "ua" key.
-    const ukFallback = lang === "uk" ? obj.ua : undefined;
+    const ukFallback = lang === "ua" ? obj.uk : undefined;
     return loc(obj[lang] ?? ukFallback ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
   }
   return "";
