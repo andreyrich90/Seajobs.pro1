@@ -72,15 +72,17 @@ export default function ForumPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Safety timeout: stop spinner after 8s even if DB is unreachable
-    const fallback = setTimeout(() => setLoading(false), 8000);
+    // Safety timeout: stop spinner even if DB is unreachable. Kept above the
+    // Supabase client's own fetch timeout (15s) so it doesn't fire first and
+    // flash "No topics yet" while the real request is still in flight.
+    const fallback = setTimeout(() => setLoading(false), 16000);
 
     async function load() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
 
-        const [{ data: topicsData }, { data: postsData }] = await Promise.all([
+        const [{ data: topicsData, error: topicsError }, { data: postsData, error: postsError }] = await Promise.all([
           supabase
             .from("forum_topics")
             .select("*")
@@ -89,6 +91,8 @@ export default function ForumPage() {
           supabase.from("forum_posts").select("topic_id"),
         ]);
 
+        if (topicsError) console.error("Failed to load forum topics:", topicsError);
+        if (postsError) console.error("Failed to load forum posts:", postsError);
         setTopics(topicsData ?? []);
 
         const map: Record<string, number> = {};
@@ -96,6 +100,8 @@ export default function ForumPage() {
           map[p.topic_id] = (map[p.topic_id] ?? 0) + 1;
         }
         setCountMap(map);
+      } catch (err) {
+        console.error("Failed to load forum topics:", err);
       } finally {
         clearTimeout(fallback);
         setLoading(false);
