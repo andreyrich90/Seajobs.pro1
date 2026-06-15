@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "@/i18n/navigation";
+import NextLink from "next/link";
 import {
   Anchor, CheckCircle, ArrowRight, Send,
   Users, Briefcase, Globe, ShieldCheck, Bell, BarChart3, Zap,
@@ -82,12 +82,12 @@ export default function ForCompaniesPage() {
             <p className="mt-5 text-lg leading-relaxed text-mist">{t.fc_hero_sub}</p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
+              <NextLink
                 href="/auth/register?role=company"
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
               >
                 {t.fc_cta_post} <ArrowRight size={17} />
-              </Link>
+              </NextLink>
               <a
                 href="#contact"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-base font-semibold text-white transition hover:bg-white/10"
@@ -175,12 +175,12 @@ export default function ForCompaniesPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link
+            <NextLink
               href="/auth/register?role=company"
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-7 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
             >
               {t.fc_cta_create} <ArrowRight size={16} />
-            </Link>
+            </NextLink>
           </div>
         </div>
       </section>

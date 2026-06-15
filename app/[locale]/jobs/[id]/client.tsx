@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
+import NextLink from "next/link";
 import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
@@ -278,12 +279,12 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
               {!userId && (
                 <div>
                   <p className="text-sm text-mist mb-4">Sign in as a seafarer to apply for this position.</p>
-                  <Link
+                  <NextLink
                     href="/auth/login"
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
                   >
                     <Send size={16} /> Sign in to Apply
-                  </Link>
+                  </NextLink>
                 </div>
               )}
 

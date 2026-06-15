@@ -1,6 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import NextLink from "next/link";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
@@ -137,9 +138,9 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {ACCOUNT.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-mist transition hover:text-brass2">
+                  <NextLink href={l.href} className="text-sm text-mist transition hover:text-brass2">
                     {l.label}
-                  </Link>
+                  </NextLink>
                 </li>
               ))}
             </ul>

@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
+import NextLink from "next/link";
 import { MessageSquare, Pin, Plus, X, AlertCircle, LogIn } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -156,12 +157,12 @@ export default function ForumPage() {
               {showForm ? "Cancel" : "New Topic"}
             </button>
           ) : (
-            <Link
+            <NextLink
               href="/auth/login"
               className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               <LogIn size={16} /> Login to post
-            </Link>
+            </NextLink>
           )}
         </div>
 

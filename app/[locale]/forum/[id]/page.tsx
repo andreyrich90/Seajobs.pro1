@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState, Fragment } from "react";
 import { useParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
+import NextLink from "next/link";
 import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -468,12 +469,12 @@ export default function TopicPage() {
           ) : (
             <div className="rounded-2xl border border-white/10 bg-card p-6 flex items-center justify-between gap-4">
               <p className="text-sm text-mist">Log in to join the conversation.</p>
-              <Link
+              <NextLink
                 href="/auth/login"
                 className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
               >
                 <LogIn size={15} /> Login
-              </Link>
+              </NextLink>
             </div>
           )}
         </div>
