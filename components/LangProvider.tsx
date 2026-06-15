@@ -1,11 +1,11 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import type { Lang } from "@/lib/i18n";
-import { usePathname, useRouter } from "@/i18n/navigation";
 
 const VALID_LANGS: Lang[] = ["en", "uk", "pl", "ru"];
+const DEFAULT_LANG: Lang = "en";
 
 type LangContextType = {
   lang: Lang;
@@ -16,16 +16,21 @@ const LangContext = createContext<LangContextType | null>(null);
 
 export function LangProvider({ children }: { children: ReactNode }) {
   const params = useParams();
+  // Raw browser pathname (includes the locale prefix, e.g. "/ru/jobs").
+  // We deliberately use next/navigation here rather than next-intl's
+  // usePathname: this provider lives ABOVE the [locale] NextIntlClientProvider,
+  // so next-intl's locale context would always be the default "en" and its
+  // usePathname would fail to strip the real prefix — producing double-locale
+  // URLs like "/uk/ru/jobs" (404) when switching languages.
   const pathname = usePathname();
   const router = useRouter();
 
   // Pages under app/[locale]/... derive the language from the URL —
-  // that's the source of truth for SEO and is set by the locale switcher
-  // below via navigation. Pages outside [locale] (private dashboards)
-  // fall back to a localStorage preference.
+  // that's the source of truth for SEO. Pages outside [locale]
+  // (auth screens) fall back to a localStorage preference.
   const urlLocale = params?.locale as Lang | undefined;
 
-  const [storedLang, setStoredLang] = useState<Lang>("en");
+  const [storedLang, setStoredLang] = useState<Lang>(DEFAULT_LANG);
 
   useEffect(() => {
     if (urlLocale) return;
@@ -39,12 +44,26 @@ export function LangProvider({ children }: { children: ReactNode }) {
   const lang = urlLocale ?? storedLang;
 
   function setLang(l: Lang) {
-    if (urlLocale) {
-      router.replace(pathname, { locale: l });
-    } else {
+    if (l === lang) return;
+
+    if (!urlLocale) {
+      // Not a localized route (e.g. /auth/*) — persist preference only.
       setStoredLang(l);
       localStorage.setItem("lang", l);
+      return;
     }
+
+    // Strip any existing locale prefix, then re-apply the target locale.
+    // The default locale carries no prefix ("as-needed").
+    const segments = (pathname || "/").split("/");
+    if (VALID_LANGS.includes(segments[1] as Lang)) {
+      segments.splice(1, 1);
+    }
+    const rest = segments.join("/") || "/";
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const target =
+      l === DEFAULT_LANG ? rest : `/${l}${rest === "/" ? "" : rest}`;
+    router.push(target + search);
   }
 
   return (
