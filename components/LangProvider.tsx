@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import type { Lang } from "@/lib/i18n";
 
 const VALID_LANGS: Lang[] = ["en", "uk", "pl", "ru"];
@@ -23,7 +23,6 @@ export function LangProvider({ children }: { children: ReactNode }) {
   // usePathname would fail to strip the real prefix — producing double-locale
   // URLs like "/uk/ru/jobs" (404) when switching languages.
   const pathname = usePathname();
-  const router = useRouter();
 
   // Pages under app/[locale]/... derive the language from the URL —
   // that's the source of truth for SEO. Pages outside [locale]
@@ -63,7 +62,15 @@ export function LangProvider({ children }: { children: ReactNode }) {
     const search = typeof window !== "undefined" ? window.location.search : "";
     const target =
       l === DEFAULT_LANG ? rest : `/${l}${rest === "/" ? "" : rest}`;
-    router.push(target + search);
+
+    // Full-page navigation rather than a client-side router.push. Switching to
+    // the unprefixed default locale ("/jobs") via the client router did not
+    // reliably update useParams().locale, so the page kept rendering the old
+    // language. A real navigation lets the server render the target locale
+    // (verified correct) and removes any client locale-context staleness.
+    if (typeof window !== "undefined") {
+      window.location.assign(target + search);
+    }
   }
 
   return (
