@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2000,
+        max_tokens: 4096,
         system: SCHEMA_PROMPT,
         messages: [
           {
@@ -91,18 +91,49 @@ export async function POST(req: NextRequest) {
     });
 
     if (!r.ok) {
-      console.error("Anthropic error:", await r.text());
-      return NextResponse.json({ ok: false, error: "api_failed" }, { status: 502 });
+      const detail = await r.text();
+      console.error("Anthropic error:", r.status, detail);
+      // Surface the upstream status/message so failures are diagnosable
+      // (e.g. 401 = bad/missing key, 400 = bad request, 429 = rate limit).
+      let message = detail;
+      try {
+        message = JSON.parse(detail)?.error?.message ?? detail;
+      } catch {
+        /* keep raw text */
+      }
+      return NextResponse.json(
+        { ok: false, error: "api_failed", status: r.status, detail: String(message).slice(0, 300) },
+        { status: 502 }
+      );
     }
 
     const data = await r.json();
     const text: string = (data.content as AnthropicContentBlock[] | undefined ?? [])
       .map((i) => i.text ?? "")
       .join("");
-    const profile = JSON.parse(text.replace(/```json|```/g, "").trim());
+
+    // Be tolerant of stray prose/fences: parse the outermost JSON object.
+    const cleaned = text.replace(/```json|```/g, "").trim();
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    const jsonText = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
+
+    let profile: unknown;
+    try {
+      profile = JSON.parse(jsonText);
+    } catch {
+      console.error("CV parse: model did not return valid JSON:", cleaned.slice(0, 300));
+      return NextResponse.json(
+        { ok: false, error: "parse_failed", detail: "The CV could not be read as structured data." },
+        { status: 422 }
+      );
+    }
     return NextResponse.json({ ok: true, profile });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ ok: false, error: "parse_failed" }, { status: 422 });
+    return NextResponse.json(
+      { ok: false, error: "request_failed", detail: e instanceof Error ? e.message : String(e) },
+      { status: 500 }
+    );
   }
 }
