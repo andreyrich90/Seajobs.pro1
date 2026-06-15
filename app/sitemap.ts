@@ -31,6 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/for-companies", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
+    ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
+    ...localizedEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
   ];
 
   const newsRoutes: MetadataRoute.Sitemap = NEWS.flatMap((n) =>
@@ -48,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const [{ data: vacancies }, { data: topics }] = await Promise.all([
+    const [{ data: vacancies }, { data: topics }, { data: companies }] = await Promise.all([
       admin
         .from("vacancies")
         .select("id, updated_at, created_at")
@@ -58,6 +60,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .from("forum_topics")
         .select("id, updated_at, created_at")
         .order("created_at", { ascending: false }),
+      admin
+        .from("companies")
+        .select("id, updated_at")
+        .order("updated_at", { ascending: false }),
     ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).flatMap((v) =>
@@ -76,7 +82,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     );
 
-    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes];
+    const companyRoutes: MetadataRoute.Sitemap = (companies ?? []).flatMap((c) =>
+      localizedEntries(`/companies/${c.id}`, {
+        lastModified: c.updated_at ? new Date(c.updated_at) : now,
+        changeFrequency: "weekly",
+        priority: 0.5,
+      })
+    );
+
+    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes];
   } catch {
     return [...staticRoutes, ...newsRoutes];
   }
