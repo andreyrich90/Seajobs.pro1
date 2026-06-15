@@ -137,7 +137,13 @@ export default function ProfilePage() {
       const data = await res.json();
 
       if (!data.ok || !data.profile) {
-        setMessage({ type: "error", text: "Could not read this CV. Try a clearer PDF or fill the form manually." });
+        const reason =
+          data.error === "missing_api_key"
+            ? "CV parsing is not configured on the server (missing API key)."
+            : data.detail
+            ? `Could not read this CV: ${data.detail}`
+            : "Could not read this CV. Try a clearer PDF or fill the form manually.";
+        setMessage({ type: "error", text: reason });
         return;
       }
 
