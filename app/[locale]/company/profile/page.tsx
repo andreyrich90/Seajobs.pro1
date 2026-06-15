@@ -7,7 +7,7 @@ import { CheckCircle, AlertCircle, Upload, Building2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Company } from "@/lib/supabase/types";
 
-type ProfileForm = Omit<Company, "id" | "updated_at">;
+type ProfileForm = Omit<Company, "id" | "updated_at" | "is_verified">;
 
 const EMPTY_FORM: ProfileForm = {
   name: "",

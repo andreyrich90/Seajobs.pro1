@@ -146,7 +146,9 @@ export default function AdminUsersPage() {
                         <div className="flex items-center gap-1.5">
                           <p className="font-semibold text-white">{u.name}</p>
                           {u.role === "company" && u.is_verified && (
-                            <ShieldCheck size={13} className="text-teal" title="Verified company" />
+                            <span title="Verified company" className="inline-flex">
+                              <ShieldCheck size={13} className="text-teal" />
+                            </span>
                           )}
                         </div>
                         <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>

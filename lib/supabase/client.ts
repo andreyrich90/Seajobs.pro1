@@ -16,9 +16,40 @@ function getClient(): TypedSupabaseClient {
   if (!_client) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
-    _client = createClient<Database>(url, key, {
-      global: { fetch: fetchWithTimeout as typeof fetch },
-    });
+
+    // Guard against missing env vars (e.g. a Vercel Preview deployment that
+    // wasn't given the Supabase keys). createClient("", "") throws
+    // "supabaseUrl is required" synchronously — and because the client is
+    // first touched inside component effects, that throw white-screens the
+    // whole app. Fall back to a placeholder so the UI still renders;
+    // Supabase-backed requests then fail gracefully (handled by callers /
+    // the fetch timeout) instead of crashing.
+    if (!url || !key) {
+      if (typeof console !== "undefined") {
+        console.error(
+          "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are not set — " +
+            "auth and data features are disabled for this deployment."
+        );
+      }
+    }
+
+    _client = createClient<Database>(
+      url || "https://placeholder.supabase.co",
+      key || "placeholder-anon-key",
+      {
+        auth: {
+          // PKCE is more robust than the implicit flow on Safari / iPadOS,
+          // where Intelligent Tracking Prevention can break hash-fragment
+          // token delivery. The /auth/callback page relies on the automatic
+          // ?code= exchange that detectSessionInUrl performs on load.
+          flowType: "pkce",
+          detectSessionInUrl: true,
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+        global: { fetch: fetchWithTimeout as typeof fetch },
+      }
+    );
   }
   return _client;
 }
