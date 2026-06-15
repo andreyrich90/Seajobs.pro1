@@ -1,12 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle, AlertCircle, Upload, User } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 
 type ProfileForm = Omit<Seafarer, "id" | "updated_at">;
+
+type ParsedCv = {
+  firstName?: string | null;
+  lastName?: string | null;
+  rank?: string | null;
+  yearsExperience?: number | null;
+  vesselTypes?: string[];
+  certificates?: { name: string; expiry: string | null }[];
+  lastVessels?: { name: string; type: string; rank: string; from: string; to: string }[];
+  readinessDate?: string | null;
+  languages?: string[];
+  email?: string | null;
+  phone?: string | null;
+};
 
 const EMPTY_FORM: ProfileForm = {
   first_name: "",
@@ -27,7 +41,11 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [cvUploading, setCvUploading] = useState(false);
+  const [cvApplying, setCvApplying] = useState(false);
+  const [cvProfile, setCvProfile] = useState<ParsedCv | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cvFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -93,6 +111,107 @@ export default function ProfilePage() {
     handleChange("photo_url", publicUrl);
     setUploading(false);
     setMessage({ type: "success", text: "Photo uploaded! Save your profile to apply." });
+  }
+
+  async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      setMessage({ type: "error", text: "Please upload a PDF file." });
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setMessage({ type: "error", text: "File is too large. Max 4 MB." });
+      return;
+    }
+
+    setCvUploading(true);
+    setMessage(null);
+    setCvProfile(null);
+
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/cv-parse", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? ""}`,
+        },
+        body: JSON.stringify({ fileBase64: base64, mediaType: file.type }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setCvProfile(data.profile);
+        setMessage({ type: "success", text: "CV parsed! Review the data below and apply it to your profile." });
+      } else {
+        setMessage({ type: "error", text: "Failed to parse CV: " + (data.error ?? "unknown error") });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Failed to parse CV." });
+    } finally {
+      setCvUploading(false);
+      if (cvFileInputRef.current) cvFileInputRef.current.value = "";
+    }
+  }
+
+  async function handleApplyCv() {
+    if (!cvProfile || !userId) return;
+    setCvApplying(true);
+    setMessage(null);
+
+    const validRanks = new Set(RANK_GROUPS.flatMap((g) => g.ranks));
+    const matchedRank = cvProfile.rank && validRanks.has(cvProfile.rank) ? cvProfile.rank : undefined;
+
+    setForm((prev) => ({
+      ...prev,
+      first_name: cvProfile.firstName || prev.first_name,
+      last_name: cvProfile.lastName || prev.last_name,
+      rank: matchedRank ?? prev.rank,
+      readiness_date: cvProfile.readinessDate || prev.readiness_date,
+      phone: cvProfile.phone || prev.phone,
+      about: prev.about || [
+        cvProfile.yearsExperience ? `${cvProfile.yearsExperience} years of experience.` : "",
+        cvProfile.vesselTypes?.length ? `Vessel types: ${cvProfile.vesselTypes.join(", ")}.` : "",
+        cvProfile.languages?.length ? `Languages: ${cvProfile.languages.join(", ")}.` : "",
+      ].filter(Boolean).join(" "),
+    }));
+
+    if (cvProfile.certificates?.length) {
+      const rows = cvProfile.certificates
+        .filter((c) => c.name)
+        .map((c) => ({
+          seafarer_id: userId,
+          name: c.name,
+          expiry_date: c.expiry || null,
+        }));
+      if (rows.length) await supabase.from("certificates").insert(rows);
+    }
+
+    if (cvProfile.lastVessels?.length) {
+      const rows = cvProfile.lastVessels
+        .filter((v) => v.name)
+        .map((v) => ({
+          seafarer_id: userId,
+          vessel_name: v.name,
+          vessel_type: v.type || null,
+          rank: v.rank || null,
+          from_date: v.from ? `${v.from}-01` : null,
+          to_date: v.to ? `${v.to}-01` : null,
+        }));
+      if (rows.length) await supabase.from("sea_experience").insert(rows);
+    }
+
+    setCvProfile(null);
+    setCvApplying(false);
+    setMessage({ type: "success", text: "CV data applied! Review the fields below and click Save Profile to confirm." });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -195,6 +314,86 @@ export default function ProfilePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* CV import */}
+        <div className="rounded-2xl border border-white/10 bg-card p-6">
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Sparkles size={16} className="text-brass" />
+            Import from CV (AI)
+          </h2>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => cvFileInputRef.current?.click()}
+              disabled={cvUploading || saving}
+              className="self-start flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+            >
+              <FileText size={16} />
+              {cvUploading ? "Parsing CV..." : "Upload CV (PDF)"}
+            </button>
+            <p className="text-xs text-mist">PDF only · max 4 MB. We&apos;ll extract your details with AI for you to review.</p>
+            <input
+              ref={cvFileInputRef}
+              type="file"
+              accept="application/pdf"
+              onChange={handleCvUpload}
+              className="hidden"
+            />
+          </div>
+
+          {cvProfile && (
+            <div className="mt-5 rounded-xl border border-brass/30 bg-brass/5 p-4">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <p className="text-sm font-semibold text-foam">Parsed from your CV</p>
+                <button
+                  type="button"
+                  onClick={() => setCvProfile(null)}
+                  className="text-mist hover:text-white transition"
+                  aria-label="Dismiss"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mb-4">
+                {(cvProfile.firstName || cvProfile.lastName) && (
+                  <div><dt className="text-mist">Name</dt><dd className="text-foam">{[cvProfile.firstName, cvProfile.lastName].filter(Boolean).join(" ")}</dd></div>
+                )}
+                {cvProfile.rank && (
+                  <div><dt className="text-mist">Rank</dt><dd className="text-foam">{cvProfile.rank}</dd></div>
+                )}
+                {cvProfile.phone && (
+                  <div><dt className="text-mist">Phone</dt><dd className="text-foam">{cvProfile.phone}</dd></div>
+                )}
+                {cvProfile.readinessDate && (
+                  <div><dt className="text-mist">Readiness date</dt><dd className="text-foam">{cvProfile.readinessDate}</dd></div>
+                )}
+                {typeof cvProfile.yearsExperience === "number" && (
+                  <div><dt className="text-mist">Years of experience</dt><dd className="text-foam">{cvProfile.yearsExperience}</dd></div>
+                )}
+                {!!cvProfile.vesselTypes?.length && (
+                  <div><dt className="text-mist">Vessel types</dt><dd className="text-foam">{cvProfile.vesselTypes.join(", ")}</dd></div>
+                )}
+                {!!cvProfile.languages?.length && (
+                  <div><dt className="text-mist">Languages</dt><dd className="text-foam">{cvProfile.languages.join(", ")}</dd></div>
+                )}
+                {!!cvProfile.certificates?.length && (
+                  <div className="sm:col-span-2"><dt className="text-mist">Certificates</dt><dd className="text-foam">{cvProfile.certificates.map((c) => c.name).join(", ")}</dd></div>
+                )}
+                {!!cvProfile.lastVessels?.length && (
+                  <div className="sm:col-span-2"><dt className="text-mist">Sea experience</dt><dd className="text-foam">{cvProfile.lastVessels.map((v) => `${v.rank ?? ""} on ${v.name}`).join(", ")}</dd></div>
+                )}
+              </dl>
+              <button
+                type="button"
+                onClick={handleApplyCv}
+                disabled={cvApplying}
+                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+              >
+                {cvApplying ? "Applying..." : "Apply to profile"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Personal info */}
