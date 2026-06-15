@@ -1,7 +1,6 @@
 import "./globals.css";
 import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
-import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
 import enMessages from "@/messages/en.json";
 
@@ -87,7 +86,7 @@ export default function RootLayout({
           `}
         </Script>
         <NextIntlClientProvider locale="en" messages={enMessages}>
-          <LangProvider>{children}</LangProvider>
+          {children}
           <CookieBanner />
         </NextIntlClientProvider>
       </body>
