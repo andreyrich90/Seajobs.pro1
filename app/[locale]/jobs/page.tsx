@@ -64,13 +64,16 @@ function JobsContent() {
   useEffect(() => {
     async function load() {
       try {
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from("vacancies")
           .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, created_at, companies(name, logo_url, location, is_verified)")
           .eq("is_active", true)
           .order("created_at", { ascending: false });
 
+        if (error) console.error("Failed to load vacancies:", error);
         setVacancies((data as VacancyWithCompany[]) ?? []);
+      } catch (err) {
+        console.error("Failed to load vacancies:", err);
       } finally {
         setLoading(false);
       }

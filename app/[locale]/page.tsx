@@ -31,13 +31,22 @@ export default function Home() {
   const t = T[lang];
 
   useEffect(() => {
-    supabase
-      .from("vacancies")
-      .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(25)
-      .then(({ data }) => { if (data?.length) setDbVacancies(data as DbVacancy[]); });
+    async function load() {
+      try {
+        const { data, error } = await supabase
+          .from("vacancies")
+          .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
+          .eq("is_active", true)
+          .order("created_at", { ascending: false })
+          .limit(25);
+
+        if (error) console.error("Failed to load vacancies:", error);
+        if (data?.length) setDbVacancies(data as DbVacancy[]);
+      } catch (err) {
+        console.error("Failed to load vacancies:", err);
+      }
+    }
+    load();
   }, []);
 
   const stats = [

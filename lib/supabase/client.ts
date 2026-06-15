@@ -7,10 +7,13 @@ export type TypedSupabaseClient = SupabaseClient<Database>;
 // (e.g. validating the access token from an OAuth redirect on the
 // /auth/callback page) get a longer allowance — aborting them too eagerly on
 // a slow connection makes the GoTrueClient discard a valid session and bounce
-// the user back to the login page.
+// the user back to the login page. Database requests also get a generous
+// allowance: a paused/cold Supabase project can take several seconds to wake
+// up, and aborting that first request makes pages render as if there's no
+// data (e.g. vacancy listings appearing empty) instead of just being slow.
 function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-  const timeoutMs = url.includes("/auth/v1/") ? 20000 : 8000;
+  const timeoutMs = url.includes("/auth/v1/") ? 20000 : 15000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
