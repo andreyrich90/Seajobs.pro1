@@ -174,7 +174,7 @@ export default function RegisterPage() {
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
                 <button
-                  onClick={signUpWithGoogle}
+                  onClick={() => signUpWithGoogle()}
                   className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   <svg width="18" height="18" viewBox="0 0 18 18">
