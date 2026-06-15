@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { useParams, usePathname } from "next/navigation";
 import type { Lang } from "@/lib/i18n";
 
-const VALID_LANGS: Lang[] = ["en", "uk", "pl", "ru"];
+const VALID_LANGS: Lang[] = ["en", "ua", "pl", "ru"];
 const DEFAULT_LANG: Lang = "en";
 
 type LangContextType = {
@@ -21,31 +21,37 @@ export function LangProvider({ children }: { children: ReactNode }) {
   // usePathname: this provider lives ABOVE the [locale] NextIntlClientProvider,
   // so next-intl's locale context would always be the default "en" and its
   // usePathname would fail to strip the real prefix — producing double-locale
-  // URLs like "/uk/ru/jobs" (404) when switching languages.
+  // URLs like "/ua/ru/jobs" (404) when switching languages.
   const pathname = usePathname();
 
-  // Pages under app/[locale]/... derive the language from the URL —
-  // that's the source of truth for SEO. Pages outside [locale]
-  // (auth screens) fall back to a localStorage preference.
+  // The [locale] tree is the whole app except the (non-localized) auth screens.
+  // On localized pages the URL is the single source of truth for the language;
+  // only auth pages fall back to a stored preference.
+  const isAuthRoute = (pathname || "").startsWith("/auth");
+
   const urlLocale = params?.locale as Lang | undefined;
 
   const [storedLang, setStoredLang] = useState<Lang>(DEFAULT_LANG);
 
   useEffect(() => {
-    if (urlLocale) return;
-    const stored = localStorage.getItem("lang") as Lang | "ua" | null;
-    const normalized = stored === "ua" ? "uk" : stored;
+    if (!isAuthRoute) return;
+    const stored = localStorage.getItem("lang") as Lang | "uk" | null;
+    // Legacy preferences stored Ukrainian as the old "uk" code.
+    const normalized = stored === "uk" ? "ua" : stored;
     if (normalized && VALID_LANGS.includes(normalized)) {
       setStoredLang(normalized);
     }
-  }, [urlLocale]);
+  }, [isAuthRoute]);
 
-  const lang = urlLocale ?? storedLang;
+  // On a localized route, fall back to the default locale (English) when the
+  // URL has no prefix — NOT to a stored preference. Otherwise the English
+  // homepage "/" would get overridden back to a previously chosen language.
+  const lang = urlLocale ?? (isAuthRoute ? storedLang : DEFAULT_LANG);
 
   function setLang(l: Lang) {
     if (l === lang) return;
 
-    if (!urlLocale) {
+    if (isAuthRoute) {
       // Not a localized route (e.g. /auth/*) — persist preference only.
       setStoredLang(l);
       localStorage.setItem("lang", l);
@@ -67,7 +73,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
     // the unprefixed default locale ("/jobs") via the client router did not
     // reliably update useParams().locale, so the page kept rendering the old
     // language. A real navigation lets the server render the target locale
-    // (verified correct) and removes any client locale-context staleness.
+    // and removes any client locale-context staleness.
     if (typeof window !== "undefined") {
       window.location.assign(target + search);
     }

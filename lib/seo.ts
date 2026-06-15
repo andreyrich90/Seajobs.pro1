@@ -6,8 +6,17 @@ const BASE = "https://seajobs.pro";
 export const OG_LOCALE: Record<string, string> = {
   en: "en_US",
   ru: "ru_RU",
-  uk: "uk_UA",
+  ua: "uk_UA",
   pl: "pl_PL",
+};
+
+// The "ua" route prefix is a product choice; the correct hreflang language
+// tag for Ukrainian is the ISO 639-1 code "uk".
+const HREFLANG: Record<string, string> = {
+  en: "en",
+  ru: "ru",
+  ua: "uk",
+  pl: "pl",
 };
 
 /**
@@ -19,9 +28,9 @@ export function hreflangAlternates(pathname: string): Record<string, string> {
 
   for (const locale of routing.locales) {
     const href = getPathname({ locale, href: pathname });
-    languages[locale] = `${BASE}${href}`;
+    languages[HREFLANG[locale] ?? locale] = `${BASE}${href}`;
   }
-  languages["x-default"] = languages[routing.defaultLocale];
+  languages["x-default"] = languages[HREFLANG[routing.defaultLocale] ?? routing.defaultLocale];
 
   return languages;
 }

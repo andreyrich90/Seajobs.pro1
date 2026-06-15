@@ -96,14 +96,14 @@ const SHARE_PLATFORMS = [
 
 function formatDate(d: string, lang: string) {
   return new Date(d).toLocaleDateString(
-    lang === "uk" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
+    lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
     { day: "numeric", month: "long", year: "numeric" }
   );
 }
 
 function formatCommentDate(d: string, lang: string) {
   return new Date(d).toLocaleDateString(
-    lang === "uk" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
+    lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
     { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
   );
 }
@@ -132,7 +132,7 @@ export default function ArticleClient({ id }: { id: string }) {
           const titleMap = a.title as Record<string, string>;
           const bodyMap = a.body as Record<string, string>;
           // Legacy rows may store Ukrainian text under the old "ua" key.
-          const ukKey = lang === "uk" ? "ua" : lang;
+          const ukKey = lang === "ua" ? "uk" : lang;
           setArticle({
             id,
             title: titleMap[lang] || titleMap[ukKey] || titleMap.en || "",
@@ -376,7 +376,7 @@ export default function ArticleClient({ id }: { id: string }) {
         {others.length > 0 && (
           <div className="mt-12">
             <h2 className="mb-5 font-display text-lg font-semibold text-white">
-              {lang === "uk" ? "Більше новин" : lang === "pl" ? "Więcej wiadomości" : lang === "ru" ? "Больше новостей" : "More news"}
+              {lang === "ua" ? "Більше новин" : lang === "pl" ? "Więcej wiadomości" : lang === "ru" ? "Больше новостей" : "More news"}
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {others.map((item) => (

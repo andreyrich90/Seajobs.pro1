@@ -43,7 +43,7 @@ const TRANSLATIONS = {
       },
     ],
   },
-  uk: {
+  ua: {
     title: "Умови використання",
     updated: "Оновлено: червень 2026",
     sections: [
