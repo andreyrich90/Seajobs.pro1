@@ -18,85 +18,6 @@ export default function AuthCallbackPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let handled = false;
-
-    async function handleUser(userId: string) {
-      if (handled) return;
-      handled = true;
-
-      try {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", userId)
-          .single();
-
-        if (!profile) {
-          const pendingRole = localStorage.getItem("oauth_role") as Role | null;
-          if (pendingRole === "seafarer" || pendingRole === "company") {
-            localStorage.removeItem("oauth_role");
-            setUserId(userId);
-            setLoading(false);
-            await handleRoleSelectInner(userId, pendingRole);
-          } else {
-            setUserId(userId);
-            setNeedsRole(true);
-            setLoading(false);
-          }
-        } else {
-          const r = (profile as { role: string }).role;
-          localStorage.setItem("user_role", r);
-          router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
-        }
-      } catch {
-        // Profile lookup failed (e.g. transient API/schema issue) but the
-        // user IS signed in — let them pick a role rather than bouncing
-        // them back to /auth/login as if auth itself failed.
-        setUserId(userId);
-        setNeedsRole(true);
-        setLoading(false);
-      }
-    }
-
-    // Some browsers/contexts don't reliably re-fire INITIAL_SESSION once a
-    // session already exists in storage, so check directly first...
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) handleUser(session.user.id);
-    });
-
-    // ...and also listen for the auth state change that follows PKCE code
-    // exchange — getUser() called immediately can race against the code
-    // exchange and return null (especially when opening from an email link
-    // in a fresh browser context).
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
-          await handleUser(session.user.id);
-        } else if (event === "INITIAL_SESSION" && !session) {
-          // No existing session and no code to exchange — send to login
-          if (!handled) {
-            handled = true;
-            router.push("/auth/login");
-          }
-        }
-      }
-    );
-
-    // Fallback timeout in case auth state never fires (network error etc.)
-    const timeout = setTimeout(() => {
-      if (!handled) {
-        handled = true;
-        router.push("/auth/login");
-      }
-    }, 12000);
-
-    return () => {
-      subscription.unsubscribe();
-      clearTimeout(timeout);
-    };
-  }, [router]);
-
   async function handleRoleSelectInner(uid: string, role: Role) {
     const { error: profileError } = await supabase
       .from("profiles")
@@ -106,6 +27,7 @@ export default function AuthCallbackPage() {
     if (profileError) {
       setError("Failed to save role: " + profileError.message);
       setSaving(false);
+      setLoading(false);
       return;
     }
 
@@ -126,6 +48,105 @@ export default function AuthCallbackPage() {
     await handleRoleSelectInner(userId, role);
   }
 
+  useEffect(() => {
+    let active = true;
+
+    // Once we have an authenticated user, route them based on their profile.
+    async function handleUser(uid: string) {
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", uid)
+          .single();
+
+        if (!active) return;
+
+        if (profile) {
+          const r = (profile as { role: string }).role;
+          localStorage.setItem("user_role", r);
+          router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
+          return;
+        }
+
+        // No profile yet (first OAuth sign-in). Apply a pending role chosen on
+        // the register screen, otherwise ask the user to pick one.
+        const pendingRole = localStorage.getItem("oauth_role") as Role | null;
+        if (pendingRole === "seafarer" || pendingRole === "company") {
+          localStorage.removeItem("oauth_role");
+          setUserId(uid);
+          await handleRoleSelectInner(uid, pendingRole);
+        } else {
+          setUserId(uid);
+          setNeedsRole(true);
+          setLoading(false);
+        }
+      } catch {
+        // Profile lookup failed (transient API/schema issue) but the user IS
+        // signed in — let them pick a role rather than bouncing to login.
+        if (!active) return;
+        setUserId(uid);
+        setNeedsRole(true);
+        setLoading(false);
+      }
+    }
+
+    async function run() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const errDesc = params.get("error_description") || params.get("error");
+
+        // OAuth provider returned an explicit error (e.g. user cancelled).
+        if (errDesc) {
+          if (!active) return;
+          setError(decodeURIComponent(errDesc.replace(/\+/g, " ")));
+          setLoading(false);
+          return;
+        }
+
+        // PKCE: exchange the one-time ?code= for a session using the verifier
+        // stored at sign-in time. Done explicitly (detectSessionInUrl is off).
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          if (!active) return;
+          if (error || !data.session) {
+            // A session may already exist (e.g. a duplicate callback) — use it.
+            const { data: existing } = await supabase.auth.getSession();
+            if (existing.session?.user) {
+              await handleUser(existing.session.user.id);
+              return;
+            }
+            setError(error?.message ?? "Could not complete sign in. Please try again.");
+            setLoading(false);
+            return;
+          }
+          await handleUser(data.session.user.id);
+          return;
+        }
+
+        // No code in the URL — maybe already authenticated, otherwise to login.
+        const { data: existing } = await supabase.auth.getSession();
+        if (!active) return;
+        if (existing.session?.user) {
+          await handleUser(existing.session.user.id);
+          return;
+        }
+        router.push("/auth/login");
+      } catch {
+        if (!active) return;
+        setError("Unexpected error during sign in. Please try again.");
+        setLoading(false);
+      }
+    }
+
+    run();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-deep flex items-center justify-center">
@@ -134,6 +155,25 @@ export default function AuthCallbackPage() {
             <Anchor size={24} className="text-deep" />
           </div>
           <p className="text-mist">Signing you in...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !needsRole) {
+    return (
+      <div className="min-h-screen bg-deep flex items-center justify-center px-5">
+        <div className="w-full max-w-md text-center">
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3 text-left">
+            <AlertCircle size={18} className="mt-0.5 shrink-0 text-coral" />
+            <p className="text-sm text-coral">{error}</p>
+          </div>
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+          >
+            Back to sign in
+          </Link>
         </div>
       </div>
     );

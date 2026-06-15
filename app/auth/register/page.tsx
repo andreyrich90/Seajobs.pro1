@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, ChevronLeft } from "lucide-react";
+import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, ChevronLeft, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
 async function signUpWithGoogle(role?: string) {
@@ -29,6 +29,7 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   function handleRoleSelect(r: Role) {
     setRole(r);
@@ -60,6 +61,11 @@ export default function RegisterPage() {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          // If email confirmation is on, the confirmation link routes through
+          // the OAuth callback, which creates the profile from oauth_role.
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
 
       if (signUpError) {
@@ -72,7 +78,19 @@ export default function RegisterPage() {
         return;
       }
 
-      // Insert into profiles
+      // Remember the chosen role so it can be applied once the account is
+      // authenticated (now, or after email confirmation via the callback).
+      if (typeof window !== "undefined") localStorage.setItem("oauth_role", role);
+
+      // Email confirmation enabled → no session yet. Profile rows can't be
+      // inserted under RLS without an authenticated session, so prompt the
+      // user to confirm; the callback finishes setup after they click the link.
+      if (!data.session) {
+        setEmailSent(true);
+        return;
+      }
+
+      // Auto-confirm enabled → we have a session, finish setup now.
       const { error: profileError } = await supabase
         .from("profiles")
         .insert({ id: data.user.id, role: role as "seafarer" | "company" });
@@ -82,7 +100,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // If seafarer, create seafarer record
       if (role === "seafarer") {
         const { error: seafarerError } = await supabase
           .from("seafarers")
@@ -196,8 +213,29 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {/* Step 2: email confirmation sent */}
+          {step === 2 && emailSent && (
+            <div className="rounded-2xl border border-teal/30 bg-teal/10 p-8 text-center">
+              <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-teal/15">
+                <Mail size={26} className="text-teal" />
+              </div>
+              <h1 className="font-display text-2xl font-semibold text-white">Confirm your email</h1>
+              <p className="mt-2 text-sm text-foam/80">
+                We&apos;ve sent a confirmation link to{" "}
+                <span className="font-semibold text-foam">{email}</span>. Open it to finish
+                creating your account.
+              </p>
+              <Link
+                href="/auth/login"
+                className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Back to sign in
+              </Link>
+            </div>
+          )}
+
           {/* Step 2: Registration form */}
-          {step === 2 && (
+          {step === 2 && !emailSent && (
             <div>
               <button
                 onClick={() => { setStep(1); setError(null); }}
