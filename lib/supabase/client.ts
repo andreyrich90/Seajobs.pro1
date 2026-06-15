@@ -17,6 +17,16 @@ function getClient(): TypedSupabaseClient {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
     _client = createClient<Database>(url, key, {
+      auth: {
+        // PKCE is more robust than the implicit flow on Safari / iPadOS,
+        // where Intelligent Tracking Prevention can break hash-fragment
+        // token delivery. The /auth/callback page relies on the automatic
+        // ?code= exchange that detectSessionInUrl performs on load.
+        flowType: "pkce",
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
       global: { fetch: fetchWithTimeout as typeof fetch },
     });
   }

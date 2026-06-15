@@ -1,12 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle, AlertCircle, Upload, User } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 
 type ProfileForm = Omit<Seafarer, "id" | "updated_at">;
+
+const ALL_RANKS = RANK_GROUPS.flatMap((g) => g.ranks);
+const MAX_CV_BYTES = 4 * 1024 * 1024; // Vercel serverless body limit is ~4.5 MB
+
+function readAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 const EMPTY_FORM: ProfileForm = {
   first_name: "",
@@ -25,9 +37,11 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [parsingCv, setParsingCv] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cvInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadProfile() {
@@ -95,6 +109,107 @@ export default function ProfilePage() {
     setMessage({ type: "success", text: "Photo uploaded! Save your profile to apply." });
   }
 
+  async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    if (file.type !== "application/pdf") {
+      setMessage({ type: "error", text: "Please upload your CV as a PDF file." });
+      if (cvInputRef.current) cvInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_CV_BYTES) {
+      setMessage({ type: "error", text: "CV is too large. Max 4 MB." });
+      if (cvInputRef.current) cvInputRef.current.value = "";
+      return;
+    }
+
+    setParsingCv(true);
+    setMessage(null);
+
+    try {
+      const fileBase64 = await readAsDataURL(file);
+      const res = await fetch("/api/cv-parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileBase64, mediaType: "application/pdf" }),
+      });
+      const data = await res.json();
+
+      if (!data.ok || !data.profile) {
+        setMessage({ type: "error", text: "Could not read this CV. Try a clearer PDF or fill the form manually." });
+        return;
+      }
+
+      const p = data.profile;
+
+      // Fill the editable profile form — the seafarer reviews, then Saves.
+      setForm((prev) => ({
+        ...prev,
+        first_name: p.first_name ?? prev.first_name,
+        last_name: p.last_name ?? prev.last_name,
+        rank: p.rank ?? prev.rank,
+        nationality: p.nationality ?? prev.nationality,
+        phone: p.phone ?? prev.phone,
+        date_of_birth: p.date_of_birth ?? prev.date_of_birth,
+        readiness_date: p.readiness_date ?? prev.readiness_date,
+        about: p.about ?? prev.about,
+      }));
+
+      // Certificates and sea experience are list tables — insert what we found
+      // so they show up immediately in those sections.
+      let certCount = 0;
+      if (Array.isArray(p.certificates)) {
+        const rows = p.certificates
+          .filter((c: { name?: string }) => c?.name)
+          .map((c: Record<string, string | null>) => ({
+            seafarer_id: userId,
+            name: c.name,
+            number: c.number ?? null,
+            issue_date: c.issue_date ?? null,
+            expiry_date: c.expiry_date ?? null,
+            issuing_authority: c.issuing_authority ?? null,
+          }));
+        if (rows.length) {
+          const { error } = await supabase.from("certificates").insert(rows);
+          if (!error) certCount = rows.length;
+        }
+      }
+
+      let expCount = 0;
+      if (Array.isArray(p.experience)) {
+        const rows = p.experience
+          .filter((x: { vessel_name?: string }) => x?.vessel_name)
+          .map((x: Record<string, string | null>) => ({
+            seafarer_id: userId,
+            vessel_name: x.vessel_name,
+            vessel_type: x.vessel_type ?? null,
+            rank: x.rank ?? null,
+            company: x.company ?? null,
+            flag: x.flag ?? null,
+            from_date: x.from_date ?? null,
+            to_date: x.to_date ?? null,
+          }));
+        if (rows.length) {
+          const { error } = await supabase.from("sea_experience").insert(rows);
+          if (!error) expCount = rows.length;
+        }
+      }
+
+      setMessage({
+        type: "success",
+        text: `CV imported — profile fields filled${
+          certCount ? `, ${certCount} certificate(s) added` : ""
+        }${expCount ? `, ${expCount} voyage(s) added` : ""}. Review the details below and click Save Profile.`,
+      });
+    } catch {
+      setMessage({ type: "error", text: "CV import failed. Please try again." });
+    } finally {
+      setParsingCv(false);
+      if (cvInputRef.current) cvInputRef.current.value = "";
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
@@ -155,6 +270,39 @@ export default function ProfilePage() {
           </p>
         </div>
       )}
+
+      {/* Auto-fill from CV */}
+      <div className="mb-6 rounded-2xl border border-brass/30 bg-brass/5 p-6">
+        <div className="flex items-start gap-4">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2">
+            <Sparkles size={22} className="text-deep" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-display text-lg font-semibold text-white">Auto-fill from your CV</h2>
+            <p className="mt-1 text-sm text-mist">
+              Upload your CV as a PDF and we&apos;ll read your details, certificates and sea
+              experience, then fill them in automatically.
+            </p>
+            <button
+              type="button"
+              onClick={() => cvInputRef.current?.click()}
+              disabled={parsingCv || saving}
+              className="mt-4 flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+            >
+              <FileText size={16} />
+              {parsingCv ? "Reading your CV…" : "Upload CV (PDF)"}
+            </button>
+            <p className="mt-2 text-xs text-mist">PDF · max 4 MB</p>
+            <input
+              ref={cvInputRef}
+              type="file"
+              accept="application/pdf"
+              onChange={handleCvUpload}
+              className="hidden"
+            />
+          </div>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
@@ -261,6 +409,9 @@ export default function ProfilePage() {
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
                 <option value="">Select rank...</option>
+                {form.rank && !ALL_RANKS.includes(form.rank) && (
+                  <option value={form.rank}>{form.rank}</option>
+                )}
                 {RANK_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>
                     {g.ranks.map((r) => (
