@@ -17,9 +17,25 @@ export default function AuthCallbackPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     let handled = false;
+
+    // Google/Supabase report OAuth failures (e.g. cancelled consent,
+    // misconfigured redirect URI) as ?error=...&error_description=... or
+    // #error=...&error_description=... on this page. Surface that instead
+    // of silently bouncing back to /auth/login with no explanation.
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    const oauthError = hashParams.get("error_description") || hashParams.get("error")
+      || searchParams.get("error_description") || searchParams.get("error");
+    if (oauthError) {
+      handled = true;
+      setAuthError(decodeURIComponent(oauthError));
+      setLoading(false);
+      return;
+    }
 
     async function handleUser(userId: string) {
       if (handled) return;
@@ -124,6 +140,26 @@ export default function AuthCallbackPage() {
     setSaving(true);
     setError(null);
     await handleRoleSelectInner(userId, role);
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-deep flex items-center justify-center px-5">
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-coral/20">
+            <AlertCircle size={24} className="text-coral" />
+          </div>
+          <p className="font-display text-xl font-semibold text-white">Sign-in failed</p>
+          <p className="mt-2 text-sm text-mist">{authError}</p>
+          <Link
+            href="/auth/login"
+            className="mt-6 inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+          >
+            Back to login
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
