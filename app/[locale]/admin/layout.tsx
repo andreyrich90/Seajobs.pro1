@@ -3,8 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useRouter as useNextRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   Anchor, LayoutDashboard, Users, Briefcase, MessageSquare,
   Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload,
@@ -22,8 +22,9 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router   = useRouter();
-  const pathname = usePathname();
+  const router    = useRouter();
+  const nextRouter = useNextRouter();
+  const pathname  = usePathname();
   const [checking, setChecking] = useState(true);
   const [open, setOpen]         = useState(false);
 
@@ -31,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     async function check() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { router.replace("/auth/login"); return; }
+        if (!session) { nextRouter.replace("/auth/login"); return; }
         const { data: profile } = await supabase
           .from("profiles").select("is_admin").eq("id", session.user.id).single();
         if (!profile?.is_admin) { router.replace("/"); return; }
@@ -39,13 +40,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       } catch { router.replace("/"); }
     }
     check();
-  }, [router]);
+  }, [router, nextRouter]);
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
   async function logout() {
     await supabase.auth.signOut();
-    router.push("/auth/login");
+    nextRouter.push("/auth/login");
   }
 
   if (checking) return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";

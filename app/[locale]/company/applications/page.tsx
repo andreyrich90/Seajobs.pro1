@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Users, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { supabase, notify } from "@/lib/supabase/client";
 

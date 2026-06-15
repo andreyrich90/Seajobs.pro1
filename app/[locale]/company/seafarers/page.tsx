@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Search, User, MapPin, Ship, Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";

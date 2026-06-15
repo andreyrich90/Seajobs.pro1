@@ -3,24 +3,28 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users, Search } from "lucide-react";
+import { useRouter as useNextRouter } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
+import {
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { LANGS, T } from "@/lib/i18n";
 import NotificationBell from "@/components/NotificationBell";
 
 const NAV_KEYS = [
-  { key: "cab_dashboard",       href: "/company/dashboard",    icon: LayoutDashboard },
-  { key: "cab_company_profile", href: "/company/profile",      icon: Building2 },
-  { key: "cab_vacancies",       href: "/company/vacancies",    icon: Briefcase },
-  { key: "cab_applicants",      href: "/company/applications", icon: Users },
-  { key: "cab_seafarers",       href: "/company/seafarers",    icon: Search },
+  { key: "cab_dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
+  { key: "cab_profile",   href: "/seafarer/profile",   icon: User },
+  { key: "cab_certificates", href: "/seafarer/certificates", icon: Award },
+  { key: "cab_experience",   href: "/seafarer/experience",   icon: Ship },
+  { key: "cab_cv",           href: "/seafarer/cv",           icon: FileText },
+  { key: "cab_applications", href: "/seafarer/applications", icon: Send },
+  { key: "cab_saved",        href: "/seafarer/saved",        icon: Bookmark },
 ];
 
-export default function CompanyLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+export default function SeafarerLayout({ children }: { children: React.ReactNode }) {
+  const nextRouter = useNextRouter();
   const pathname = usePathname();
   const { lang, setLang } = useLang();
   const t = T[lang];
@@ -34,21 +38,21 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
     async function checkAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) { router.replace("/auth/login"); return; }
+        if (!session) { nextRouter.replace("/auth/login"); return; }
         setChecking(false);
         // Check blocked status in background — doesn't delay render
         supabase.from("profiles").select("is_blocked").eq("id", session.user.id).single()
           .then(({ data }) => {
             if (data?.is_blocked) {
-              supabase.auth.signOut().then(() => router.replace("/auth/login?blocked=1"));
+              supabase.auth.signOut().then(() => nextRouter.replace("/auth/login?blocked=1"));
             }
           });
       } catch {
-        router.replace("/auth/login");
+        nextRouter.replace("/auth/login");
       }
     }
     checkAuth();
-  }, [router]);
+  }, [nextRouter]);
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -57,7 +61,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   async function handleLogout() {
     if (typeof window !== "undefined") localStorage.removeItem("user_role");
     await supabase.auth.signOut();
-    router.push("/auth/login");
+    nextRouter.push("/auth/login");
   }
 
   if (checking) {

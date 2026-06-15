@@ -47,13 +47,13 @@ export default function Header() {
   }, []);
 
   const authButton = dashboardHref ? (
-    <NextLink
+    <Link
       href={dashboardHref}
       className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
       <LayoutDashboard size={16} />
       <span className="hidden lg:inline">Cabinet</span>
-    </NextLink>
+    </Link>
   ) : (
     <NextLink
       href="/auth/login"
@@ -119,13 +119,13 @@ export default function Header() {
           {/* Admin button — md+ only */}
           {isAdmin && (
             <div className="hidden md:block">
-              <NextLink
+              <Link
                 href="/admin/dashboard"
                 className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brass2 transition hover:bg-brass/20"
               >
                 <ShieldCheck size={15} />
                 <span className="hidden lg:inline">Admin</span>
-              </NextLink>
+              </Link>
             </div>
           )}
 
@@ -155,20 +155,20 @@ export default function Header() {
           </nav>
           <div className="mt-3 border-t border-white/10 pt-3 flex flex-col gap-2">
             {isAdmin && (
-              <NextLink
+              <Link
                 href="/admin/dashboard"
                 className="flex items-center gap-3 rounded-xl border border-brass/30 bg-brass/10 px-3 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20"
               >
                 <ShieldCheck size={18} /> Admin Panel
-              </NextLink>
+              </Link>
             )}
             {dashboardHref ? (
-              <NextLink
+              <Link
                 href={dashboardHref}
                 className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
               >
                 <LayoutDashboard size={16} /> Cabinet
-              </NextLink>
+              </Link>
             ) : (
               <NextLink
                 href="/auth/login"

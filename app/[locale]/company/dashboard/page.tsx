@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Building2, Briefcase, Plus, CheckCircle, Clock, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import ContactForm from "@/components/ContactForm";

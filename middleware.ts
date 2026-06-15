@@ -5,6 +5,6 @@ export default createMiddleware(routing);
 
 export const config = {
   matcher: [
-    "/((?!api|admin|auth|seafarer|company|_next|_vercel|.*\\..*).*)",
+    "/((?!api|auth|_next|_vercel|.*\\..*).*)",
   ],
 };
