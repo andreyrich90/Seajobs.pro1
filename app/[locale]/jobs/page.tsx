@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { searchMatches } from "@/lib/searchSynonyms";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -111,9 +112,9 @@ function JobsContent() {
   }
 
   const filtered = vacancies.filter((v) => {
-    const q = query.toLowerCase();
-    const companyName = v.companies?.name?.toLowerCase() ?? "";
-    const matchQuery = !q || v.title.toLowerCase().includes(q) || (v.rank?.toLowerCase().includes(q) ?? false) || (v.vessel_type?.toLowerCase().includes(q) ?? false) || companyName.includes(q);
+    // Bilingual search: "капитан" matches "Master" and vice-versa.
+    const haystack = `${v.title} ${v.rank ?? ""} ${v.vessel_type ?? ""} ${v.companies?.name ?? ""}`;
+    const matchQuery = searchMatches(haystack, query);
     const matchRank =
       !rank ||
       v.rank === rank ||
