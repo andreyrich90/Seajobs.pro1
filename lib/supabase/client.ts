@@ -40,10 +40,12 @@ function getClient(): TypedSupabaseClient {
         auth: {
           // PKCE is more robust than the implicit flow on Safari / iPadOS,
           // where Intelligent Tracking Prevention can break hash-fragment
-          // token delivery. The /auth/callback page relies on the automatic
-          // ?code= exchange that detectSessionInUrl performs on load.
+          // token delivery.
           flowType: "pkce",
-          detectSessionInUrl: true,
+          // The /auth/callback page exchanges the ?code= explicitly. Leaving
+          // auto-detection on would race it for the single-use code and could
+          // leave the callback hanging on "Signing you in…", so we disable it.
+          detectSessionInUrl: false,
           persistSession: true,
           autoRefreshToken: true,
         },
