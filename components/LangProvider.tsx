@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter as useNextRouter } from "next/navigation";
 import type { Lang } from "@/lib/i18n";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 
 const VALID_LANGS: Lang[] = ["en", "uk", "pl", "ru"];
 
@@ -17,7 +18,7 @@ const LangContext = createContext<LangContextType | null>(null);
 export function LangProvider({ children }: { children: ReactNode }) {
   const params = useParams();
   const pathname = usePathname();
-  const router = useRouter();
+  const router = useNextRouter();
 
   // Pages under app/[locale]/... derive the language from the URL —
   // that's the source of truth for SEO and is set by the locale switcher
@@ -40,7 +41,16 @@ export function LangProvider({ children }: { children: ReactNode }) {
 
   function setLang(l: Lang) {
     if (urlLocale) {
-      router.replace(pathname, { locale: l });
+      // Build the target URL ourselves rather than relying on next-intl's
+      // useRouter().replace(), which always forces a locale prefix —
+      // including for the default locale under "as-needed" mode (e.g.
+      // /en/jobs). That extra prefix requires a middleware redirect that
+      // the App Router's client-side navigation doesn't always follow,
+      // producing a 404. Switching to the default locale must yield an
+      // unprefixed path.
+      const suffix = pathname === "/" ? "" : pathname;
+      const href = l === routing.defaultLocale ? (suffix || "/") : `/${l}${suffix}`;
+      router.replace(href);
     } else {
       setStoredLang(l);
       localStorage.setItem("lang", l);
