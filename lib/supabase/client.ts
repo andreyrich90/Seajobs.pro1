@@ -48,6 +48,12 @@ function getClient(): TypedSupabaseClient {
           detectSessionInUrl: false,
           persistSession: true,
           autoRefreshToken: true,
+          // Bypass the Web Locks API. supabase-js serialises auth calls with
+          // navigator.locks by default; on some mobile browsers the lock isn't
+          // released and exchangeCodeForSession() hangs forever ("Signing you
+          // in…"). A pass-through lock runs the operation immediately — safe
+          // here because the callback performs one exchange at a time.
+          lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<unknown>) => fn(),
         },
         global: { fetch: fetchWithTimeout as typeof fetch },
       }
