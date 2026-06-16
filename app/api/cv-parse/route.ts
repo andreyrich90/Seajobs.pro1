@@ -20,11 +20,19 @@ Schema:
   "date_of_birth": "YYYY-MM-DD"|null,
   "readiness_date": "YYYY-MM-DD"|null,
   "about": string|null,
+  "seamans_book": string|null,
+  "passport_no": string|null,
+  "passport_expiry": "YYYY-MM-DD"|null,
+  "us_visa": string|null,
+  "schengen_visa": string|null,
+  "education": string|null,
+  "languages": string|null,
+  "competencies": string|null,
   "certificates": [
     { "name": string, "number": string|null, "issue_date": "YYYY-MM-DD"|null, "expiry_date": "YYYY-MM-DD"|null, "issuing_authority": string|null }
   ],
   "experience": [
-    { "vessel_name": string, "vessel_type": string|null, "rank": string|null, "company": string|null, "flag": string|null, "from_date": "YYYY-MM-DD"|null, "to_date": "YYYY-MM-DD"|null }
+    { "vessel_name": string, "vessel_type": string|null, "rank": string|null, "company": string|null, "flag": string|null, "dwt": string|null, "engine": string|null, "from_date": "YYYY-MM-DD"|null, "to_date": "YYYY-MM-DD"|null }
   ]
 }
 
@@ -32,7 +40,12 @@ Rules:
 - Use null for unknown scalar fields and [] for empty lists.
 - Map ranks to standard maritime titles (e.g. "Master", "Chief Officer", "2nd Officer", "Chief Engineer", "2nd Engineer", "Able Seaman", "Ordinary Seaman").
 - All dates ISO "YYYY-MM-DD". If only month/year is known, use the first day of that month.
-- "about" = a concise 1–2 sentence professional summary in English.`;
+- "about" = a concise 1–2 sentence professional summary in English.
+- "us_visa"/"schengen_visa" = validity text if present (e.g. "Valid until 05/2028"); "seamans_book"/"passport_no" = the document number/validity as written.
+- "education" = institution, field and graduation year on one line.
+- "languages" = e.g. "English: Fluent, Russian: Native".
+- "competencies" = key skills, one per line.
+- "dwt" = deadweight/GRT as written (e.g. "58,500 DWT"); "engine" = engine make / power (e.g. "MAN-B&W / 12,800").`;
 
 interface AnthropicContentBlock {
   type: string;

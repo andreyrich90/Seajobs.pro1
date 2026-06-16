@@ -99,6 +99,8 @@ type ExpForm = {
   company: string;
   flag: string;
   imo_number: string;
+  dwt: string;
+  engine: string;
   from_date: string;
   to_date: string;
 };
@@ -110,6 +112,8 @@ const EMPTY_FORM: ExpForm = {
   company: "",
   flag: "",
   imo_number: "",
+  dwt: "",
+  engine: "",
   from_date: "",
   to_date: "",
 };
@@ -180,6 +184,8 @@ export default function ExperiencePage() {
       company: entry.company ?? "",
       flag: entry.flag ?? "",
       imo_number: entry.imo_number ?? "",
+      dwt: entry.dwt ?? "",
+      engine: entry.engine ?? "",
       from_date: entry.from_date ?? "",
       to_date: entry.to_date ?? "",
     });
@@ -211,6 +217,8 @@ export default function ExperiencePage() {
       company: form.company || null,
       flag: form.flag || null,
       imo_number: form.imo_number || null,
+      dwt: form.dwt || null,
+      engine: form.engine || null,
       from_date: form.from_date || null,
       to_date: form.to_date || null,
     };
@@ -390,6 +398,30 @@ export default function ExperiencePage() {
                 value={form.imo_number}
                 onChange={(e) => handleChange("imo_number", e.target.value)}
                 placeholder="e.g. 9876543"
+                disabled={submitting}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">DWT / GRT</label>
+              <input
+                type="text"
+                value={form.dwt}
+                onChange={(e) => handleChange("dwt", e.target.value)}
+                placeholder="e.g. 58,500 DWT"
+                disabled={submitting}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Engine / BHP</label>
+              <input
+                type="text"
+                value={form.engine}
+                onChange={(e) => handleChange("engine", e.target.value)}
+                placeholder="e.g. MAN-B&W / 12,800"
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />

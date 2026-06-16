@@ -151,6 +151,12 @@ function CVDocument({ data }: { data: CVData }) {
                 ["Rank / Position", seafarer?.rank || "—"],
                 ["Phone", seafarer?.phone || "—"],
                 ["Email", email || "—"],
+                ...(seafarer?.seamans_book ? [["Seaman's Book", seafarer.seamans_book]] : []),
+                ...(seafarer?.passport_no
+                  ? [["Passport", seafarer.passport_no + (seafarer.passport_expiry ? ` (exp. ${formatDate(seafarer.passport_expiry, true)})` : "")]]
+                  : []),
+                ...(seafarer?.us_visa ? [["US Visa C1/D", seafarer.us_visa]] : []),
+                ...(seafarer?.schengen_visa ? [["Schengen Visa", seafarer.schengen_visa]] : []),
               ].map(([k, v], i) => (
                 <tr key={k} className={zebra(i)}>
                   <td className={`${cell} w-[42%] font-semibold text-[#52606d]`}>{k}</td>
@@ -185,6 +191,13 @@ function CVDocument({ data }: { data: CVData }) {
               )}
             </tbody>
           </table>
+
+          {seafarer?.education && (
+            <>
+              <Bar>Education</Bar>
+              <p className="px-1 py-1 text-[10px] leading-snug text-[#41505e]">{seafarer.education}</p>
+            </>
+          )}
         </div>
       </div>
 
@@ -239,6 +252,8 @@ function CVDocument({ data }: { data: CVData }) {
               <tr className="bg-[#dbe3ec] text-left text-[#16365c]">
                 <th className={`${cell} font-bold`}>Vessel name</th>
                 <th className={`${cell} font-bold`}>Type</th>
+                <th className={`${cell} font-bold`}>DWT / GRT</th>
+                <th className={`${cell} font-bold`}>Engine / BHP</th>
                 <th className={`${cell} font-bold`}>Rank</th>
                 <th className={`${cell} font-bold`}>Flag</th>
                 <th className={`${cell} font-bold`}>Period (from – to)</th>
@@ -251,6 +266,8 @@ function CVDocument({ data }: { data: CVData }) {
                 <tr key={e.id} className={zebra(i)}>
                   <td className={`${cell} font-semibold`}>{e.vessel_name}</td>
                   <td className={cell}>{e.vessel_type || "—"}</td>
+                  <td className={cell}>{e.dwt || "—"}</td>
+                  <td className={cell}>{e.engine || "—"}</td>
                   <td className={`${cell} font-semibold text-[#16365c]`}>{e.rank || "—"}</td>
                   <td className={cell}>{e.flag || "—"}</td>
                   <td className={`${cell} whitespace-nowrap`}>
@@ -270,6 +287,32 @@ function CVDocument({ data }: { data: CVData }) {
               Summary above.
             </p>
           )}
+        </>
+      )}
+
+      {/* ── Core Competencies & Languages ── */}
+      {(seafarer?.competencies || seafarer?.languages) && (
+        <>
+          <Bar>Core Competencies &amp; Languages</Bar>
+          <div className="grid grid-cols-2 gap-5 pt-1 text-[10px] text-[#41505e]">
+            <div>
+              {seafarer?.competencies
+                ? seafarer.competencies
+                    .split(/\r?\n/)
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .map((line, i) => (
+                      <p key={i} className="leading-snug">• {line}</p>
+                    ))
+                : null}
+            </div>
+            {seafarer?.languages && (
+              <div>
+                <p className="font-bold text-[#16365c]">Languages</p>
+                <p className="leading-snug">{seafarer.languages}</p>
+              </div>
+            )}
+          </div>
         </>
       )}
 
