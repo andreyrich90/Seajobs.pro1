@@ -30,6 +30,14 @@ const EMPTY_FORM: ProfileForm = {
   rank: "",
   readiness_date: "",
   about: "",
+  seamans_book: "",
+  passport_no: "",
+  passport_expiry: "",
+  us_visa: "",
+  schengen_visa: "",
+  education: "",
+  languages: "",
+  competencies: "",
 };
 
 export default function ProfilePage() {
@@ -66,6 +74,14 @@ export default function ProfilePage() {
           rank: data.rank ?? "",
           readiness_date: data.readiness_date ?? "",
           about: data.about ?? "",
+          seamans_book: data.seamans_book ?? "",
+          passport_no: data.passport_no ?? "",
+          passport_expiry: data.passport_expiry ?? "",
+          us_visa: data.us_visa ?? "",
+          schengen_visa: data.schengen_visa ?? "",
+          education: data.education ?? "",
+          languages: data.languages ?? "",
+          competencies: data.competencies ?? "",
         });
       }
       setLoading(false);
@@ -160,6 +176,14 @@ export default function ProfilePage() {
         date_of_birth: p.date_of_birth ?? prev.date_of_birth,
         readiness_date: p.readiness_date ?? prev.readiness_date,
         about: p.about ?? prev.about,
+        seamans_book: p.seamans_book ?? prev.seamans_book,
+        passport_no: p.passport_no ?? prev.passport_no,
+        passport_expiry: p.passport_expiry ?? prev.passport_expiry,
+        us_visa: p.us_visa ?? prev.us_visa,
+        schengen_visa: p.schengen_visa ?? prev.schengen_visa,
+        education: p.education ?? prev.education,
+        languages: p.languages ?? prev.languages,
+        competencies: p.competencies ?? prev.competencies,
       }));
 
       // Certificates and sea experience are list tables — insert what we found
@@ -193,6 +217,8 @@ export default function ProfilePage() {
             rank: x.rank ?? null,
             company: x.company ?? null,
             flag: x.flag ?? null,
+            dwt: x.dwt ?? null,
+            engine: x.engine ?? null,
             from_date: x.from_date ?? null,
             to_date: x.to_date ?? null,
           }));
@@ -226,6 +252,7 @@ export default function ProfilePage() {
       ...form,
       date_of_birth: form.date_of_birth || null,
       readiness_date: form.readiness_date || null,
+      passport_expiry: form.passport_expiry || null,
       first_name: form.first_name || null,
       last_name: form.last_name || null,
       photo_url: form.photo_url || null,
@@ -233,6 +260,13 @@ export default function ProfilePage() {
       phone: form.phone || null,
       rank: form.rank || null,
       about: form.about || null,
+      seamans_book: form.seamans_book || null,
+      passport_no: form.passport_no || null,
+      us_visa: form.us_visa || null,
+      schengen_visa: form.schengen_visa || null,
+      education: form.education || null,
+      languages: form.languages || null,
+      competencies: form.competencies || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -443,6 +477,94 @@ export default function ProfilePage() {
                 onChange={(e) => handleChange("about", e.target.value)}
                 placeholder="Brief professional summary..."
                 rows={4} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Documents & Visas */}
+        <div className="rounded-2xl border border-white/10 bg-card p-6">
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Documents &amp; Visas</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Seaman&apos;s Book No.</label>
+              <input
+                type="text" value={form.seamans_book ?? ""}
+                onChange={(e) => handleChange("seamans_book", e.target.value)}
+                placeholder="SB 1234567 (exp. 2030)" disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Passport No.</label>
+              <input
+                type="text" value={form.passport_no ?? ""}
+                onChange={(e) => handleChange("passport_no", e.target.value)}
+                placeholder="75 No 9876543" disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Passport expiry</label>
+              <input
+                type="date" value={form.passport_expiry ?? ""}
+                onChange={(e) => handleChange("passport_expiry", e.target.value)}
+                disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">US Visa C1/D</label>
+              <input
+                type="text" value={form.us_visa ?? ""}
+                onChange={(e) => handleChange("us_visa", e.target.value)}
+                placeholder="Valid until 05/2028" disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Schengen Visa</label>
+              <input
+                type="text" value={form.schengen_visa ?? ""}
+                onChange={(e) => handleChange("schengen_visa", e.target.value)}
+                placeholder="Valid until 11/2027" disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Education, Languages & Competencies */}
+        <div className="rounded-2xl border border-white/10 bg-card p-6">
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Education, Languages &amp; Competencies</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Education</label>
+              <textarea
+                value={form.education ?? ""}
+                onChange={(e) => handleChange("education", e.target.value)}
+                placeholder="University / academy · field · graduation year"
+                rows={2} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Languages</label>
+              <input
+                type="text" value={form.languages ?? ""}
+                onChange={(e) => handleChange("languages", e.target.value)}
+                placeholder="English: Fluent (Maritime), Russian: Native" disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Core competencies</label>
+              <textarea
+                value={form.competencies ?? ""}
+                onChange={(e) => handleChange("competencies", e.target.value)}
+                placeholder="One per line — e.g. Cargo operations & lashing; SMS / ISM / MARPOL; Port State Control"
+                rows={3} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
             </div>

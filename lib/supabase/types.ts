@@ -84,6 +84,14 @@ export interface Database {
           rank: string | null;
           readiness_date: string | null;
           about: string | null;
+          seamans_book: string | null;
+          passport_no: string | null;
+          passport_expiry: string | null;
+          us_visa: string | null;
+          schengen_visa: string | null;
+          education: string | null;
+          languages: string | null;
+          competencies: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -97,6 +105,14 @@ export interface Database {
           rank?: string | null;
           readiness_date?: string | null;
           about?: string | null;
+          seamans_book?: string | null;
+          passport_no?: string | null;
+          passport_expiry?: string | null;
+          us_visa?: string | null;
+          schengen_visa?: string | null;
+          education?: string | null;
+          languages?: string | null;
+          competencies?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -110,6 +126,14 @@ export interface Database {
           rank?: string | null;
           readiness_date?: string | null;
           about?: string | null;
+          seamans_book?: string | null;
+          passport_no?: string | null;
+          passport_expiry?: string | null;
+          us_visa?: string | null;
+          schengen_visa?: string | null;
+          education?: string | null;
+          languages?: string | null;
+          competencies?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -160,6 +184,8 @@ export interface Database {
           company: string | null;
           flag: string | null;
           imo_number: string | null;
+          dwt: string | null;
+          engine: string | null;
           from_date: string | null;
           to_date: string | null;
           created_at: string;
@@ -173,6 +199,8 @@ export interface Database {
           company?: string | null;
           flag?: string | null;
           imo_number?: string | null;
+          dwt?: string | null;
+          engine?: string | null;
           from_date?: string | null;
           to_date?: string | null;
           created_at?: string;
@@ -186,6 +214,8 @@ export interface Database {
           company?: string | null;
           flag?: string | null;
           imo_number?: string | null;
+          dwt?: string | null;
+          engine?: string | null;
           from_date?: string | null;
           to_date?: string | null;
           created_at?: string;
