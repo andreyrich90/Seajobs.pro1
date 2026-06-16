@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Ship } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 import type { SeaExperience } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 
@@ -136,6 +138,8 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function ExperiencePage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [entries, setEntries] = useState<SeaExperience[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -204,7 +208,7 @@ export default function ExperiencePage() {
     e.preventDefault();
     if (!userId) return;
     if (!form.vessel_name.trim()) {
-      setError("Vessel name is required.");
+      setError(t.exp_vessel_required);
       return;
     }
     setSubmitting(true);
@@ -232,7 +236,7 @@ export default function ExperiencePage() {
         .single();
 
       if (updateError) {
-        setError("Failed to update: " + updateError.message);
+        setError(t.exp_update_failed + updateError.message);
       } else if (data) {
         setEntries((prev) =>
           prev
@@ -253,7 +257,7 @@ export default function ExperiencePage() {
         .single();
 
       if (insertError) {
-        setError("Failed to add entry: " + insertError.message);
+        setError(t.exp_add_failed + insertError.message);
       } else if (data) {
         setEntries((prev) =>
           [...prev, data].sort((a, b) => {
@@ -269,7 +273,7 @@ export default function ExperiencePage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this experience entry?")) return;
+    if (!confirm(t.exp_delete_confirm)) return;
     const { error: deleteError } = await supabase.from("sea_experience").delete().eq("id", id);
     if (!deleteError) {
       setEntries((prev) => prev.filter((e) => e.id !== id));
@@ -279,7 +283,7 @@ export default function ExperiencePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.cab_loading}</p>
       </div>
     );
   }
@@ -287,12 +291,12 @@ export default function ExperiencePage() {
   return (
     <div className="p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Sea Experience</h1>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.exp_title}</h1>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
         >
-          <Plus size={16} /> Add Experience
+          <Plus size={16} /> {t.exp_add}
         </button>
       </div>
 
@@ -301,7 +305,7 @@ export default function ExperiencePage() {
         <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-lg font-semibold text-white">
-              {editingId ? "Edit Experience" : "New Experience"}
+              {editingId ? t.exp_edit : t.exp_new}
             </h2>
             <button onClick={closeForm} className="text-mist hover:text-white transition">
               <X size={18} />
@@ -317,7 +321,7 @@ export default function ExperiencePage() {
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Vessel name *</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_vessel_name} *</label>
               <input
                 type="text"
                 value={form.vessel_name}
@@ -330,14 +334,14 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Vessel type</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_vessel_type}</label>
               <select
                 value={form.vessel_type}
                 onChange={(e) => handleChange("vessel_type", e.target.value)}
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
-                <option value="">Select type...</option>
+                <option value="">{t.exp_select_type}</option>
                 {VESSEL_TYPE_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>
                     {g.types.map((t) => (
@@ -349,14 +353,14 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Rank</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_rank}</label>
               <select
                 value={form.rank}
                 onChange={(e) => handleChange("rank", e.target.value)}
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
-                <option value="">Select rank...</option>
+                <option value="">{t.exp_select_rank}</option>
                 {RANK_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>
                     {g.ranks.map((r) => (
@@ -368,7 +372,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Company</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_company}</label>
               <input
                 type="text"
                 value={form.company}
@@ -380,7 +384,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Flag</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_flag}</label>
               <input
                 type="text"
                 value={form.flag}
@@ -392,7 +396,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">IMO number</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_imo}</label>
               <input
                 type="text"
                 value={form.imo_number}
@@ -404,7 +408,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">DWT / GRT</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_dwt}</label>
               <input
                 type="text"
                 value={form.dwt}
@@ -416,7 +420,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Engine / BHP</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_engine}</label>
               <input
                 type="text"
                 value={form.engine}
@@ -428,7 +432,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">From date</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_from}</label>
               <input
                 type="date"
                 value={form.from_date}
@@ -439,7 +443,7 @@ export default function ExperiencePage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">To date</label>
+              <label className="text-sm font-semibold text-foam">{t.exp_to}</label>
               <input
                 type="date"
                 value={form.to_date}
@@ -455,14 +459,14 @@ export default function ExperiencePage() {
                 disabled={submitting}
                 className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {submitting ? "Saving..." : editingId ? "Update" : "Add Entry"}
+                {submitting ? t.exp_saving : editingId ? t.exp_update : t.exp_add_entry}
               </button>
               <button
                 type="button"
                 onClick={closeForm}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
               >
-                Cancel
+                {t.cancel}
               </button>
             </div>
           </form>
@@ -472,7 +476,7 @@ export default function ExperiencePage() {
       {/* Timeline */}
       {entries.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
-          <p className="text-mist text-sm">No sea experience logged yet. Add your first entry above.</p>
+          <p className="text-mist text-sm">{t.exp_empty}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">

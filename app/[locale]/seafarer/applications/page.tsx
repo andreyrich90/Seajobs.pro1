@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Building2, Send, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 type ApplicationRow = {
   id: string;
@@ -58,6 +60,8 @@ function formatSalary(v: ApplicationRow["vacancies"]): string {
 }
 
 export default function ApplicationsPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -79,7 +83,7 @@ export default function ApplicationsPage() {
   }, []);
 
   async function handleWithdraw(id: string) {
-    if (!confirm("Withdraw this application?")) return;
+    if (!confirm(t.app_withdraw_confirm)) return;
     const { error } = await supabase.from("applications").delete().eq("id", id);
     if (!error) setApplications((prev) => prev.filter((a) => a.id !== id));
   }
@@ -87,7 +91,7 @@ export default function ApplicationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.cab_loading}</p>
       </div>
     );
   }
@@ -95,15 +99,15 @@ export default function ApplicationsPage() {
   return (
     <div className="p-8 max-w-4xl">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">My Applications</h1>
-        <p className="mt-1 text-sm text-mist">{applications.length} application{applications.length !== 1 ? "s" : ""}</p>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.app_title}</h1>
+        <p className="mt-1 text-sm text-mist">{applications.length} {t.app_count}</p>
       </div>
 
       {applications.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
           <Send size={40} className="mx-auto mb-3 text-mist/40" />
-          <p className="text-lg font-semibold text-foam">No applications yet</p>
-          <p className="mt-1 text-sm text-mist">Browse jobs and apply to get started.</p>
+          <p className="text-lg font-semibold text-foam">{t.app_empty}</p>
+          <p className="mt-1 text-sm text-mist">{t.app_empty_sub}</p>
           <Link
             href="/jobs"
             className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
@@ -142,7 +146,7 @@ export default function ApplicationsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-xs text-mist">{v?.companies?.name ?? "Unknown company"}</p>
+                        <p className="text-xs text-mist">{v?.companies?.name ?? t.app_unknown}</p>
                         {v?.companies?.is_verified && <ShieldCheck size={12} className="text-teal" />}
                       </div>
                       {v ? (
@@ -153,7 +157,7 @@ export default function ApplicationsPage() {
                           {v.title}
                         </Link>
                       ) : (
-                        <p className="mt-0.5 font-semibold text-white">Vacancy removed</p>
+                        <p className="mt-0.5 font-semibold text-white">{t.app_removed}</p>
                       )}
 
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -172,7 +176,7 @@ export default function ApplicationsPage() {
 
                     <div className="shrink-0 flex flex-col items-end gap-2">
                       <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[statusKey]}`}>
-                        {STATUS_LABEL[statusKey]}
+                        {({ pending: t.app_pending, viewed: t.app_viewed, accepted: t.app_accepted, rejected: t.app_rejected } as Record<StatusKey, string>)[statusKey]}
                       </span>
                       {salary && <p className="text-xs font-semibold text-white">{salary}</p>}
                     </div>
@@ -182,7 +186,7 @@ export default function ApplicationsPage() {
                     <p className="text-xs text-mist">Applied: {formatDate(app.created_at)}</p>
                     <button
                       onClick={() => handleWithdraw(app.id)}
-                      title="Withdraw application"
+                      title={t.app_withdraw}
                       className="flex items-center gap-1.5 rounded-lg border border-coral/20 bg-coral/10 px-2.5 py-1 text-xs font-semibold text-coral hover:bg-coral/20 transition"
                     >
                       <Trash2 size={12} /> Withdraw

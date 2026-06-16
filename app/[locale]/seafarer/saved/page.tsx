@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Building2, Bookmark, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 type SavedRow = {
   vacancy_id: string;
@@ -44,6 +46,8 @@ function formatSalary(v: SavedRow["vacancies"]): string {
 }
 
 export default function SavedJobsPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [saved, setSaved] = useState<SavedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -79,7 +83,7 @@ export default function SavedJobsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.cab_loading}</p>
       </div>
     );
   }
@@ -87,15 +91,15 @@ export default function SavedJobsPage() {
   return (
     <div className="p-8 max-w-4xl">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Saved Jobs</h1>
-        <p className="mt-1 text-sm text-mist">{saved.length} saved vacanc{saved.length !== 1 ? "ies" : "y"}</p>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.sav_title}</h1>
+        <p className="mt-1 text-sm text-mist">{saved.length} {t.sav_count}</p>
       </div>
 
       {saved.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
           <Bookmark size={40} className="mx-auto mb-3 text-mist/40" />
-          <p className="text-lg font-semibold text-foam">No saved jobs</p>
-          <p className="mt-1 text-sm text-mist">Browse jobs and bookmark positions you like.</p>
+          <p className="text-lg font-semibold text-foam">{t.sav_empty}</p>
+          <p className="mt-1 text-sm text-mist">{t.sav_empty_sub}</p>
           <Link
             href="/jobs"
             className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
@@ -133,7 +137,7 @@ export default function SavedJobsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-xs text-mist">{v?.companies?.name ?? "Unknown company"}</p>
+                        <p className="text-xs text-mist">{v?.companies?.name ?? t.app_unknown}</p>
                         {v?.companies?.is_verified && <ShieldCheck size={12} className="text-teal" />}
                         {v?.companies?.location && (
                           <span className="text-xs text-mist/60">· {v.companies.location}</span>
@@ -147,7 +151,7 @@ export default function SavedJobsPage() {
                           {v.title}
                         </Link>
                       ) : (
-                        <p className="mt-0.5 font-semibold text-mist">Vacancy no longer available</p>
+                        <p className="mt-0.5 font-semibold text-mist">{t.sav_unavailable}</p>
                       )}
 
                       <div className="mt-2 flex flex-wrap gap-2">
@@ -179,7 +183,7 @@ export default function SavedJobsPage() {
                     </div>
                     <button
                       onClick={() => handleUnsave(s.vacancy_id)}
-                      title="Remove from saved"
+                      title={t.sav_remove}
                       className="flex items-center gap-1.5 rounded-lg border border-coral/20 bg-coral/10 px-2.5 py-1 text-xs font-semibold text-coral hover:bg-coral/20 transition"
                     >
                       <Trash2 size={12} /> Remove

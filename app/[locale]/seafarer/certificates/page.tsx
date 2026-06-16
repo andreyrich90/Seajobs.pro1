@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 import type { Certificate } from "@/lib/supabase/types";
 
 const CERT_SUGGESTIONS = [
@@ -61,6 +63,8 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function CertificatesPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [certs, setCerts] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -96,7 +100,7 @@ export default function CertificatesPage() {
     e.preventDefault();
     if (!userId) return;
     if (!form.name.trim()) {
-      setError("Certificate name is required.");
+      setError(t.cert_name_required);
       return;
     }
     setSubmitting(true);
@@ -117,7 +121,7 @@ export default function CertificatesPage() {
       .single();
 
     if (insertError) {
-      setError("Failed to add certificate: " + insertError.message);
+      setError(t.cert_add_failed + insertError.message);
     } else if (data) {
       setCerts((prev) => [...prev, data]);
       setForm(EMPTY_FORM);
@@ -127,7 +131,7 @@ export default function CertificatesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this certificate?")) return;
+    if (!confirm(t.cert_delete_confirm)) return;
 
     const { error: deleteError } = await supabase
       .from("certificates")
@@ -142,7 +146,7 @@ export default function CertificatesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.cab_loading}</p>
       </div>
     );
   }
@@ -150,12 +154,12 @@ export default function CertificatesPage() {
   return (
     <div className="p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Certificates</h1>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.cert_title}</h1>
         <button
           onClick={() => { setShowForm(true); setError(null); }}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
         >
-          <Plus size={16} /> Add Certificate
+          <Plus size={16} /> {t.cert_add}
         </button>
       </div>
 
@@ -163,7 +167,7 @@ export default function CertificatesPage() {
       {showForm && (
         <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-semibold text-white">New Certificate</h2>
+            <h2 className="font-display text-lg font-semibold text-white">{t.cert_new}</h2>
             <button onClick={() => setShowForm(false)} className="text-mist hover:text-white transition">
               <X size={18} />
             </button>
@@ -178,7 +182,7 @@ export default function CertificatesPage() {
 
           <form onSubmit={handleAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">Certificate name *</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_name} *</label>
               <input
                 type="text"
                 list="cert-suggestions"
@@ -197,7 +201,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Certificate number</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_number}</label>
               <input
                 type="text"
                 value={form.number}
@@ -209,7 +213,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Issuing authority</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_authority}</label>
               <input
                 type="text"
                 value={form.issuing_authority}
@@ -221,7 +225,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Issue date</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_issue}</label>
               <input
                 type="date"
                 value={form.issue_date}
@@ -232,7 +236,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Expiry date</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_expiry}</label>
               <input
                 type="date"
                 value={form.expiry_date}
@@ -243,7 +247,7 @@ export default function CertificatesPage() {
             </div>
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">File URL (optional)</label>
+              <label className="text-sm font-semibold text-foam">{t.cert_file}</label>
               <input
                 type="url"
                 value={form.file_url}
@@ -260,14 +264,14 @@ export default function CertificatesPage() {
                 disabled={submitting}
                 className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {submitting ? "Saving..." : "Add Certificate"}
+                {submitting ? t.cert_saving : t.cert_add}
               </button>
               <button
                 type="button"
                 onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setError(null); }}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
               >
-                Cancel
+                {t.cancel}
               </button>
             </div>
           </form>
@@ -277,7 +281,7 @@ export default function CertificatesPage() {
       {/* Certificates table */}
       {certs.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
-          <p className="text-mist text-sm">No certificates yet. Add your first certificate above.</p>
+          <p className="text-mist text-sm">{t.cert_empty}</p>
         </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-card overflow-hidden">
@@ -285,12 +289,12 @@ export default function CertificatesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Name</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Number</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Issue Date</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Expiry Date</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Authority</th>
-                  <th className="text-right px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">Actions</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_name}</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_number}</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_issue}</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_expiry}</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_authority}</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-mist uppercase tracking-wider">{t.cert_th_actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
