@@ -1,11 +1,11 @@
 export const RANK_GROUPS = [
   {
     label: "Deck Officers",
-    ranks: ["Master (Captain)", "Chief Officer (Chief Mate)", "2nd Officer", "3rd Officer", "Junior Officer", "Deck Cadet"],
+    ranks: ["Master (Captain)", "Chief Officer (Chief Mate)", "2nd Officer", "3rd Officer", "4th Officer", "Junior Officer", "Deck Cadet"],
   },
   {
     label: "Engine Officers",
-    ranks: ["Chief Engineer", "2nd Engineer", "3rd Engineer", "4th Engineer", "Junior Engineer", "Engine Cadet"],
+    ranks: ["Chief Engineer", "2nd Engineer", "3rd Engineer", "4th Engineer", "Gas Engineer / Reefer Engineer", "Junior Engineer", "Engine Cadet", "Electrical Cadet"],
   },
   {
     label: "Electro-Technical / Specialized",
@@ -13,15 +13,52 @@ export const RANK_GROUPS = [
   },
   {
     label: "Deck Ratings",
-    ranks: ["Bosun", "AB (Able Seaman)", "OS (Ordinary Seaman)", "Deck Fitter"],
+    ranks: ["Bosun", "AB (Able Seaman)", "OS (Ordinary Seaman)", "Deck Fitter", "Carpenter", "Painter", "Sand Blaster", "Crane Operator", "Welder"],
   },
   {
     label: "Engine Ratings",
-    ranks: ["Motorman", "Oiler", "Fitter", "Wiper", "Pumpman", "Electrician"],
+    ranks: ["Motorman", "Oiler", "Fitter", "Fitter (Welder)", "Wiper", "Pumpman", "Electrician"],
   },
   {
     label: "Catering / Hotel",
-    ranks: ["Chief Cook / Cook", "2nd Cook", "Messman / Steward", "Chief Steward", "Purser", "Hotel Director"],
+    ranks: ["Chief Cook / Cook", "2nd Cook", "Baker", "Messman / Steward", "Steward / Stewardess", "Chief Steward / Chief Stewardess", "Purser", "Hotel Director"],
+  },
+  {
+    label: "Offshore",
+    ranks: [
+      "Crane Operator (Offshore)",
+      "Dynamic Positioning Operator (DPO)",
+      "SDPO (Senior DPO)",
+      "Derrickman",
+      "Driller",
+      "Toolpusher",
+      "Diver",
+      "Floorman",
+      "Pipe Layer",
+      "Rigger",
+      "Roustabout",
+      "Barge Master",
+      "Ballast Control Operator",
+    ],
+  },
+  {
+    label: "Cruise / Hotel Staff",
+    ranks: [
+      "Cruise Director",
+      "Receptionist",
+      "Bartender",
+      "Waiter / Waitress",
+      "Shop Manager",
+      "Store Keeper",
+      "Security Officer",
+      "Ship Doctor",
+      "Nurse",
+      "Spa / Beauty & Massage",
+      "Fitness Instructor",
+      "Entertainer",
+      "Photographer",
+      "Fabricator",
+    ],
   },
   {
     label: "Combined / Dual Roles",
