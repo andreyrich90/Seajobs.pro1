@@ -325,6 +325,7 @@ export interface Database {
           seafarer_id: string;
           cover_letter: string | null;
           status: string;
+          stage: string;
           created_at: string;
         };
         Insert: {
@@ -333,6 +334,7 @@ export interface Database {
           seafarer_id: string;
           cover_letter?: string | null;
           status?: string;
+          stage?: string;
           created_at?: string;
         };
         Update: {
@@ -341,6 +343,7 @@ export interface Database {
           seafarer_id?: string;
           cover_letter?: string | null;
           status?: string;
+          stage?: string;
           created_at?: string;
         };
         Relationships: [];
