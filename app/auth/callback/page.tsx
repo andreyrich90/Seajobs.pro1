@@ -140,9 +140,22 @@ export default function AuthCallbackPage() {
       }
     }
 
-    run();
+    let ranDone = false;
+    run().finally(() => {
+      ranDone = true;
+    });
+
+    // Safety net: never let the page hang on "Signing you in…" forever.
+    const watchdog = setTimeout(() => {
+      if (active && !ranDone) {
+        setError("Sign-in is taking too long. Please try signing in again.");
+        setLoading(false);
+      }
+    }, 12000);
+
     return () => {
       active = false;
+      clearTimeout(watchdog);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
