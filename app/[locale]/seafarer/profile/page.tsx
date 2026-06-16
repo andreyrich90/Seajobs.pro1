@@ -5,6 +5,8 @@ import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles } from "luci
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 type ProfileForm = Omit<Seafarer, "id" | "updated_at">;
 
@@ -41,6 +43,8 @@ const EMPTY_FORM: ProfileForm = {
 };
 
 export default function ProfilePage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [form, setForm] = useState<ProfileForm>(EMPTY_FORM);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -99,7 +103,7 @@ export default function ProfilePage() {
     if (!file || !userId) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: "error", text: "File is too large. Max 5 MB." });
+      setMessage({ type: "error", text: t.sp_photo_too_large });
       return;
     }
 
@@ -114,7 +118,7 @@ export default function ProfilePage() {
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      setMessage({ type: "error", text: "Photo upload failed: " + uploadError.message });
+      setMessage({ type: "error", text: t.sp_photo_failed + uploadError.message });
       setUploading(false);
       return;
     }
@@ -122,7 +126,7 @@ export default function ProfilePage() {
     const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
     handleChange("photo_url", publicUrl);
     setUploading(false);
-    setMessage({ type: "success", text: "Photo uploaded! Save your profile to apply." });
+    setMessage({ type: "success", text: t.sp_photo_ok });
   }
 
   async function handleCvUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -130,12 +134,12 @@ export default function ProfilePage() {
     if (!file || !userId) return;
 
     if (file.type !== "application/pdf") {
-      setMessage({ type: "error", text: "Please upload your CV as a PDF file." });
+      setMessage({ type: "error", text: t.sp_cv_pdf_only });
       if (cvInputRef.current) cvInputRef.current.value = "";
       return;
     }
     if (file.size > MAX_CV_BYTES) {
-      setMessage({ type: "error", text: "CV is too large. Max 4 MB." });
+      setMessage({ type: "error", text: t.sp_cv_too_large });
       if (cvInputRef.current) cvInputRef.current.value = "";
       return;
     }
@@ -155,10 +159,10 @@ export default function ProfilePage() {
       if (!data.ok || !data.profile) {
         const reason =
           data.error === "missing_api_key"
-            ? "CV parsing is not configured on the server (missing API key)."
+            ? t.sp_cv_missing_key
             : data.detail
-            ? `Could not read this CV: ${data.detail}`
-            : "Could not read this CV. Try a clearer PDF or fill the form manually.";
+            ? t.sp_cv_could_not + data.detail
+            : t.sp_cv_unreadable;
         setMessage({ type: "error", text: reason });
         return;
       }
@@ -228,14 +232,11 @@ export default function ProfilePage() {
         }
       }
 
-      setMessage({
-        type: "success",
-        text: `CV imported — profile fields filled${
-          certCount ? `, ${certCount} certificate(s) added` : ""
-        }${expCount ? `, ${expCount} voyage(s) added` : ""}. Review the details below and click Save Profile.`,
-      });
+      void certCount;
+      void expCount;
+      setMessage({ type: "success", text: t.sp_cv_imported });
     } catch {
-      setMessage({ type: "error", text: "CV import failed. Please try again." });
+      setMessage({ type: "error", text: t.sp_cv_failed });
     } finally {
       setParsingCv(false);
       if (cvInputRef.current) cvInputRef.current.value = "";
@@ -273,9 +274,9 @@ export default function ProfilePage() {
     const { error } = await supabase.from("seafarers").update(payload).eq("id", userId);
 
     if (error) {
-      setMessage({ type: "error", text: "Failed to save: " + error.message });
+      setMessage({ type: "error", text: t.sp_save_failed + error.message });
     } else {
-      setMessage({ type: "success", text: "Profile saved successfully!" });
+      setMessage({ type: "success", text: t.sp_save_ok });
     }
     setSaving(false);
   }
@@ -283,14 +284,14 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.sp_loading}</p>
       </div>
     );
   }
 
   return (
     <div className="p-8 max-w-3xl">
-      <h1 className="font-display text-2xl font-semibold text-white mb-6">My Profile</h1>
+      <h1 className="font-display text-2xl font-semibold text-white mb-6">{t.sp_title}</h1>
 
       {message && (
         <div
@@ -318,11 +319,8 @@ export default function ProfilePage() {
             <Sparkles size={22} className="text-deep" />
           </div>
           <div className="flex-1">
-            <h2 className="font-display text-lg font-semibold text-white">Auto-fill from your CV</h2>
-            <p className="mt-1 text-sm text-mist">
-              Upload your CV as a PDF and we&apos;ll read your details, certificates and sea
-              experience, then fill them in automatically.
-            </p>
+            <h2 className="font-display text-lg font-semibold text-white">{t.sp_autofill_title}</h2>
+            <p className="mt-1 text-sm text-mist">{t.sp_autofill_desc}</p>
             <button
               type="button"
               onClick={() => cvInputRef.current?.click()}
@@ -330,9 +328,9 @@ export default function ProfilePage() {
               className="mt-4 flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
             >
               <FileText size={16} />
-              {parsingCv ? "Reading your CV…" : "Upload CV (PDF)"}
+              {parsingCv ? t.sp_reading_cv : t.sp_upload_cv}
             </button>
-            <p className="mt-2 text-xs text-mist">PDF · max 4 MB</p>
+            <p className="mt-2 text-xs text-mist">{t.sp_cv_hint}</p>
             <input
               ref={cvInputRef}
               type="file"
@@ -348,7 +346,7 @@ export default function ProfilePage() {
 
         {/* Photo upload */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
-          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Profile Photo</h2>
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{t.sp_photo}</h2>
           <div className="flex items-center gap-5">
             <div className="relative h-20 w-20 shrink-0">
               {form.photo_url ? (
@@ -371,9 +369,9 @@ export default function ProfilePage() {
                 className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
               >
                 <Upload size={16} />
-                {uploading ? "Uploading..." : "Upload photo"}
+                {uploading ? t.sp_uploading : t.sp_upload_photo}
               </button>
-              <p className="text-xs text-mist">JPG, PNG or WEBP · max 5 MB</p>
+              <p className="text-xs text-mist">{t.sp_photo_hint}</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -387,10 +385,10 @@ export default function ProfilePage() {
 
         {/* Personal info */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
-          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Personal Information</h2>
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{t.sp_personal}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">First name</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_first_name}</label>
               <input
                 type="text" value={form.first_name ?? ""}
                 onChange={(e) => handleChange("first_name", e.target.value)}
@@ -399,7 +397,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Last name</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_last_name}</label>
               <input
                 type="text" value={form.last_name ?? ""}
                 onChange={(e) => handleChange("last_name", e.target.value)}
@@ -408,7 +406,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Nationality</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_nationality}</label>
               <input
                 type="text" value={form.nationality ?? ""}
                 onChange={(e) => handleChange("nationality", e.target.value)}
@@ -417,7 +415,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Date of birth</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_dob}</label>
               <input
                 type="date" value={form.date_of_birth ?? ""}
                 onChange={(e) => handleChange("date_of_birth", e.target.value)}
@@ -426,7 +424,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">Phone</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_phone}</label>
               <input
                 type="tel" value={form.phone ?? ""}
                 onChange={(e) => handleChange("phone", e.target.value)}
@@ -442,13 +440,13 @@ export default function ProfilePage() {
           <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Professional Information</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Rank / Position</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_rank}</label>
               <select
                 value={form.rank ?? ""} onChange={(e) => handleChange("rank", e.target.value)}
                 disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
-                <option value="">Select rank...</option>
+                <option value="">{t.sp_select_rank}</option>
                 {form.rank && !ALL_RANKS.includes(form.rank) && (
                   <option value={form.rank}>{form.rank}</option>
                 )}
@@ -462,7 +460,7 @@ export default function ProfilePage() {
               </select>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Readiness date</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_readiness}</label>
               <input
                 type="date" value={form.readiness_date ?? ""}
                 onChange={(e) => handleChange("readiness_date", e.target.value)}
@@ -471,11 +469,11 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">About / Summary</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_about}</label>
               <textarea
                 value={form.about ?? ""}
                 onChange={(e) => handleChange("about", e.target.value)}
-                placeholder="Brief professional summary..."
+                placeholder={t.sp_about_ph}
                 rows={4} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
@@ -485,10 +483,10 @@ export default function ProfilePage() {
 
         {/* Documents & Visas */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
-          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Documents &amp; Visas</h2>
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{t.sp_documents}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Seaman&apos;s Book No.</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_seamans_book}</label>
               <input
                 type="text" value={form.seamans_book ?? ""}
                 onChange={(e) => handleChange("seamans_book", e.target.value)}
@@ -497,7 +495,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Passport No.</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_passport}</label>
               <input
                 type="text" value={form.passport_no ?? ""}
                 onChange={(e) => handleChange("passport_no", e.target.value)}
@@ -506,7 +504,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Passport expiry</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_passport_expiry}</label>
               <input
                 type="date" value={form.passport_expiry ?? ""}
                 onChange={(e) => handleChange("passport_expiry", e.target.value)}
@@ -515,7 +513,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">US Visa C1/D</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_us_visa}</label>
               <input
                 type="text" value={form.us_visa ?? ""}
                 onChange={(e) => handleChange("us_visa", e.target.value)}
@@ -524,7 +522,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Schengen Visa</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_schengen}</label>
               <input
                 type="text" value={form.schengen_visa ?? ""}
                 onChange={(e) => handleChange("schengen_visa", e.target.value)}
@@ -537,33 +535,33 @@ export default function ProfilePage() {
 
         {/* Education, Languages & Competencies */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
-          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">Education, Languages &amp; Competencies</h2>
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{t.sp_edu_section}</h2>
           <div className="grid grid-cols-1 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Education</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_education}</label>
               <textarea
                 value={form.education ?? ""}
                 onChange={(e) => handleChange("education", e.target.value)}
-                placeholder="University / academy · field · graduation year"
+                placeholder={t.sp_education_ph}
                 rows={2} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Languages</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_languages}</label>
               <input
                 type="text" value={form.languages ?? ""}
                 onChange={(e) => handleChange("languages", e.target.value)}
-                placeholder="English: Fluent (Maritime), Russian: Native" disabled={saving}
+                placeholder={t.sp_languages_ph} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Core competencies</label>
+              <label className="text-sm font-semibold text-foam">{t.sp_competencies}</label>
               <textarea
                 value={form.competencies ?? ""}
                 onChange={(e) => handleChange("competencies", e.target.value)}
-                placeholder="One per line — e.g. Cargo operations & lashing; SMS / ISM / MARPOL; Port State Control"
+                placeholder={t.sp_competencies_ph}
                 rows={3} disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
@@ -575,7 +573,7 @@ export default function ProfilePage() {
           type="submit" disabled={saving || uploading}
           className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
-          {saving ? "Saving..." : "Save Profile"}
+          {saving ? t.sp_saving : t.sp_save}
         </button>
       </form>
     </div>
