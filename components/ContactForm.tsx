@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Send, CheckCircle, AlertCircle, MessageCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 type Props = {
   userId?: string | null;
@@ -13,6 +15,8 @@ type Props = {
 };
 
 export default function ContactForm({ userId, userEmail, title, subtitle, compact }: Props) {
+  const { lang } = useLang();
+  const t = T[lang];
   const [name, setName] = useState("");
   const [email, setEmail] = useState(userEmail ?? "");
   const [subject, setSubject] = useState("");
@@ -26,7 +30,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
     if (!content.trim()) return;
     const trimmedEmail = email.trim();
     if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      setError("Please enter a valid email address.");
+      setError(t.cf_invalid_email);
       return;
     }
     setSending(true);
@@ -41,7 +45,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
     });
 
     if (insertError) {
-      setError("Failed to send. Please try again.");
+      setError(t.cf_failed);
       setSending(false);
       return;
     }
@@ -56,13 +60,13 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-teal/10">
           <CheckCircle size={28} className="text-teal" />
         </div>
-        <p className="font-semibold text-white">Message sent!</p>
-        <p className="text-sm text-mist">We'll get back to you soon.</p>
+        <p className="font-semibold text-white">{t.cf_sent_title}</p>
+        <p className="text-sm text-mist">{t.cf_sent_sub}</p>
         <button
           onClick={() => { setSent(false); setContent(""); setSubject(""); }}
           className="mt-2 text-xs text-brass2 hover:underline"
         >
-          Send another
+          {t.cf_send_another}
         </button>
       </div>
     );
@@ -95,14 +99,14 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t.cf_name}
               className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
             />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email"
+              placeholder={t.cf_email}
               className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
             />
           </div>
@@ -111,14 +115,14 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
         <input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          placeholder="Subject (optional)"
+          placeholder={t.cf_subject}
           className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50"
         />
 
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your message or suggestion..."
+          placeholder={t.cf_message}
           required
           rows={compact ? 3 : 4}
           className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass resize-none placeholder:text-mist/50"
@@ -130,7 +134,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
           className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
           <Send size={15} />
-          {sending ? "Sending..." : "Send message"}
+          {sending ? t.cf_sending : t.cf_send}
         </button>
       </form>
     </div>

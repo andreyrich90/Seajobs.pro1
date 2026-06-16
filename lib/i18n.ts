@@ -467,3 +467,119 @@ const COMMENTS_RU: Record<string, string> = {
 Object.assign(T.ua, COMMENTS_UA);
 Object.assign(T.pl, COMMENTS_PL);
 Object.assign(T.ru, COMMENTS_RU);
+
+// Company cabinet — dashboard
+const CO_DASH_EN: Record<string, string> = {
+  co_welcome: "Welcome",
+  co_subtitle: "Manage your vacancies and company profile.",
+  co_vacancies: "Vacancies",
+  co_active: "Active",
+  co_responses: "Responses",
+  co_quick_actions: "Quick actions",
+  co_post_vacancy: "Post a vacancy",
+  co_edit_profile: "Edit company profile",
+  co_no_vacancies: "You haven't posted any vacancies yet. Post your first job to start finding crew.",
+  co_suggestions_title: "Suggestions & Contact",
+  co_suggestions_subtitle: "Have a question or suggestion? Write to us — we read everything.",
+};
+const CO_DASH_RU: Record<string, string> = {
+  co_welcome: "Добро пожаловать",
+  co_subtitle: "Управляйте вакансиями и профилем компании.",
+  co_vacancies: "Вакансии",
+  co_active: "Активные",
+  co_responses: "Отклики",
+  co_quick_actions: "Быстрые действия",
+  co_post_vacancy: "Разместить вакансию",
+  co_edit_profile: "Редактировать профиль компании",
+  co_no_vacancies: "Вы ещё не разместили ни одной вакансии. Разместите первую, чтобы начать набор экипажа.",
+  co_suggestions_title: "Предложения и контакты",
+  co_suggestions_subtitle: "Есть вопрос или предложение? Напишите нам — мы читаем всё.",
+};
+const CO_DASH_UA: Record<string, string> = {
+  co_welcome: "Ласкаво просимо",
+  co_subtitle: "Керуйте вакансіями та профілем компанії.",
+  co_vacancies: "Вакансії",
+  co_active: "Активні",
+  co_responses: "Відгуки",
+  co_quick_actions: "Швидкі дії",
+  co_post_vacancy: "Розмістити вакансію",
+  co_edit_profile: "Редагувати профіль компанії",
+  co_no_vacancies: "Ви ще не розмістили жодної вакансії. Розмістіть першу, щоб почати набір екіпажу.",
+  co_suggestions_title: "Пропозиції та контакти",
+  co_suggestions_subtitle: "Маєте питання чи пропозицію? Напишіть нам — ми читаємо все.",
+};
+const CO_DASH_PL: Record<string, string> = {
+  co_welcome: "Witamy",
+  co_subtitle: "Zarządzaj ogłoszeniami i profilem firmy.",
+  co_vacancies: "Wakaty",
+  co_active: "Aktywne",
+  co_responses: "Zgłoszenia",
+  co_quick_actions: "Szybkie akcje",
+  co_post_vacancy: "Dodaj ogłoszenie",
+  co_edit_profile: "Edytuj profil firmy",
+  co_no_vacancies: "Nie dodałeś jeszcze żadnego ogłoszenia. Dodaj pierwsze, aby rozpocząć rekrutację załogi.",
+  co_suggestions_title: "Sugestie i kontakt",
+  co_suggestions_subtitle: "Masz pytanie lub sugestię? Napisz do nas — czytamy wszystko.",
+};
+Object.assign(T.en, CO_DASH_EN);
+Object.assign(T.ru, CO_DASH_RU);
+Object.assign(T.ua, CO_DASH_UA);
+Object.assign(T.pl, CO_DASH_PL);
+
+// Contact form (shared component)
+const CF_EN: Record<string, string> = {
+  cf_name: "Your name",
+  cf_email: "Your email",
+  cf_subject: "Subject (optional)",
+  cf_message: "Write your message or suggestion...",
+  cf_send: "Send message",
+  cf_sending: "Sending...",
+  cf_sent_title: "Message sent!",
+  cf_sent_sub: "We'll get back to you soon.",
+  cf_send_another: "Send another",
+  cf_invalid_email: "Please enter a valid email address.",
+  cf_failed: "Failed to send. Please try again.",
+};
+const CF_RU: Record<string, string> = {
+  cf_name: "Ваше имя",
+  cf_email: "Ваш email",
+  cf_subject: "Тема (необязательно)",
+  cf_message: "Напишите сообщение или предложение…",
+  cf_send: "Отправить",
+  cf_sending: "Отправка…",
+  cf_sent_title: "Сообщение отправлено!",
+  cf_sent_sub: "Мы скоро ответим.",
+  cf_send_another: "Отправить ещё",
+  cf_invalid_email: "Введите корректный email.",
+  cf_failed: "Не удалось отправить. Попробуйте ещё раз.",
+};
+const CF_UA: Record<string, string> = {
+  cf_name: "Ваше ім'я",
+  cf_email: "Ваш email",
+  cf_subject: "Тема (необов'язково)",
+  cf_message: "Напишіть повідомлення чи пропозицію…",
+  cf_send: "Надіслати",
+  cf_sending: "Надсилання…",
+  cf_sent_title: "Повідомлення надіслано!",
+  cf_sent_sub: "Ми скоро відповімо.",
+  cf_send_another: "Надіслати ще",
+  cf_invalid_email: "Введіть коректний email.",
+  cf_failed: "Не вдалося надіслати. Спробуйте ще раз.",
+};
+const CF_PL: Record<string, string> = {
+  cf_name: "Twoje imię",
+  cf_email: "Twój email",
+  cf_subject: "Temat (opcjonalnie)",
+  cf_message: "Napisz wiadomość lub sugestię…",
+  cf_send: "Wyślij wiadomość",
+  cf_sending: "Wysyłanie…",
+  cf_sent_title: "Wiadomość wysłana!",
+  cf_sent_sub: "Wkrótce odpowiemy.",
+  cf_send_another: "Wyślij kolejną",
+  cf_invalid_email: "Podaj poprawny adres email.",
+  cf_failed: "Nie udało się wysłać. Spróbuj ponownie.",
+};
+Object.assign(T.en, CF_EN);
+Object.assign(T.ru, CF_RU);
+Object.assign(T.ua, CF_UA);
+Object.assign(T.pl, CF_PL);
