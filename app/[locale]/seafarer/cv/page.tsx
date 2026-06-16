@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import {
-  Download, Mail, Phone, Globe, Calendar, CalendarCheck, Anchor, Ship, Flag, Building2,
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { Download } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 
@@ -15,29 +14,12 @@ interface CVData {
 }
 
 function formatDate(d: string | null, short?: boolean): string {
-  if (!d) return "Present";
+  if (!d) return "—";
   return new Date(d).toLocaleDateString("en-GB", {
     month: short ? "short" : "long",
     year: "numeric",
     ...(short ? {} : { day: "numeric" }),
   });
-}
-
-function calcDuration(from: string | null, to: string | null): string {
-  if (!from) return "";
-  const start = new Date(from);
-  const end = to ? new Date(to) : new Date();
-  const months = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
-  if (months < 1) return "< 1 mo";
-  if (months < 12) return `${months} mo`;
-  const y = Math.floor(months / 12);
-  const m = months % 12;
-  return `${y}y ${m > 0 ? `${m}mo` : ""}`.trim();
-}
-
-function isExpired(d: string | null): boolean {
-  if (!d) return false;
-  return new Date(d) < new Date();
 }
 
 function monthsBetween(from: string | null, to: string | null): number {
@@ -55,217 +37,248 @@ function fmtMonths(m: number): string {
   return `${y}y${mm > 0 ? ` ${mm}mo` : ""}`;
 }
 
-interface ExpGroup {
-  vesselType: string;
-  rank: string;
-  months: number;
+function isExpired(d: string | null): boolean {
+  if (!d) return false;
+  return new Date(d) < new Date();
 }
 
-// Collapse voyages into one row per (vessel type + rank), summing sea time.
-function groupExperience(items: SeaExperience[]): ExpGroup[] {
-  const map = new Map<string, ExpGroup>();
+// Total sea time grouped by rank (for the Sea Time Summary), sorted by time.
+function seaTimeByRank(items: SeaExperience[]): { rank: string; months: number }[] {
+  const map = new Map<string, number>();
   for (const e of items) {
-    const vesselType = e.vessel_type?.trim() || "Various vessels";
-    const rank = e.rank?.trim() || "—";
-    const key = `${vesselType}|||${rank}`;
-    const months = monthsBetween(e.from_date, e.to_date);
-    const existing = map.get(key);
-    if (existing) existing.months += months;
-    else map.set(key, { vesselType, rank, months });
+    const rank = e.rank?.trim() || "Other";
+    map.set(rank, (map.get(rank) ?? 0) + monthsBetween(e.from_date, e.to_date));
   }
-  return [...map.values()].sort((a, b) => b.months - a.months);
+  return [...map.entries()]
+    .map(([rank, months]) => ({ rank, months }))
+    .sort((a, b) => b.months - a.months);
 }
 
-/* ─── Modern single-page CV ─────────────────────────────────── */
+/* ─── Navy section bar (matches the maritime CV template) ─── */
+function Bar({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-3 bg-[#16365c] px-2.5 py-[3px] text-[10.5px] font-bold uppercase tracking-wide text-white">
+      {children}
+    </div>
+  );
+}
+
+/* ─── Maritime single-page CV ─────────────────────────────── */
 function CVDocument({ data }: { data: CVData }) {
   const { seafarer, certificates, experience, email } = data;
   const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
-  const initials =
-    ((seafarer?.first_name?.[0] ?? "") + (seafarer?.last_name?.[0] ?? "")).toUpperCase() || "S";
 
+  const totalMonths = experience.reduce((s, e) => s + monthsBetween(e.from_date, e.to_date), 0);
+  const byRank = seaTimeByRank(experience);
   const recent = experience.slice(0, 10);
-  const earlier = experience.slice(10);
-  const earlierGroups = groupExperience(earlier);
+  const hasEarlier = experience.length > 10;
+
+  const cell = "px-2 py-[3px] align-top";
+  const zebra = (i: number) => (i % 2 === 1 ? "bg-[#f4f6f8]" : "bg-white");
 
   return (
     <div
-      className="cv-content mx-auto flex bg-white font-sans text-[#1f2933]"
+      className="cv-content mx-auto bg-white font-sans text-[#1f2933]"
       style={{
         width: "210mm",
-        minHeight: "297mm",
+        padding: "12mm",
         WebkitPrintColorAdjust: "exact",
         printColorAdjust: "exact",
       }}
     >
-      {/* ── Sidebar ── */}
-      <aside className="flex w-[35%] flex-col gap-6 bg-[#0a1f33] p-7 text-white">
-        <div>
-          {seafarer?.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={seafarer.photo_url}
-              alt={name}
-              className="h-20 w-20 rounded-2xl border border-white/15 object-cover"
-            />
-          ) : (
-            <div className="grid h-20 w-20 place-items-center rounded-2xl bg-gradient-to-br from-[#c9a227] to-[#e3c04a] text-2xl font-bold text-[#0a1f33]">
-              {initials}
-            </div>
-          )}
-          <h1 className="mt-4 text-[22px] font-bold leading-tight">{name}</h1>
+      {/* ── Header ── */}
+      <header className="flex items-start justify-between gap-5">
+        <div className="min-w-0">
+          <h1 className="text-[22px] font-bold uppercase leading-tight tracking-tight text-[#16365c]">
+            {name}
+          </h1>
           {seafarer?.rank && (
-            <p className="mt-1 text-sm font-semibold text-[#e3c04a]">{seafarer.rank}</p>
+            <p className="text-[13px] font-bold uppercase tracking-wide text-[#16365c]">
+              {seafarer.rank}
+            </p>
           )}
-        </div>
-
-        {/* Contact */}
-        <div className="flex flex-col gap-2 text-[11px] leading-snug text-[#c5d2dd]">
-          {email && (
-            <span className="flex items-center gap-2">
-              <Mail size={12} className="shrink-0 text-[#8aa0b0]" /> {email}
-            </span>
-          )}
-          {seafarer?.phone && (
-            <span className="flex items-center gap-2">
-              <Phone size={12} className="shrink-0 text-[#8aa0b0]" /> {seafarer.phone}
-            </span>
-          )}
-          {seafarer?.nationality && (
-            <span className="flex items-center gap-2">
-              <Globe size={12} className="shrink-0 text-[#8aa0b0]" /> {seafarer.nationality}
-            </span>
-          )}
-          {seafarer?.date_of_birth && (
-            <span className="flex items-center gap-2">
-              <Calendar size={12} className="shrink-0 text-[#8aa0b0]" />
-              {formatDate(seafarer.date_of_birth)}
-            </span>
-          )}
-        </div>
-
-        {/* Availability */}
-        {seafarer?.readiness_date && (
-          <div className="flex items-center gap-2 rounded-lg bg-[#c9a227] px-3 py-2 text-[#0a1f33]">
-            <CalendarCheck size={16} className="shrink-0" />
-            <div className="leading-tight">
-              <p className="text-[9px] font-bold uppercase tracking-wider">Available from</p>
-              <p className="text-xs font-bold">{formatDate(seafarer.readiness_date, true)}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Certificates */}
-        {certificates.length > 0 && (
-          <div>
-            <h2 className="mb-2 border-b border-white/15 pb-1 text-[11px] font-bold uppercase tracking-widest text-[#e3c04a]">
-              Certificates
-            </h2>
-            <ul className="flex flex-col gap-1.5">
-              {certificates.map((c) => (
-                <li key={c.id} className="text-[10.5px] leading-tight">
-                  <p className="font-semibold text-white">{c.name}</p>
-                  <p className={isExpired(c.expiry_date) ? "text-[#ff9a8a]" : "text-[#8aa0b0]"}>
-                    {c.number ? `№ ${c.number} · ` : ""}
-                    {c.expiry_date ? `exp. ${formatDate(c.expiry_date, true)}` : "no expiry"}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </aside>
-
-      {/* ── Main ── */}
-      <main className="flex flex-1 flex-col gap-6 p-8">
-        {/* Summary */}
-        {seafarer?.about && (
-          <section>
-            <h2 className="mb-2 flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-[#0a1f33]">
-              <Anchor size={14} className="text-[#c9a227]" /> Professional Summary
-            </h2>
-            <p className="text-[11.5px] leading-relaxed text-[#41505e]">{seafarer.about}</p>
-          </section>
-        )}
-
-        {/* Sea experience — last 10 voyages in detail */}
-        {experience.length > 0 && (
-          <section>
-            <h2 className="mb-3 flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-[#0a1f33]">
-              <Ship size={14} className="text-[#c9a227]" /> Sea Experience
-              {experience.length > 10 && (
-                <span className="ml-1 text-[10px] font-semibold normal-case tracking-normal text-[#a7b2bc]">
-                  (last 10 voyages)
-                </span>
-              )}
-            </h2>
-            <div className="flex flex-col gap-3">
-              {recent.map((e) => (
-                <div key={e.id} className="border-l-2 border-[#e3c04a] pl-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-[12.5px] font-bold text-[#0a1f33]">{e.vessel_name}</p>
-                    <p className="shrink-0 whitespace-nowrap text-[10px] font-semibold text-[#6b7884]">
-                      {formatDate(e.from_date, true)} – {formatDate(e.to_date, true)}
-                      <span className="ml-1 text-[#a7b2bc]">({calcDuration(e.from_date, e.to_date)})</span>
-                    </p>
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] text-[#52606d]">
-                    {e.rank && <span className="font-semibold text-[#0a6c63]">{e.rank}</span>}
-                    {e.vessel_type && <span>{e.vessel_type}</span>}
-                    {e.company && (
-                      <span className="flex items-center gap-1">
-                        <Building2 size={11} className="text-[#a7b2bc]" /> {e.company}
-                      </span>
-                    )}
-                    {e.flag && (
-                      <span className="flex items-center gap-1">
-                        <Flag size={11} className="text-[#a7b2bc]" /> {e.flag}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Earlier service — summarised by vessel type + rank, sea time summed */}
-            {earlierGroups.length > 0 && (
-              <div className="mt-4">
-                <h3 className="mb-2 text-[10.5px] font-bold uppercase tracking-widest text-[#52606d]">
-                  Earlier service — summary
-                </h3>
-                <div className="overflow-hidden rounded-md border border-[#e2e8ed]">
-                  <table className="w-full border-collapse text-[10.5px]">
-                    <thead>
-                      <tr className="bg-[#f1f4f7] text-left text-[#52606d]">
-                        <th className="px-2.5 py-1.5 font-bold">Vessel type</th>
-                        <th className="px-2.5 py-1.5 font-bold">Rank</th>
-                        <th className="px-2.5 py-1.5 text-right font-bold">Sea time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {earlierGroups.map((g, i) => (
-                        <tr key={`${g.vesselType}-${g.rank}-${i}`} className="border-t border-[#eef1f4]">
-                          <td className="px-2.5 py-1.5">{g.vesselType}</td>
-                          <td className="px-2.5 py-1.5 font-semibold text-[#0a6c63]">{g.rank}</td>
-                          <td className="px-2.5 py-1.5 text-right font-semibold text-[#0a1f33]">
-                            {fmtMonths(g.months)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+          <div className="mt-2 space-y-0.5 text-[10px] text-[#41505e]">
+            {email && (
+              <p>
+                <span className="font-bold">Email:</span> {email}
+              </p>
             )}
-          </section>
-        )}
+            {seafarer?.phone && (
+              <p>
+                <span className="font-bold">Phone / WhatsApp:</span> {seafarer.phone}
+              </p>
+            )}
+            {(seafarer?.nationality || seafarer?.readiness_date) && (
+              <p>
+                <span className="font-bold">Availability:</span>{" "}
+                {seafarer?.readiness_date
+                  ? `Ready from ${formatDate(seafarer.readiness_date, true)}`
+                  : "Ready for transit"}
+                {seafarer?.nationality ? ` · ${seafarer.nationality}` : ""}
+              </p>
+            )}
+          </div>
+        </div>
 
-        {!seafarer?.about && experience.length === 0 && certificates.length === 0 && (
-          <p className="text-[12px] text-[#8aa0b0]">
-            Fill in your profile, certificates and sea experience — or upload a CV — and they will
-            appear here.
-          </p>
+        {/* Photo / placeholder */}
+        {seafarer?.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={seafarer.photo_url}
+            alt={name}
+            className="h-[35mm] w-[26mm] shrink-0 rounded-sm border border-[#d7dee5] object-cover"
+          />
+        ) : (
+          <div className="grid h-[35mm] w-[26mm] shrink-0 place-items-center rounded-sm border border-dashed border-[#b9c4cf] text-center text-[8px] leading-tight text-[#9aa7b2]">
+            PHOTO
+            <br />
+            3.5 × 4.5 cm
+          </div>
         )}
-      </main>
+      </header>
+
+      {/* ── Two columns: Personal Information | Sea Time Summary ── */}
+      <div className="mt-1 grid grid-cols-2 gap-5">
+        {/* Personal Information */}
+        <div>
+          <Bar>Personal Information</Bar>
+          <table className="w-full border-collapse text-[10px]">
+            <tbody>
+              {[
+                ["Date of birth", formatDate(seafarer?.date_of_birth ?? null)],
+                ["Citizenship", seafarer?.nationality || "—"],
+                ["Availability", seafarer?.readiness_date ? formatDate(seafarer.readiness_date, true) : "Immediate"],
+                ["Rank / Position", seafarer?.rank || "—"],
+                ["Phone", seafarer?.phone || "—"],
+                ["Email", email || "—"],
+              ].map(([k, v], i) => (
+                <tr key={k} className={zebra(i)}>
+                  <td className={`${cell} w-[42%] font-semibold text-[#52606d]`}>{k}</td>
+                  <td className={cell}>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sea Time Summary */}
+        <div>
+          <Bar>Sea Time Summary</Bar>
+          <table className="w-full border-collapse text-[10px]">
+            <tbody>
+              <tr className="bg-white">
+                <td className={`${cell} w-[55%] font-semibold text-[#52606d]`}>Total Sea Time</td>
+                <td className={`${cell} font-bold text-[#16365c]`}>{fmtMonths(totalMonths)}</td>
+              </tr>
+              {byRank.map((r, i) => (
+                <tr key={r.rank} className={zebra(i)}>
+                  <td className={`${cell} font-semibold text-[#52606d]`}>As {r.rank}</td>
+                  <td className={cell}>{fmtMonths(r.months)}</td>
+                </tr>
+              ))}
+              {byRank.length === 0 && (
+                <tr>
+                  <td className={cell} colSpan={2}>
+                    No sea service recorded yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {seafarer?.about && (
+        <p className="mt-2 text-[10px] leading-relaxed text-[#41505e]">{seafarer.about}</p>
+      )}
+
+      {/* ── Certificates ── */}
+      {certificates.length > 0 && (
+        <>
+          <Bar>Competency, Endorsements &amp; STCW Certificates</Bar>
+          <table className="w-full border-collapse text-[9.5px]">
+            <thead>
+              <tr className="bg-[#dbe3ec] text-left text-[#16365c]">
+                <th className={`${cell} font-bold`}>Certificate description</th>
+                <th className={`${cell} font-bold`}>Number</th>
+                <th className={`${cell} font-bold`}>Issue date</th>
+                <th className={`${cell} font-bold`}>Expiry date</th>
+                <th className={`${cell} font-bold`}>Authority</th>
+              </tr>
+            </thead>
+            <tbody>
+              {certificates.map((c, i) => (
+                <tr key={c.id} className={zebra(i)}>
+                  <td className={`${cell} font-semibold`}>{c.name}</td>
+                  <td className={cell}>{c.number || "—"}</td>
+                  <td className={cell}>{formatDate(c.issue_date, true)}</td>
+                  <td className={`${cell} ${isExpired(c.expiry_date) ? "font-semibold text-[#c0392b]" : ""}`}>
+                    {c.expiry_date ? formatDate(c.expiry_date, true) : "Continuous"}
+                  </td>
+                  <td className={cell}>{c.issuing_authority || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+
+      {/* ── Sea Service History ── */}
+      {experience.length > 0 && (
+        <>
+          <Bar>
+            Sea Service History
+            {hasEarlier && (
+              <span className="ml-1 font-semibold normal-case tracking-normal text-[#b9c4cf]">
+                — last 10 voyages
+              </span>
+            )}
+          </Bar>
+          <table className="w-full border-collapse text-[9.5px]">
+            <thead>
+              <tr className="bg-[#dbe3ec] text-left text-[#16365c]">
+                <th className={`${cell} font-bold`}>Vessel name</th>
+                <th className={`${cell} font-bold`}>Type</th>
+                <th className={`${cell} font-bold`}>Rank</th>
+                <th className={`${cell} font-bold`}>Flag</th>
+                <th className={`${cell} font-bold`}>Period (from – to)</th>
+                <th className={`${cell} font-bold`}>Duration</th>
+                <th className={`${cell} font-bold`}>Company</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recent.map((e, i) => (
+                <tr key={e.id} className={zebra(i)}>
+                  <td className={`${cell} font-semibold`}>{e.vessel_name}</td>
+                  <td className={cell}>{e.vessel_type || "—"}</td>
+                  <td className={`${cell} font-semibold text-[#16365c]`}>{e.rank || "—"}</td>
+                  <td className={cell}>{e.flag || "—"}</td>
+                  <td className={`${cell} whitespace-nowrap`}>
+                    {formatDate(e.from_date, true)} – {formatDate(e.to_date, true)}
+                  </td>
+                  <td className={`${cell} whitespace-nowrap`}>
+                    {fmtMonths(monthsBetween(e.from_date, e.to_date))}
+                  </td>
+                  <td className={cell}>{e.company || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {hasEarlier && (
+            <p className="mt-1 text-[9px] italic text-[#6b7884]">
+              Earlier service ({experience.length - 10} more voyages) is consolidated in the Sea Time
+              Summary above.
+            </p>
+          )}
+        </>
+      )}
+
+      {!seafarer?.about && experience.length === 0 && certificates.length === 0 && (
+        <p className="mt-4 text-[11px] text-[#8aa0b0]">
+          Fill in your profile, certificates and sea experience — or upload a CV — and they will
+          appear here.
+        </p>
+      )}
     </div>
   );
 }
@@ -279,7 +292,9 @@ export default function CVPage() {
     email: "",
   });
   const [loading, setLoading] = useState(true);
-  const printRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     async function loadData() {
@@ -307,10 +322,6 @@ export default function CVPage() {
     loadData();
   }, []);
 
-  function handlePrint() {
-    window.print();
-  }
-
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -321,31 +332,34 @@ export default function CVPage() {
 
   return (
     <>
-      {/* Print rules — render only the CV, on a single A4 page */}
+      {/* Print rules — render ONLY the portal'd CV, on a single A4 page.
+          #cv-print-root is a direct child of <body> (via portal), so the
+          :not() selector reliably hides everything else with no blank page. */}
       <style>{`
+        #cv-print-root { display: none; }
         @media print {
-          body > * { display: none !important; }
-          #cv-print-area { display: block !important; }
-          @page { size: A4; margin: 0; }
+          body > *:not(#cv-print-root) { display: none !important; }
+          #cv-print-root { display: block !important; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+          @page { size: A4; margin: 0; }
         }
       `}</style>
 
-      <div className="no-print p-5 sm:p-8">
+      <div className="p-5 sm:p-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold text-white">My CV</h1>
-            <p className="mt-1 text-sm text-mist">A modern one-page résumé, generated from your profile.</p>
+            <p className="mt-1 text-sm text-mist">A one-page maritime résumé, generated from your profile.</p>
           </div>
           <button
-            onClick={handlePrint}
+            onClick={() => window.print()}
             className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
           >
             <Download size={16} /> Download PDF
           </button>
         </div>
 
-        {/* Preview — scrollable, A4 proportioned */}
+        {/* Preview */}
         <div className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-4 shadow-2xl">
           <div className="mx-auto w-fit shadow-xl">
             <CVDocument data={data} />
@@ -353,10 +367,14 @@ export default function CVPage() {
         </div>
       </div>
 
-      {/* Hidden print area */}
-      <div id="cv-print-area" ref={printRef} style={{ display: "none" }}>
-        <CVDocument data={data} />
-      </div>
+      {/* Print copy — portaled to <body> so print CSS can isolate it cleanly */}
+      {mounted &&
+        createPortal(
+          <div id="cv-print-root">
+            <CVDocument data={data} />
+          </div>,
+          document.body
+        )}
     </>
   );
 }
