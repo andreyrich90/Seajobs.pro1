@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, ChevronLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -18,10 +18,16 @@ async function signUpWithGoogle(role?: string) {
 
 type Role = "seafarer" | "company";
 
-export default function RegisterPage() {
+function isRole(value: string | null): value is Role {
+  return value === "seafarer" || value === "company";
+}
+
+function RegisterForm() {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
-  const [role, setRole] = useState<Role | null>(null);
+  const searchParams = useSearchParams();
+  const presetRole = isRole(searchParams.get("role")) ? (searchParams.get("role") as Role) : null;
+  const [step, setStep] = useState<1 | 2>(presetRole ? 2 : 1);
+  const [role, setRole] = useState<Role | null>(presetRole);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -199,12 +205,14 @@ export default function RegisterPage() {
           {/* Step 2: Registration form */}
           {step === 2 && (
             <div>
-              <button
-                onClick={() => { setStep(1); setError(null); }}
-                className="mb-6 flex items-center gap-1.5 text-sm text-mist hover:text-white transition"
-              >
-                <ChevronLeft size={16} /> Back
-              </button>
+              {!presetRole && (
+                <button
+                  onClick={() => { setStep(1); setError(null); }}
+                  className="mb-6 flex items-center gap-1.5 text-sm text-mist hover:text-white transition"
+                >
+                  <ChevronLeft size={16} /> Back
+                </button>
+              )}
 
               <div className="rounded-2xl border border-white/10 bg-card p-8">
                 <div className="mb-8 text-center">
@@ -331,5 +339,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-deep" />}>
+      <RegisterForm />
+    </Suspense>
   );
 }
