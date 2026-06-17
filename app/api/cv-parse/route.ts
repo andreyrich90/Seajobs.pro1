@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import mammoth from "mammoth";
 
 export const runtime = "nodejs";
+
+const PDF_TYPE = "application/pdf";
+const DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const DOC_TYPE = "application/msword";
 // Only takes effect on Vercel Pro; harmless elsewhere.
 export const maxDuration = 60;
 
@@ -66,15 +71,48 @@ export async function POST(req: NextRequest) {
   }
 
   const { fileBase64, mediaType } = body;
-  if (!fileBase64 || mediaType !== "application/pdf") {
-    return NextResponse.json({ ok: false, error: "pdf_base64_required" }, { status: 400 });
+  if (!fileBase64 || (mediaType !== PDF_TYPE && mediaType !== DOCX_TYPE && mediaType !== DOC_TYPE)) {
+    return NextResponse.json({ ok: false, error: "unsupported_file" }, { status: 400 });
   }
 
-  // The client sends a data URL ("data:application/pdf;base64,XXXX") via
-  // FileReader.readAsDataURL — strip the prefix; Anthropic wants raw base64.
+  // The client sends a data URL ("data:<type>;base64,XXXX") via
+  // FileReader.readAsDataURL — strip the prefix; we want raw base64.
   const base64 = fileBase64.includes(",")
     ? fileBase64.slice(fileBase64.indexOf(",") + 1)
     : fileBase64;
+
+  // PDFs go to Claude as a native document block. Word docs aren't supported
+  // as document blocks, so we extract their text server-side (mammoth handles
+  // .docx) and send it as a plain text block into the same schema prompt.
+  let userContent: AnthropicContentBlock[] | { type: string; source?: unknown; text?: string }[];
+  if (mediaType === PDF_TYPE) {
+    userContent = [
+      { type: "document", source: { type: "base64", media_type: PDF_TYPE, data: base64 } },
+      { type: "text", text: "Parse this CV into the JSON schema." },
+    ];
+  } else {
+    let extractedText = "";
+    try {
+      const buffer = Buffer.from(base64, "base64");
+      const result = await mammoth.extractRawText({ buffer });
+      extractedText = (result.value ?? "").trim();
+    } catch (e) {
+      console.error("Word extraction failed:", e);
+      return NextResponse.json(
+        { ok: false, error: "word_unreadable", detail: "Could not read this Word file. Try saving it as .docx or PDF." },
+        { status: 422 }
+      );
+    }
+    if (!extractedText) {
+      return NextResponse.json(
+        { ok: false, error: "word_empty", detail: "No text found in this Word file. Try saving it as .docx or PDF." },
+        { status: 422 }
+      );
+    }
+    userContent = [
+      { type: "text", text: `Parse this CV into the JSON schema.\n\nCV TEXT:\n${extractedText}` },
+    ];
+  }
 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -88,18 +126,7 @@ export async function POST(req: NextRequest) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 4096,
         system: SCHEMA_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "document",
-                source: { type: "base64", media_type: "application/pdf", data: base64 },
-              },
-              { type: "text", text: "Parse this CV into the JSON schema." },
-            ],
-          },
-        ],
+        messages: [{ role: "user", content: userContent }],
       }),
     });
 
