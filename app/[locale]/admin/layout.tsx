@@ -95,9 +95,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen bg-navy flex">
+    <div className="h-screen bg-navy flex overflow-hidden">
       {/* Desktop */}
-      <div className="hidden md:flex md:shrink-0" style={{ width: 256 }}>{sidebar}</div>
+      <div className="hidden md:flex md:h-full md:shrink-0" style={{ width: 256 }}>{sidebar}</div>
 
       {/* Mobile overlay */}
       {open && <div className="fixed inset-0 z-40 bg-black/60 md:hidden" onClick={() => setOpen(false)} />}

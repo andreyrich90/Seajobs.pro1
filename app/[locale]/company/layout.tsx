@@ -146,9 +146,9 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
   );
 
   return (
-    <div className="min-h-screen bg-navy flex">
+    <div className="h-screen bg-navy flex overflow-hidden">
       {/* Desktop sidebar */}
-      <div className="hidden md:flex md:shrink-0 md:flex-col" style={{ width: 256 }}>
+      <div className="hidden md:flex md:h-full md:shrink-0 md:flex-col" style={{ width: 256 }}>
         {sidebar}
       </div>
 
