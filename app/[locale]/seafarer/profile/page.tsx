@@ -133,11 +133,22 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !userId) return;
 
-    if (file.type !== "application/pdf") {
+    const name = file.name.toLowerCase();
+    const isPdf = file.type === "application/pdf" || name.endsWith(".pdf");
+    const isDocx =
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      name.endsWith(".docx");
+    const isDoc = file.type === "application/msword" || name.endsWith(".doc");
+    if (!isPdf && !isDocx && !isDoc) {
       setMessage({ type: "error", text: t.sp_cv_pdf_only });
       if (cvInputRef.current) cvInputRef.current.value = "";
       return;
     }
+    const mediaType = isPdf
+      ? "application/pdf"
+      : isDocx
+      ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      : "application/msword";
     if (file.size > MAX_CV_BYTES) {
       setMessage({ type: "error", text: t.sp_cv_too_large });
       if (cvInputRef.current) cvInputRef.current.value = "";
@@ -152,7 +163,7 @@ export default function ProfilePage() {
       const res = await fetch("/api/cv-parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileBase64, mediaType: "application/pdf" }),
+        body: JSON.stringify({ fileBase64, mediaType }),
       });
       const data = await res.json();
 
@@ -334,7 +345,7 @@ export default function ProfilePage() {
             <input
               ref={cvInputRef}
               type="file"
-              accept="application/pdf"
+              accept="application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
               onChange={handleCvUpload}
               className="hidden"
             />
