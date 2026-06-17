@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, AlertCircle, X } from "lucide-react";
+import { Plus, Trash2, Pencil, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Certificate } from "@/lib/supabase/types";
 
@@ -68,6 +68,7 @@ export default function CertificatesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadCerts() {
@@ -92,7 +93,7 @@ export default function CertificatesPage() {
     setError(null);
   }
 
-  async function handleAdd(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
     if (!form.name.trim()) {
@@ -102,28 +103,68 @@ export default function CertificatesPage() {
     setSubmitting(true);
     setError(null);
 
-    const { data, error: insertError } = await supabase
-      .from("certificates")
-      .insert({
-        seafarer_id: userId,
-        name: form.name.trim(),
-        number: form.number || null,
-        issue_date: form.issue_date || null,
-        expiry_date: form.expiry_date || null,
-        issuing_authority: form.issuing_authority || null,
-        file_url: form.file_url || null,
-      })
-      .select()
-      .single();
+    const payload = {
+      name: form.name.trim(),
+      number: form.number || null,
+      issue_date: form.issue_date || null,
+      expiry_date: form.expiry_date || null,
+      issuing_authority: form.issuing_authority || null,
+      file_url: form.file_url || null,
+    };
 
-    if (insertError) {
-      setError("Failed to add certificate: " + insertError.message);
-    } else if (data) {
-      setCerts((prev) => [...prev, data]);
-      setForm(EMPTY_FORM);
-      setShowForm(false);
+    if (editingId) {
+      const { data, error: updateError } = await supabase
+        .from("certificates")
+        .update(payload)
+        .eq("id", editingId)
+        .select()
+        .single();
+
+      if (updateError) {
+        setError("Failed to update certificate: " + updateError.message);
+      } else if (data) {
+        setCerts((prev) => prev.map((c) => (c.id === editingId ? data : c)));
+        setForm(EMPTY_FORM);
+        setEditingId(null);
+        setShowForm(false);
+      }
+    } else {
+      const { data, error: insertError } = await supabase
+        .from("certificates")
+        .insert({ seafarer_id: userId, ...payload })
+        .select()
+        .single();
+
+      if (insertError) {
+        setError("Failed to add certificate: " + insertError.message);
+      } else if (data) {
+        setCerts((prev) => [...prev, data]);
+        setForm(EMPTY_FORM);
+        setShowForm(false);
+      }
     }
     setSubmitting(false);
+  }
+
+  function handleStartEdit(cert: Certificate) {
+    setEditingId(cert.id);
+    setForm({
+      name: cert.name,
+      number: cert.number ?? "",
+      issue_date: cert.issue_date ?? "",
+      expiry_date: cert.expiry_date ?? "",
+      issuing_authority: cert.issuing_authority ?? "",
+      file_url: cert.file_url ?? "",
+    });
+    setError(null);
+    setShowForm(true);
+  }
+
+  function handleCancelForm() {
+    setShowForm(false);
+    setForm(EMPTY_FORM);
+    setEditingId(null);
+    setError(null);
   }
 
   async function handleDelete(id: string) {
@@ -152,19 +193,21 @@ export default function CertificatesPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-semibold text-white">Certificates</h1>
         <button
-          onClick={() => { setShowForm(true); setError(null); }}
+          onClick={() => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); setError(null); }}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
         >
           <Plus size={16} /> Add Certificate
         </button>
       </div>
 
-      {/* Add form */}
+      {/* Add/Edit form */}
       {showForm && (
         <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-semibold text-white">New Certificate</h2>
-            <button onClick={() => setShowForm(false)} className="text-mist hover:text-white transition">
+            <h2 className="font-display text-lg font-semibold text-white">
+              {editingId ? "Edit Certificate" : "New Certificate"}
+            </h2>
+            <button onClick={handleCancelForm} className="text-mist hover:text-white transition">
               <X size={18} />
             </button>
           </div>
@@ -176,7 +219,7 @@ export default function CertificatesPage() {
             </div>
           )}
 
-          <form onSubmit={handleAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">Certificate name *</label>
               <input
@@ -260,11 +303,11 @@ export default function CertificatesPage() {
                 disabled={submitting}
                 className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {submitting ? "Saving..." : "Add Certificate"}
+                {submitting ? "Saving..." : editingId ? "Save Changes" : "Add Certificate"}
               </button>
               <button
                 type="button"
-                onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setError(null); }}
+                onClick={handleCancelForm}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
               >
                 Cancel
@@ -328,6 +371,12 @@ export default function CertificatesPage() {
                               View
                             </a>
                           )}
+                          <button
+                            onClick={() => handleStartEdit(cert)}
+                            className="rounded-lg bg-white/5 border border-white/10 p-1.5 text-foam hover:bg-white/10 transition"
+                          >
+                            <Pencil size={14} />
+                          </button>
                           <button
                             onClick={() => handleDelete(cert.id)}
                             className="rounded-lg bg-coral/10 border border-coral/20 p-1.5 text-coral hover:bg-coral/20 transition"
