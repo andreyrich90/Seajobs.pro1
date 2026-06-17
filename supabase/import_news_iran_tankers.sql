@@ -73,12 +73,13 @@ Kluczową przeszkodą pozostaje kwestia ubezpieczenia od ryzyka wojennego, co je
 
 Na razie wśród największych armatorów przeważa ostrożność. „Większość armatorów wydaje się ostrożnie czekać na więcej szczegółów, zanim zaplanuje nowe przejścia przez cieśninę" — powiedział CNBC Niels Rasmussen, główny analityk BIMCO. „Będą szukać zapewnienia, że przejścia są nie tylko dozwolone, ale również bezpieczne, zanim wyślą swoje statki przez cieśninę".$pl$;
 BEGIN
-  INSERT INTO news_articles (title, body, tag, cover_gradient, is_published, published_at)
+  INSERT INTO news_articles (title, body, tag, cover_gradient, cover_url, is_published, published_at)
   VALUES (
     jsonb_build_object('en', title_en, 'ru', title_ru, 'uk', title_uk, 'pl', title_pl),
     jsonb_build_object('en', body_en, 'ru', body_ru, 'uk', body_uk, 'pl', body_pl),
     'Industry',
     'linear-gradient(135deg,#1e293b,#334155)',
+    'https://raw.githubusercontent.com/andreyrich90/seajobs.pro1/1dd44bd42fcd6984747d04fc936d968f34287e33/public/news/iran-tanker-blockade-2026-06-17.png',
     true,
     NOW()
   );
