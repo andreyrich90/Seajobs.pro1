@@ -7,6 +7,8 @@ import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRigh
 import { supabase, notify } from "@/lib/supabase/client";
 import type { Vacancy } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -49,6 +51,8 @@ function formatDate(dateStr: string | null): string {
 }
 
 export default function VacanciesPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [appCounts, setAppCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -132,7 +136,7 @@ export default function VacanciesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
-    if (!form.title.trim()) { setError("Job title is required."); return; }
+    if (!form.title.trim()) { setError(t.va_title_required); return; }
     setSubmitting(true);
     setError(null);
 
@@ -159,7 +163,7 @@ export default function VacanciesPage() {
         .single();
 
       if (updateError) {
-        setError("Failed to update: " + updateError.message);
+        setError(t.va_update_failed + updateError.message);
       } else if (data) {
         setVacancies((prev) => prev.map((v) => (v.id === editingId ? data : v)));
         closeForm();
@@ -175,7 +179,7 @@ export default function VacanciesPage() {
         .single();
 
       if (insertError) {
-        setError("Failed to post vacancy: " + insertError.message);
+        setError(t.va_post_failed + insertError.message);
       } else if (data) {
         setVacancies((prev) => [data, ...prev]);
         closeForm();
@@ -187,7 +191,7 @@ export default function VacanciesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this vacancy?")) return;
+    if (!confirm(t.va_delete_confirm)) return;
     const { error: deleteError } = await supabase.from("vacancies").delete().eq("id", id);
     if (!deleteError) setVacancies((prev) => prev.filter((v) => v.id !== id));
   }
@@ -205,7 +209,7 @@ export default function VacanciesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.va_loading}</p>
       </div>
     );
   }
@@ -213,12 +217,12 @@ export default function VacanciesPage() {
   return (
     <div className="p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Vacancies</h1>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.va_title}</h1>
         <button
           onClick={openAdd}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
         >
-          <Plus size={16} /> Post vacancy
+          <Plus size={16} /> {t.va_post}
         </button>
       </div>
 
@@ -227,7 +231,7 @@ export default function VacanciesPage() {
         <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display text-lg font-semibold text-white">
-              {editingId ? "Edit Vacancy" : "New Vacancy"}
+              {editingId ? t.va_edit : t.va_new}
             </h2>
             <button onClick={closeForm} className="text-mist hover:text-white transition">
               <X size={18} />
@@ -244,11 +248,11 @@ export default function VacanciesPage() {
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Title */}
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">Job title *</label>
+              <label className="text-sm font-semibold text-foam">{t.va_job_title}</label>
               <input
                 type="text" value={form.title}
                 onChange={(e) => handleChange("title", e.target.value)}
-                placeholder="e.g. Chief Engineer for LNG Tanker"
+                placeholder={t.va_job_title_ph}
                 required disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
@@ -256,13 +260,13 @@ export default function VacanciesPage() {
 
             {/* Rank */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Required rank</label>
+              <label className="text-sm font-semibold text-foam">{t.va_rank}</label>
               <select
                 value={form.rank} onChange={(e) => handleChange("rank", e.target.value)}
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
-                <option value="">Select rank...</option>
+                <option value="">{t.va_select_rank}</option>
                 {RANK_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>
                     {g.ranks.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -273,13 +277,13 @@ export default function VacanciesPage() {
 
             {/* Vessel type */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Vessel type</label>
+              <label className="text-sm font-semibold text-foam">{t.va_vessel}</label>
               <select
                 value={form.vessel_type} onChange={(e) => handleChange("vessel_type", e.target.value)}
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               >
-                <option value="">Select type...</option>
+                <option value="">{t.va_select_type}</option>
                 {VESSEL_TYPE_GROUPS.map((g) => (
                   <optgroup key={g.label} label={g.label}>
                     {g.types.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -290,12 +294,12 @@ export default function VacanciesPage() {
 
             {/* Salary */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Salary</label>
+              <label className="text-sm font-semibold text-foam">{t.va_salary}</label>
               <div className="flex gap-2">
                 <input
                   type="number" value={form.salary}
                   onChange={(e) => handleChange("salary", e.target.value)}
-                  placeholder="e.g. 5000" min={0} disabled={submitting}
+                  placeholder={t.va_salary_ph} min={0} disabled={submitting}
                   className="flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                 />
                 <select
@@ -310,18 +314,18 @@ export default function VacanciesPage() {
 
             {/* Contract duration */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Contract duration</label>
+              <label className="text-sm font-semibold text-foam">{t.va_contract}</label>
               <input
                 type="text" value={form.contract_duration}
                 onChange={(e) => handleChange("contract_duration", e.target.value)}
-                placeholder="e.g. 4 months" disabled={submitting}
+                placeholder={t.va_contract_ph} disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
 
             {/* Joining date */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">Joining date</label>
+              <label className="text-sm font-semibold text-foam">{t.va_joining}</label>
               <input
                 type="date" value={form.joining_date}
                 onChange={(e) => handleChange("joining_date", e.target.value)}
@@ -332,11 +336,11 @@ export default function VacanciesPage() {
 
             {/* Description */}
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="text-sm font-semibold text-foam">Description / Requirements</label>
+              <label className="text-sm font-semibold text-foam">{t.va_desc}</label>
               <textarea
                 value={form.description}
                 onChange={(e) => handleChange("description", e.target.value)}
-                placeholder="Describe the position, required certificates, experience, etc."
+                placeholder={t.va_desc_ph}
                 rows={4} disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
               />
@@ -355,7 +359,7 @@ export default function VacanciesPage() {
                 }
               </button>
               <span className="text-sm font-semibold text-foam">
-                {form.is_active ? "Active — visible to seafarers" : "Inactive — hidden from seafarers"}
+                {form.is_active ? t.va_active_visible : t.va_inactive_hidden}
               </span>
             </div>
 
@@ -365,13 +369,13 @@ export default function VacanciesPage() {
                 type="submit" disabled={submitting}
                 className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {submitting ? "Saving..." : editingId ? "Update" : "Post Vacancy"}
+                {submitting ? t.va_saving : editingId ? t.va_update : t.va_post_btn}
               </button>
               <button
                 type="button" onClick={closeForm}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
               >
-                Cancel
+                {t.va_cancel}
               </button>
             </div>
           </form>
@@ -381,7 +385,7 @@ export default function VacanciesPage() {
       {/* List */}
       {vacancies.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
-          <p className="text-mist text-sm">No vacancies yet. Post your first job above.</p>
+          <p className="text-mist text-sm">{t.va_empty}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
@@ -411,7 +415,7 @@ export default function VacanciesPage() {
                           ? "bg-teal/10 border-teal/20 text-teal"
                           : "bg-white/5 border-white/10 text-mist"
                       }`}>
-                        {v.is_active ? "Active" : "Inactive"}
+                        {v.is_active ? t.va_active : t.va_inactive}
                       </span>
                     </div>
                   </div>
@@ -422,28 +426,28 @@ export default function VacanciesPage() {
                       </p>
                     )}
                     {v.joining_date && (
-                      <p className="text-xs text-mist mt-0.5">Joining: {formatDate(v.joining_date)}</p>
+                      <p className="text-xs text-mist mt-0.5">{t.va_joining_label}{formatDate(v.joining_date)}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist">
-                  {v.contract_duration && <span>Contract: {v.contract_duration}</span>}
+                  {v.contract_duration && <span>{t.va_contract_label}{v.contract_duration}</span>}
                   {v.description && (
                     <span className="line-clamp-1 max-w-sm">{v.description}</span>
                   )}
                 </div>
 
                 <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist/60">
-                  <span>Views: {v.views_count}</span>
-                  <span>Applications: {appCounts[v.id] ?? 0}</span>
+                  <span>{t.va_views}{v.views_count}</span>
+                  <span>{t.va_apps}{appCounts[v.id] ?? 0}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => toggleActive(v)}
-                  title={v.is_active ? "Deactivate" : "Activate"}
+                  title={v.is_active ? t.va_deactivate : t.va_activate}
                   className="rounded-lg bg-white/5 border border-white/10 p-1.5 text-mist hover:text-white hover:bg-white/10 transition"
                 >
                   {v.is_active ? <ToggleRight size={14} className="text-teal" /> : <ToggleLeft size={14} />}

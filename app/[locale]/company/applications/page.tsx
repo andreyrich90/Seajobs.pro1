@@ -8,6 +8,8 @@ import {
   Users, ChevronDown, ChevronUp, ExternalLink, ChevronLeft, ChevronRight, X, RotateCcw,
 } from "lucide-react";
 import { supabase, notify } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 type ApplicationRow = {
   id: string;
@@ -29,12 +31,12 @@ type ApplicationRow = {
 const PIPELINE = ["new", "interview", "offer", "onboard"] as const;
 type Stage = (typeof PIPELINE)[number] | "rejected";
 
-const COLUMNS: { key: Stage; label: string; accent: string }[] = [
-  { key: "new", label: "New", accent: "border-t-mist/50" },
-  { key: "interview", label: "Interview", accent: "border-t-brass2" },
-  { key: "offer", label: "Offer", accent: "border-t-teal" },
-  { key: "onboard", label: "On board", accent: "border-t-green-400" },
-  { key: "rejected", label: "Rejected", accent: "border-t-coral" },
+const COLUMNS: { key: Stage; labelKey: string; accent: string }[] = [
+  { key: "new", labelKey: "kb_col_new", accent: "border-t-mist/50" },
+  { key: "interview", labelKey: "kb_col_interview", accent: "border-t-brass2" },
+  { key: "offer", labelKey: "kb_col_offer", accent: "border-t-teal" },
+  { key: "onboard", labelKey: "kb_col_onboard", accent: "border-t-green-400" },
+  { key: "rejected", labelKey: "kb_col_rejected", accent: "border-t-coral" },
 ];
 
 // How a pipeline stage maps to the seafarer-facing status (+ which notify).
@@ -56,6 +58,8 @@ function formatDate(dateStr: string): string {
 }
 
 export default function CompanyApplicationsPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCover, setExpandedCover] = useState<Set<string>>(new Set());
@@ -142,7 +146,7 @@ export default function CompanyApplicationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-mist text-sm">Loading...</p>
+        <p className="text-mist text-sm">{t.kb_loading}</p>
       </div>
     );
   }
@@ -152,17 +156,17 @@ export default function CompanyApplicationsPage() {
   return (
     <div className="p-5 sm:p-8">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Candidate Pipeline</h1>
+        <h1 className="font-display text-2xl font-semibold text-white">{t.kb_title}</h1>
         <p className="mt-1 text-sm text-mist">
-          {total} candidate{total !== 1 ? "s" : ""} · move candidates from New to On board.
+          {total} {total !== 1 ? t.kb_candidates : t.kb_candidate} · {t.kb_move_hint}
         </p>
       </div>
 
       {total === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
           <Users size={40} className="mx-auto mb-3 text-mist/40" />
-          <p className="text-lg font-semibold text-foam">No applications yet</p>
-          <p className="mt-1 text-sm text-mist">Applications from seafarers will appear here once you post vacancies.</p>
+          <p className="text-lg font-semibold text-foam">{t.kb_empty}</p>
+          <p className="mt-1 text-sm text-mist">{t.kb_empty_sub}</p>
         </div>
       ) : (
         <div className="flex gap-4 overflow-x-auto pb-4">
@@ -175,7 +179,7 @@ export default function CompanyApplicationsPage() {
                 className={`w-[280px] shrink-0 rounded-2xl border border-white/10 border-t-4 ${col.accent} bg-card/60`}
               >
                 <div className="flex items-center justify-between px-4 py-3">
-                  <h2 className="text-sm font-bold text-white">{col.label}</h2>
+                  <h2 className="text-sm font-bold text-white">{t[col.labelKey]}</h2>
                   <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-mist">
                     {cards.length}
                   </span>
@@ -188,7 +192,7 @@ export default function CompanyApplicationsPage() {
                   {cards.map((app) => {
                     const fullName =
                       [app.seafarer?.first_name, app.seafarer?.last_name].filter(Boolean).join(" ") ||
-                      "Unknown seafarer";
+                      t.kb_unknown;
                     const coverExpanded = expandedCover.has(app.id);
                     const busy = updatingId === app.id;
 
@@ -209,7 +213,7 @@ export default function CompanyApplicationsPage() {
                               <Link
                                 href={`/seafarers/${app.seafarer_id}`}
                                 target="_blank"
-                                title="View profile"
+                                title={t.kb_view_profile}
                                 className="shrink-0 text-mist transition hover:text-brass2"
                               >
                                 <ExternalLink size={13} />
@@ -231,7 +235,7 @@ export default function CompanyApplicationsPage() {
                               className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-brass2 hover:text-brass"
                             >
                               {coverExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                              {coverExpanded ? "Hide letter" : "Cover letter"}
+                              {coverExpanded ? t.kb_hide_letter : t.kb_cover_letter}
                             </button>
                             {coverExpanded && (
                               <div className="mt-1.5 max-h-40 overflow-auto rounded-lg border border-white/10 bg-navy2 p-2.5 text-xs leading-relaxed text-foam/80 whitespace-pre-wrap">
@@ -249,14 +253,14 @@ export default function CompanyApplicationsPage() {
                               disabled={busy}
                               className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-semibold text-mist transition hover:bg-white/10 disabled:opacity-50"
                             >
-                              <RotateCcw size={12} /> Restore
+                              <RotateCcw size={12} /> {t.kb_restore}
                             </button>
                           ) : (
                             <>
                               <button
                                 onClick={() => moveTo(app.id, PIPELINE[idx - 1])}
                                 disabled={busy || idx <= 0}
-                                title="Move back"
+                                title={t.kb_move_back}
                                 className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 bg-white/5 text-mist transition hover:bg-white/10 disabled:opacity-30"
                               >
                                 <ChevronLeft size={14} />
@@ -264,7 +268,7 @@ export default function CompanyApplicationsPage() {
                               <button
                                 onClick={() => moveTo(app.id, PIPELINE[idx + 1])}
                                 disabled={busy || idx >= PIPELINE.length - 1}
-                                title="Advance"
+                                title={t.kb_advance}
                                 className="grid h-7 w-7 place-items-center rounded-lg border border-brass/30 bg-brass/10 text-brass2 transition hover:bg-brass/20 disabled:opacity-30"
                               >
                                 <ChevronRight size={14} />
@@ -272,7 +276,7 @@ export default function CompanyApplicationsPage() {
                               <button
                                 onClick={() => moveTo(app.id, "rejected")}
                                 disabled={busy}
-                                title="Reject"
+                                title={t.kb_reject}
                                 className="ml-auto grid h-7 w-7 place-items-center rounded-lg border border-coral/30 bg-coral/10 text-coral transition hover:bg-coral/20 disabled:opacity-50"
                               >
                                 <X size={14} />
