@@ -660,7 +660,7 @@ const SP_RU: Record<string, string> = {
   sp_about: "О себе / Резюме",
   sp_about_ph: "Краткое профессиональное резюме…",
   sp_documents: "Документы и визы",
-  sp_seamans_book: "Паспорт моряка (УЛМ) №",
+  sp_seamans_book: "Паспорт моряка №",
   sp_passport: "Загранпаспорт (био) №",
   sp_passport_expiry: "Срок загранпаспорта",
   sp_us_visa: "Виза США C1/D",
@@ -1546,3 +1546,37 @@ Object.assign(T.en, CAB5_EN);
 Object.assign(T.ru, CAB5_RU);
 Object.assign(T.ua, CAB5_UA);
 Object.assign(T.pl, CAB5_PL);
+
+// ── Seafarer documents: service record book + medical ──
+const CAB6_EN: Record<string, string> = {
+  sp_service_record: "Service record book",
+  sp_service_record_ph: "Book No. (if any)",
+  sp_medical: "Medical certificate",
+  sp_medical_ph: "e.g. Maritime medical / ENG1",
+  sp_medical_expiry: "Medical expiry",
+};
+const CAB6_RU: Record<string, string> = {
+  sp_service_record: "Послужная книжка",
+  sp_service_record_ph: "№ книжки (если есть)",
+  sp_medical: "Медкомиссия (медсертификат)",
+  sp_medical_ph: "напр. Морская медкомиссия / ENG1",
+  sp_medical_expiry: "Срок медкомиссии",
+};
+const CAB6_UA: Record<string, string> = {
+  sp_service_record: "Послужна книжка",
+  sp_service_record_ph: "№ книжки (якщо є)",
+  sp_medical: "Медкомісія (медсертифікат)",
+  sp_medical_ph: "напр. Морська медкомісія / ENG1",
+  sp_medical_expiry: "Термін медкомісії",
+};
+const CAB6_PL: Record<string, string> = {
+  sp_service_record: "Książeczka służby",
+  sp_service_record_ph: "Nr książeczki (jeśli jest)",
+  sp_medical: "Świadectwo zdrowia",
+  sp_medical_ph: "np. badania morskie / ENG1",
+  sp_medical_expiry: "Ważność świadectwa zdrowia",
+};
+Object.assign(T.en, CAB6_EN);
+Object.assign(T.ru, CAB6_RU);
+Object.assign(T.ua, CAB6_UA);
+Object.assign(T.pl, CAB6_PL);

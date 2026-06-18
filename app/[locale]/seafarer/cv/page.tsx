@@ -151,17 +151,6 @@ function CVDocument({ data }: { data: CVData }) {
                 ["Rank / Position", seafarer?.rank || "—"],
                 ["Phone", seafarer?.phone || "—"],
                 ["Email", email || "—"],
-                ...(seafarer?.seamans_book
-                  ? [["Seaman's Book", seafarer.seamans_book + (seafarer.seamans_book_expiry ? ` (exp. ${formatDate(seafarer.seamans_book_expiry, true)})` : "")]]
-                  : []),
-                ...(seafarer?.passport_no
-                  ? [["Foreign Passport", seafarer.passport_no + (seafarer.passport_expiry ? ` (exp. ${formatDate(seafarer.passport_expiry, true)})` : "")]]
-                  : []),
-                ...(seafarer?.diploma
-                  ? [["Diploma / CoC", seafarer.diploma + (seafarer.diploma_expiry ? ` (exp. ${formatDate(seafarer.diploma_expiry, true)})` : "")]]
-                  : []),
-                ...(seafarer?.us_visa ? [["US Visa C1/D", seafarer.us_visa]] : []),
-                ...(seafarer?.schengen_visa ? [["Schengen Visa", seafarer.schengen_visa]] : []),
               ].map(([k, v], i) => (
                 <tr key={k} className={zebra(i)}>
                   <td className={`${cell} w-[42%] font-semibold text-[#52606d]`}>{k}</td>
@@ -209,6 +198,39 @@ function CVDocument({ data }: { data: CVData }) {
       {seafarer?.about && (
         <p className="mt-2 text-[10px] leading-relaxed text-[#41505e]">{seafarer.about}</p>
       )}
+
+      {/* ── Documents (separate from certificates) ── */}
+      {(() => {
+        const docs: [string, string][] = [];
+        if (seafarer?.passport_no)
+          docs.push(["Foreign passport (bio)", seafarer.passport_no + (seafarer.passport_expiry ? ` — exp. ${formatDate(seafarer.passport_expiry, true)}` : "")]);
+        if (seafarer?.seamans_book)
+          docs.push(["Seaman's book", seafarer.seamans_book + (seafarer.seamans_book_expiry ? ` — exp. ${formatDate(seafarer.seamans_book_expiry, true)}` : "")]);
+        if (seafarer?.service_record_book)
+          docs.push(["Service record book", seafarer.service_record_book]);
+        if (seafarer?.medical)
+          docs.push(["Medical certificate", seafarer.medical + (seafarer.medical_expiry ? ` — exp. ${formatDate(seafarer.medical_expiry, true)}` : "")]);
+        if (seafarer?.diploma)
+          docs.push(["Diploma / CoC", seafarer.diploma + (seafarer.diploma_expiry ? ` — exp. ${formatDate(seafarer.diploma_expiry, true)}` : "")]);
+        if (seafarer?.us_visa) docs.push(["US visa C1/D", seafarer.us_visa]);
+        if (seafarer?.schengen_visa) docs.push(["Schengen visa", seafarer.schengen_visa]);
+        if (docs.length === 0) return null;
+        return (
+          <>
+            <Bar>Identity Documents &amp; Visas</Bar>
+            <table className="w-full border-collapse text-[10px]">
+              <tbody>
+                {docs.map(([k, v], i) => (
+                  <tr key={k} className={zebra(i)}>
+                    <td className={`${cell} w-[28%] font-semibold text-[#52606d]`}>{k}</td>
+                    <td className={cell}>{v}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        );
+      })()}
 
       {/* ── Certificates ── */}
       {certificates.length > 0 && (

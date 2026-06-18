@@ -36,6 +36,9 @@ const EMPTY_FORM: ProfileForm = {
   seamans_book_expiry: "",
   passport_no: "",
   passport_expiry: "",
+  service_record_book: "",
+  medical: "",
+  medical_expiry: "",
   diploma: "",
   diploma_expiry: "",
   us_visa: "",
@@ -85,6 +88,9 @@ export default function ProfilePage() {
           seamans_book_expiry: data.seamans_book_expiry ?? "",
           passport_no: data.passport_no ?? "",
           passport_expiry: data.passport_expiry ?? "",
+          service_record_book: data.service_record_book ?? "",
+          medical: data.medical ?? "",
+          medical_expiry: data.medical_expiry ?? "",
           diploma: data.diploma ?? "",
           diploma_expiry: data.diploma_expiry ?? "",
           us_visa: data.us_visa ?? "",
@@ -201,6 +207,9 @@ export default function ProfilePage() {
         seamans_book_expiry: p.seamans_book_expiry ?? prev.seamans_book_expiry,
         passport_no: p.passport_no ?? prev.passport_no,
         passport_expiry: p.passport_expiry ?? prev.passport_expiry,
+        service_record_book: p.service_record_book ?? prev.service_record_book,
+        medical: p.medical ?? prev.medical,
+        medical_expiry: p.medical_expiry ?? prev.medical_expiry,
         diploma: p.diploma ?? prev.diploma,
         diploma_expiry: p.diploma_expiry ?? prev.diploma_expiry,
         us_visa: p.us_visa ?? prev.us_visa,
@@ -284,6 +293,9 @@ export default function ProfilePage() {
       seamans_book: form.seamans_book || null,
       seamans_book_expiry: form.seamans_book_expiry || null,
       passport_no: form.passport_no || null,
+      service_record_book: form.service_record_book || null,
+      medical: form.medical || null,
+      medical_expiry: form.medical_expiry || null,
       diploma: form.diploma || null,
       diploma_expiry: form.diploma_expiry || null,
       us_visa: form.us_visa || null,
@@ -543,6 +555,38 @@ export default function ProfilePage() {
               <input
                 type="date" value={form.passport_expiry ?? ""}
                 onChange={(e) => handleChange("passport_expiry", e.target.value)}
+                disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            {/* Service record book (послужная книжка) */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_service_record}</label>
+              <input
+                type="text" value={form.service_record_book ?? ""}
+                onChange={(e) => handleChange("service_record_book", e.target.value)}
+                placeholder={t.sp_service_record_ph} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="hidden sm:block" />
+
+            {/* Medical certificate */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_medical}</label>
+              <input
+                type="text" value={form.medical ?? ""}
+                onChange={(e) => handleChange("medical", e.target.value)}
+                placeholder={t.sp_medical_ph} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_medical_expiry}</label>
+              <input
+                type="date" value={form.medical_expiry ?? ""}
+                onChange={(e) => handleChange("medical_expiry", e.target.value)}
                 disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
