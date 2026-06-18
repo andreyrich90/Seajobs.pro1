@@ -3,9 +3,9 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Trash2, Pin, PinOff, MessageSquare, ChevronDown, ChevronRight } from "lucide-react";
+import { Trash2, Pin, PinOff, MessageSquare, ChevronDown, ChevronRight, Plus, FolderPlus } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
+import type { ForumTopic, ForumPost, ForumCategory } from "@/lib/supabase/types";
 
 function loc(field: unknown, lang = "ru"): string {
   if (!field) return "";
@@ -26,7 +26,10 @@ function timeAgo(d: string) {
 
 export default function AdminForumPage() {
   const [topics, setTopics]   = useState<ForumTopic[]>([]);
-  const [posts, setPosts]     = useState<ForumPost[]>([]);
+  const [categories, setCategories] = useState<ForumCategory[]>([]);
+  const [newCat, setNewCat] = useState("");
+  const [savingCat, setSavingCat] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
   const [countMap, setCountMap] = useState<Record<string, number>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const [topicPosts, setTopicPosts] = useState<ForumPost[]>([]);
@@ -34,11 +37,13 @@ export default function AdminForumPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: t }, { data: p }] = await Promise.all([
+      const [{ data: t }, { data: p }, { data: c }] = await Promise.all([
         supabase.from("forum_topics").select("*").order("created_at", { ascending: false }),
         supabase.from("forum_posts").select("topic_id"),
+        supabase.from("forum_categories").select("*").order("sort_order").order("name"),
       ]);
       setTopics(t ?? []);
+      setCategories(c ?? []);
       const map: Record<string, number> = {};
       for (const x of p ?? []) map[x.topic_id] = (map[x.topic_id] ?? 0) + 1;
       setCountMap(map);
@@ -46,6 +51,38 @@ export default function AdminForumPage() {
     }
     load();
   }, []);
+
+  async function addCategory(e: React.FormEvent) {
+    e.preventDefault();
+    const name = newCat.trim();
+    if (!name) return;
+    setSavingCat(true);
+    setCatError(null);
+    const { data, error } = await supabase
+      .from("forum_categories")
+      .insert({ name, sort_order: categories.length })
+      .select()
+      .single();
+    if (error) setCatError(error.message);
+    else if (data) { setCategories((prev) => [...prev, data]); setNewCat(""); }
+    setSavingCat(false);
+  }
+
+  async function deleteCategory(id: string) {
+    if (!confirm("Delete this section? Topics in it will become uncategorised.")) return;
+    const { error } = await supabase.from("forum_categories").delete().eq("id", id);
+    if (!error) {
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      setTopics((prev) => prev.map((t) => (t.category_id === id ? { ...t, category_id: null } : t)));
+    }
+  }
+
+  async function assignCategory(topic: ForumTopic, categoryId: string) {
+    const value = categoryId || null;
+    const { data } = await supabase
+      .from("forum_topics").update({ category_id: value }).eq("id", topic.id).select().single();
+    if (data) setTopics((prev) => prev.map((t) => (t.id === topic.id ? data : t)));
+  }
 
   async function togglePin(topic: ForumTopic) {
     const { data } = await supabase
@@ -82,6 +119,39 @@ export default function AdminForumPage() {
         <p className="mt-1 text-sm text-mist">{topics.length} topics · click a row to see replies</p>
       </div>
 
+      {/* Sections / categories */}
+      <div className="mb-6 rounded-2xl border border-white/10 bg-card p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <FolderPlus size={16} className="text-brass2" />
+          <h2 className="text-sm font-semibold text-mist uppercase tracking-wider">Sections</h2>
+        </div>
+        <form onSubmit={addCategory} className="flex flex-wrap gap-2">
+          <input
+            type="text" value={newCat}
+            onChange={(e) => { setNewCat(e.target.value); setCatError(null); }}
+            placeholder="New section name (e.g. Documents & Visas)"
+            className="min-w-[220px] flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-2.5 text-sm text-white outline-none focus:border-brass"
+          />
+          <button type="submit" disabled={savingCat || !newCat.trim()}
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50">
+            <Plus size={15} /> {savingCat ? "Adding…" : "Add section"}
+          </button>
+        </form>
+        {catError && <p className="mt-2 text-xs text-coral">{catError}</p>}
+        {categories.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <span key={c.id} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-foam">
+                {c.name}
+                <button onClick={() => deleteCategory(c.id)} title="Delete section" className="text-coral hover:text-coral/80">
+                  <Trash2 size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
       {loading ? (
         <div className="flex items-center justify-center h-48"><p className="text-mist text-sm">Loading...</p></div>
       ) : topics.length === 0 ? (
@@ -102,6 +172,16 @@ export default function AdminForumPage() {
                     {" · "}{timeAgo(topic.created_at)}
                   </p>
                 </div>
+                {categories.length > 0 && (
+                  <select
+                    value={topic.category_id ?? ""}
+                    onChange={(e) => assignCategory(topic, e.target.value)}
+                    className="hidden shrink-0 rounded-lg border border-white/10 bg-navy2 px-2 py-1 text-xs text-white outline-none focus:border-brass sm:block"
+                  >
+                    <option value="">— No section —</option>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                )}
                 <div className="flex shrink-0 items-center gap-1.5 text-mist text-xs mr-2">
                   <MessageSquare size={13} /> {countMap[topic.id] ?? 0}
                 </div>

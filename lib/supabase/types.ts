@@ -418,6 +418,7 @@ export interface Database {
           author_name: string | null;
           title: Record<string, string>;
           content: Record<string, string>;
+          category_id: string | null;
           is_pinned: boolean;
           created_at: string;
           updated_at: string | null;
@@ -428,6 +429,7 @@ export interface Database {
           author_name?: string | null;
           title: Record<string, string>;
           content: Record<string, string>;
+          category_id?: string | null;
           is_pinned?: boolean;
           created_at?: string;
           updated_at?: string | null;
@@ -438,9 +440,34 @@ export interface Database {
           author_name?: string | null;
           title?: Record<string, string>;
           content?: Record<string, string>;
+          category_id?: string | null;
           is_pinned?: boolean;
           created_at?: string;
           updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      forum_categories: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          sort_order?: number;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -616,6 +643,7 @@ export type CrewManager = {
 export type Company = Database["public"]["Tables"]["companies"]["Row"];
 export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
 export type ForumTopic = Database["public"]["Tables"]["forum_topics"]["Row"];
+export type ForumCategory = Database["public"]["Tables"]["forum_categories"]["Row"];
 export type ForumPost = Database["public"]["Tables"]["forum_posts"]["Row"];
 export type NewsArticle = Database["public"]["Tables"]["news_articles"]["Row"];
 export type Application = Database["public"]["Tables"]["applications"]["Row"];
