@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { NEWS } from "@/lib/data";
 import { hreflangAlternates } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
+import { getPathname } from "@/i18n/navigation";
 
 const BASE = "https://seajobs.pro";
 
@@ -12,9 +13,12 @@ function localizedEntries(
   pathname: string,
   opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }
 ): MetadataRoute.Sitemap {
+  // hreflang map is keyed by language tag ("uk" for the /ua route), so we can't
+  // look up the per-locale URL by routing locale. Build each <loc> from the
+  // localized pathname directly to guarantee a valid absolute URL.
   const languages = hreflangAlternates(pathname);
   return routing.locales.map((locale) => ({
-    url: languages[locale],
+    url: `${BASE}${getPathname({ locale, href: pathname })}`,
     lastModified: opts.lastModified,
     changeFrequency: opts.changeFrequency,
     priority: opts.priority,
