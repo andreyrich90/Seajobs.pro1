@@ -65,7 +65,17 @@ function buildDocs(s: Seafarer | null): [string, string][] {
   if (s.seamans_book) docs.push(["Seaman's book", withExp(s.seamans_book, s.seamans_book_expiry)]);
   if (s.service_record_book) docs.push(["Service record book", s.service_record_book]);
   if (s.medical) docs.push(["Medical certificate", withExp(s.medical, s.medical_expiry)]);
-  if (s.diploma) docs.push(["Diploma / CoC", withExp(s.diploma, s.diploma_expiry)]);
+  // One or several diplomas (falls back to the legacy single diploma field).
+  const diplomas = s.diplomas?.length
+    ? s.diplomas
+    : s.diploma
+    ? [{ name: "", number: s.diploma, expiry: s.diploma_expiry ?? "" }]
+    : [];
+  for (const d of diplomas) {
+    const label = d.name?.trim() ? `Diploma — ${d.name.trim()}` : "Diploma / CoC";
+    const val = [d.number, d.expiry ? `exp. ${formatDate(d.expiry, true)}` : ""].filter(Boolean).join(" — ");
+    if (val) docs.push([label, val]);
+  }
   if (s.us_visa) docs.push(["US visa C1/D", s.us_visa]);
   if (s.schengen_visa) docs.push(["Schengen visa", s.schengen_visa]);
   return docs;

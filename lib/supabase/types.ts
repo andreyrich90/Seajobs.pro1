@@ -98,6 +98,7 @@ export interface Database {
           service_record_book: string | null;
           medical: string | null;
           medical_expiry: string | null;
+          diplomas: Diploma[] | null;
           updated_at: string | null;
         };
         Insert: {
@@ -125,6 +126,7 @@ export interface Database {
           service_record_book?: string | null;
           medical?: string | null;
           medical_expiry?: string | null;
+          diplomas?: Diploma[] | null;
           updated_at?: string | null;
         };
         Update: {
@@ -152,6 +154,7 @@ export interface Database {
           service_record_book?: string | null;
           medical?: string | null;
           medical_expiry?: string | null;
+          diplomas?: Diploma[] | null;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -597,6 +600,12 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Seafarer = Database["public"]["Tables"]["seafarers"]["Row"];
 export type Certificate = Database["public"]["Tables"]["certificates"]["Row"];
 export type SeaExperience = Database["public"]["Tables"]["sea_experience"]["Row"];
+export type Diploma = {
+  name: string;
+  number: string;
+  expiry: string;
+};
+
 export type CrewManager = {
   name: string;
   department: string;

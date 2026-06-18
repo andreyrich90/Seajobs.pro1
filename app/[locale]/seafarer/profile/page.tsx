@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import type { Seafarer } from "@/lib/supabase/types";
+import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
-type ProfileForm = Omit<Seafarer, "id" | "updated_at">;
+type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas">;
+
+const EMPTY_DIPLOMA: Diploma = { name: "", number: "", expiry: "" };
 
 const ALL_RANKS = RANK_GROUPS.flatMap((g) => g.ranks);
 const MAX_CV_BYTES = 4 * 1024 * 1024; // Vercel serverless body limit is ~4.5 MB
@@ -52,6 +54,7 @@ export default function ProfilePage() {
   const { lang } = useLang();
   const t = T[lang];
   const [form, setForm] = useState<ProfileForm>(EMPTY_FORM);
+  const [diplomas, setDiplomas] = useState<Diploma[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -99,11 +102,29 @@ export default function ProfilePage() {
           languages: data.languages ?? "",
           competencies: data.competencies ?? "",
         });
+        // Use the diplomas array; migrate the legacy single diploma if needed.
+        if (data.diplomas?.length) {
+          setDiplomas(data.diplomas);
+        } else if (data.diploma) {
+          setDiplomas([{ name: "", number: data.diploma, expiry: data.diploma_expiry ?? "" }]);
+        }
       }
       setLoading(false);
     }
     loadProfile();
   }, []);
+
+  function updateDiploma(i: number, field: keyof Diploma, value: string) {
+    setDiplomas((prev) => prev.map((d, idx) => (idx === i ? { ...d, [field]: value } : d)));
+    setMessage(null);
+  }
+  function addDiploma() {
+    setDiplomas((prev) => [...prev, { ...EMPTY_DIPLOMA }]);
+  }
+  function removeDiploma(i: number) {
+    setDiplomas((prev) => prev.filter((_, idx) => idx !== i));
+    setMessage(null);
+  }
 
   function handleChange(field: keyof ProfileForm, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -219,6 +240,13 @@ export default function ProfilePage() {
         competencies: p.competencies ?? prev.competencies,
       }));
 
+      // Seed the diplomas list from the parsed diploma (if we don't have any yet).
+      if (p.diploma) {
+        setDiplomas((prev) =>
+          prev.length ? prev : [{ name: "", number: p.diploma, expiry: p.diploma_expiry ?? "" }]
+        );
+      }
+
       // Certificates and sea experience are list tables — insert what we found
       // so they show up immediately in those sections.
       let certCount = 0;
@@ -278,6 +306,10 @@ export default function ProfilePage() {
     setSaving(true);
     setMessage(null);
 
+    const cleanDiplomas: Diploma[] = diplomas
+      .map((d) => ({ name: d.name.trim(), number: d.number.trim(), expiry: d.expiry }))
+      .filter((d) => d.name || d.number || d.expiry);
+
     const payload = {
       ...form,
       date_of_birth: form.date_of_birth || null,
@@ -296,13 +328,15 @@ export default function ProfilePage() {
       service_record_book: form.service_record_book || null,
       medical: form.medical || null,
       medical_expiry: form.medical_expiry || null,
-      diploma: form.diploma || null,
-      diploma_expiry: form.diploma_expiry || null,
       us_visa: form.us_visa || null,
       schengen_visa: form.schengen_visa || null,
       education: form.education || null,
       languages: form.languages || null,
       competencies: form.competencies || null,
+      diplomas: cleanDiplomas,
+      // Mirror the first diploma into the legacy single columns for compatibility.
+      diploma: cleanDiplomas[0]?.number || null,
+      diploma_expiry: cleanDiplomas[0]?.expiry || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -592,24 +626,40 @@ export default function ProfilePage() {
               />
             </div>
 
-            {/* Diploma / Certificate of Competency */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">{t.sp_diploma}</label>
-              <input
-                type="text" value={form.diploma ?? ""}
-                onChange={(e) => handleChange("diploma", e.target.value)}
-                placeholder={t.sp_diploma_ph} disabled={saving}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-foam">{t.sp_diploma_expiry}</label>
-              <input
-                type="date" value={form.diploma_expiry ?? ""}
-                onChange={(e) => handleChange("diploma_expiry", e.target.value)}
-                disabled={saving}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
-              />
+            {/* Diplomas / Certificates of Competency (one or several) */}
+            <div className="flex flex-col gap-2 sm:col-span-2">
+              <label className="text-sm font-semibold text-foam">{t.sp_diplomas}</label>
+              {diplomas.map((d, i) => (
+                <div key={i} className="flex flex-col gap-2 rounded-xl border border-white/10 bg-navy2/40 p-3 sm:flex-row sm:items-center">
+                  <input
+                    type="text" value={d.name}
+                    onChange={(e) => updateDiploma(i, "name", e.target.value)}
+                    placeholder={t.sp_diploma_name_ph} disabled={saving}
+                    className="flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  />
+                  <input
+                    type="text" value={d.number}
+                    onChange={(e) => updateDiploma(i, "number", e.target.value)}
+                    placeholder={t.sp_diploma_no_ph} disabled={saving}
+                    className="flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  />
+                  <input
+                    type="date" value={d.expiry}
+                    onChange={(e) => updateDiploma(i, "expiry", e.target.value)}
+                    disabled={saving}
+                    className="rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  />
+                  <button type="button" onClick={() => removeDiploma(i)}
+                    title={t.sp_remove} disabled={saving}
+                    className="self-end rounded-lg border border-coral/20 bg-coral/10 p-2 text-coral transition hover:bg-coral/20 disabled:opacity-50 sm:self-auto">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
+              <button type="button" onClick={addDiploma} disabled={saving}
+                className="flex items-center gap-1.5 self-start rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50">
+                <Plus size={15} /> {t.sp_add_diploma}
+              </button>
             </div>
 
             <div className="flex flex-col gap-1.5">
