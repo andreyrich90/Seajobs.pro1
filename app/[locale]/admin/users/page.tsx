@@ -120,8 +120,8 @@ export default function AdminUsersPage() {
       {loading ? (
         <div className="flex items-center justify-center h-48"><p className="text-mist text-sm">Loading...</p></div>
       ) : (
-        <div className="rounded-2xl border border-white/10 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="rounded-2xl border border-white/10 overflow-x-auto">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-deep">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">User</th>
