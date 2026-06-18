@@ -1580,3 +1580,37 @@ Object.assign(T.en, CAB6_EN);
 Object.assign(T.ru, CAB6_RU);
 Object.assign(T.ua, CAB6_UA);
 Object.assign(T.pl, CAB6_PL);
+
+// ── Seafarer diplomas (multiple) ──
+const CAB7_EN: Record<string, string> = {
+  sp_diplomas: "Diplomas / Certificates of Competency",
+  sp_add_diploma: "Add diploma",
+  sp_diploma_name_ph: "Capacity (e.g. Master, Chief Mate)",
+  sp_diploma_no_ph: "Diploma / CoC No.",
+  sp_remove: "Remove",
+};
+const CAB7_RU: Record<string, string> = {
+  sp_diplomas: "Дипломы (CoC)",
+  sp_add_diploma: "Добавить диплом",
+  sp_diploma_name_ph: "Должность (напр. Master, Chief Mate)",
+  sp_diploma_no_ph: "Диплом / CoC №",
+  sp_remove: "Удалить",
+};
+const CAB7_UA: Record<string, string> = {
+  sp_diplomas: "Дипломи (CoC)",
+  sp_add_diploma: "Додати диплом",
+  sp_diploma_name_ph: "Посада (напр. Master, Chief Mate)",
+  sp_diploma_no_ph: "Диплом / CoC №",
+  sp_remove: "Видалити",
+};
+const CAB7_PL: Record<string, string> = {
+  sp_diplomas: "Dyplomy (CoC)",
+  sp_add_diploma: "Dodaj dyplom",
+  sp_diploma_name_ph: "Stanowisko (np. Master, Chief Mate)",
+  sp_diploma_no_ph: "Dyplom / CoC nr",
+  sp_remove: "Usuń",
+};
+Object.assign(T.en, CAB7_EN);
+Object.assign(T.ru, CAB7_RU);
+Object.assign(T.ua, CAB7_UA);
+Object.assign(T.pl, CAB7_PL);
