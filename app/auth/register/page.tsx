@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, ChevronLeft, Mail } from "lucide-react";
@@ -35,6 +35,17 @@ export default function RegisterPage() {
     setRole(r);
     setStep(2);
   }
+
+  // Allow deep-linking straight into a specific role's form, e.g. the
+  // /for-companies CTA sends "?role=company" so crewing companies skip the
+  // seafarer-or-company chooser entirely.
+  useEffect(() => {
+    const param = new URLSearchParams(window.location.search).get("role");
+    if (param === "company" || param === "seafarer") {
+      setRole(param);
+      setStep(2);
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

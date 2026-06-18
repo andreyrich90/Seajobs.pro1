@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
@@ -45,20 +44,26 @@ export default function ForCompaniesPage() {
     setSending(true);
     setError(null);
 
-    const { error: err } = await supabase.from("messages").insert({
-      name: name.trim() || null,
-      email: email.trim(),
-      subject: `Partnership request: ${company.trim()}`,
-      content: `Company: ${company.trim()}\nContact: ${name.trim()}\nEmail: ${email.trim()}\n\nInterested in free vacancy posting.`,
-    });
-
-    if (err) {
-      setError("Something went wrong. Please email us directly at hello@seajobs.pro");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          company: company.trim(),
+          email: email.trim(),
+          subject: `Partnership request: ${company.trim()}`,
+          content: `Company: ${company.trim()}\nContact: ${name.trim()}\nEmail: ${email.trim()}\n\nInterested in free vacancy posting.`,
+        }),
+      });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (!res.ok || !data.ok) throw new Error("request_failed");
+      setSent(true);
+    } catch {
+      setError("Something went wrong. Please email us directly at partners@seajobs.pro");
+    } finally {
       setSending(false);
-      return;
     }
-    setSent(true);
-    setSending(false);
   }
 
   return (
@@ -226,7 +231,7 @@ export default function ForCompaniesPage() {
               </button>
               <p className="text-center text-xs text-mist/60">
                 Or email us:{" "}
-                <a href="mailto:hello@seajobs.pro" className="text-brass2 hover:underline">hello@seajobs.pro</a>
+                <a href="mailto:partners@seajobs.pro" className="text-brass2 hover:underline">partners@seajobs.pro</a>
               </p>
             </form>
           )}
