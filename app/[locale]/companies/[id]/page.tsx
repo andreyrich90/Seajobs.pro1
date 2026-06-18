@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
-  ArrowLeft, Building2, Globe, MapPin, ShieldCheck, Briefcase, DollarSign, Clock, Calendar,
+  ArrowLeft, Building2, Globe, MapPin, ShieldCheck, Briefcase, DollarSign, Clock, Calendar, Phone, Mail, Users,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
-import type { Vacancy } from "@/lib/supabase/types";
+import type { Vacancy, CrewManager } from "@/lib/supabase/types";
 
 type CompanyDetail = {
   id: string;
@@ -20,6 +20,9 @@ type CompanyDetail = {
   location: string | null;
   description: string | null;
   website: string | null;
+  phones: string[] | null;
+  emails: string[] | null;
+  crew_managers: CrewManager[] | null;
   is_verified: boolean;
 };
 
@@ -50,7 +53,7 @@ export default function PublicCompanyPage() {
       try {
         const { data: companyData, error } = await supabase
           .from("companies")
-          .select("id, name, logo_url, location, description, website, is_verified")
+          .select("id, name, logo_url, location, description, website, phones, emails, crew_managers, is_verified")
           .eq("id", id)
           .single();
 
@@ -140,11 +143,56 @@ export default function PublicCompanyPage() {
                     Visit website
                   </a>
                 )}
+                {company.phones?.filter(Boolean).map((p) => (
+                  <a key={p} href={`tel:${p.replace(/\s+/g, "")}`}
+                    className="flex items-center gap-2 text-sm text-mist hover:text-white transition">
+                    <Phone size={14} className="shrink-0 text-mist/60" />
+                    {p}
+                  </a>
+                ))}
+                {company.emails?.filter(Boolean).map((m) => (
+                  <a key={m} href={`mailto:${m}`}
+                    className="flex items-center gap-2 text-sm text-brass2 hover:text-brass transition break-all">
+                    <Mail size={14} className="shrink-0 text-mist/60" />
+                    {m}
+                  </a>
+                ))}
               </div>
 
               {company.description && (
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <p className="text-sm text-mist leading-relaxed">{company.description}</p>
+                </div>
+              )}
+
+              {company.crew_managers && company.crew_managers.filter((m) => m.name || m.phone || m.email).length > 0 && (
+                <div className="mt-5 border-t border-white/10 pt-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <Users size={14} className="text-brass2" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-mist">Crew managers</h3>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {company.crew_managers
+                      .filter((m) => m.name || m.phone || m.email)
+                      .map((m, i) => (
+                        <div key={i} className="rounded-xl border border-white/10 bg-navy2/40 p-3 text-left">
+                          {m.name && <p className="text-sm font-semibold text-white">{m.name}</p>}
+                          {m.department && <p className="text-xs text-teal">{m.department}</p>}
+                          {m.phone && (
+                            <a href={`tel:${m.phone.replace(/\s+/g, "")}`}
+                              className="mt-1 flex items-center gap-1.5 text-xs text-mist hover:text-white transition">
+                              <Phone size={11} className="shrink-0 text-mist/60" />{m.phone}
+                            </a>
+                          )}
+                          {m.email && (
+                            <a href={`mailto:${m.email}`}
+                              className="mt-0.5 flex items-center gap-1.5 text-xs text-brass2 hover:text-brass transition break-all">
+                              <Mail size={11} className="shrink-0 text-mist/60" />{m.email}
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                  </div>
                 </div>
               )}
             </div>
