@@ -1438,3 +1438,81 @@ Object.assign(T.en, CAB3_EN);
 Object.assign(T.ru, CAB3_RU);
 Object.assign(T.ua, CAB3_UA);
 Object.assign(T.pl, CAB3_PL);
+
+// ── Company profile: contacts + crew managers ──
+const CAB4_EN: Record<string, string> = {
+  cp_contacts: "Contact details",
+  cp_phones: "Phone numbers",
+  cp_phone_ph: "+1 555 123 4567",
+  cp_add_phone: "Add phone",
+  cp_emails: "Email addresses",
+  cp_email_ph: "name@company.com",
+  cp_add_email: "Add email",
+  cp_crew: "Crew managers",
+  cp_crew_hint: "Add the people seafarers should contact. You can list several and group them by department.",
+  cp_add_manager: "Add crew manager",
+  cp_no_managers: "No crew managers added yet.",
+  cp_mgr_name_ph: "Full name",
+  cp_mgr_dept_ph: "Department (e.g. Crewing, Deck, Engine)",
+  cp_mgr_phone_ph: "Phone",
+  cp_mgr_email_ph: "Email",
+  cp_remove: "Remove",
+};
+const CAB4_RU: Record<string, string> = {
+  cp_contacts: "Контактные данные",
+  cp_phones: "Телефоны",
+  cp_phone_ph: "+7 999 123 45 67",
+  cp_add_phone: "Добавить телефон",
+  cp_emails: "Email-адреса",
+  cp_email_ph: "name@company.com",
+  cp_add_email: "Добавить email",
+  cp_crew: "Крю-менеджеры",
+  cp_crew_hint: "Добавьте людей, к которым обращаться морякам. Можно указать несколько и сгруппировать по департаментам.",
+  cp_add_manager: "Добавить крю-менеджера",
+  cp_no_managers: "Крю-менеджеры ещё не добавлены.",
+  cp_mgr_name_ph: "Имя и фамилия",
+  cp_mgr_dept_ph: "Департамент (напр. Crewing, Deck, Engine)",
+  cp_mgr_phone_ph: "Телефон",
+  cp_mgr_email_ph: "Email",
+  cp_remove: "Удалить",
+};
+const CAB4_UA: Record<string, string> = {
+  cp_contacts: "Контактні дані",
+  cp_phones: "Телефони",
+  cp_phone_ph: "+380 99 123 45 67",
+  cp_add_phone: "Додати телефон",
+  cp_emails: "Email-адреси",
+  cp_email_ph: "name@company.com",
+  cp_add_email: "Додати email",
+  cp_crew: "Крю-менеджери",
+  cp_crew_hint: "Додайте людей, до яких звертатися морякам. Можна вказати кількох і згрупувати за департаментами.",
+  cp_add_manager: "Додати крю-менеджера",
+  cp_no_managers: "Крю-менеджерів ще не додано.",
+  cp_mgr_name_ph: "Ім'я та прізвище",
+  cp_mgr_dept_ph: "Департамент (напр. Crewing, Deck, Engine)",
+  cp_mgr_phone_ph: "Телефон",
+  cp_mgr_email_ph: "Email",
+  cp_remove: "Видалити",
+};
+const CAB4_PL: Record<string, string> = {
+  cp_contacts: "Dane kontaktowe",
+  cp_phones: "Numery telefonów",
+  cp_phone_ph: "+48 600 123 456",
+  cp_add_phone: "Dodaj telefon",
+  cp_emails: "Adresy e-mail",
+  cp_email_ph: "name@company.com",
+  cp_add_email: "Dodaj e-mail",
+  cp_crew: "Crew managerowie",
+  cp_crew_hint: "Dodaj osoby, z którymi marynarze mają się kontaktować. Możesz wskazać kilka i pogrupować je według działów.",
+  cp_add_manager: "Dodaj crew managera",
+  cp_no_managers: "Nie dodano jeszcze crew managerów.",
+  cp_mgr_name_ph: "Imię i nazwisko",
+  cp_mgr_dept_ph: "Dział (np. Crewing, Deck, Engine)",
+  cp_mgr_phone_ph: "Telefon",
+  cp_mgr_email_ph: "E-mail",
+  cp_remove: "Usuń",
+};
+Object.assign(T.en, CAB4_EN);
+Object.assign(T.ru, CAB4_RU);
+Object.assign(T.ua, CAB4_UA);
+Object.assign(T.pl, CAB4_PL);

@@ -230,6 +230,9 @@ export interface Database {
           location: string | null;
           description: string | null;
           website: string | null;
+          phones: string[] | null;
+          emails: string[] | null;
+          crew_managers: CrewManager[] | null;
           updated_at: string | null;
           is_verified: boolean;
         };
@@ -240,6 +243,9 @@ export interface Database {
           location?: string | null;
           description?: string | null;
           website?: string | null;
+          phones?: string[] | null;
+          emails?: string[] | null;
+          crew_managers?: CrewManager[] | null;
           updated_at?: string | null;
           is_verified?: boolean;
         };
@@ -250,6 +256,9 @@ export interface Database {
           location?: string | null;
           description?: string | null;
           website?: string | null;
+          phones?: string[] | null;
+          emails?: string[] | null;
+          crew_managers?: CrewManager[] | null;
           updated_at?: string | null;
           is_verified?: boolean;
         };
@@ -570,6 +579,13 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Seafarer = Database["public"]["Tables"]["seafarers"]["Row"];
 export type Certificate = Database["public"]["Tables"]["certificates"]["Row"];
 export type SeaExperience = Database["public"]["Tables"]["sea_experience"]["Row"];
+export type CrewManager = {
+  name: string;
+  department: string;
+  phone: string;
+  email: string;
+};
+
 export type Company = Database["public"]["Tables"]["companies"]["Row"];
 export type Vacancy = Database["public"]["Tables"]["vacancies"]["Row"];
 export type ForumTopic = Database["public"]["Tables"]["forum_topics"]["Row"];
