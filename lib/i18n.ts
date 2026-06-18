@@ -1388,3 +1388,53 @@ Object.assign(T.en, CAB2_EN);
 Object.assign(T.ru, CAB2_RU);
 Object.assign(T.ua, CAB2_UA);
 Object.assign(T.pl, CAB2_PL);
+
+// ── Vacancy form: JobPosting structured-data fields ──
+const CAB3_EN: Record<string, string> = {
+  va_salary_from_ph: "From e.g. 5000",
+  va_salary_to_ph: "To e.g. 6500",
+  va_valid_through: "Application deadline",
+  va_location_section: "Job location",
+  va_location_hint: "Helps your vacancy appear correctly in Google for Jobs.",
+  va_country_ph: "Country (e.g. UA)",
+  va_region_ph: "Region / state",
+  va_city_ph: "City / port",
+  va_postal_ph: "Postal code",
+};
+const CAB3_RU: Record<string, string> = {
+  va_salary_from_ph: "От, напр. 5000",
+  va_salary_to_ph: "До, напр. 6500",
+  va_valid_through: "Срок подачи заявок",
+  va_location_section: "Место работы",
+  va_location_hint: "Помогает вакансии корректно отображаться в Google for Jobs.",
+  va_country_ph: "Страна (напр. UA)",
+  va_region_ph: "Регион / область",
+  va_city_ph: "Город / порт",
+  va_postal_ph: "Почтовый индекс",
+};
+const CAB3_UA: Record<string, string> = {
+  va_salary_from_ph: "Від, напр. 5000",
+  va_salary_to_ph: "До, напр. 6500",
+  va_valid_through: "Термін подання заявок",
+  va_location_section: "Місце роботи",
+  va_location_hint: "Допомагає вакансії коректно відображатися в Google for Jobs.",
+  va_country_ph: "Країна (напр. UA)",
+  va_region_ph: "Регіон / область",
+  va_city_ph: "Місто / порт",
+  va_postal_ph: "Поштовий індекс",
+};
+const CAB3_PL: Record<string, string> = {
+  va_salary_from_ph: "Od, np. 5000",
+  va_salary_to_ph: "Do, np. 6500",
+  va_valid_through: "Termin składania zgłoszeń",
+  va_location_section: "Miejsce pracy",
+  va_location_hint: "Pomaga ofercie poprawnie wyświetlać się w Google for Jobs.",
+  va_country_ph: "Kraj (np. UA)",
+  va_region_ph: "Region / województwo",
+  va_city_ph: "Miasto / port",
+  va_postal_ph: "Kod pocztowy",
+};
+Object.assign(T.en, CAB3_EN);
+Object.assign(T.ru, CAB3_RU);
+Object.assign(T.ua, CAB3_UA);
+Object.assign(T.pl, CAB3_PL);

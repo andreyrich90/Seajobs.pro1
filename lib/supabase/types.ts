@@ -272,6 +272,11 @@ export interface Database {
           is_imported: boolean;
           source_url: string | null;
           contact_email: string | null;
+          country: string | null;
+          region: string | null;
+          city: string | null;
+          postal_code: string | null;
+          valid_through: string | null;
           views_count: number;
           created_at: string;
           updated_at: string | null;
@@ -292,6 +297,11 @@ export interface Database {
           is_imported?: boolean;
           source_url?: string | null;
           contact_email?: string | null;
+          country?: string | null;
+          region?: string | null;
+          city?: string | null;
+          postal_code?: string | null;
+          valid_through?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
@@ -312,6 +322,11 @@ export interface Database {
           is_imported?: boolean;
           source_url?: string | null;
           contact_email?: string | null;
+          country?: string | null;
+          region?: string | null;
+          city?: string | null;
+          postal_code?: string | null;
+          valid_through?: string | null;
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
