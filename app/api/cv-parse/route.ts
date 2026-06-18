@@ -26,8 +26,11 @@ Schema:
   "readiness_date": "YYYY-MM-DD"|null,
   "about": string|null,
   "seamans_book": string|null,
+  "seamans_book_expiry": "YYYY-MM-DD"|null,
   "passport_no": string|null,
   "passport_expiry": "YYYY-MM-DD"|null,
+  "diploma": string|null,
+  "diploma_expiry": "YYYY-MM-DD"|null,
   "us_visa": string|null,
   "schengen_visa": string|null,
   "education": string|null,
@@ -46,7 +49,8 @@ Rules:
 - Map ranks to standard maritime titles (e.g. "Master", "Chief Officer", "2nd Officer", "Chief Engineer", "2nd Engineer", "Able Seaman", "Ordinary Seaman").
 - All dates ISO "YYYY-MM-DD". If only month/year is known, use the first day of that month.
 - "about" = a concise 1–2 sentence professional summary in English.
-- "us_visa"/"schengen_visa" = validity text if present (e.g. "Valid until 05/2028"); "seamans_book"/"passport_no" = the document number/validity as written.
+- "us_visa"/"schengen_visa" = validity text if present (e.g. "Valid until 05/2028"); "seamans_book"/"passport_no" = the document number as written.
+- "seamans_book" = seaman's book / seaman's passport number; "passport_no" = foreign/travel (biometric) passport number; "diploma" = Certificate of Competency / diploma number (e.g. "CoC II/2 No. 12345").
 - "education" = institution, field and graduation year on one line.
 - "languages" = e.g. "English: Fluent, Russian: Native".
 - "competencies" = key skills, one per line.

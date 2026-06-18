@@ -609,9 +609,9 @@ const SP_EN: Record<string, string> = {
   sp_about: "About / Summary",
   sp_about_ph: "Brief professional summary...",
   sp_documents: "Documents & Visas",
-  sp_seamans_book: "Seaman's Book No.",
-  sp_passport: "Passport No.",
-  sp_passport_expiry: "Passport expiry",
+  sp_seamans_book: "Seaman's book (passport) No.",
+  sp_passport: "Foreign passport (bio) No.",
+  sp_passport_expiry: "Foreign passport expiry",
   sp_us_visa: "US Visa C1/D",
   sp_schengen: "Schengen Visa",
   sp_edu_section: "Education, Languages & Competencies",
@@ -660,9 +660,9 @@ const SP_RU: Record<string, string> = {
   sp_about: "О себе / Резюме",
   sp_about_ph: "Краткое профессиональное резюме…",
   sp_documents: "Документы и визы",
-  sp_seamans_book: "Мореходная книжка №",
-  sp_passport: "Паспорт №",
-  sp_passport_expiry: "Срок паспорта",
+  sp_seamans_book: "Паспорт моряка (УЛМ) №",
+  sp_passport: "Загранпаспорт (био) №",
+  sp_passport_expiry: "Срок загранпаспорта",
   sp_us_visa: "Виза США C1/D",
   sp_schengen: "Шенгенская виза",
   sp_edu_section: "Образование, языки и компетенции",
@@ -711,9 +711,9 @@ const SP_UA: Record<string, string> = {
   sp_about: "Про себе / Резюме",
   sp_about_ph: "Короткe професійне резюме…",
   sp_documents: "Документи та візи",
-  sp_seamans_book: "Морська книжка №",
-  sp_passport: "Паспорт №",
-  sp_passport_expiry: "Термін паспорта",
+  sp_seamans_book: "Посвідчення моряка №",
+  sp_passport: "Закордонний паспорт (біо) №",
+  sp_passport_expiry: "Термін закордонного паспорта",
   sp_us_visa: "Віза США C1/D",
   sp_schengen: "Шенгенська віза",
   sp_edu_section: "Освіта, мови та компетенції",
@@ -763,8 +763,8 @@ const SP_PL: Record<string, string> = {
   sp_about_ph: "Krótkie podsumowanie zawodowe…",
   sp_documents: "Dokumenty i wizy",
   sp_seamans_book: "Książeczka żeglarska nr",
-  sp_passport: "Paszport nr",
-  sp_passport_expiry: "Ważność paszportu",
+  sp_passport: "Paszport zagraniczny (bio) nr",
+  sp_passport_expiry: "Ważność paszportu zagr.",
   sp_us_visa: "Wiza USA C1/D",
   sp_schengen: "Wiza Schengen",
   sp_edu_section: "Wykształcenie, języki i kompetencje",
@@ -1516,3 +1516,33 @@ Object.assign(T.en, CAB4_EN);
 Object.assign(T.ru, CAB4_RU);
 Object.assign(T.ua, CAB4_UA);
 Object.assign(T.pl, CAB4_PL);
+
+// ── Seafarer documents: seaman's-book expiry + diploma/CoC ──
+const CAB5_EN: Record<string, string> = {
+  sp_seamans_expiry: "Seaman's book expiry",
+  sp_diploma: "Diploma / CoC No.",
+  sp_diploma_ph: "e.g. CoC II/2 No. 12345",
+  sp_diploma_expiry: "Diploma / CoC expiry",
+};
+const CAB5_RU: Record<string, string> = {
+  sp_seamans_expiry: "Срок паспорта моряка",
+  sp_diploma: "Диплом / CoC №",
+  sp_diploma_ph: "напр. CoC II/2 № 12345",
+  sp_diploma_expiry: "Срок диплома / CoC",
+};
+const CAB5_UA: Record<string, string> = {
+  sp_seamans_expiry: "Термін посвідчення моряка",
+  sp_diploma: "Диплом / CoC №",
+  sp_diploma_ph: "напр. CoC II/2 № 12345",
+  sp_diploma_expiry: "Термін диплома / CoC",
+};
+const CAB5_PL: Record<string, string> = {
+  sp_seamans_expiry: "Ważność książeczki żeglarskiej",
+  sp_diploma: "Dyplom / CoC nr",
+  sp_diploma_ph: "np. CoC II/2 nr 12345",
+  sp_diploma_expiry: "Ważność dyplomu / CoC",
+};
+Object.assign(T.en, CAB5_EN);
+Object.assign(T.ru, CAB5_RU);
+Object.assign(T.ua, CAB5_UA);
+Object.assign(T.pl, CAB5_PL);

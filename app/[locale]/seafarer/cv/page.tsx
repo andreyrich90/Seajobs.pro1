@@ -151,9 +151,14 @@ function CVDocument({ data }: { data: CVData }) {
                 ["Rank / Position", seafarer?.rank || "—"],
                 ["Phone", seafarer?.phone || "—"],
                 ["Email", email || "—"],
-                ...(seafarer?.seamans_book ? [["Seaman's Book", seafarer.seamans_book]] : []),
+                ...(seafarer?.seamans_book
+                  ? [["Seaman's Book", seafarer.seamans_book + (seafarer.seamans_book_expiry ? ` (exp. ${formatDate(seafarer.seamans_book_expiry, true)})` : "")]]
+                  : []),
                 ...(seafarer?.passport_no
-                  ? [["Passport", seafarer.passport_no + (seafarer.passport_expiry ? ` (exp. ${formatDate(seafarer.passport_expiry, true)})` : "")]]
+                  ? [["Foreign Passport", seafarer.passport_no + (seafarer.passport_expiry ? ` (exp. ${formatDate(seafarer.passport_expiry, true)})` : "")]]
+                  : []),
+                ...(seafarer?.diploma
+                  ? [["Diploma / CoC", seafarer.diploma + (seafarer.diploma_expiry ? ` (exp. ${formatDate(seafarer.diploma_expiry, true)})` : "")]]
                   : []),
                 ...(seafarer?.us_visa ? [["US Visa C1/D", seafarer.us_visa]] : []),
                 ...(seafarer?.schengen_visa ? [["Schengen Visa", seafarer.schengen_visa]] : []),
