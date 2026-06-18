@@ -9,7 +9,7 @@ import { MessageSquare, Pin, Plus, X, AlertCircle, LogIn } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
-import type { ForumTopic } from "@/lib/supabase/types";
+import type { ForumTopic, ForumCategory } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 
@@ -62,14 +62,19 @@ async function resolveAuthorName(userId: string): Promise<string> {
 export default function ForumPage() {
   const { lang } = useLang();
   const [topics, setTopics] = useState<ForumTopic[]>([]);
+  const [categories, setCategories] = useState<ForumCategory[]>([]);
+  const [activeCat, setActiveCat] = useState<string | "all">("all");
   const [countMap, setCountMap] = useState<Record<string, number>>({});
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const catName = (id: string | null) => categories.find((c) => c.id === id)?.name ?? null;
 
   useEffect(() => {
     // Safety timeout: stop spinner after 8s even if DB is unreachable
@@ -80,16 +85,18 @@ export default function ForumPage() {
         const { data: { session } } = await supabase.auth.getSession();
         setSession(session);
 
-        const [{ data: topicsData }, { data: postsData }] = await Promise.all([
+        const [{ data: topicsData }, { data: postsData }, { data: catData }] = await Promise.all([
           supabase
             .from("forum_topics")
             .select("*")
             .order("is_pinned", { ascending: false })
             .order("created_at", { ascending: false }),
           supabase.from("forum_posts").select("topic_id"),
+          supabase.from("forum_categories").select("*").order("sort_order").order("name"),
         ]);
 
         setTopics(topicsData ?? []);
+        setCategories(catData ?? []);
 
         const map: Record<string, number> = {};
         for (const p of postsData ?? []) {
@@ -119,7 +126,7 @@ export default function ForumPage() {
 
     const { data, error: insertError } = await supabase
       .from("forum_topics")
-      .insert({ user_id: session.user.id, author_name: authorName, title: title.trim(), content: content.trim() })
+      .insert({ user_id: session.user.id, author_name: authorName, title: title.trim(), content: content.trim(), category_id: categoryId || null })
       .select()
       .single();
 
@@ -129,10 +136,13 @@ export default function ForumPage() {
       setTopics((prev) => [data, ...prev]);
       setTitle("");
       setContent("");
+      setCategoryId("");
       setShowForm(false);
     }
     setSubmitting(false);
   }
+
+  const visibleTopics = activeCat === "all" ? topics : topics.filter((t) => t.category_id === activeCat);
 
   return (
     <div className="min-h-screen bg-navy">
@@ -197,6 +207,20 @@ export default function ForumPage() {
                   className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
                 />
               </div>
+              {categories.length > 0 && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-foam">Section</label>
+                  <select
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    disabled={submitting}
+                    className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  >
+                    <option value="">— No section —</option>
+                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+              )}
               <div className="flex gap-3">
                 <button
                   type="submit" disabled={submitting}
@@ -215,19 +239,44 @@ export default function ForumPage() {
           </div>
         )}
 
+        {/* Section filter */}
+        {categories.length > 0 && !loading && (
+          <div className="mb-5 flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveCat("all")}
+              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                activeCat === "all" ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+              }`}
+            >
+              All
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setActiveCat(c.id)}
+                className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                  activeCat === c.id ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+                }`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Topics list */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <p className="text-mist text-sm">Loading...</p>
           </div>
-        ) : topics.length === 0 ? (
+        ) : visibleTopics.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-card p-16 text-center">
             <MessageSquare size={32} className="mx-auto mb-3 text-mist" />
             <p className="text-mist">No topics yet. Be the first to start a discussion!</p>
           </div>
         ) : (
           <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-card overflow-hidden">
-            {topics.map((topic) => (
+            {visibleTopics.map((topic) => (
               <Link
                 key={topic.id}
                 href={`/forum/${topic.id}`}
@@ -250,6 +299,11 @@ export default function ForumPage() {
                       </span>
                     )}
                     <h3 className="font-semibold text-white truncate">{loc(topic.title, lang)}</h3>
+                    {catName(topic.category_id) && (
+                      <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-xs font-semibold text-teal">
+                        {catName(topic.category_id)}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-0.5 text-xs text-mist">
                     by <span className="text-foam">{topic.author_name ?? "Anonymous"}</span>
