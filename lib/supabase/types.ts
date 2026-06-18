@@ -92,6 +92,12 @@ export interface Database {
           education: string | null;
           languages: string | null;
           competencies: string | null;
+          seamans_book_expiry: string | null;
+          diploma: string | null;
+          diploma_expiry: string | null;
+          service_record_book: string | null;
+          medical: string | null;
+          medical_expiry: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -113,6 +119,12 @@ export interface Database {
           education?: string | null;
           languages?: string | null;
           competencies?: string | null;
+          seamans_book_expiry?: string | null;
+          diploma?: string | null;
+          diploma_expiry?: string | null;
+          service_record_book?: string | null;
+          medical?: string | null;
+          medical_expiry?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -134,6 +146,12 @@ export interface Database {
           education?: string | null;
           languages?: string | null;
           competencies?: string | null;
+          seamans_book_expiry?: string | null;
+          diploma?: string | null;
+          diploma_expiry?: string | null;
+          service_record_book?: string | null;
+          medical?: string | null;
+          medical_expiry?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];

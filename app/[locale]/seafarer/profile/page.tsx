@@ -33,8 +33,14 @@ const EMPTY_FORM: ProfileForm = {
   readiness_date: "",
   about: "",
   seamans_book: "",
+  seamans_book_expiry: "",
   passport_no: "",
   passport_expiry: "",
+  service_record_book: "",
+  medical: "",
+  medical_expiry: "",
+  diploma: "",
+  diploma_expiry: "",
   us_visa: "",
   schengen_visa: "",
   education: "",
@@ -79,8 +85,14 @@ export default function ProfilePage() {
           readiness_date: data.readiness_date ?? "",
           about: data.about ?? "",
           seamans_book: data.seamans_book ?? "",
+          seamans_book_expiry: data.seamans_book_expiry ?? "",
           passport_no: data.passport_no ?? "",
           passport_expiry: data.passport_expiry ?? "",
+          service_record_book: data.service_record_book ?? "",
+          medical: data.medical ?? "",
+          medical_expiry: data.medical_expiry ?? "",
+          diploma: data.diploma ?? "",
+          diploma_expiry: data.diploma_expiry ?? "",
           us_visa: data.us_visa ?? "",
           schengen_visa: data.schengen_visa ?? "",
           education: data.education ?? "",
@@ -192,8 +204,14 @@ export default function ProfilePage() {
         readiness_date: p.readiness_date ?? prev.readiness_date,
         about: p.about ?? prev.about,
         seamans_book: p.seamans_book ?? prev.seamans_book,
+        seamans_book_expiry: p.seamans_book_expiry ?? prev.seamans_book_expiry,
         passport_no: p.passport_no ?? prev.passport_no,
         passport_expiry: p.passport_expiry ?? prev.passport_expiry,
+        service_record_book: p.service_record_book ?? prev.service_record_book,
+        medical: p.medical ?? prev.medical,
+        medical_expiry: p.medical_expiry ?? prev.medical_expiry,
+        diploma: p.diploma ?? prev.diploma,
+        diploma_expiry: p.diploma_expiry ?? prev.diploma_expiry,
         us_visa: p.us_visa ?? prev.us_visa,
         schengen_visa: p.schengen_visa ?? prev.schengen_visa,
         education: p.education ?? prev.education,
@@ -273,7 +291,13 @@ export default function ProfilePage() {
       rank: form.rank || null,
       about: form.about || null,
       seamans_book: form.seamans_book || null,
+      seamans_book_expiry: form.seamans_book_expiry || null,
       passport_no: form.passport_no || null,
+      service_record_book: form.service_record_book || null,
+      medical: form.medical || null,
+      medical_expiry: form.medical_expiry || null,
+      diploma: form.diploma || null,
+      diploma_expiry: form.diploma_expiry || null,
       us_visa: form.us_visa || null,
       schengen_visa: form.schengen_visa || null,
       education: form.education || null,
@@ -496,15 +520,27 @@ export default function ProfilePage() {
         <div className="rounded-2xl border border-white/10 bg-card p-6">
           <h2 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{t.sp_documents}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Seaman's book (паспорт моряка) */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">{t.sp_seamans_book}</label>
               <input
                 type="text" value={form.seamans_book ?? ""}
                 onChange={(e) => handleChange("seamans_book", e.target.value)}
-                placeholder="SB 1234567 (exp. 2030)" disabled={saving}
+                placeholder="SB 1234567" disabled={saving}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_seamans_expiry}</label>
+              <input
+                type="date" value={form.seamans_book_expiry ?? ""}
+                onChange={(e) => handleChange("seamans_book_expiry", e.target.value)}
+                disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            {/* Foreign (travel / bio) passport */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">{t.sp_passport}</label>
               <input
@@ -523,6 +559,59 @@ export default function ProfilePage() {
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
             </div>
+
+            {/* Service record book (послужная книжка) */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_service_record}</label>
+              <input
+                type="text" value={form.service_record_book ?? ""}
+                onChange={(e) => handleChange("service_record_book", e.target.value)}
+                placeholder={t.sp_service_record_ph} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="hidden sm:block" />
+
+            {/* Medical certificate */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_medical}</label>
+              <input
+                type="text" value={form.medical ?? ""}
+                onChange={(e) => handleChange("medical", e.target.value)}
+                placeholder={t.sp_medical_ph} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_medical_expiry}</label>
+              <input
+                type="date" value={form.medical_expiry ?? ""}
+                onChange={(e) => handleChange("medical_expiry", e.target.value)}
+                disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            {/* Diploma / Certificate of Competency */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_diploma}</label>
+              <input
+                type="text" value={form.diploma ?? ""}
+                onChange={(e) => handleChange("diploma", e.target.value)}
+                placeholder={t.sp_diploma_ph} disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.sp_diploma_expiry}</label>
+              <input
+                type="date" value={form.diploma_expiry ?? ""}
+                onChange={(e) => handleChange("diploma_expiry", e.target.value)}
+                disabled={saving}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">{t.sp_us_visa}</label>
               <input
