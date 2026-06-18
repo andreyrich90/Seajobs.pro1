@@ -4,7 +4,15 @@ import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
-type VacancyFull = VacancyDetail & { is_imported: boolean; source_url: string | null };
+type VacancyFull = VacancyDetail & {
+  is_imported: boolean;
+  source_url: string | null;
+  country: string | null;
+  region: string | null;
+  city: string | null;
+  postal_code: string | null;
+  valid_through: string | null;
+};
 
 const BASE_URL = "https://seajobs.pro";
 
@@ -19,7 +27,7 @@ function getAdminClient() {
 async function fetchVacancy(id: string): Promise<VacancyFull | null> {
   const { data } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
   return (data as VacancyFull | null);
@@ -92,7 +100,9 @@ export default async function VacancyPage(
     "description": vacancy.description
       ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}. Apply on SeaJobs.pro — maritime job board for seafarers.`,
     "datePosted": vacancy.created_at,
+    // Prefer the company-set deadline; otherwise default to 60 days after posting.
     "validThrough": (() => {
+      if (vacancy.valid_through) return new Date(vacancy.valid_through).toISOString();
       const expiry = new Date(vacancy.created_at);
       expiry.setDate(expiry.getDate() + 60);
       return expiry.toISOString();
@@ -109,7 +119,11 @@ export default async function VacancyPage(
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": company?.location ?? "International Waters",
+        "addressLocality": vacancy.city ?? company?.location ?? "International Waters",
+        ...(vacancy.region ? { "addressRegion": vacancy.region } : {}),
+        ...(vacancy.postal_code ? { "postalCode": vacancy.postal_code } : {}),
+        // addressCountry is required by Google; default to a sensible value.
+        "addressCountry": vacancy.country ?? "INT",
       },
     },
     "directApply": !vacancy.is_imported,
@@ -117,13 +131,19 @@ export default async function VacancyPage(
   };
 
   if (vacancy.salary_from || vacancy.salary_to) {
+    // Google wants either a single `value` or a complete `minValue`+`maxValue`
+    // pair. Providing only one bound triggers a "missing maxValue" warning, so
+    // when just one number is set we emit it as a single `value` instead.
+    const hasRange = vacancy.salary_from && vacancy.salary_to;
+    const single = vacancy.salary_from ?? vacancy.salary_to;
     jsonLd["baseSalary"] = {
       "@type": "MonetaryAmount",
       "currency": vacancy.currency,
       "value": {
         "@type": "QuantitativeValue",
-        ...(vacancy.salary_from ? { "minValue": vacancy.salary_from } : {}),
-        ...(vacancy.salary_to ? { "maxValue": vacancy.salary_to } : {}),
+        ...(hasRange
+          ? { "minValue": vacancy.salary_from, "maxValue": vacancy.salary_to }
+          : { "value": single }),
         "unitText": "MONTH",
       },
     };

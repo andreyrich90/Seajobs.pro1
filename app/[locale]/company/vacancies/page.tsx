@@ -26,9 +26,15 @@ type VacancyForm = {
   rank: string;
   vessel_type: string;
   salary: string;
+  salary_to: string;
   currency: string;
   contract_duration: string;
   joining_date: string;
+  valid_through: string;
+  country: string;
+  region: string;
+  city: string;
+  postal_code: string;
   description: string;
   is_active: boolean;
 };
@@ -38,9 +44,15 @@ const EMPTY_FORM: VacancyForm = {
   rank: "",
   vessel_type: "",
   salary: "",
+  salary_to: "",
   currency: "USD",
   contract_duration: "",
   joining_date: "",
+  valid_through: "",
+  country: "",
+  region: "",
+  city: "",
+  postal_code: "",
   description: "",
   is_active: true,
 };
@@ -115,10 +127,16 @@ export default function VacanciesPage() {
       title: v.title ?? "",
       rank: v.rank ?? "",
       vessel_type: v.vessel_type ?? "",
-      salary: v.salary_from != null ? String(v.salary_from) : (v.salary_to != null ? String(v.salary_to) : ""),
+      salary: v.salary_from != null ? String(v.salary_from) : "",
+      salary_to: v.salary_to != null ? String(v.salary_to) : "",
       currency: v.currency ?? "USD",
       contract_duration: v.contract_duration ?? "",
       joining_date: v.joining_date ?? "",
+      valid_through: v.valid_through ?? "",
+      country: v.country ?? "",
+      region: v.region ?? "",
+      city: v.city ?? "",
+      postal_code: v.postal_code ?? "",
       description: v.description ?? "",
       is_active: v.is_active,
     });
@@ -145,10 +163,15 @@ export default function VacanciesPage() {
       rank: form.rank || null,
       vessel_type: form.vessel_type || null,
       salary_from: form.salary ? parseInt(form.salary) : null,
-      salary_to: null,
+      salary_to: form.salary_to ? parseInt(form.salary_to) : null,
       currency: form.currency,
       contract_duration: form.contract_duration || null,
       joining_date: form.joining_date || null,
+      valid_through: form.valid_through || null,
+      country: form.country.trim() || null,
+      region: form.region.trim() || null,
+      city: form.city.trim() || null,
+      postal_code: form.postal_code.trim() || null,
       description: form.description || null,
       is_active: form.is_active,
       updated_at: new Date().toISOString(),
@@ -292,14 +315,20 @@ export default function VacanciesPage() {
               </select>
             </div>
 
-            {/* Salary */}
+            {/* Salary (from – to) */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-foam">{t.va_salary}</label>
               <div className="flex gap-2">
                 <input
                   type="number" value={form.salary}
                   onChange={(e) => handleChange("salary", e.target.value)}
-                  placeholder={t.va_salary_ph} min={0} disabled={submitting}
+                  placeholder={t.va_salary_from_ph} min={0} disabled={submitting}
+                  className="flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+                <input
+                  type="number" value={form.salary_to}
+                  onChange={(e) => handleChange("salary_to", e.target.value)}
+                  placeholder={t.va_salary_to_ph} min={0} disabled={submitting}
                   className="flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                 />
                 <select
@@ -332,6 +361,49 @@ export default function VacanciesPage() {
                 disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
+            </div>
+
+            {/* Valid through (application deadline) */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">{t.va_valid_through}</label>
+              <input
+                type="date" value={form.valid_through}
+                onChange={(e) => handleChange("valid_through", e.target.value)}
+                disabled={submitting}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+              />
+            </div>
+
+            {/* Location (for Google for Jobs structured data) */}
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label className="text-sm font-semibold text-foam">{t.va_location_section}</label>
+              <p className="-mt-0.5 text-xs text-mist">{t.va_location_hint}</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <input
+                  type="text" value={form.country}
+                  onChange={(e) => handleChange("country", e.target.value)}
+                  placeholder={t.va_country_ph} disabled={submitting}
+                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+                <input
+                  type="text" value={form.region}
+                  onChange={(e) => handleChange("region", e.target.value)}
+                  placeholder={t.va_region_ph} disabled={submitting}
+                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+                <input
+                  type="text" value={form.city}
+                  onChange={(e) => handleChange("city", e.target.value)}
+                  placeholder={t.va_city_ph} disabled={submitting}
+                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+                <input
+                  type="text" value={form.postal_code}
+                  onChange={(e) => handleChange("postal_code", e.target.value)}
+                  placeholder={t.va_postal_ph} disabled={submitting}
+                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                />
+              </div>
             </div>
 
             {/* Description */}
