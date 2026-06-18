@@ -5,11 +5,9 @@ import { Link } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ShieldCheck, Building2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import JobCard from "@/components/JobCard";
 import ContactForm from "@/components/ContactForm";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
-import { JOBS } from "@/lib/data";
 import { supabase } from "@/lib/supabase/client";
 
 type DbVacancy = {
@@ -28,6 +26,7 @@ export default function Home() {
   const { lang } = useLang();
   const [query, setQuery] = useState("");
   const [dbVacancies, setDbVacancies] = useState<DbVacancy[]>([]);
+  const [loadingVacancies, setLoadingVacancies] = useState(true);
   const t = T[lang];
 
   useEffect(() => {
@@ -37,7 +36,10 @@ export default function Home() {
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(25)
-      .then(({ data }) => { if (data?.length) setDbVacancies(data as DbVacancy[]); });
+      .then(({ data }) => {
+        if (data?.length) setDbVacancies(data as DbVacancy[]);
+        setLoadingVacancies(false);
+      });
   }, []);
 
   const stats = [
@@ -108,7 +110,21 @@ export default function Home() {
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          {dbVacancies.length > 0 ? dbVacancies.map((v) => (
+          {loadingVacancies ? (
+            // Skeleton placeholders while real vacancies load — no stock data flash.
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 animate-pulse">
+                <div className="flex-1 min-w-0">
+                  <div className="h-4 w-2/3 rounded bg-white/10" />
+                  <div className="mt-2 flex gap-2">
+                    <div className="h-3 w-24 rounded bg-white/5" />
+                    <div className="h-3 w-20 rounded bg-white/5" />
+                  </div>
+                </div>
+                <div className="h-4 w-24 rounded bg-white/10" />
+              </div>
+            ))
+          ) : dbVacancies.length > 0 ? dbVacancies.map((v) => (
             <Link key={v.id} href={`/jobs/${v.id}`}
               className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
               <div className="flex-1 min-w-0">
@@ -129,9 +145,11 @@ export default function Home() {
                 </p>
               )}
             </Link>
-          )) : JOBS.map((job) => (
-            <JobCard key={job.id} job={job} lang={lang} />
-          ))}
+          )) : (
+            <div className="rounded-2xl border border-white/10 bg-card px-5 py-10 text-center">
+              <p className="text-sm text-mist">{t.jobs_none}</p>
+            </div>
+          )}
         </div>
       </section>
 
