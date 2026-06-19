@@ -6,7 +6,7 @@ import NextLink from "next/link";
 import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
-  Bookmark, BookmarkCheck, Send, X, AlertCircle,
+  Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -70,6 +70,18 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [savingToggle, setSavingToggle] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => { setShareUrl(window.location.href); }, []);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shareUrl || window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch { /* clipboard blocked */ }
+  }
 
   useEffect(() => {
     async function loadAuth() {
@@ -241,6 +253,49 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                     <p className="text-sm font-semibold text-white">{formatDate(vacancy.created_at)}</p>
                   </div>
                 </div>
+              </div>
+
+              {/* Share */}
+              <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
+                <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-mist">
+                  <Share2 size={14} /> Share
+                </span>
+                <button
+                  onClick={copyLink}
+                  title="Copy link"
+                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+                >
+                  {copied ? <Check size={14} className="text-teal" /> : <Copy size={14} />}
+                  {copied ? "Copied!" : "Copy link"}
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${vacancy.title}${company?.name ? ` — ${company.name}` : ""} ${shareUrl}`)}`}
+                  target="_blank" rel="noopener noreferrer" title="WhatsApp"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-[#25D366] transition hover:bg-white/10"
+                >
+                  <MessageCircle size={15} />
+                </a>
+                <a
+                  href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`${vacancy.title}${company?.name ? ` — ${company.name}` : ""}`)}`}
+                  target="_blank" rel="noopener noreferrer" title="Telegram"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-[#229ED9] transition hover:bg-white/10"
+                >
+                  <Send size={15} />
+                </a>
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                  target="_blank" rel="noopener noreferrer" title="Facebook"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-[#1877F2] transition hover:bg-white/10"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v6h3v-6h2.4l.6-3H14V9z" /></svg>
+                </a>
+                <a
+                  href={`mailto:?subject=${encodeURIComponent(`${vacancy.title}${company?.name ? ` — ${company.name}` : ""}`)}&body=${encodeURIComponent(`${vacancy.title}${company?.name ? ` — ${company.name}` : ""}\n\n${shareUrl}`)}`}
+                  title="Email"
+                  className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-mist transition hover:bg-white/10 hover:text-white"
+                >
+                  <Mail size={15} />
+                </a>
               </div>
             </div>
 
