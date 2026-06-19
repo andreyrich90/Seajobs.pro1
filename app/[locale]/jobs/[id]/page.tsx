@@ -126,8 +126,8 @@ export default async function VacancyPage(
         "addressCountry": vacancy.country ?? "INT",
       },
     },
-    "directApply": !vacancy.is_imported,
-    "url": vacancy.is_imported && vacancy.source_url ? vacancy.source_url : `${BASE_URL}/jobs/${vacancy.id}`,
+    "directApply": true,
+    "url": `${BASE_URL}/jobs/${vacancy.id}`,
   };
 
   if (vacancy.salary_from || vacancy.salary_to) {
