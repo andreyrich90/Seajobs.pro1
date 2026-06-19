@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Download } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -521,6 +521,29 @@ export default function CVPage() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
+  // Auto-fit to a single A4 page: measure the (visible) preview and scale it
+  // down if it's taller than one page. The same scale is applied to the print
+  // copy, guaranteeing the CV never spills onto a second page.
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [natH, setNatH] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+    const PAGE_H = (297 * 96) / 25.4 - 8; // one A4 in px (~1114), minus a small safety margin
+    const measure = () => {
+      const nh = el.offsetHeight; // natural height, unaffected by the CSS transform
+      if (!nh) return;
+      setNatH(nh);
+      setScale(nh > PAGE_H ? Math.max(0.5, PAGE_H / nh) : 1);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [template, data, loading]);
+
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
@@ -594,10 +617,15 @@ export default function CVPage() {
           ))}
         </div>
 
-        {/* Preview */}
+        {/* Preview (scaled to fit one A4 page) */}
         <div className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-4 shadow-2xl">
-          <div className="mx-auto w-fit shadow-xl">
-            <CVDocument template={template} data={data} />
+          <div
+            className="mx-auto shadow-xl"
+            style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}
+          >
+            <div ref={measureRef} style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+              <CVDocument template={template} data={data} />
+            </div>
           </div>
         </div>
       </div>
@@ -605,7 +633,11 @@ export default function CVPage() {
       {mounted &&
         createPortal(
           <div id="cv-print-root">
-            <CVDocument template={template} data={data} />
+            <div style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}>
+              <div style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+                <CVDocument template={template} data={data} />
+              </div>
+            </div>
           </div>,
           document.body
         )}
