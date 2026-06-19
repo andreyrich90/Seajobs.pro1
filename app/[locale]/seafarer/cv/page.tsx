@@ -90,6 +90,23 @@ const A4: React.CSSProperties = {
   printColorAdjust: "exact",
 };
 
+/* Branded footer — site logo + name, shown on every printed/downloaded CV. */
+function CVBrand({ dark }: { dark?: boolean }) {
+  return (
+    <div className={`mt-5 flex items-center justify-center gap-2 border-t pt-2.5 ${dark ? "border-white/20" : "border-[#dbe3ec]"}`}>
+      <span className="grid h-[16px] w-[16px] place-items-center rounded-[4px] bg-[#c9a227]">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0a1f33" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="5" r="3" /><line x1="12" y1="22" x2="12" y2="8" /><path d="M5 12H2a10 10 0 0 0 20 0h-3" />
+        </svg>
+      </span>
+      <span className={`text-[10px] font-bold ${dark ? "text-white" : "text-[#16365c]"}`}>
+        SeaJobs<span className="text-[#c9a227]">.pro</span>
+      </span>
+      <span className="text-[9px] text-[#9aa7b2]">· Generated on seajobs.pro</span>
+    </div>
+  );
+}
+
 /* ════════════ Template 1 — Maritime (navy bars) ════════════ */
 function Bar({ children }: { children: React.ReactNode }) {
   return (
@@ -242,6 +259,8 @@ function CVMaritime({ data }: { data: CVData }) {
           </div>
         </>
       )}
+
+      <CVBrand />
     </div>
   );
 }
@@ -367,6 +386,8 @@ function CVClassic({ data }: { data: CVData }) {
           </div>
         </>
       )}
+
+      <CVBrand />
     </div>
   );
 }
@@ -474,6 +495,8 @@ function CVModern({ data }: { data: CVData }) {
             </div>
           </>
         )}
+
+        <CVBrand />
       </main>
     </div>
   );
