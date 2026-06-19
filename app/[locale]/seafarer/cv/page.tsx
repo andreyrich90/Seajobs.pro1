@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Download } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -107,6 +107,25 @@ function CVBrand({ dark }: { dark?: boolean }) {
   );
 }
 
+/* Compact 2-column certificate list — uses horizontal space to save height. */
+function CertGrid({ items }: { items: Certificate[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-x-6 gap-y-[2px] pt-1 text-[9.5px]">
+      {items.map((c) => (
+        <div key={c.id} className="flex items-baseline justify-between gap-2 border-b border-[#eef2f5] pb-[1.5px]">
+          <span className="min-w-0 truncate font-semibold text-[#23303a]" title={c.name}>{c.name}</span>
+          <span className="shrink-0 whitespace-nowrap text-[#52606d]">
+            {c.number ? `${c.number} · ` : ""}
+            <span className={isExpired(c.expiry_date) ? "font-semibold text-[#c0392b]" : ""}>
+              {c.expiry_date ? formatDate(c.expiry_date, true) : "Cont."}
+            </span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ════════════ Template 1 — Maritime (navy bars) ════════════ */
 function Bar({ children }: { children: React.ReactNode }) {
   return (
@@ -208,20 +227,7 @@ function CVMaritime({ data }: { data: CVData }) {
       {certificates.length > 0 && (
         <>
           <Bar>Competency, Endorsements &amp; STCW Certificates</Bar>
-          <table className="w-full border-collapse text-[9.5px]">
-            <thead><tr className="bg-[#dbe3ec] text-left text-[#16365c]">
-              <th className={`${cell} font-bold`}>Certificate description</th><th className={`${cell} font-bold`}>Number</th><th className={`${cell} font-bold`}>Issue date</th><th className={`${cell} font-bold`}>Expiry date</th><th className={`${cell} font-bold`}>Authority</th>
-            </tr></thead>
-            <tbody>{certificates.map((c, i) => (
-              <tr key={c.id} className={zebra(i)}>
-                <td className={`${cell} font-semibold`}>{c.name}</td>
-                <td className={cell}>{c.number || "—"}</td>
-                <td className={cell}>{formatDate(c.issue_date, true)}</td>
-                <td className={`${cell} ${isExpired(c.expiry_date) ? "font-semibold text-[#c0392b]" : ""}`}>{c.expiry_date ? formatDate(c.expiry_date, true) : "Continuous"}</td>
-                <td className={cell}>{c.issuing_authority || "—"}</td>
-              </tr>
-            ))}</tbody>
-          </table>
+          <CertGrid items={certificates} />
         </>
       )}
 
@@ -342,18 +348,7 @@ function CVClassic({ data }: { data: CVData }) {
       {certificates.length > 0 && (
         <>
           <ClassicHead>Competency, Endorsements &amp; STCW Certificates</ClassicHead>
-          <table className="mt-1 w-full border-collapse text-[9.5px]">
-            <thead><tr className="border-b border-[#cfd8e0] text-left text-[#1d4e79]"><th className={`${cell} font-bold`}>Certificate</th><th className={`${cell} font-bold`}>Number</th><th className={`${cell} font-bold`}>Issued</th><th className={`${cell} font-bold`}>Expiry</th><th className={`${cell} font-bold`}>Authority</th></tr></thead>
-            <tbody>{certificates.map((c) => (
-              <tr key={c.id} className="border-b border-[#eef2f5]">
-                <td className={`${cell} font-semibold`}>{c.name}</td>
-                <td className={cell}>{c.number || "—"}</td>
-                <td className={cell}>{formatDate(c.issue_date, true)}</td>
-                <td className={`${cell} ${isExpired(c.expiry_date) ? "font-semibold text-[#c0392b]" : ""}`}>{c.expiry_date ? formatDate(c.expiry_date, true) : "Continuous"}</td>
-                <td className={cell}>{c.issuing_authority || "—"}</td>
-              </tr>
-            ))}</tbody>
-          </table>
+          <CertGrid items={certificates} />
         </>
       )}
 
@@ -475,15 +470,7 @@ function CVModern({ data }: { data: CVData }) {
         {certificates.length > 0 && (
           <>
             <MainHead>Certificates</MainHead>
-            <table className="w-full border-collapse text-[9px]">
-              <tbody>{certificates.map((c, i) => (
-                <tr key={c.id} className={zebra(i)}>
-                  <td className={`${cell} font-semibold`}>{c.name}</td>
-                  <td className={cell}>{c.number || "—"}</td>
-                  <td className={`${cell} ${isExpired(c.expiry_date) ? "font-semibold text-[#c0392b]" : ""}`}>{c.expiry_date ? formatDate(c.expiry_date, true) : "Continuous"}</td>
-                </tr>
-              ))}</tbody>
-            </table>
+            <CertGrid items={certificates} />
           </>
         )}
 
@@ -520,6 +507,29 @@ export default function CVPage() {
   const [template, setTemplate] = useState<Template>("maritime");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  // Auto-fit to a single A4 page: measure the (visible) preview and scale it
+  // down if it's taller than one page. The same scale is applied to the print
+  // copy, guaranteeing the CV never spills onto a second page.
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [natH, setNatH] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+    const PAGE_H = (297 * 96) / 25.4 - 8; // one A4 in px (~1114), minus a small safety margin
+    const measure = () => {
+      const nh = el.offsetHeight; // natural height, unaffected by the CSS transform
+      if (!nh) return;
+      setNatH(nh);
+      setScale(nh > PAGE_H ? Math.max(0.5, PAGE_H / nh) : 1);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [template, data, loading]);
 
   useEffect(() => setMounted(true), []);
 
@@ -594,10 +604,15 @@ export default function CVPage() {
           ))}
         </div>
 
-        {/* Preview */}
+        {/* Preview (scaled to fit one A4 page) */}
         <div className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-4 shadow-2xl">
-          <div className="mx-auto w-fit shadow-xl">
-            <CVDocument template={template} data={data} />
+          <div
+            className="mx-auto shadow-xl"
+            style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}
+          >
+            <div ref={measureRef} style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+              <CVDocument template={template} data={data} />
+            </div>
           </div>
         </div>
       </div>
@@ -605,7 +620,11 @@ export default function CVPage() {
       {mounted &&
         createPortal(
           <div id="cv-print-root">
-            <CVDocument template={template} data={data} />
+            <div style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}>
+              <div style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
+                <CVDocument template={template} data={data} />
+              </div>
+            </div>
           </div>,
           document.body
         )}
