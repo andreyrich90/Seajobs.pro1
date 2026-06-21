@@ -2,10 +2,10 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
+import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -61,6 +61,9 @@ function JobsContent() {
   const [vessel, setVessel] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 30;
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -124,6 +127,28 @@ function JobsContent() {
     return matchQuery && matchRank && matchVessel;
   });
 
+  // Reset to the first page whenever the filters change the result set.
+  useEffect(() => { setPage(1); }, [query, rank, vessel]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  function goToPage(p: number) {
+    setPage(Math.min(Math.max(1, p), totalPages));
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function pageList(): (number | "…")[] {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const out: (number | "…")[] = [1];
+    if (currentPage > 3) out.push("…");
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) out.push(i);
+    if (currentPage < totalPages - 2) out.push("…");
+    out.push(totalPages);
+    return out;
+  }
+
   const selectClass = "rounded-xl border border-white/10 bg-navy2 px-3.5 py-3 text-sm font-semibold text-white outline-none focus:border-brass";
 
   return (
@@ -175,8 +200,8 @@ function JobsContent() {
             <p className="mt-1 text-sm text-mist">Try adjusting your search filters.</p>
           </div>
         ) : (
-          <div className="mt-6 flex flex-col gap-3">
-            {filtered.map((v) => {
+          <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
+            {pageItems.map((v) => {
               const salary = formatSalary(v);
               return (
                 <Link
@@ -265,6 +290,45 @@ function JobsContent() {
                 </Link>
               );
             })}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                <button
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="flex h-9 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {pageList().map((p, i) =>
+                  p === "…" ? (
+                    <span key={`e${i}`} className="px-2 text-sm text-mist">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => goToPage(p)}
+                      className={`h-9 min-w-9 rounded-lg border px-3 text-sm font-semibold transition ${
+                        p === currentPage
+                          ? "border-brass/40 bg-brass/15 text-brass2"
+                          : "border-white/10 bg-white/5 text-mist hover:text-white"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="flex h-9 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+                  aria-label="Next page"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

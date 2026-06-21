@@ -30,7 +30,7 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const t = T[lang];
 
-  const PAGE_SIZE = 12;
+  const PAGE_SIZE = 30;
   const jobsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
