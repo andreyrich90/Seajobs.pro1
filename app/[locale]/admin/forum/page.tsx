@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Trash2, Pin, PinOff, MessageSquare, ChevronDown, ChevronRight, Plus, FolderPlus } from "lucide-react";
+import { Trash2, Pin, PinOff, MessageSquare, ChevronDown, ChevronRight, Plus, FolderPlus, Languages } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost, ForumCategory } from "@/lib/supabase/types";
 
@@ -34,6 +34,31 @@ export default function AdminForumPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [topicPosts, setTopicPosts] = useState<ForumPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [translating, setTranslating] = useState(false);
+  const [translateMsg, setTranslateMsg] = useState<string | null>(null);
+
+  async function translateExisting() {
+    setTranslating(true);
+    setTranslateMsg("Starting…");
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) { setTranslateMsg("Not signed in."); setTranslating(false); return; }
+    try {
+      for (let guard = 0; guard < 500; guard++) {
+        const res = await fetch("/api/admin/translate-forum", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!data.ok) { setTranslateMsg("Error: " + (data.error ?? "failed")); break; }
+        if (data.remaining === 0) { setTranslateMsg("All topics translated ✓"); break; }
+        setTranslateMsg(`Translating… ${data.remaining} left`);
+      }
+    } catch (e) {
+      setTranslateMsg("Error: " + (e instanceof Error ? e.message : "failed"));
+    }
+    setTranslating(false);
+  }
 
   useEffect(() => {
     async function load() {
@@ -114,9 +139,22 @@ export default function AdminForumPage() {
 
   return (
     <div className="p-6 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="font-display text-2xl font-semibold text-white">Forum</h1>
-        <p className="mt-1 text-sm text-mist">{topics.length} topics · click a row to see replies</p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-white">Forum</h1>
+          <p className="mt-1 text-sm text-mist">{topics.length} topics · click a row to see replies</p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <button
+            onClick={translateExisting}
+            disabled={translating}
+            title="Translate every topic into all 4 languages (one-time)"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
+          >
+            <Languages size={16} /> {translating ? "Translating…" : "Translate existing topics"}
+          </button>
+          {translateMsg && <span className="text-xs text-mist">{translateMsg}</span>}
+        </div>
       </div>
 
       {/* Sections / categories */}
