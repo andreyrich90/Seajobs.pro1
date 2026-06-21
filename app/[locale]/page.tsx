@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
-import { Search, Compass, ArrowRight, ChevronRight, ShieldCheck, Building2 } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
@@ -27,7 +27,11 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [dbVacancies, setDbVacancies] = useState<DbVacancy[]>([]);
   const [loadingVacancies, setLoadingVacancies] = useState(true);
+  const [page, setPage] = useState(1);
   const t = T[lang];
+
+  const PAGE_SIZE = 30;
+  const jobsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     supabase
@@ -35,12 +39,31 @@ export default function Home() {
       .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
-      .limit(25)
+      .limit(500)
       .then(({ data }) => {
         if (data?.length) setDbVacancies(data as DbVacancy[]);
         setLoadingVacancies(false);
       });
   }, []);
+
+  const totalPages = Math.max(1, Math.ceil(dbVacancies.length / PAGE_SIZE));
+  const pageItems = dbVacancies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  function goToPage(p: number) {
+    setPage(Math.min(Math.max(1, p), totalPages));
+    jobsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Page numbers with ellipses for long lists.
+  function pageList(): (number | "…")[] {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const out: (number | "…")[] = [1];
+    if (page > 3) out.push("…");
+    for (let i = Math.max(2, page - 1); i <= Math.min(totalPages - 1, page + 1); i++) out.push(i);
+    if (page < totalPages - 2) out.push("…");
+    out.push(totalPages);
+    return out;
+  }
 
   const stats = [
     { n: "1 240+", l: t.stat_jobs },
@@ -96,7 +119,7 @@ export default function Home() {
       </section>
 
       {/* LATEST JOBS */}
-      <section className="mx-auto max-w-7xl px-5 py-12">
+      <section ref={jobsRef} className="mx-auto max-w-7xl px-5 py-12 scroll-mt-20">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
             {t.jobs_latest}
@@ -124,7 +147,7 @@ export default function Home() {
                 <div className="h-4 w-24 rounded bg-white/10" />
               </div>
             ))
-          ) : dbVacancies.length > 0 ? dbVacancies.map((v) => (
+          ) : dbVacancies.length > 0 ? pageItems.map((v) => (
             <Link key={v.id} href={`/jobs/${v.id}`}
               className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
               <div className="flex-1 min-w-0">
@@ -151,6 +174,45 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loadingVacancies && totalPages > 1 && (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={() => goToPage(page - 1)}
+              disabled={page === 1}
+              className="flex h-9 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {pageList().map((p, i) =>
+              p === "…" ? (
+                <span key={`e${i}`} className="px-2 text-sm text-mist">…</span>
+              ) : (
+                <button
+                  key={p}
+                  onClick={() => goToPage(p)}
+                  className={`h-9 min-w-9 rounded-lg border px-3 text-sm font-semibold transition ${
+                    p === page
+                      ? "border-brass/40 bg-brass/15 text-brass2"
+                      : "border-white/10 bg-white/5 text-mist hover:text-white"
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
+            <button
+              onClick={() => goToPage(page + 1)}
+              disabled={page === totalPages}
+              className="flex h-9 items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-3 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+              aria-label="Next page"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
       </section>
 
       {/* SEO TEXT SECTION */}
