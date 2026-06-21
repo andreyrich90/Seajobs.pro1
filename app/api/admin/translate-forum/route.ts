@@ -1,56 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { LANGS, type Lang, asText, normObj, translateText } from "@/lib/forumI18n";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-const LANGS = ["en", "ru", "ua", "pl"] as const;
-type Lang = (typeof LANGS)[number];
-const LANG_NAME: Record<Lang, string> = { en: "English", ru: "Russian", ua: "Ukrainian", pl: "Polish" };
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   if (!url || !key) throw new Error("Missing Supabase env vars");
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
-}
-
-const asText = (v: unknown) => (typeof v === "string" && v.trim() ? v : "");
-
-// Normalize a title/content field to a { lang: text } object.
-// Plain strings are assumed Russian (that's how UI-created topics are stored).
-function normObj(field: unknown): Record<string, string> {
-  if (typeof field === "string") return field.trim() ? { ru: field } : {};
-  if (field && typeof field === "object") {
-    const obj = { ...(field as Record<string, string>) };
-    if (obj.uk && !obj.ua) obj.ua = obj.uk; // legacy "uk" → "ua"
-    return obj;
-  }
-  return {};
-}
-
-async function translate(apiKey: string, lang: Lang, title: string, content: string) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 8000,
-      system:
-        `You translate forum posts for a maritime job board into ${LANG_NAME[lang]}. ` +
-        `Preserve meaning, tone and any Markdown formatting/headings. ` +
-        `Return ONLY valid JSON, no fences: {"title": string, "content": string}.`,
-      messages: [{ role: "user", content: `TITLE:\n${title}\n\nBODY:\n${content}` }],
-    }),
-  });
-  if (!r.ok) throw new Error(`Anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
-  const data = await r.json();
-  const text: string = (data.content ?? []).map((b: { text?: string }) => b.text ?? "").join("");
-  const cleaned = text.replace(/```json|```/g, "").trim();
-  const s = cleaned.indexOf("{");
-  const e = cleaned.lastIndexOf("}");
-  const parsed = JSON.parse(s >= 0 && e > s ? cleaned.slice(s, e + 1) : cleaned);
-  return { title: String(parsed.title ?? title), content: String(parsed.content ?? content) };
 }
 
 export async function POST(req: Request) {
@@ -86,7 +45,7 @@ export async function POST(req: Request) {
     const srcTitle = asText(target.titleObj.ru) || asText(target.titleObj.en) || Object.values(target.titleObj).find(asText) || "";
     const srcContent = asText(target.contentObj.ru) || asText(target.contentObj.en) || Object.values(target.contentObj).find(asText) || "";
 
-    const { title, content } = await translate(apiKey, target.lang, srcTitle, srcContent);
+    const { title, content } = await translateText(apiKey, target.lang, srcTitle, srcContent);
 
     const newTitle = { ...target.titleObj, [target.lang]: title };
     const newContent = { ...target.contentObj, [target.lang]: content };

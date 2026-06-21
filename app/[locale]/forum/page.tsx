@@ -124,9 +124,17 @@ export default function ForumPage() {
 
     const authorName = await resolveAuthorName(session.user.id);
 
+    // Store the post under the current UI language; the rest of the languages
+    // are filled in automatically right after (auto-translate).
     const { data, error: insertError } = await supabase
       .from("forum_topics")
-      .insert({ user_id: session.user.id, author_name: authorName, title: title.trim(), content: content.trim(), category_id: categoryId || null })
+      .insert({
+        user_id: session.user.id,
+        author_name: authorName,
+        title: { [lang]: title.trim() },
+        content: { [lang]: content.trim() },
+        category_id: categoryId || null,
+      })
       .select()
       .single();
 
@@ -138,6 +146,12 @@ export default function ForumPage() {
       setContent("");
       setCategoryId("");
       setShowForm(false);
+      // Fire-and-forget: translate into the other languages in the background.
+      fetch("/api/forum/translate-topic", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ topicId: data.id }),
+      }).catch(() => {});
     }
     setSubmitting(false);
   }
