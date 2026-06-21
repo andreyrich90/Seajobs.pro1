@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { LANGS, asText, normObj, translateText } from "@/lib/forumI18n";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
