@@ -24,6 +24,8 @@ export function normObj(field: unknown): Record<string, string> {
 }
 
 // Translate a forum post's title + body into the target language via Anthropic.
+// Uses a delimiter format (not JSON) so long Markdown bodies with quotes/newlines
+// can't break parsing.
 export async function translateText(
   apiKey: string,
   lang: Lang,
@@ -39,16 +41,24 @@ export async function translateText(
       system:
         `You translate forum posts for a maritime job board into ${LANG_NAME[lang]}. ` +
         `Preserve meaning, tone and any Markdown formatting/headings. ` +
-        `Return ONLY valid JSON, no fences: {"title": string, "content": string}.`,
-      messages: [{ role: "user", content: `TITLE:\n${title}\n\nBODY:\n${content}` }],
+        `Output EXACTLY this format and nothing else (no preamble, no code fences):\n` +
+        `<<<TITLE>>>\n{translated title on one line}\n<<<CONTENT>>>\n{translated body}`,
+      messages: [{ role: "user", content: `<<<TITLE>>>\n${title}\n<<<CONTENT>>>\n${content}` }],
     }),
   });
   if (!r.ok) throw new Error(`Anthropic ${r.status}: ${(await r.text()).slice(0, 200)}`);
   const data = await r.json();
-  const text: string = (data.content ?? []).map((b: { text?: string }) => b.text ?? "").join("");
-  const cleaned = text.replace(/```json|```/g, "").trim();
-  const s = cleaned.indexOf("{");
-  const e = cleaned.lastIndexOf("}");
-  const parsed = JSON.parse(s >= 0 && e > s ? cleaned.slice(s, e + 1) : cleaned);
-  return { title: String(parsed.title ?? title), content: String(parsed.content ?? content) };
+  let text: string = (data.content ?? []).map((b: { text?: string }) => b.text ?? "").join("").trim();
+  text = text.replace(/^```[a-z]*\n?/i, "").replace(/```$/i, "").trim();
+
+  const tIdx = text.indexOf("<<<TITLE>>>");
+  const cIdx = text.indexOf("<<<CONTENT>>>");
+  if (tIdx !== -1 && cIdx !== -1 && cIdx > tIdx) {
+    return {
+      title: text.slice(tIdx + "<<<TITLE>>>".length, cIdx).trim() || title,
+      content: text.slice(cIdx + "<<<CONTENT>>>".length).trim() || content,
+    };
+  }
+  // Fallback: keep originals if the model didn't follow the format.
+  return { title, content };
 }
