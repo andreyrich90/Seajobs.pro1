@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumCategory } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
+import { slugId } from "@/lib/slug";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -246,7 +247,7 @@ export default function ForumClient({
             {visibleTopics.map((topic) => (
               <Link
                 key={topic.id}
-                href={`/forum/${topic.id}`}
+                href={`/forum/${slugId(loc(topic.title, lang), topic.id)}`}
                 className="flex items-start gap-4 px-5 py-4 transition hover:bg-white/5"
               >
                 <div className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${topic.is_pinned ? "bg-brass/15" : "bg-teal/10"}`}>

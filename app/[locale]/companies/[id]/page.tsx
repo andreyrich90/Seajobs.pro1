@@ -12,6 +12,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { Vacancy, CrewManager } from "@/lib/supabase/types";
+import { slugId } from "@/lib/slug";
 
 type CompanyDetail = {
   id: string;
@@ -220,7 +221,7 @@ export default function PublicCompanyPage() {
                 {vacancies.map((v) => {
                   const salary = formatSalary(v);
                   return (
-                    <Link key={v.id} href={`/jobs/${v.id}`}
+                    <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
                       className="group rounded-2xl border border-white/10 bg-card p-5 transition hover:border-white/20">
                       <h3 className="font-semibold text-white group-hover:text-brass2 transition">{v.title}</h3>
                       <div className="mt-2 flex flex-wrap gap-2">

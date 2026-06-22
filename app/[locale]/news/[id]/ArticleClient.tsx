@@ -10,6 +10,7 @@ import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
+import { extractId } from "@/lib/slug";
 
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
@@ -121,10 +122,13 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
   const [submitError, setSubmitError] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const uuid = extractId(id); // db article when present; else static slug
+  // Stable key for comments (independent of the cosmetic slug in the URL).
+  const commentKey = uuid ? `db-${uuid}` : id;
+
   useEffect(() => {
     async function load() {
-      if (id.startsWith("db-")) {
-        const uuid = id.slice(3);
+      if (uuid) {
         const { data } = await supabase
           .from("news_articles").select("*").eq("id", uuid).single();
         if (data) {
@@ -175,17 +179,17 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
       setLoading(false);
     }
     load();
-  }, [id, lang]);
+  }, [id, lang, uuid]);
 
   useEffect(() => {
     supabase
       .from("news_comments")
       .select("id, author_name, content, created_at")
-      .eq("article_id", id)
+      .eq("article_id", commentKey)
       .order("created_at", { ascending: true })
       .then(({ data }) => { if (data) setComments(data as NewsComment[]); })
       .catch(() => {});
-  }, [id]);
+  }, [commentKey]);
 
   async function submitComment(e: React.FormEvent) {
     e.preventDefault();
@@ -194,7 +198,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
     setSubmitError("");
     const { data, error } = await supabase
       .from("news_comments")
-      .insert({ article_id: id, author_name: commentName.trim(), content: commentText.trim() })
+      .insert({ article_id: commentKey, author_name: commentName.trim(), content: commentText.trim() })
       .select("id, author_name, content, created_at")
       .single();
     if (error) {
@@ -207,7 +211,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
   }
 
   async function copyLink() {
-    const url = `https://seajobs.pro/news/${canonicalId}`;
+    const url = `https://seajobs.pro/news/${id}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -215,10 +219,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
     } catch {}
   }
 
-  const canonicalId = id.startsWith("db-")
-    ? id
-    : (NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id))?.slug ?? id);
-  const shareUrl = `https://seajobs.pro/news/${canonicalId}`;
+  const shareUrl = `https://seajobs.pro/news/${id}`;
   const shareTitle = article?.title ?? "SeaJobs.pro";
 
   if (loading) return (

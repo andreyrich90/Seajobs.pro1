@@ -4,8 +4,21 @@ import { NEWS } from "@/lib/data";
 import { hreflangAlternates } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getPathname } from "@/i18n/navigation";
+import { slugId } from "@/lib/slug";
 
 const BASE = "https://seajobs.pro";
+
+// Resolve a localized (or plain) title field to a string for slug building.
+function locTitle(field: unknown): string {
+  if (!field) return "";
+  if (typeof field === "string") return field;
+  if (typeof field === "object") {
+    const obj = field as Record<string, unknown>;
+    const v = obj.en ?? obj.ru ?? obj.uk ?? Object.values(obj)[0];
+    return typeof v === "string" ? v : "";
+  }
+  return "";
+}
 
 export const revalidate = 3600; // regenerate sitemap every hour
 
@@ -57,13 +70,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [{ data: vacancies }, { data: topics }, { data: companies }] = await Promise.all([
       admin
         .from("vacancies")
-        .select("id, updated_at, created_at")
+        .select("id, title, updated_at, created_at")
         .eq("is_active", true)
         .or(`joining_date.is.null,joining_date.gte.${now.toISOString().slice(0, 10)}`)
         .order("created_at", { ascending: false }),
       admin
         .from("forum_topics")
-        .select("id, updated_at, created_at")
+        .select("id, title, updated_at, created_at")
         .order("created_at", { ascending: false }),
       admin
         .from("companies")
@@ -72,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).flatMap((v) =>
-      localizedEntries(`/jobs/${v.id}`, {
+      localizedEntries(`/jobs/${slugId(locTitle(v.title), v.id)}`, {
         lastModified: new Date(v.updated_at ?? v.created_at),
         changeFrequency: "weekly",
         priority: 0.8,
@@ -80,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const forumRoutes: MetadataRoute.Sitemap = (topics ?? []).flatMap((t) =>
-      localizedEntries(`/forum/${t.id}`, {
+      localizedEntries(`/forum/${slugId(locTitle(t.title), t.id)}`, {
         lastModified: new Date(t.updated_at ?? t.created_at),
         changeFrequency: "weekly",
         priority: 0.6,

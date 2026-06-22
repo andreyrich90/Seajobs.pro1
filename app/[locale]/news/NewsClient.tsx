@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
+import { slugId } from "@/lib/slug";
 
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
@@ -82,9 +83,10 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
 
   const dbItems: DisplayItem[] = initialDbArticles.map((a) => {
     const body = a.body?.[lang] || a.body?.[ukKey] || a.body?.en || "";
+    const title = a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "";
     return {
-      id: `db-${a.id}`,
-      title: a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "",
+      id: slugId(title, a.id),
+      title,
       tag: a.tag ?? "News",
       date: a.published_at ?? a.created_at,
       gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",

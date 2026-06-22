@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { slugId, extractId } from "@/lib/slug";
 
 function loc(field: unknown, lang = "en"): string {
   if (!field) return "";
@@ -19,7 +20,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string; locale: string }>;
 }): Promise<Metadata> {
-  const { id, locale } = await params;
+  const { id: param, locale } = await params;
+  const id = extractId(param) ?? param;
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -42,7 +44,7 @@ export async function generateMetadata({
     .trim()
     .slice(0, 160);
 
-  const languages = hreflangAlternates(`/forum/${id}`);
+  const languages = hreflangAlternates(`/forum/${slugId(titleStr, id)}`);
 
   return {
     title: `${titleStr} | SeaJobs.pro`,

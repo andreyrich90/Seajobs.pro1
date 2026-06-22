@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { extractId } from "@/lib/slug";
 
 export const alt = "Maritime job vacancy on SeaJobs.pro";
 export const size = { width: 1200, height: 630 };
@@ -18,7 +19,8 @@ function salaryText(v: {
 }
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const { id: param } = await params;
+  const id = extractId(param) ?? param;
 
   let title = "Maritime Vacancy";
   let company = "";
