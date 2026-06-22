@@ -105,13 +105,12 @@ export async function generateMetadata(
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
       ...(date ? { publishedTime: new Date(date).toISOString() } : {}),
-      ...(cover ? { images: [{ url: cover }] } : {}),
+      // og:image comes from the file-based opengraph-image.tsx (generated card).
     },
     twitter: {
-      card: cover ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title,
       description,
-      ...(cover ? { images: [cover] } : {}),
     },
     alternates: {
       canonical: languages[locale],
