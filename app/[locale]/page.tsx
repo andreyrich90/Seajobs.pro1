@@ -18,7 +18,7 @@ export default async function Home() {
       .order("created_at", { ascending: false })
       .limit(500),
     sb.from("news_articles")
-      .select("id, title, tag, cover_gradient, cover_url, published_at, created_at")
+      .select("id, title, body, tag, cover_gradient, cover_url, published_at, created_at")
       .eq("is_published", true)
       .order("published_at", { ascending: false })
       .limit(6),
