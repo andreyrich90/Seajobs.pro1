@@ -72,8 +72,12 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
   const [savingToggle, setSavingToggle] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [loginHref, setLoginHref] = useState("/auth/login");
 
-  useEffect(() => { setShareUrl(window.location.href); }, []);
+  useEffect(() => {
+    setShareUrl(window.location.href);
+    setLoginHref(`/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+  }, []);
 
   async function copyLink() {
     try {
@@ -317,7 +321,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 <div>
                   <p className="text-sm text-mist mb-4">Sign in as a seafarer to apply for this position.</p>
                   <NextLink
-                    href="/auth/login"
+                    href={loginHref}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
                   >
                     <Send size={16} /> Sign in to Apply

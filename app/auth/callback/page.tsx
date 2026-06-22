@@ -10,6 +10,13 @@ import { supabase } from "@/lib/supabase/client";
 
 type Role = "seafarer" | "company";
 
+// Validated internal redirect target carried through the OAuth round-trip.
+function safeRedirect(): string | null {
+  if (typeof window === "undefined") return null;
+  const r = new URLSearchParams(window.location.search).get("redirect") ?? "";
+  return r.startsWith("/") && !r.startsWith("//") ? r : null;
+}
+
 export default function AuthCallbackPage() {
   const router = useRouter();
   const [needsRole, setNeedsRole] = useState(false);
@@ -32,12 +39,13 @@ export default function AuthCallbackPage() {
     }
 
     localStorage.setItem("user_role", role);
+    const dest = safeRedirect();
     if (role === "seafarer") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await supabase.from("seafarers").insert({ id: uid } as any);
-      router.push("/seafarer/dashboard");
+      router.push(dest ?? "/seafarer/dashboard");
     } else {
-      router.push("/company/dashboard");
+      router.push(dest ?? "/company/dashboard");
     }
   }
 
@@ -65,7 +73,8 @@ export default function AuthCallbackPage() {
         if (profile) {
           const r = (profile as { role: string }).role;
           localStorage.setItem("user_role", r);
-          router.push(r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
+          const dest = safeRedirect();
+          router.push(dest ?? (r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard"));
           return;
         }
 
