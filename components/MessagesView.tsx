@@ -11,19 +11,32 @@ type Convo = {
   id: string;
   otherId: string;
   name: string;
+  subtitle: string | null;
   avatar: string | null;
   lastBody: string | null;
   lastAt: string | null;
+  lastMine: boolean;
   unread: number;
 };
 
 const TXT: Record<string, Record<string, string>> = {
   title:   { ua: "Повідомлення", pl: "Wiadomości", ru: "Сообщения", en: "Messages" },
-  empty:   { ua: "Поки немає переписок", pl: "Brak rozmów", ru: "Пока нет переписок", en: "No conversations yet" },
-  emptyC:  { ua: "Почніть чат з кандидатом зі сторінки відгуків.", pl: "Rozpocznij czat z kandydatem na stronie aplikacji.", ru: "Начните чат с кандидатом со страницы откликов.", en: "Start a chat with a candidate from the applications page." },
+  empty:   { ua: "Поки немає листувань", pl: "Brak wiadomości", ru: "Пока нет переписок", en: "No messages yet" },
+  emptyC:  { ua: "Напишіть кандидату зі сторінки відгуків.", pl: "Napisz do kandydata ze strony aplikacji.", ru: "Напишите кандидату со страницы откликов.", en: "Message a candidate from the applications page." },
   emptyS:  { ua: "Компанія напише вам після вашого відгуку.", pl: "Firma napisze do Ciebie po Twojej aplikacji.", ru: "Компания напишет вам после вашего отклика.", en: "A company will message you after you apply." },
-  pick:    { ua: "Виберіть переписку", pl: "Wybierz rozmowę", ru: "Выберите переписку", en: "Select a conversation" },
+  pick:    { ua: "Виберіть листування", pl: "Wybierz wiadomość", ru: "Выберите переписку", en: "Select a conversation" },
+  you:     { ua: "Ви: ", pl: "Ty: ", ru: "Вы: ", en: "You: " },
 };
+
+function fmtWhen(d: string | null): string {
+  if (!d) return "";
+  const date = new Date(d);
+  const now = new Date();
+  const sameDay = date.toDateString() === now.toDateString();
+  return sameDay
+    ? date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+    : date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+}
 
 export default function MessagesView({ role }: { role: "company" | "seafarer" }) {
   const { lang } = useLang();
@@ -49,21 +62,21 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
     const list = rows ?? [];
     const otherIds = [...new Set(list.map((r) => r[otherCol] as string))];
 
-    // Counterpart names/avatars.
-    const names: Record<string, { name: string; avatar: string | null }> = {};
+    // Counterpart names/avatars/subtitles.
+    const names: Record<string, { name: string; avatar: string | null; subtitle: string | null }> = {};
     if (otherIds.length > 0) {
       if (role === "company") {
-        const { data: sf } = await supabase.from("seafarers").select("id, first_name, last_name, photo_url").in("id", otherIds);
-        for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url };
+        const { data: sf } = await supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds);
+        for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url, subtitle: s.rank };
       } else {
-        const { data: co } = await supabase.from("companies").select("id, name, logo_url").in("id", otherIds);
-        for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url };
+        const { data: co } = await supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds);
+        for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url, subtitle: c.location };
       }
     }
 
     // Last message + unread counts in one query.
     const convoIds = list.map((r) => r.id);
-    const lastByConvo: Record<string, { body: string; at: string }> = {};
+    const lastByConvo: Record<string, { body: string; at: string; mine: boolean }> = {};
     const unreadByConvo: Record<string, number> = {};
     if (convoIds.length > 0) {
       const { data: msgs } = await supabase
@@ -72,7 +85,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
         .in("conversation_id", convoIds)
         .order("created_at", { ascending: true });
       for (const m of msgs ?? []) {
-        lastByConvo[m.conversation_id] = { body: m.body, at: m.created_at };
+        lastByConvo[m.conversation_id] = { body: m.body, at: m.created_at, mine: m.sender_id === uid };
         if (m.sender_id !== uid && !m.read_at) unreadByConvo[m.conversation_id] = (unreadByConvo[m.conversation_id] ?? 0) + 1;
       }
     }
@@ -84,9 +97,11 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
           id: r.id,
           otherId,
           name: names[otherId]?.name ?? "—",
+          subtitle: names[otherId]?.subtitle ?? null,
           avatar: names[otherId]?.avatar ?? null,
           lastBody: lastByConvo[r.id]?.body ?? null,
           lastAt: lastByConvo[r.id]?.at ?? r.last_message_at,
+          lastMine: lastByConvo[r.id]?.mine ?? false,
           unread: unreadByConvo[r.id] ?? 0,
         };
       })
@@ -128,33 +143,41 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
           {/* Conversation list */}
           <div className={`rounded-2xl border border-white/10 bg-card ${selected ? "hidden lg:block" : ""}`}>
             <div className="flex flex-col divide-y divide-white/5">
-              {convos.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setSelected(c.id)}
-                  className={`flex items-center gap-3 px-4 py-3 text-left transition hover:bg-white/5 ${
-                    selected === c.id ? "bg-white/5" : ""
-                  }`}
-                >
-                  {c.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.avatar} alt={c.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
-                  ) : (
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-sm font-bold text-white">
-                      {c.name[0]?.toUpperCase() ?? "?"}
+              {convos.map((c) => {
+                const unread = c.unread > 0;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelected(c.id)}
+                    className={`flex items-center gap-3 px-4 py-3 text-left transition hover:bg-white/5 ${
+                      selected === c.id ? "bg-white/5" : ""
+                    }`}
+                  >
+                    {c.avatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.avatar} alt={c.name} className="h-11 w-11 shrink-0 rounded-full object-cover" />
+                    ) : (
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
+                        {c.name[0]?.toUpperCase() ?? "?"}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className={`truncate text-sm ${unread ? "font-bold text-white" : "font-semibold text-foam"}`}>{c.name}</p>
+                        <span className="shrink-0 text-[11px] text-mist/70">{fmtWhen(c.lastAt)}</span>
+                      </div>
+                      <p className={`truncate text-xs ${unread ? "font-semibold text-foam" : "text-mist"}`}>
+                        {c.lastMine && c.lastBody ? tx("you") : ""}{c.lastBody ?? "—"}
+                      </p>
                     </div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">{c.name}</p>
-                    <p className="truncate text-xs text-mist">{c.lastBody ?? "—"}</p>
-                  </div>
-                  {c.unread > 0 && (
-                    <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-brass px-1.5 text-[11px] font-bold text-deep">
-                      {c.unread}
-                    </span>
-                  )}
-                </button>
-              ))}
+                    {unread && (
+                      <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-brass px-1.5 text-[11px] font-bold text-deep">
+                        {c.unread}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -168,13 +191,16 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
                   </button>
                   {selectedConvo.avatar ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={selectedConvo.avatar} alt={selectedConvo.name} className="h-9 w-9 rounded-lg object-cover" />
+                    <img src={selectedConvo.avatar} alt={selectedConvo.name} className="h-9 w-9 rounded-full object-cover" />
                   ) : (
-                    <div className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 text-sm font-bold text-white">
+                    <div className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
                       {selectedConvo.name[0]?.toUpperCase() ?? "?"}
                     </div>
                   )}
-                  <p className="font-semibold text-white">{selectedConvo.name}</p>
+                  <div className="min-w-0">
+                    <p className="truncate font-semibold text-white">{selectedConvo.name}</p>
+                    {selectedConvo.subtitle && <p className="truncate text-xs text-mist">{selectedConvo.subtitle}</p>}
+                  </div>
                 </div>
                 <div className="min-h-0 flex-1">
                   <ChatPanel
