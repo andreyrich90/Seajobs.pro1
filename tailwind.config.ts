@@ -20,8 +20,8 @@ const config: Config = {
         coral: "#e8744f",
       },
       fontFamily: {
-        display: ["Fraunces", "serif"],
-        body: ["Archivo", "sans-serif"],
+        display: ["var(--font-fraunces)", "serif"],
+        body: ["var(--font-archivo)", "sans-serif"],
       },
     },
   },
