@@ -258,24 +258,23 @@ export default function HomeClient({
             </Link>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {latestNews.map((n) => (
               <Link key={n.id} href={`/news/${n.id}`}
                 className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
-                <div className="relative h-44 overflow-hidden" style={{ background: n.coverUrl ? undefined : n.gradient }}>
+                <div className="relative h-32 overflow-hidden" style={{ background: n.coverUrl ? undefined : n.gradient }}>
                   {n.coverUrl && <img src={n.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
                 </div>
-                <div className="p-5">
-                  <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${NEWS_TAG_COLORS[n.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
-                    <Tag size={11} /> {n.tag}
+                <div className="p-4">
+                  <span className={`mb-2 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${NEWS_TAG_COLORS[n.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
+                    <Tag size={10} /> {n.tag}
                   </span>
-                  <h3 className="font-display text-base font-semibold leading-snug text-white transition group-hover:text-brass2">
+                  <h3 className="font-display text-sm font-semibold leading-snug text-white transition group-hover:text-brass2 line-clamp-2">
                     {n.title}
                   </h3>
-                  {n.excerpt && <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-mist">{n.excerpt}</p>}
-                  <p className="mt-3 flex items-center gap-3 text-xs text-mist">
-                    <span className="flex items-center gap-1.5"><Calendar size={12} /> {newsDate(n.date)}</span>
-                    <span className="flex items-center gap-1.5"><Clock size={12} /> {n.readMins} {minLabel}</span>
+                  <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-mist">
+                    <span className="flex items-center gap-1"><Calendar size={11} /> {newsDate(n.date)}</span>
+                    <span className="flex items-center gap-1"><Clock size={11} /> {n.readMins} {minLabel}</span>
                   </p>
                 </div>
               </Link>

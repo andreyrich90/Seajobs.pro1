@@ -251,23 +251,24 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
           <ChevronLeft size={16} /> Back to News
         </Link>
 
-        {/* Hero */}
-        <div className="mb-8 overflow-hidden rounded-2xl relative" style={{ background: article.coverUrl ? undefined : article.gradient }}>
-          {article.coverUrl && (
-            <img src={article.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          )}
-          <div className="relative min-h-[180px] flex items-end p-6">
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="relative">
-              <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[article.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
-                <Tag size={11} /> {article.tag}
-              </span>
-              <h1 className="font-display text-2xl font-semibold text-white sm:text-3xl">{article.title}</h1>
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-white/70">
-                <Calendar size={12} /> {formatDate(article.date, lang)}
-              </p>
-            </div>
+        {/* Cover (large, no text overlay) */}
+        <div className="mb-6 overflow-hidden rounded-2xl">
+          <div className="relative h-72 sm:h-96" style={{ background: article.coverUrl ? undefined : article.gradient }}>
+            {article.coverUrl && (
+              <img src={article.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            )}
           </div>
+        </div>
+
+        {/* Title block — below the image */}
+        <div className="mb-8">
+          <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[article.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
+            <Tag size={11} /> {article.tag}
+          </span>
+          <h1 className="font-display text-2xl font-semibold text-white sm:text-3xl">{article.title}</h1>
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-mist">
+            <Calendar size={12} /> {formatDate(article.date, lang)}
+          </p>
         </div>
 
         {/* Body */}
