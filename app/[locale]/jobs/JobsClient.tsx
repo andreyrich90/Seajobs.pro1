@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { searchMatches } from "@/lib/searchSynonyms";
+import { slugId } from "@/lib/slug";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -185,7 +186,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               return (
                 <Link
                   key={v.id}
-                  href={`/jobs/${v.id}`}
+                  href={`/jobs/${slugId(v.title, v.id)}`}
                   className="group block rounded-2xl border border-white/10 bg-card p-5 transition hover:border-white/20"
                 >
                   <div className="flex items-start gap-4">

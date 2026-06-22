@@ -9,6 +9,7 @@ import ContactForm from "@/components/ContactForm";
 import { NEWS } from "@/lib/data";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
+import { slugId } from "@/lib/slug";
 
 export type DbVacancy = {
   id: string;
@@ -90,9 +91,10 @@ export default function HomeClient({
   const latestNews = [
     ...initialNews.map((a) => {
       const body = a.body?.[lang] || a.body?.[ukKey] || a.body?.en || "";
+      const title = a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "";
       return {
-        id: `db-${a.id}`,
-        title: a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "",
+        id: slugId(title, a.id),
+        title,
         tag: a.tag ?? "News",
         date: a.published_at ?? a.created_at,
         gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
@@ -178,7 +180,7 @@ export default function HomeClient({
 
         <div className="mt-6 flex flex-col gap-3">
           {dbVacancies.length > 0 ? pageItems.map((v) => (
-            <Link key={v.id} href={`/jobs/${v.id}`}
+            <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
               className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">

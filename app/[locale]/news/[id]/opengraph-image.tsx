@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { createClient } from "@supabase/supabase-js";
 import { NEWS } from "@/lib/data";
+import { extractId } from "@/lib/slug";
 
 export const alt = "Maritime news on SeaJobs.pro";
 export const size = { width: 1200, height: 630 };
@@ -33,7 +34,8 @@ type Resolved = { title: string; tag: string; date: string; coverUrl: string | n
 
 async function resolve(id: string, locale: string): Promise<Resolved> {
   const fallback: Resolved = { title: "Maritime News", tag: "News", date: "", coverUrl: null, gradient: "linear-gradient(135deg,#0c4a6e,#155e75)" };
-  const found = NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id));
+  const uuid = extractId(id);
+  const found = uuid ? undefined : NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id));
   if (found) {
     return {
       title: loc(found.title, locale).slice(0, 110),
@@ -43,10 +45,10 @@ async function resolve(id: string, locale: string): Promise<Resolved> {
       gradient: found.gradient,
     };
   }
-  if (id.startsWith("db-")) {
+  if (uuid) {
     try {
       const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-      const { data } = await sb.from("news_articles").select("title, tag, cover_url, cover_gradient, published_at, created_at").eq("id", id.slice(3)).single();
+      const { data } = await sb.from("news_articles").select("title, tag, cover_url, cover_gradient, published_at, created_at").eq("id", uuid).single();
       if (data) {
         return {
           title: loc(data.title, locale).slice(0, 110) || fallback.title,

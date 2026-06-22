@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { slugId, extractId } from "@/lib/slug";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
 type VacancyFull = VacancyDetail & {
@@ -24,7 +25,8 @@ function getAdminClient() {
   );
 }
 
-async function fetchVacancy(id: string): Promise<VacancyFull | null> {
+async function fetchVacancy(param: string): Promise<VacancyFull | null> {
+  const id = extractId(param) ?? param; // accept "<slug>-<uuid>" or bare id
   const { data } = await getAdminClient()
     .from("vacancies")
     .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
@@ -53,7 +55,7 @@ export async function generateMetadata(
 
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;
   const description = `${rankPart}position${vesselPart}${locationPart}.${salaryPart} Apply on SeaJobs.pro — the maritime job board for seafarers.`;
-  const languages = hreflangAlternates(`/jobs/${vacancy.id}`);
+  const languages = hreflangAlternates(`/jobs/${slugId(vacancy.title, vacancy.id)}`);
 
   return {
     title,
@@ -127,7 +129,7 @@ export default async function VacancyPage(
       },
     },
     "directApply": true,
-    "url": `${BASE_URL}/jobs/${vacancy.id}`,
+    "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
   };
 
   if (vacancy.salary_from || vacancy.salary_to) {

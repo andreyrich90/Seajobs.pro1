@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { NEWS } from "@/lib/data";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { extractId } from "@/lib/slug";
 import ArticleClient from "./ArticleClient";
 
 export const dynamicParams = true;
@@ -35,9 +36,10 @@ export async function generateMetadata(
   { params }: { params: Promise<{ id: string; locale: string }> }
 ): Promise<Metadata> {
   const { id, locale } = await params;
+  const uuid = extractId(id); // db articles → "<slug>-<uuid>" or legacy "db-<uuid>"
 
-  // Static news (lib/data) are addressed by slug
-  const staticItem = NEWS.find((n) => n.slug === id);
+  // Static news (lib/data) are addressed by slug (no trailing UUID)
+  const staticItem = uuid ? undefined : NEWS.find((n) => n.slug === id);
 
   let titleLoc = "";
   let titleEn = "";
@@ -53,7 +55,7 @@ export async function generateMetadata(
     bodyEn = loc(staticItem.body, "en");
     date = staticItem.date;
     cover = staticItem.coverUrl ?? "";
-  } else {
+  } else if (uuid) {
     // DB articles are addressed by UUID
     try {
       const supabase = createClient(
@@ -63,7 +65,7 @@ export async function generateMetadata(
       const { data } = await supabase
         .from("news_articles")
         .select("title, body, published_at, created_at, cover_url")
-        .eq("id", id)
+        .eq("id", uuid)
         .single();
       if (data) {
         titleLoc = loc(data.title, locale);
@@ -130,7 +132,8 @@ type InitialArticle = {
 } | null;
 
 async function resolveArticle(id: string, locale: string): Promise<InitialArticle> {
-  const found = NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id));
+  const uuid = extractId(id); // "<slug>-<uuid>" or legacy "db-<uuid>" → db article
+  const found = uuid ? undefined : NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id));
   if (found) {
     return {
       id,
@@ -142,13 +145,13 @@ async function resolveArticle(id: string, locale: string): Promise<InitialArticl
       date: found.date,
     };
   }
-  if (id.startsWith("db-")) {
+  if (uuid) {
     try {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       );
-      const { data } = await supabase.from("news_articles").select("*").eq("id", id.slice(3)).single();
+      const { data } = await supabase.from("news_articles").select("*").eq("id", uuid).single();
       if (data) {
         return {
           id,
