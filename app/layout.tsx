@@ -1,9 +1,14 @@
 import "./globals.css";
 import Script from "next/script";
+import { Fraunces, Archivo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
 import enMessages from "@/messages/en.json";
+
+// Self-hosted fonts (no render-blocking request to Google Fonts).
+const fraunces = Fraunces({ subsets: ["latin"], display: "swap", variable: "--font-fraunces" });
+const archivo = Archivo({ subsets: ["latin"], display: "swap", variable: "--font-archivo" });
 
 export const metadata = {
   metadataBase: new URL("https://seajobs.pro"),
@@ -68,7 +73,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${fraunces.variable} ${archivo.variable}`}>
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
           type="application/ld+json"
