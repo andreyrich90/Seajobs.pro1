@@ -39,7 +39,7 @@ export async function translateText(
       model: "claude-haiku-4-5-20251001",
       max_tokens: 8000,
       system:
-        `You translate forum posts for a maritime job board into ${LANG_NAME[lang]}. ` +
+        `You translate content for a maritime job board into ${LANG_NAME[lang]}. ` +
         `Preserve meaning, tone and any Markdown formatting/headings. ` +
         `Output EXACTLY this format and nothing else (no preamble, no code fences):\n` +
         `<<<TITLE>>>\n{translated title on one line}\n<<<CONTENT>>>\n{translated body}`,
