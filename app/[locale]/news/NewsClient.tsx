@@ -94,24 +94,23 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
           <>
             {/* Featured */}
             <Link href={`/news/${items[0].id}`}
-              className="group mb-8 block overflow-hidden rounded-2xl border border-white/10 transition hover:border-white/20">
-              <div className="relative flex min-h-[200px] items-end p-6 sm:min-h-[260px]"
+              className="group mb-8 block overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
+              <div className="relative h-60 sm:h-80"
                 style={{ background: items[0].coverUrl ? undefined : items[0].gradient }}>
                 {items[0].coverUrl && (
                   <img src={items[0].coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="relative">
-                  <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[items[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
-                    <Tag size={11} /> {items[0].tag}
-                  </span>
-                  <h2 className="font-display text-xl font-semibold text-white group-hover:text-brass2 transition sm:text-2xl">
-                    {items[0].title}
-                  </h2>
-                  <p className="mt-2 flex items-center gap-1.5 text-xs text-white/70">
-                    <Calendar size={12} /> {formatDate(items[0].date, lang)}
-                  </p>
-                </div>
+              </div>
+              <div className="p-6">
+                <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[items[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
+                  <Tag size={11} /> {items[0].tag}
+                </span>
+                <h2 className="font-display text-xl font-semibold text-white group-hover:text-brass2 transition sm:text-2xl">
+                  {items[0].title}
+                </h2>
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-mist">
+                  <Calendar size={12} /> {formatDate(items[0].date, lang)}
+                </p>
               </div>
             </Link>
 
@@ -120,7 +119,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
               {items.slice(1).map((item) => (
                 <Link key={item.id} href={`/news/${item.id}`}
                   className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
-                  <div className="relative h-32" style={{ background: item.coverUrl ? undefined : item.gradient }}>
+                  <div className="relative h-44" style={{ background: item.coverUrl ? undefined : item.gradient }}>
                     {item.coverUrl && <img src={item.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
                   </div>
                   <div className="p-5">
