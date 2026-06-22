@@ -15,6 +15,9 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const [role, setRole] = useState<Role>("seafarer");
   const isBlocked = searchParams.get("blocked") === "1";
+  // Only allow safe internal redirects (avoid open-redirect to "//evil.com").
+  const rawRedirect = searchParams.get("redirect") ?? "";
+  const redirect = rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : "";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,9 +28,10 @@ function LoginContent() {
   async function handleGoogle() {
     setGoogleLoading(true);
     setError(null);
+    const callback = `${window.location.origin}/auth/callback${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""}`;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: callback },
     });
     if (oauthError) {
       setError(oauthError.message);
@@ -45,7 +49,7 @@ function LoginContent() {
       if (!data.user) { setError("Sign in failed. Please try again."); return; }
 
       if (typeof window !== "undefined") localStorage.setItem("user_role", role);
-      router.push(role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard");
+      router.push(redirect || (role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard"));
     } catch {
       setError("An unexpected error occurred.");
     } finally {

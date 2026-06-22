@@ -25,7 +25,7 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(h / 24)}d ago`;
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({ placement = "down-right" }: { placement?: "down-right" | "up-left" }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -101,7 +101,11 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-12 z-50 w-80 rounded-2xl border border-white/10 bg-navy2 shadow-2xl">
+        <div
+          className={`absolute z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-navy2 shadow-2xl ${
+            placement === "up-left" ? "bottom-12 left-0" : "right-0 top-12"
+          }`}
+        >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
             <span className="text-sm font-semibold text-white">Notifications</span>
