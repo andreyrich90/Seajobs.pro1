@@ -60,11 +60,13 @@ export default function PublicCompanyPage() {
         if (error || !companyData) { setNotFound(true); return; }
         setCompany(companyData as CompanyDetail);
 
+        const today = new Date().toISOString().slice(0, 10);
         const { data: vacancyData } = await supabase
           .from("vacancies")
           .select("*")
           .eq("company_id", id)
           .eq("is_active", true)
+          .or(`joining_date.is.null,joining_date.gte.${today}`)
           .order("created_at", { ascending: false });
 
         setVacancies((vacancyData as Vacancy[]) ?? []);
