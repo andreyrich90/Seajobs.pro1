@@ -28,7 +28,7 @@ export const T: Record<Lang, Record<string, string>> = {
     // Cabinet — seafarer
     cab_dashboard: "Головна", cab_profile: "Мій профіль", cab_certificates: "Сертифікати",
     cab_experience: "Досвід роботи", cab_cv: "Моє резюме", cab_applications: "Мої відгуки",
-    cab_saved: "Збережені", cab_logout: "Вийти", cab_loading: "Завантаження…",
+    cab_saved: "Збережені", cab_messages: "Повідомлення", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
     cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
     // Common
@@ -77,7 +77,7 @@ export const T: Record<Lang, Record<string, string>> = {
     // Cabinet — seafarer
     cab_dashboard: "Pulpit", cab_profile: "Mój profil", cab_certificates: "Certyfikaty",
     cab_experience: "Doświadczenie", cab_cv: "Moje CV", cab_applications: "Moje aplikacje",
-    cab_saved: "Zapisane", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
+    cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
     cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
     // Common
@@ -126,7 +126,7 @@ export const T: Record<Lang, Record<string, string>> = {
     // Cabinet — seafarer
     cab_dashboard: "Главная", cab_profile: "Мой профиль", cab_certificates: "Сертификаты",
     cab_experience: "Опыт работы", cab_cv: "Моё резюме", cab_applications: "Мои отклики",
-    cab_saved: "Сохранённые", cab_logout: "Выйти", cab_loading: "Загрузка…",
+    cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
     cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
     // Common
@@ -175,7 +175,7 @@ export const T: Record<Lang, Record<string, string>> = {
     // Cabinet — seafarer
     cab_dashboard: "Dashboard", cab_profile: "My Profile", cab_certificates: "Certificates",
     cab_experience: "Sea Experience", cab_cv: "My CV", cab_applications: "Applications",
-    cab_saved: "Saved Jobs", cab_logout: "Logout", cab_loading: "Loading…",
+    cab_saved: "Saved Jobs", cab_messages: "Messages", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
     cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",
     // Common
@@ -1136,6 +1136,7 @@ const CAB2_EN: Record<string, string> = {
   kb_empty_sub: "Applications from seafarers will appear here once you post vacancies.",
   kb_unknown: "Unknown seafarer",
   kb_view_profile: "View profile",
+  kb_view_cv: "View CV",
   kb_hide_letter: "Hide letter",
   kb_cover_letter: "Cover letter",
   kb_restore: "Restore",
@@ -1216,6 +1217,7 @@ const CAB2_RU: Record<string, string> = {
   kb_empty_sub: "Отклики моряков появятся здесь, как только вы разместите вакансии.",
   kb_unknown: "Неизвестный моряк",
   kb_view_profile: "Открыть профиль",
+  kb_view_cv: "Смотреть CV",
   kb_hide_letter: "Скрыть письмо",
   kb_cover_letter: "Сопроводительное письмо",
   kb_restore: "Восстановить",
@@ -1296,6 +1298,7 @@ const CAB2_UA: Record<string, string> = {
   kb_empty_sub: "Відгуки моряків з'являться тут, щойно ви розмістите вакансії.",
   kb_unknown: "Невідомий моряк",
   kb_view_profile: "Відкрити профіль",
+  kb_view_cv: "Дивитися CV",
   kb_hide_letter: "Сховати лист",
   kb_cover_letter: "Супровідний лист",
   kb_restore: "Відновити",
@@ -1376,6 +1379,7 @@ const CAB2_PL: Record<string, string> = {
   kb_empty_sub: "Zgłoszenia marynarzy pojawią się tutaj, gdy opublikujesz oferty.",
   kb_unknown: "Nieznany marynarz",
   kb_view_profile: "Zobacz profil",
+  kb_view_cv: "Zobacz CV",
   kb_hide_letter: "Ukryj list",
   kb_cover_letter: "List motywacyjny",
   kb_restore: "Przywróć",
