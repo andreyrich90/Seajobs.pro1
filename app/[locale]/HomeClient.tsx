@@ -2,10 +2,11 @@
 
 import { useState, useRef } from "react";
 import { Link } from "@/i18n/navigation";
-import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2 } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import { NEWS } from "@/lib/data";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
@@ -21,7 +22,31 @@ export type DbVacancy = {
   companies: { name: string | null; is_verified: boolean } | null;
 };
 
-export default function HomeClient({ initialVacancies }: { initialVacancies: DbVacancy[] }) {
+export type DbNews = {
+  id: string;
+  title: Record<string, string>;
+  tag: string | null;
+  cover_gradient: string | null;
+  cover_url: string | null;
+  published_at: string | null;
+  created_at: string;
+};
+
+const NEWS_TAG_COLORS: Record<string, string> = {
+  Regulation: "bg-teal/10 border-teal/20 text-teal",
+  Market: "bg-coral/10 border-coral/20 text-coral",
+  Industry: "bg-brass/10 border-brass/20 text-brass2",
+  Safety: "bg-teal/10 border-teal/20 text-teal",
+  Technology: "bg-brass/10 border-brass/20 text-brass2",
+};
+
+export default function HomeClient({
+  initialVacancies,
+  initialNews,
+}: {
+  initialVacancies: DbVacancy[];
+  initialNews: DbNews[];
+}) {
   const { lang } = useLang();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -49,11 +74,34 @@ export default function HomeClient({ initialVacancies }: { initialVacancies: DbV
     return out;
   }
 
-  const stats = [
-    { n: "1 240+", l: t.stat_jobs },
-    { n: "180+", l: t.stat_companies },
-    { n: "32k+", l: t.stat_seafarers },
-  ];
+  // Latest news for the homepage block (DB articles + static editorial), newest first.
+  const ukKey = lang === "ua" ? "uk" : lang;
+  const latestNews = [
+    ...initialNews.map((a) => ({
+      id: `db-${a.id}`,
+      title: a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "",
+      tag: a.tag ?? "News",
+      date: a.published_at ?? a.created_at,
+      gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+      coverUrl: a.cover_url ?? null,
+    })),
+    ...NEWS.map((n) => ({
+      id: n.slug,
+      title: n.title[lang] ?? n.title.en,
+      tag: n.tag,
+      date: n.date,
+      gradient: n.gradient,
+      coverUrl: n.coverUrl ?? null,
+    })),
+  ]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3);
+
+  const newsDate = (d: string) =>
+    new Date(d).toLocaleDateString(
+      lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
+      { day: "numeric", month: "long", year: "numeric" },
+    );
 
   return (
     <div className="min-h-screen">
@@ -88,15 +136,6 @@ export default function HomeClient({ initialVacancies }: { initialVacancies: DbV
               >
                 {t.hero_cta} <ArrowRight size={17} />
               </Link>
-            </div>
-
-            <div className="mt-10 flex flex-wrap gap-10">
-              {stats.map((s) => (
-                <div key={s.l}>
-                  <div className="font-display text-4xl font-bold text-brass2">{s.n}</div>
-                  <div className="text-sm font-medium text-mist">{s.l}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -184,6 +223,43 @@ export default function HomeClient({ initialVacancies }: { initialVacancies: DbV
           </div>
         )}
       </section>
+
+      {/* LATEST NEWS */}
+      {latestNews.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 py-12">
+          <div className="flex items-end justify-between gap-4">
+            <h2 className="font-display text-3xl font-semibold tracking-tight text-white">{t.nav_news}</h2>
+            <Link
+              href="/news"
+              className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2"
+            >
+              {t.view_all} <ChevronRight size={17} />
+            </Link>
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {latestNews.map((n) => (
+              <Link key={n.id} href={`/news/${n.id}`}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
+                <div className="relative h-44" style={{ background: n.coverUrl ? undefined : n.gradient }}>
+                  {n.coverUrl && <img src={n.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />}
+                </div>
+                <div className="p-5">
+                  <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${NEWS_TAG_COLORS[n.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
+                    <Tag size={11} /> {n.tag}
+                  </span>
+                  <h3 className="font-display text-base font-semibold leading-snug text-white transition group-hover:text-brass2">
+                    {n.title}
+                  </h3>
+                  <p className="mt-3 flex items-center gap-1.5 text-xs text-mist">
+                    <Calendar size={12} /> {newsDate(n.date)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* SEO TEXT SECTION */}
       <section className="mx-auto max-w-7xl px-5 pb-4 pt-2">

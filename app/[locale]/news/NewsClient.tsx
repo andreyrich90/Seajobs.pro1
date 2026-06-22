@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Newspaper, Calendar, Tag } from "lucide-react";
 import Header from "@/components/Header";
@@ -45,6 +46,7 @@ function formatDate(dateStr: string, lang: string): string {
 export default function NewsClient({ initialDbArticles }: { initialDbArticles: DbArticle[] }) {
   const { lang } = useLang();
   const t = T[lang];
+  const [activeTag, setActiveTag] = useState<string>("all");
 
   const ukKey = lang === "ua" ? "uk" : lang;
 
@@ -71,6 +73,10 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  // Category (tag) filter chips — magazine layout.
+  const tags = Array.from(new Set(items.map((i) => i.tag)));
+  const filtered = activeTag === "all" ? items : items.filter((i) => i.tag === activeTag);
+
   return (
     <div className="min-h-screen bg-navy">
       <Header />
@@ -85,7 +91,32 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
           </p>
         </div>
 
-        {items.length === 0 ? (
+        {/* Category filter */}
+        {tags.length > 1 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            <button
+              onClick={() => setActiveTag("all")}
+              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                activeTag === "all" ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+              }`}
+            >
+              {lang === "ua" ? "Усі" : lang === "pl" ? "Wszystkie" : lang === "ru" ? "Все" : "All"}
+            </button>
+            {tags.map((tg) => (
+              <button
+                key={tg}
+                onClick={() => setActiveTag(tg)}
+                className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                  activeTag === tg ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+                }`}
+              >
+                {tg}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filtered.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-card p-16 text-center">
             <Newspaper size={32} className="mx-auto mb-3 text-mist" />
             <p className="text-mist">No news yet.</p>
@@ -93,30 +124,30 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
         ) : (
           <>
             {/* Featured */}
-            <Link href={`/news/${items[0].id}`}
+            <Link href={`/news/${filtered[0].id}`}
               className="group mb-8 block overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
               <div className="relative h-60 sm:h-80"
-                style={{ background: items[0].coverUrl ? undefined : items[0].gradient }}>
-                {items[0].coverUrl && (
-                  <img src={items[0].coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                style={{ background: filtered[0].coverUrl ? undefined : filtered[0].gradient }}>
+                {filtered[0].coverUrl && (
+                  <img src={filtered[0].coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 )}
               </div>
               <div className="p-6">
-                <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[items[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
-                  <Tag size={11} /> {items[0].tag}
+                <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[filtered[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
+                  <Tag size={11} /> {filtered[0].tag}
                 </span>
                 <h2 className="font-display text-xl font-semibold text-white group-hover:text-brass2 transition sm:text-2xl">
-                  {items[0].title}
+                  {filtered[0].title}
                 </h2>
                 <p className="mt-2 flex items-center gap-1.5 text-xs text-mist">
-                  <Calendar size={12} /> {formatDate(items[0].date, lang)}
+                  <Calendar size={12} /> {formatDate(filtered[0].date, lang)}
                 </p>
               </div>
             </Link>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {items.slice(1).map((item) => (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.slice(1).map((item) => (
                 <Link key={item.id} href={`/news/${item.id}`}
                   className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
                   <div className="relative h-44" style={{ background: item.coverUrl ? undefined : item.gradient }}>
