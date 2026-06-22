@@ -120,7 +120,57 @@ export async function generateMetadata(
   };
 }
 
-export default async function NewsArticlePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  return <ArticleClient id={id} />;
+type InitialArticle = {
+  id: string;
+  title: string;
+  body: string;
+  tag: string;
+  gradient: string;
+  coverUrl: string | null;
+  date: string;
+} | null;
+
+async function resolveArticle(id: string, locale: string): Promise<InitialArticle> {
+  const found = NEWS.find((n) => n.slug === id || `static-${n.id}` === id || n.id === parseInt(id));
+  if (found) {
+    return {
+      id,
+      title: loc(found.title, locale),
+      body: loc(found.body, locale),
+      tag: found.tag,
+      gradient: found.gradient,
+      coverUrl: found.coverUrl ?? null,
+      date: found.date,
+    };
+  }
+  if (id.startsWith("db-")) {
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      );
+      const { data } = await supabase.from("news_articles").select("*").eq("id", id.slice(3)).single();
+      if (data) {
+        return {
+          id,
+          title: loc(data.title, locale),
+          body: loc(data.body, locale),
+          tag: data.tag ?? "News",
+          gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+          coverUrl: data.cover_url ?? null,
+          date: data.published_at ?? data.created_at,
+        };
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  return null;
 }
+
+export default async function NewsArticlePage({ params }: { params: Promise<{ id: string; locale: string }> }) {
+  const { id, locale } = await params;
+  const initialArticle = await resolveArticle(id, locale);
+  return <ArticleClient id={id} initialArticle={initialArticle} />;
+}
+

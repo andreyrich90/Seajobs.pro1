@@ -108,12 +108,12 @@ function formatCommentDate(d: string, lang: string) {
   );
 }
 
-export default function ArticleClient({ id }: { id: string }) {
+export default function ArticleClient({ id, initialArticle }: { id: string; initialArticle?: Article | null }) {
   const { lang } = useLang();
   const t = T[lang];
-  const [article, setArticle] = useState<Article | null>(null);
+  const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
   const [others, setOthers] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialArticle);
   const [comments, setComments] = useState<NewsComment[]>([]);
   const [commentName, setCommentName] = useState("");
   const [commentText, setCommentText] = useState("");

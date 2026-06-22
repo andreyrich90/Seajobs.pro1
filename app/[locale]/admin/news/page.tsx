@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Pencil, X, Eye, EyeOff, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Trash2, Pencil, X, Eye, EyeOff, AlertCircle, CheckCircle, Languages } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 
@@ -56,8 +56,35 @@ export default function AdminNewsPage() {
   const [activeLang, setActiveLang] = useState("en");
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [translating, setTranslating] = useState(false);
+  const [translateMsg, setTranslateMsg] = useState<string | null>(null);
 
   useEffect(() => { load(); }, []);
+
+  async function translateExisting() {
+    setTranslating(true);
+    setTranslateMsg("Starting…");
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) { setTranslateMsg("Not signed in."); setTranslating(false); return; }
+    try {
+      for (let g = 0; g < 500; g++) {
+        const res = await fetch("/api/admin/translate-news", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({}),
+        });
+        const d = await res.json();
+        if (!d.ok) { setTranslateMsg("Error: " + (d.error ?? "failed")); break; }
+        if (d.remaining === 0) { setTranslateMsg("All articles translated ✓"); break; }
+        setTranslateMsg(`Translating… ${d.remaining} left`);
+      }
+    } catch (e) {
+      setTranslateMsg("Error: " + (e instanceof Error ? e.message : "failed"));
+    }
+    await load();
+    setTranslating(false);
+  }
 
   async function load() {
     const { data } = await supabase
@@ -127,8 +154,18 @@ export default function AdminNewsPage() {
       if (error) { setMsg({ type: "error", text: error.message }); }
       else if (data) {
         setArticles((prev) => [data as NewsArticle, ...prev]);
-        setMsg({ type: "success", text: "Article created!" });
+        setMsg({ type: "success", text: "Article created! Translating empty languages…" });
         setShowForm(false);
+        // Auto-translate any languages left empty, then refresh.
+        const { data: { session } } = await supabase.auth.getSession();
+        const tk = session?.access_token;
+        if (tk) {
+          fetch("/api/admin/translate-news", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${tk}` },
+            body: JSON.stringify({ articleId: (data as NewsArticle).id }),
+          }).then(() => load()).catch(() => {});
+        }
       }
     }
     setSubmitting(false);
@@ -155,10 +192,20 @@ export default function AdminNewsPage() {
           <h1 className="font-display text-2xl font-semibold text-white">News</h1>
           <p className="mt-1 text-sm text-mist">{articles.length} articles</p>
         </div>
-        <button onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5">
-          <Plus size={16} /> New Article
-        </button>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex gap-2">
+            <button onClick={translateExisting} disabled={translating}
+              title="Translate every article into all 4 languages (fills empty ones)"
+              className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50">
+              <Languages size={16} /> {translating ? "Translating…" : "Translate existing"}
+            </button>
+            <button onClick={openAdd}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5">
+              <Plus size={16} /> New Article
+            </button>
+          </div>
+          {translateMsg && <span className="text-xs text-mist">{translateMsg}</span>}
+        </div>
       </div>
 
       {/* Form */}
