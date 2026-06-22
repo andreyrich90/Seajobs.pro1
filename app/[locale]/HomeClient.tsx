@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -62,6 +62,12 @@ export default function HomeClient({
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const t = T[lang];
+  const router = useRouter();
+
+  function runSearch() {
+    const q = query.trim();
+    router.push(q ? `/jobs?q=${encodeURIComponent(q)}` : "/jobs");
+  }
 
   const dbVacancies = initialVacancies;
   const PAGE_SIZE = 30;
@@ -149,6 +155,7 @@ export default function HomeClient({
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); runSearch(); } }}
                   placeholder={t.hero_search}
                   className="w-full bg-transparent py-3 text-base text-navy outline-none"
                 />

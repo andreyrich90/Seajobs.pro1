@@ -56,7 +56,9 @@ export async function POST(req: Request) {
       if (!vacancy) return NextResponse.json({ ok: false }, { status: 404 });
 
       const { data: seafarer } = await admin
-        .from("seafarers").select("first_name, last_name").eq("id", seafarerId).single();
+        .from("seafarers")
+        .select("first_name, last_name, rank, nationality, phone, readiness_date")
+        .eq("id", seafarerId).single();
       const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "A seafarer";
 
       await admin.from("notifications").insert({
@@ -67,13 +69,36 @@ export async function POST(req: Request) {
         link: "/company/applications",
       });
 
-      const { data: { user } } = await admin.auth.admin.getUserById(vacancy.company_id);
-      if (user?.email) {
-        await sendEmail(
-          user.email,
-          `New application for "${vacancy.title}"`,
-          `<p>Hello,</p><p><strong>${name}</strong> has applied for your vacancy "<strong>${vacancy.title}</strong>".</p><p><a href="https://seajobs.pro/company/applications">View applications →</a></p>`,
-        );
+      // Recipients: the company's account email + any configured contact emails.
+      const { data: companyRow } = await admin
+        .from("companies").select("emails").eq("id", vacancy.company_id).single();
+      const { data: { user: companyUser } } = await admin.auth.admin.getUserById(vacancy.company_id);
+      const { data: { user: seafarerUser } } = await admin.auth.admin.getUserById(seafarerId);
+
+      const recipients = [
+        ...(companyUser?.email ? [companyUser.email] : []),
+        ...((companyRow?.emails ?? []) as string[]),
+      ].filter((e, i, arr) => e && arr.indexOf(e) === i);
+
+      const available = seafarer?.readiness_date
+        ? new Date(seafarer.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+        : "—";
+      const html =
+        `<p>Hello,</p>
+<p>You have a new candidate for <strong>${vacancy.title}</strong> on SeaJobs.pro.</p>
+<h3>Candidate</h3>
+<ul>
+  <li>Name: ${name}</li>
+  <li>Rank: ${seafarer?.rank ?? "—"}</li>
+  <li>Nationality: ${seafarer?.nationality ?? "—"}</li>
+  <li>Available from: ${available}</li>
+  <li>Phone: ${seafarer?.phone ?? "—"}</li>
+  <li>Email: ${seafarerUser?.email ?? "—"}</li>
+</ul>
+<p><a href="https://seajobs.pro/company/applications" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View full CV & reply →</a></p>`;
+
+      for (const to of recipients) {
+        await sendEmail(to, `New candidate for "${vacancy.title}" — ${name}`, html);
       }
       return NextResponse.json({ ok: true });
     }
