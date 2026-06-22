@@ -93,6 +93,8 @@ export default function Header() {
           <div className="relative">
             <button
               onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
+              aria-label="Change language"
+              aria-expanded={langOpen}
               className="flex items-center gap-1.5 rounded-lg bg-white/5 px-2.5 py-2 text-sm font-semibold text-white transition hover:bg-white/10 md:px-3"
             >
               <Globe size={16} />
@@ -135,6 +137,8 @@ export default function Header() {
           {/* Mobile burger */}
           <button
             onClick={() => { setMobileOpen((o) => !o); setLangOpen(false); }}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
             className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 md:hidden"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}

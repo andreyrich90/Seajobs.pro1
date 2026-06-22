@@ -78,7 +78,7 @@ export default function Footer() {
 
             {/* Social links */}
             <div className="mt-5">
-              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-mist/60">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-mist">
                 {t.footer_follow}
               </p>
               <div className="flex gap-3">
@@ -100,7 +100,7 @@ export default function Footer() {
 
           {/* Platform */}
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist/60">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist">
               {t.footer_platform}
             </h4>
             <ul className="flex flex-col gap-2.5">
@@ -116,7 +116,7 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist/60">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist">
               {t.footer_company_col}
             </h4>
             <ul className="flex flex-col gap-2.5">
@@ -132,7 +132,7 @@ export default function Footer() {
 
           {/* Account */}
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist/60">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-mist">
               {t.footer_get_started}
             </h4>
             <ul className="flex flex-col gap-2.5">
@@ -148,8 +148,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-          <p className="text-xs text-mist/50">© {new Date().getFullYear()} SeaJobs.pro. {t.footer_rights}</p>
-          <p className="text-xs text-mist/50">{t.footer_built}</p>
+          <p className="text-xs text-mist">© {new Date().getFullYear()} SeaJobs.pro. {t.footer_rights}</p>
+          <p className="text-xs text-mist">{t.footer_built}</p>
         </div>
       </div>
     </footer>
