@@ -238,6 +238,55 @@ ${certRows ? `<h3>Certificates</h3><ul>${certRows}</ul>` : ""}
       return NextResponse.json({ ok: true });
     }
 
+    // ── A chat message was sent → notify the other participant ───────────────
+    if (type === "new_message") {
+      const { conversationId } = body as { conversationId: string };
+      if (!isUuid(conversationId)) {
+        return NextResponse.json({ ok: false, error: "Bad input" }, { status: 400 });
+      }
+      const { data: convo } = await admin
+        .from("conversations").select("company_id, seafarer_id").eq("id", conversationId).single();
+      if (!convo) return NextResponse.json({ ok: false }, { status: 404 });
+
+      // The caller must be a participant.
+      if (caller.id !== convo.company_id && caller.id !== convo.seafarer_id) {
+        return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+      }
+
+      const recipientId = caller.id === convo.company_id ? convo.seafarer_id : convo.company_id;
+      const recipientIsSeafarer = recipientId === convo.seafarer_id;
+
+      // Sender's display name.
+      let senderName = "Someone";
+      if (caller.id === convo.company_id) {
+        const { data: c } = await admin.from("companies").select("name").eq("id", caller.id).single();
+        senderName = c?.name || "A company";
+      } else {
+        const { data: sf } = await admin.from("seafarers").select("first_name, last_name").eq("id", caller.id).single();
+        senderName = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ") || "A seafarer";
+      }
+
+      const link = recipientIsSeafarer ? "/seafarer/messages" : "/company/messages";
+
+      await admin.from("notifications").insert({
+        user_id: recipientId,
+        type: "new_message",
+        title: "New message",
+        body: `${senderName} sent you a message`,
+        link,
+      });
+
+      const { data: { user } } = await admin.auth.admin.getUserById(recipientId);
+      if (user?.email) {
+        await sendEmail(
+          user.email,
+          `New message from ${senderName}`,
+          `<p>Hello,</p><p><strong>${senderName}</strong> sent you a message on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
+        );
+      }
+      return NextResponse.json({ ok: true });
+    }
+
     return NextResponse.json({ ok: false, error: "Unknown type" }, { status: 400 });
   } catch (err) {
     console.error("[notify]", err);

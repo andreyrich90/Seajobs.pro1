@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
@@ -20,6 +20,7 @@ const NAV_KEYS = [
   { key: "cab_experience",   href: "/seafarer/experience",   icon: Ship },
   { key: "cab_cv",           href: "/seafarer/cv",           icon: FileText },
   { key: "cab_applications", href: "/seafarer/applications", icon: Send },
+  { key: "cab_messages",     href: "/seafarer/messages",     icon: MessageCircle },
   { key: "cab_saved",        href: "/seafarer/saved",        icon: Bookmark },
 ];
 

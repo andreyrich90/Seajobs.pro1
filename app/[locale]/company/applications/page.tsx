@@ -5,11 +5,12 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import {
-  Users, ChevronDown, ChevronUp, ExternalLink, ChevronLeft, ChevronRight, X, RotateCcw,
+  Users, ChevronDown, ChevronUp, ExternalLink, ChevronLeft, ChevronRight, X, RotateCcw, FileText,
 } from "lucide-react";
 import { supabase, notify } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
+import ApplicantCvModal from "@/components/ApplicantCvModal";
 
 type ApplicationRow = {
   id: string;
@@ -64,6 +65,7 @@ export default function CompanyApplicationsPage() {
   const [loading, setLoading] = useState(true);
   const [expandedCover, setExpandedCover] = useState<Set<string>>(new Set());
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [cvFor, setCvFor] = useState<{ seafarerId: string; fullName: string } | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -228,6 +230,13 @@ export default function CompanyApplicationsPage() {
                         <p className="mt-2 truncate text-xs text-mist">{app.vacancyTitle ?? "—"}</p>
                         <p className="text-[11px] text-mist/70">{formatDate(app.created_at)}</p>
 
+                        <button
+                          onClick={() => setCvFor({ seafarerId: app.seafarer_id, fullName })}
+                          className="mt-2 flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-2.5 py-1 text-[11px] font-semibold text-brass2 transition hover:bg-brass/20"
+                        >
+                          <FileText size={12} /> {t.kb_view_cv}
+                        </button>
+
                         {app.cover_letter && (
                           <>
                             <button
@@ -292,6 +301,14 @@ export default function CompanyApplicationsPage() {
             );
           })}
         </div>
+      )}
+
+      {cvFor && (
+        <ApplicantCvModal
+          seafarerId={cvFor.seafarerId}
+          fullName={cvFor.fullName}
+          onClose={() => setCvFor(null)}
+        />
       )}
     </div>
   );
