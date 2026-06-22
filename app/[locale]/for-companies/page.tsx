@@ -123,8 +123,8 @@ export default function ForCompaniesPage() {
               { n: "2 min",   l: t.fc_stat_3 },
               { n: t.fc_stat_4, l: "" },
             ].map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="font-display text-3xl font-bold text-brass2">{s.n}</div>
+              <div key={i} className="min-w-0 text-center">
+                <div className="font-display text-2xl font-bold leading-tight text-brass2 break-words sm:text-3xl">{s.n}</div>
                 {s.l && <div className="mt-1 text-xs font-medium text-mist">{s.l}</div>}
               </div>
             ))}
