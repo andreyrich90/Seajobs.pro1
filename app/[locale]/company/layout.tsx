@@ -105,7 +105,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
         {/* Notifications */}
         <div className="mb-1 flex items-center gap-3 px-3 py-1">
           <NotificationBell placement="up-left" />
-          <span className="text-sm font-semibold text-mist">Notifications</span>
+          <span className="text-sm font-semibold text-mist">{t.cab_notifications}</span>
         </div>
 
         {/* Language switcher */}
