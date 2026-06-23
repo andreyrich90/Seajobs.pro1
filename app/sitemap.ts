@@ -72,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .from("vacancies")
         .select("id, title, updated_at, created_at")
         .eq("is_active", true)
-        .or(`joining_date.is.null,joining_date.gte.${now.toISOString().slice(0, 10)}`)
+        .or(`joining_date.is.null,joining_date.gte.${new Date(now.getTime() - 14 * 864e5).toISOString().slice(0, 10)}`)
         .order("created_at", { ascending: false }),
       admin
         .from("forum_topics")

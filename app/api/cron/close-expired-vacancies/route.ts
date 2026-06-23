@@ -23,12 +23,14 @@ export async function GET(req: Request) {
   }
   const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Grace period: keep vacancies live for 2 weeks after the joining date.
+  // Only deactivate those whose joining date passed more than 14 days ago.
+  const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
   const { data, error } = await admin
     .from("vacancies")
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq("is_active", true)
-    .lt("joining_date", today) // null joining_date never matches → "ASAP" stays active
+    .lt("joining_date", cutoff) // null joining_date never matches → "ASAP" stays active
     .select("id");
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
