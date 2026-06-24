@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
@@ -419,10 +420,12 @@ export default function ProfilePage() {
           <div className="flex items-center gap-5">
             <div className="relative h-20 w-20 shrink-0">
               {form.photo_url ? (
-                <img
+                <Image
                   src={form.photo_url}
                   alt="Profile"
-                  className="h-20 w-20 rounded-2xl object-cover border border-white/10"
+                  fill
+                  sizes="80px"
+                  className="rounded-2xl object-cover border border-white/10"
                 />
               ) : (
                 <div className="h-20 w-20 rounded-2xl bg-navy2 border border-white/10 flex items-center justify-center">

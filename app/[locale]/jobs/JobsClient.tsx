@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight } from "lucide-react";
@@ -193,9 +194,11 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                     {/* Company logo */}
                     {v.companies?.logo_url && (
                       <div className="shrink-0">
-                        <img
+                        <Image
                           src={v.companies.logo_url}
                           alt={v.companies.name ?? ""}
+                          width={48}
+                          height={48}
                           className="h-12 w-12 rounded-xl object-cover"
                         />
                       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { MessageCircle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -154,8 +155,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
                     }`}
                   >
                     {c.avatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.avatar} alt={c.name} className="h-11 w-11 shrink-0 rounded-full object-cover" />
+                      <Image src={c.avatar} alt={c.name} width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover" />
                     ) : (
                       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
                         {c.name[0]?.toUpperCase() ?? "?"}
@@ -190,8 +190,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
                     <ArrowLeft size={18} />
                   </button>
                   {selectedConvo.avatar ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={selectedConvo.avatar} alt={selectedConvo.name} className="h-9 w-9 rounded-full object-cover" />
+                    <Image src={selectedConvo.avatar} alt={selectedConvo.name} width={36} height={36} className="h-9 w-9 rounded-full object-cover" />
                   ) : (
                     <div className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
                       {selectedConvo.name[0]?.toUpperCase() ?? "?"}

@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
@@ -118,7 +119,7 @@ export default function PublicCompanyPage() {
             <div className="rounded-2xl border border-white/10 bg-card p-6 sticky top-24">
               <div className="flex flex-col items-center text-center">
                 {company.logo_url ? (
-                  <img src={company.logo_url} alt={company.name ?? ""} className="h-20 w-20 rounded-2xl object-cover mb-4" />
+                  <Image src={company.logo_url} alt={company.name ?? ""} width={80} height={80} className="h-20 w-20 rounded-2xl object-cover mb-4" />
                 ) : (
                   <div className="grid h-20 w-20 place-items-center rounded-2xl bg-white/10 mb-4">
                     <Building2 size={32} className="text-mist" />

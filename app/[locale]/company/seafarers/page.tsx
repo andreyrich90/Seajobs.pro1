@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Search, User, MapPin, Ship, Calendar } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -161,7 +162,7 @@ export default function CompanySeafarersPage() {
               >
                 <div className="flex items-start gap-3">
                   {s.photo_url ? (
-                    <img src={s.photo_url} alt={name} className="h-12 w-12 rounded-xl object-cover shrink-0" />
+                    <Image src={s.photo_url} alt={name} width={48} height={48} className="h-12 w-12 rounded-xl object-cover shrink-0" />
                   ) : (
                     <div className="grid h-12 w-12 place-items-center rounded-xl bg-brass/20 font-bold text-brass2 shrink-0">
                       {initials}

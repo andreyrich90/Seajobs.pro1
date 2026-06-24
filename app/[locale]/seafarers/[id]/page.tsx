@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft, User, Ship, Award, MapPin, Anchor } from "lucide-react";
@@ -156,9 +157,11 @@ export default function PublicSeafarerPage() {
           <div className="rounded-2xl border border-white/10 bg-card p-6">
             <div className="flex items-start gap-5">
               {profile.photo_url ? (
-                <img
+                <Image
                   src={profile.photo_url}
                   alt={fullName}
+                  width={80}
+                  height={80}
                   className="h-20 w-20 rounded-2xl object-cover shrink-0"
                 />
               ) : (
