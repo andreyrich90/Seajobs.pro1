@@ -67,7 +67,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const [{ data: vacancies }, { data: topics }, { data: companies }] = await Promise.all([
+    const [{ data: vacancies }, { data: topics }, { data: companies }, { data: dbNews }] = await Promise.all([
       admin
         .from("vacancies")
         .select("id, title, updated_at, created_at")
@@ -82,6 +82,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .from("companies")
         .select("id, updated_at")
         .order("updated_at", { ascending: false }),
+      admin
+        .from("news_articles")
+        .select("id, title, published_at, created_at")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false }),
     ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).flatMap((v) =>
@@ -108,7 +113,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     );
 
-    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes];
+    // News articles stored in the DB (created via the admin) — addressed by
+    // "<slug>-<uuid>", separate from the static lib/data news above.
+    const dbNewsRoutes: MetadataRoute.Sitemap = (dbNews ?? []).flatMap((n) =>
+      localizedEntries(`/news/${slugId(locTitle(n.title), n.id)}`, {
+        lastModified: new Date(n.published_at ?? n.created_at),
+        changeFrequency: "monthly",
+        priority: 0.6,
+      })
+    );
+
+    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes, ...dbNewsRoutes];
   } catch {
     return [...staticRoutes, ...newsRoutes];
   }
