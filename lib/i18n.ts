@@ -797,44 +797,82 @@ Object.assign(T.pl, SP_PL);
 // Seafarer cabinet — profile page: invite a friend / referral
 const REF_EN: Record<string, string> = {
   ref_title: "Invite a friend",
-  ref_desc: "Share your link. When a friend you invite joins and completes their profile, you get a 14-day visibility boost in company searches.",
+  ref_desc: "Share your link. When a friend you invite joins and completes their profile, you get a 14-day visibility boost in company searches (30 days on your 3rd and 5th referral).",
   ref_copy: "Copy link",
   ref_copied: "Copied!",
   ref_invited: "Invited",
   ref_completed: "Completed",
   ref_boost_active: "Boost active until ",
+  ref_share_msg: "I'm using SeaJobs.pro to find maritime jobs — join with my link and we both get a boost:",
+  ref_share_whatsapp: "Share on WhatsApp",
+  ref_share_telegram: "Share on Telegram",
 };
 const REF_RU: Record<string, string> = {
   ref_title: "Пригласить друга",
-  ref_desc: "Поделитесь ссылкой. Когда приглашённый друг присоединится и заполнит профиль, вы получите 14 дней повышенной видимости в поиске у компаний.",
+  ref_desc: "Поделитесь ссылкой. Когда приглашённый друг присоединится и заполнит профиль, вы получите 14 дней повышенной видимости в поиске у компаний (30 дней за 3-й и 5-й referral).",
   ref_copy: "Скопировать ссылку",
   ref_copied: "Скопировано!",
   ref_invited: "Приглашено",
   ref_completed: "Завершено",
   ref_boost_active: "Буст активен до ",
+  ref_share_msg: "Я ищу работу в морской отрасли на SeaJobs.pro — присоединяйся по моей ссылке, и мы оба получим буст:",
+  ref_share_whatsapp: "Поделиться в WhatsApp",
+  ref_share_telegram: "Поделиться в Telegram",
 };
 const REF_UA: Record<string, string> = {
   ref_title: "Запросити друга",
-  ref_desc: "Поділіться посиланням. Коли запрошений друг приєднається і заповнить профіль, ви отримаєте 14 днів підвищеної видимості в пошуку в компаній.",
+  ref_desc: "Поділіться посиланням. Коли запрошений друг приєднається і заповнить профіль, ви отримаєте 14 днів підвищеної видимості в пошуку в компаній (30 днів за 3-й і 5-й referral).",
   ref_copy: "Скопіювати посилання",
   ref_copied: "Скопійовано!",
   ref_invited: "Запрошено",
   ref_completed: "Завершено",
   ref_boost_active: "Буст активний до ",
+  ref_share_msg: "Я шукаю роботу в морській галузі на SeaJobs.pro — приєднуйся за моїм посиланням, і ми обидва отримаємо буст:",
+  ref_share_whatsapp: "Поділитися у WhatsApp",
+  ref_share_telegram: "Поділитися у Telegram",
 };
 const REF_PL: Record<string, string> = {
   ref_title: "Zaproś przyjaciela",
-  ref_desc: "Udostępnij swój link. Gdy zaproszony przyjaciel dołączy i uzupełni profil, otrzymasz 14 dni zwiększonej widoczności w wyszukiwaniu firm.",
+  ref_desc: "Udostępnij swój link. Gdy zaproszony przyjaciel dołączy i uzupełni profil, otrzymasz 14 dni zwiększonej widoczności w wyszukiwaniu firm (30 dni za 3. i 5. referral).",
   ref_copy: "Skopiuj link",
   ref_copied: "Skopiowano!",
   ref_invited: "Zaproszono",
   ref_completed: "Zakończono",
   ref_boost_active: "Boost aktywny do ",
+  ref_share_msg: "Szukam pracy w branży morskiej na SeaJobs.pro — dołącz przez mój link, a oboje otrzymamy boost:",
+  ref_share_whatsapp: "Udostępnij na WhatsApp",
+  ref_share_telegram: "Udostępnij na Telegram",
 };
 Object.assign(T.en, REF_EN);
 Object.assign(T.ru, REF_RU);
 Object.assign(T.ua, REF_UA);
 Object.assign(T.pl, REF_PL);
+
+// Company cabinet — profile page: invite a seafarer / referral
+const CREF_EN: Record<string, string> = {
+  cref_title: "Invite a seafarer",
+  cref_desc: "Share your link. When a seafarer you invite joins and completes their profile, your latest vacancy gets a 14-day featured boost on the jobs board.",
+  cref_share_msg: "Check out SeaJobs.pro for maritime jobs — join with my link:",
+};
+const CREF_RU: Record<string, string> = {
+  cref_title: "Пригласить моряка",
+  cref_desc: "Поделитесь ссылкой. Когда приглашённый моряк присоединится и заполнит профиль, ваша последняя вакансия получит 14 дней продвижения на бирже вакансий.",
+  cref_share_msg: "Загляни на SeaJobs.pro — вакансии в морской отрасли. Присоединяйся по моей ссылке:",
+};
+const CREF_UA: Record<string, string> = {
+  cref_title: "Запросити моряка",
+  cref_desc: "Поділіться посиланням. Коли запрошений моряк приєднається і заповнить профіль, ваша остання вакансія отримає 14 днів просування на біржі вакансій.",
+  cref_share_msg: "Загляни на SeaJobs.pro — вакансії в морській галузі. Приєднуйся за моїм посиланням:",
+};
+const CREF_PL: Record<string, string> = {
+  cref_title: "Zaproś marynarza",
+  cref_desc: "Udostępnij swój link. Gdy zaproszony marynarz dołączy i uzupełni profil, twoja ostatnia wakancja otrzyma 14 dni promowania na giełdzie pracy.",
+  cref_share_msg: "Sprawdź SeaJobs.pro — oferty pracy w branży morskiej. Dołącz przez mój link:",
+};
+Object.assign(T.en, CREF_EN);
+Object.assign(T.ru, CREF_RU);
+Object.assign(T.ua, CREF_UA);
+Object.assign(T.pl, CREF_PL);
 
 // Seafarer cabinet — certificates / experience / saved / applications
 const SUB_EN: Record<string, string> = {

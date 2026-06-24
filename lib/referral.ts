@@ -19,11 +19,12 @@ export async function recordReferral(referredUserId: string) {
   if (!code) return;
   localStorage.removeItem(REF_STORAGE_KEY);
 
-  const { data: referrer } = await supabase
-    .from("seafarers")
-    .select("id")
-    .eq("referral_code", code)
-    .maybeSingle();
+  // Referral codes are unique across both seafarers and companies.
+  const [{ data: seafarerReferrer }, { data: companyReferrer }] = await Promise.all([
+    supabase.from("seafarers").select("id").eq("referral_code", code).maybeSingle(),
+    supabase.from("companies").select("id").eq("referral_code", code).maybeSingle(),
+  ]);
+  const referrer = seafarerReferrer ?? companyReferrer;
 
   if (!referrer || referrer.id === referredUserId) return;
 

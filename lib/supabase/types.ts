@@ -262,6 +262,7 @@ export interface Database {
           crew_managers: CrewManager[] | null;
           updated_at: string | null;
           is_verified: boolean;
+          referral_code: string | null;
         };
         Insert: {
           id: string;
@@ -275,6 +276,7 @@ export interface Database {
           crew_managers?: CrewManager[] | null;
           updated_at?: string | null;
           is_verified?: boolean;
+          referral_code?: string | null;
         };
         Update: {
           id?: string;
@@ -288,6 +290,7 @@ export interface Database {
           crew_managers?: CrewManager[] | null;
           updated_at?: string | null;
           is_verified?: boolean;
+          referral_code?: string | null;
         };
         Relationships: [];
       };
@@ -316,6 +319,7 @@ export interface Database {
           views_count: number;
           created_at: string;
           updated_at: string | null;
+          featured_until: string | null;
         };
         Insert: {
           id?: string;
@@ -341,6 +345,7 @@ export interface Database {
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
+          featured_until?: string | null;
         };
         Update: {
           id?: string;
@@ -366,6 +371,7 @@ export interface Database {
           views_count?: number;
           created_at?: string;
           updated_at?: string | null;
+          featured_until?: string | null;
         };
         Relationships: [];
       };
@@ -677,6 +683,7 @@ export interface Database {
           status: "pending" | "completed";
           created_at: string;
           completed_at: string | null;
+          reminder_sent_at: string | null;
         };
         Insert: {
           id?: string;
@@ -685,6 +692,7 @@ export interface Database {
           status?: "pending" | "completed";
           created_at?: string;
           completed_at?: string | null;
+          reminder_sent_at?: string | null;
         };
         Update: {
           id?: string;
@@ -693,6 +701,7 @@ export interface Database {
           status?: "pending" | "completed";
           created_at?: string;
           completed_at?: string | null;
+          reminder_sent_at?: string | null;
         };
         Relationships: [];
       };

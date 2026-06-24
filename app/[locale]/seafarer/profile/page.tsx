@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2, Link2, Copy, Check } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2, Link2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -437,7 +437,10 @@ export default function ProfilePage() {
       </div>
 
       {/* Invite a friend / referral */}
-      {referralCode && (
+      {referralCode && (() => {
+        const referralLink =
+          typeof window !== "undefined" ? `${window.location.origin}/auth/register?ref=${referralCode}` : "";
+        return (
         <div className="mb-6 rounded-2xl border border-teal/30 bg-teal/5 p-6">
           <div className="flex items-start gap-4">
             <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal to-teal/60">
@@ -449,7 +452,7 @@ export default function ProfilePage() {
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
                 <div className="rounded-xl border border-white/10 bg-navy2 px-3.5 py-2.5 text-sm text-foam/80 truncate max-w-full">
-                  {typeof window !== "undefined" ? `${window.location.origin}/auth/register?ref=${referralCode}` : ""}
+                  {referralLink}
                 </div>
                 <button
                   type="button"
@@ -459,6 +462,24 @@ export default function ProfilePage() {
                   {copied ? <Check size={16} /> : <Copy size={16} />}
                   {copied ? t.ref_copied : t.ref_copy}
                 </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`${t.ref_share_msg} ${referralLink}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  <MessageCircle size={16} className="text-teal" />
+                  {t.ref_share_whatsapp}
+                </a>
+                <a
+                  href={`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(t.ref_share_msg)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  <Send size={16} className="text-teal" />
+                  {t.ref_share_telegram}
+                </a>
               </div>
 
               <div className="mt-4 flex gap-5 text-sm">
@@ -472,7 +493,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
