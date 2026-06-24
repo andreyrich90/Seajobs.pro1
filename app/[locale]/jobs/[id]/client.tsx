@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import NextLink from "next/link";
 import {
@@ -175,7 +176,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     {company?.logo_url ? (
-                      <img src={company.logo_url} alt={company.name ?? ""} className="h-8 w-8 rounded-lg object-cover" />
+                      <Image src={company.logo_url} alt={company.name ?? ""} width={32} height={32} className="h-8 w-8 rounded-lg object-cover" />
                     ) : (
                       <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/10">
                         <Building2 size={14} className="text-mist" />
@@ -363,7 +364,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
 
               <div className="flex items-center gap-3 mb-4">
                 {company?.logo_url ? (
-                  <img src={company.logo_url} alt={company.name ?? ""} className="h-14 w-14 rounded-xl object-cover" />
+                  <Image src={company.logo_url} alt={company.name ?? ""} width={56} height={56} className="h-14 w-14 rounded-xl object-cover" />
                 ) : (
                   <div className="grid h-14 w-14 place-items-center rounded-xl bg-white/10">
                     <Building2 size={24} className="text-mist" />

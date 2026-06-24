@@ -11,8 +11,8 @@ export const OG_LOCALE: Record<string, string> = {
 };
 
 // The "ua" route prefix is a product choice; the correct hreflang language
-// tag for Ukrainian is the ISO 639-1 code "uk".
-const HREFLANG: Record<string, string> = {
+// tag for Ukrainian is the ISO 639-1 code "uk". Also used for <html lang>.
+export const HREFLANG: Record<string, string> = {
   en: "en",
   ru: "ru",
   ua: "uk",

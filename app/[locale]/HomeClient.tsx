@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock } from "lucide-react";
 import Header from "@/components/Header";
@@ -272,7 +273,7 @@ export default function HomeClient({
               <Link key={n.id} href={`/news/${n.id}`}
                 className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
                 <div className="relative h-32 overflow-hidden" style={{ background: n.coverUrl ? undefined : n.gradient }}>
-                  {n.coverUrl && <img src={n.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
+                  {n.coverUrl && <Image src={n.coverUrl} alt={n.title} fill sizes="(min-width: 640px) 33vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />}
                 </div>
                 <div className="p-4">
                   <span className={`mb-2 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${NEWS_TAG_COLORS[n.tag] ?? "bg-white/10 border-white/20 text-white"}`}>

@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Plus, Trash2, Pencil, X, Eye, EyeOff, AlertCircle, CheckCircle, Languages } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
@@ -315,7 +316,7 @@ export default function AdminNewsPage() {
             {/* Cover preview */}
             <div className="rounded-xl overflow-hidden h-20 relative">
               {form.cover_url ? (
-                <img src={form.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <Image src={form.cover_url} alt="" fill sizes="400px" className="object-cover" />
               ) : (
                 <div className="absolute inset-0" style={{ background: form.cover_gradient }} />
               )}
@@ -350,7 +351,7 @@ export default function AdminNewsPage() {
           {articles.map((a) => (
             <div key={a.id} className="rounded-2xl border border-white/10 bg-card flex items-center gap-4 p-4">
               <div className="h-14 w-20 shrink-0 rounded-xl overflow-hidden relative" style={{ background: a.cover_gradient ?? "" }}>
-                {a.cover_url && <img src={a.cover_url} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                {a.cover_url && <Image src={a.cover_url} alt="" fill sizes="80px" className="object-cover" />}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white truncate">

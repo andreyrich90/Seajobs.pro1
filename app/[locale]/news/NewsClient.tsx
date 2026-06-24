@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Newspaper, Calendar, Tag, Clock } from "lucide-react";
 import Header from "@/components/Header";
@@ -158,7 +159,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                   <div className="relative h-60 overflow-hidden sm:h-80"
                     style={{ background: filtered[0].coverUrl ? undefined : filtered[0].gradient }}>
                     {filtered[0].coverUrl && (
-                      <img src={filtered[0].coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <Image src={filtered[0].coverUrl} alt={filtered[0].title} fill sizes="(min-width: 1024px) 700px, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                     )}
                   </div>
                   <div className="p-6">
@@ -184,7 +185,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                     <Link key={item.id} href={`/news/${item.id}`}
                       className="group overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
                       <div className="relative h-44 overflow-hidden" style={{ background: item.coverUrl ? undefined : item.gradient }}>
-                        {item.coverUrl && <img src={item.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
+                        {item.coverUrl && <Image src={item.coverUrl} alt={item.title} fill sizes="(min-width: 640px) 350px, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />}
                       </div>
                       <div className="p-5">
                         <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
@@ -215,8 +216,8 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
               <div className="flex flex-col gap-4">
                 {items.slice(0, 6).map((item) => (
                   <Link key={item.id} href={`/news/${item.id}`} className="group flex gap-3">
-                    <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg" style={{ background: item.coverUrl ? undefined : item.gradient }}>
-                      {item.coverUrl && <img src={item.coverUrl} alt="" className="h-full w-full object-cover" />}
+                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg" style={{ background: item.coverUrl ? undefined : item.gradient }}>
+                      {item.coverUrl && <Image src={item.coverUrl} alt={item.title} fill sizes="64px" className="object-cover" />}
                     </div>
                     <div className="min-w-0">
                       <p className="line-clamp-2 text-xs font-semibold leading-snug text-foam transition group-hover:text-brass2">{item.title}</p>

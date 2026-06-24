@@ -2,8 +2,10 @@ import "./globals.css";
 import Script from "next/script";
 import { Fraunces, Archivo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { LangProvider } from "@/components/LangProvider";
 import CookieBanner from "@/components/CookieBanner";
+import { HREFLANG } from "@/lib/seo";
 import enMessages from "@/messages/en.json";
 
 // Self-hosted fonts (no render-blocking request to Google Fonts).
@@ -67,13 +69,18 @@ const orgJsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Resolved by the next-intl middleware for [locale] routes; falls back to
+  // the default locale on unlocalized routes (e.g. /auth/*).
+  const locale = await getLocale();
+  const htmlLang = HREFLANG[locale] ?? locale;
+
   return (
-    <html lang="en" className={`${fraunces.variable} ${archivo.variable}`}>
+    <html lang={htmlLang} className={`${fraunces.variable} ${archivo.variable}`}>
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
           type="application/ld+json"

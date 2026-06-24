@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ChevronLeft, Calendar, Tag, Share2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import Header from "@/components/Header";
@@ -256,7 +257,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
         <div className="mb-6 overflow-hidden rounded-2xl">
           <div className="relative h-72 sm:h-96" style={{ background: article.coverUrl ? undefined : article.gradient }}>
             {article.coverUrl && (
-              <img src={article.coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+              <Image src={article.coverUrl} alt={article.title} fill sizes="(min-width: 768px) 768px, 100vw" priority className="object-cover" />
             )}
           </div>
         </div>
@@ -385,7 +386,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
                 <Link key={item.id} href={`/news/${item.id}`}
                   className="group rounded-2xl border border-white/10 bg-card overflow-hidden transition hover:border-white/20">
                   <div className="relative h-24" style={{ background: item.coverUrl ? undefined : item.gradient }}>
-                    {item.coverUrl && <img src={item.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+                    {item.coverUrl && <Image src={item.coverUrl} alt={item.title} fill sizes="(min-width: 640px) 350px, 100vw" className="object-cover" />}
                   </div>
                   <div className="p-4">
                     <span className={`mb-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>

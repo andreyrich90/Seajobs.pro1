@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
   Users, ChevronDown, ChevronUp, ExternalLink, ChevronLeft, ChevronRight, X, RotateCcw, FileText,
@@ -202,8 +203,7 @@ export default function CompanyApplicationsPage() {
                       <div key={app.id} className="rounded-xl border border-white/10 bg-card p-3">
                         <div className="flex items-start gap-3">
                           {app.seafarer?.photo_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={app.seafarer.photo_url} alt={fullName} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+                            <Image src={app.seafarer.photo_url} alt={fullName} width={40} height={40} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
                           ) : (
                             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-sm font-bold text-white">
                               {fullName[0]?.toUpperCase() ?? "?"}

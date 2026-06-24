@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Building2, Bookmark, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -121,9 +122,11 @@ export default function SavedJobsPage() {
                 {/* Company logo */}
                 <div className="shrink-0">
                   {v?.companies?.logo_url ? (
-                    <img
+                    <Image
                       src={v.companies.logo_url}
                       alt={v.companies.name ?? ""}
+                      width={48}
+                      height={48}
                       className="h-12 w-12 rounded-xl object-cover"
                     />
                   ) : (

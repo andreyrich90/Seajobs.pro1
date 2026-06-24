@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "@/i18n/navigation";
 import {
   X, Phone, Mail, MapPin, Ship, Award, FileText, MessageCircle, Loader2, Globe, GraduationCap,
@@ -126,8 +127,7 @@ export default function ApplicantCvModal({
         <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-2xl border-b border-white/10 bg-card px-5 py-4">
           <div className="flex items-center gap-3 min-w-0">
             {s?.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={s.photo_url} alt={fullName} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+              <Image src={s.photo_url} alt={fullName} width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brass/20 font-display text-lg font-bold text-brass2">
                 {fullName[0]?.toUpperCase() ?? "?"}
