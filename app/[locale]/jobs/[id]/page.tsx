@@ -17,6 +17,31 @@ type VacancyFull = VacancyDetail & {
 
 const BASE_URL = "https://seajobs.pro";
 
+// Map country names (as they appear in vacancy.country or company.location) to
+// ISO 3166-1 alpha-2 codes. Google's JobPosting requires a valid country code
+// in addressCountry — a placeholder like "INT" makes the posting invalid.
+const COUNTRY_CODES: Record<string, string> = {
+  poland: "PL", polska: "PL", gdynia: "PL", gdansk: "PL", gdańsk: "PL", szczecin: "PL", "gdynia, poland": "PL",
+  ukraine: "UA", україна: "UA", odessa: "UA", odesa: "UA",
+  germany: "DE", netherlands: "NL", holland: "NL", spain: "ES", hiszpania: "ES",
+  "united kingdom": "GB", "great britain": "GB", england: "GB", scotland: "GB", aberdeen: "GB", uk: "GB",
+  cyprus: "CY", greece: "GR", norway: "NO", denmark: "DK", sweden: "SE", finland: "FI",
+  croatia: "HR", italy: "IT", france: "FR", portugal: "PT", latvia: "LV", lithuania: "LT", estonia: "EE",
+  singapore: "SG", malta: "MT", liberia: "LR", panama: "PA", usa: "US", "united states": "US",
+};
+
+function resolveCountry(country: string | null, location: string | null): string {
+  const raw = (country ?? "").trim();
+  // Already stored as a valid 2-letter ISO code.
+  if (/^[A-Za-z]{2}$/.test(raw)) return raw.toUpperCase();
+  const hay = `${country ?? ""} ${location ?? ""}`.toLowerCase();
+  for (const [name, code] of Object.entries(COUNTRY_CODES)) {
+    if (hay.includes(name)) return code;
+  }
+  // Last resort: the crewing agencies on the board are Poland-based.
+  return "PL";
+}
+
 function getAdminClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -121,11 +146,11 @@ export default async function VacancyPage(
       "@type": "Place",
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": vacancy.city ?? company?.location ?? "International Waters",
+        "addressLocality": vacancy.city ?? company?.location ?? "At sea",
         ...(vacancy.region ? { "addressRegion": vacancy.region } : {}),
         ...(vacancy.postal_code ? { "postalCode": vacancy.postal_code } : {}),
-        // addressCountry is required by Google; default to a sensible value.
-        "addressCountry": vacancy.country ?? "INT",
+        // addressCountry must be a valid ISO 3166-1 alpha-2 code for Google.
+        "addressCountry": resolveCountry(vacancy.country, company?.location ?? null),
       },
     },
     "directApply": true,
