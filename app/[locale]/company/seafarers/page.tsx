@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Search, User, MapPin, Ship, Calendar } from "lucide-react";
+import { Search, User, MapPin, Ship, Calendar, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
 
@@ -18,7 +18,12 @@ type SeafarerRow = {
   rank: string | null;
   readiness_date: string | null;
   about: string | null;
+  boost_until: string | null;
 };
+
+function isBoosted(boostUntil: string | null): boolean {
+  return !!boostUntil && new Date(boostUntil) > new Date();
+}
 
 const ALL_RANKS = RANK_GROUPS.flatMap((g) => g.ranks);
 
@@ -41,8 +46,9 @@ export default function CompanySeafarersPage() {
       try {
         const { data } = await supabase
           .from("seafarers")
-          .select("id, first_name, last_name, photo_url, nationality, rank, readiness_date, about")
+          .select("id, first_name, last_name, photo_url, nationality, rank, readiness_date, about, boost_until")
           .not("first_name", "is", null)
+          .order("boost_until", { ascending: false, nullsFirst: false })
           .order("updated_at", { ascending: false })
           .limit(200);
 
@@ -158,8 +164,15 @@ export default function CompanySeafarersPage() {
                 key={s.id}
                 href={`/seafarers/${s.id}`}
                 target="_blank"
-                className="group rounded-2xl border border-white/10 bg-card p-5 transition hover:border-brass/30"
+                className={`group rounded-2xl border bg-card p-5 transition hover:border-brass/30 ${
+                  isBoosted(s.boost_until) ? "border-brass/40" : "border-white/10"
+                }`}
               >
+                {isBoosted(s.boost_until) && (
+                  <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
+                    <Sparkles size={11} /> Recommended
+                  </div>
+                )}
                 <div className="flex items-start gap-3">
                   {s.photo_url ? (
                     <Image src={s.photo_url} alt={name} width={48} height={48} className="h-12 w-12 rounded-xl object-cover shrink-0" />

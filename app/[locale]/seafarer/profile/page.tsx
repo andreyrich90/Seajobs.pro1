@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2 } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2, Link2, Copy, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
-type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas">;
+type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas" | "referral_code" | "boost_until">;
 
 const EMPTY_DIPLOMA: Diploma = { name: "", number: "", expiry: "" };
 
@@ -62,6 +62,9 @@ export default function ProfilePage() {
   const [parsingCv, setParsingCv] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralStats, setReferralStats] = useState({ invited: 0, completed: 0 });
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,11 +112,32 @@ export default function ProfilePage() {
         } else if (data.diploma) {
           setDiplomas([{ name: "", number: data.diploma, expiry: data.diploma_expiry ?? "" }]);
         }
+
+        setReferralCode(data.referral_code ?? null);
+
+        const { data: referrals } = await supabase
+          .from("referrals")
+          .select("status")
+          .eq("referrer_id", session.user.id);
+        if (referrals) {
+          setReferralStats({
+            invited: referrals.length,
+            completed: referrals.filter((r) => r.status === "completed").length,
+          });
+        }
       }
       setLoading(false);
     }
     loadProfile();
   }, []);
+
+  function copyReferralLink() {
+    if (!referralCode || typeof window === "undefined") return;
+    const link = `${window.location.origin}/auth/register?ref=${referralCode}`;
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   function updateDiploma(i: number, field: keyof Diploma, value: string) {
     setDiplomas((prev) => prev.map((d, idx) => (idx === i ? { ...d, [field]: value } : d)));
@@ -411,6 +435,44 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Invite a friend / referral */}
+      {referralCode && (
+        <div className="mb-6 rounded-2xl border border-teal/30 bg-teal/5 p-6">
+          <div className="flex items-start gap-4">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal to-teal/60">
+              <Link2 size={20} className="text-deep" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-display text-lg font-semibold text-white">{t.ref_title}</h2>
+              <p className="mt-1 text-sm text-mist">{t.ref_desc}</p>
+
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <div className="rounded-xl border border-white/10 bg-navy2 px-3.5 py-2.5 text-sm text-foam/80 truncate max-w-full">
+                  {typeof window !== "undefined" ? `${window.location.origin}/auth/register?ref=${referralCode}` : ""}
+                </div>
+                <button
+                  type="button"
+                  onClick={copyReferralLink}
+                  className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                >
+                  {copied ? <Check size={16} /> : <Copy size={16} />}
+                  {copied ? t.ref_copied : t.ref_copy}
+                </button>
+              </div>
+
+              <div className="mt-4 flex gap-5 text-sm">
+                <p className="text-mist">
+                  {t.ref_invited}: <span className="font-semibold text-foam">{referralStats.invited}</span>
+                </p>
+                <p className="text-mist">
+                  {t.ref_completed}: <span className="font-semibold text-foam">{referralStats.completed}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 

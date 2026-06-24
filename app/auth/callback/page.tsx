@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Anchor, Ship, Briefcase, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import { recordReferral } from "@/lib/referral";
 
 type Role = "seafarer" | "company";
 
@@ -39,6 +40,7 @@ export default function AuthCallbackPage() {
     }
 
     localStorage.setItem("user_role", role);
+    await recordReferral(uid);
     const dest = safeRedirect();
     if (role === "seafarer") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

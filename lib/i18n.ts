@@ -794,6 +794,48 @@ Object.assign(T.ru, SP_RU);
 Object.assign(T.ua, SP_UA);
 Object.assign(T.pl, SP_PL);
 
+// Seafarer cabinet — profile page: invite a friend / referral
+const REF_EN: Record<string, string> = {
+  ref_title: "Invite a friend",
+  ref_desc: "Share your link. When a friend you invite joins and completes their profile, you get a 14-day visibility boost in company searches.",
+  ref_copy: "Copy link",
+  ref_copied: "Copied!",
+  ref_invited: "Invited",
+  ref_completed: "Completed",
+  ref_boost_active: "Boost active until ",
+};
+const REF_RU: Record<string, string> = {
+  ref_title: "Пригласить друга",
+  ref_desc: "Поделитесь ссылкой. Когда приглашённый друг присоединится и заполнит профиль, вы получите 14 дней повышенной видимости в поиске у компаний.",
+  ref_copy: "Скопировать ссылку",
+  ref_copied: "Скопировано!",
+  ref_invited: "Приглашено",
+  ref_completed: "Завершено",
+  ref_boost_active: "Буст активен до ",
+};
+const REF_UA: Record<string, string> = {
+  ref_title: "Запросити друга",
+  ref_desc: "Поділіться посиланням. Коли запрошений друг приєднається і заповнить профіль, ви отримаєте 14 днів підвищеної видимості в пошуку в компаній.",
+  ref_copy: "Скопіювати посилання",
+  ref_copied: "Скопійовано!",
+  ref_invited: "Запрошено",
+  ref_completed: "Завершено",
+  ref_boost_active: "Буст активний до ",
+};
+const REF_PL: Record<string, string> = {
+  ref_title: "Zaproś przyjaciela",
+  ref_desc: "Udostępnij swój link. Gdy zaproszony przyjaciel dołączy i uzupełni profil, otrzymasz 14 dni zwiększonej widoczności w wyszukiwaniu firm.",
+  ref_copy: "Skopiuj link",
+  ref_copied: "Skopiowano!",
+  ref_invited: "Zaproszono",
+  ref_completed: "Zakończono",
+  ref_boost_active: "Boost aktywny do ",
+};
+Object.assign(T.en, REF_EN);
+Object.assign(T.ru, REF_RU);
+Object.assign(T.ua, REF_UA);
+Object.assign(T.pl, REF_PL);
+
 // Seafarer cabinet — certificates / experience / saved / applications
 const SUB_EN: Record<string, string> = {
   // certificates

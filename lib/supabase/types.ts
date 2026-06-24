@@ -99,6 +99,8 @@ export interface Database {
           medical: string | null;
           medical_expiry: string | null;
           diplomas: Diploma[] | null;
+          referral_code: string | null;
+          boost_until: string | null;
           updated_at: string | null;
         };
         Insert: {
@@ -127,6 +129,8 @@ export interface Database {
           medical?: string | null;
           medical_expiry?: string | null;
           diplomas?: Diploma[] | null;
+          referral_code?: string | null;
+          boost_until?: string | null;
           updated_at?: string | null;
         };
         Update: {
@@ -155,6 +159,8 @@ export interface Database {
           medical?: string | null;
           medical_expiry?: string | null;
           diplomas?: Diploma[] | null;
+          referral_code?: string | null;
+          boost_until?: string | null;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -663,6 +669,33 @@ export interface Database {
         };
         Relationships: [];
       };
+      referrals: {
+        Row: {
+          id: string;
+          referrer_id: string;
+          referred_id: string;
+          status: "pending" | "completed";
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          referrer_id: string;
+          referred_id: string;
+          status?: "pending" | "completed";
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          referrer_id?: string;
+          referred_id?: string;
+          status?: "pending" | "completed";
+          created_at?: string;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -703,3 +736,4 @@ export type NewsArticle = Database["public"]["Tables"]["news_articles"]["Row"];
 export type Application = Database["public"]["Tables"]["applications"]["Row"];
 export type SavedVacancy = Database["public"]["Tables"]["saved_vacancies"]["Row"];
 export type NewsComment = Database["public"]["Tables"]["news_comments"]["Row"];
+export type Referral = Database["public"]["Tables"]["referrals"]["Row"];
