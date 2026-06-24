@@ -1,8 +1,33 @@
 import { connection } from "next/server";
+import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { hreflangAlternates } from "@/lib/seo";
 import ForumClient from "./ForumClient";
 
 export const dynamic = "force-dynamic";
+
+const TITLES: Record<string, string> = {
+  ua: "Морський форум для моряків | SeaJobs.pro",
+  pl: "Forum morskie dla marynarzy | SeaJobs.pro",
+  ru: "Морской форум для моряков | SeaJobs.pro",
+  en: "Maritime Forum for Seafarers | SeaJobs.pro",
+};
+const DESCS: Record<string, string> = {
+  ua: "Обговорення роботи в морі, крюінгу, контрактів та життя моряка.",
+  pl: "Dyskusje o pracy na morzu, crewingu, kontraktach i życiu marynarza.",
+  ru: "Обсуждение работы в море, крюинга, контрактов и жизни моряка.",
+  en: "Discussions on maritime jobs, crewing, contracts and life at sea.",
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const languages = hreflangAlternates("/forum");
+  return {
+    title: TITLES[locale] ?? TITLES.en,
+    description: DESCS[locale] ?? DESCS.en,
+    alternates: { canonical: languages[locale], languages },
+  };
+}
 
 export default async function ForumPage() {
   await connection(); // render per request so new topics appear immediately
