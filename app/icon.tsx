@@ -1,6 +1,8 @@
 import { ImageResponse } from "next/og";
 
-export const size = { width: 32, height: 32 };
+// Google shows favicons that are square and a multiple of 48px (48, 96, …).
+// 48x48 is the smallest size it reliably picks up for the search results.
+export const size = { width: 48, height: 48 };
 export const contentType = "image/png";
 
 export default function Icon() {
@@ -8,9 +10,9 @@ export default function Icon() {
     (
       <div
         style={{
-          width: 32,
-          height: 32,
-          borderRadius: 7,
+          width: 48,
+          height: 48,
+          borderRadius: 10,
           background: "linear-gradient(135deg, #c9a227, #e3c04a)",
           display: "flex",
           alignItems: "center",
@@ -18,8 +20,8 @@ export default function Icon() {
         }}
       >
         <svg
-          width="18"
-          height="18"
+          width="28"
+          height="28"
           viewBox="0 0 24 26"
           fill="none"
           stroke="#061523"
