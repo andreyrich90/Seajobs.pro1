@@ -234,7 +234,7 @@ export default function CompanyProfilePage() {
                 <p className="mt-1 text-sm text-mist">{t.cref_desc}</p>
 
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <div className="rounded-xl border border-white/10 bg-navy2 px-3.5 py-2.5 text-sm text-foam/80 truncate max-w-full">
+                  <div className="w-full break-all rounded-xl border border-white/10 bg-navy2 px-3.5 py-2.5 text-sm text-foam/80">
                     {referralLink}
                   </div>
                   <button
