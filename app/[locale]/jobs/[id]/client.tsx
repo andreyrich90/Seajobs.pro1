@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdUnit from "@/components/AdUnit";
 import { supabase, notify } from "@/lib/supabase/client";
 
 export type VacancyDetail = {
@@ -313,6 +314,8 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 </div>
               </div>
             )}
+
+            <AdUnit slot="7417273824" />
 
             {/* Apply section */}
             <div className="rounded-2xl border border-white/10 bg-card p-6">
