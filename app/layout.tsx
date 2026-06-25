@@ -87,6 +87,11 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
         <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9585615049936117"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"
           strategy="afterInteractive"
         />
