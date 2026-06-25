@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, ChevronLeft, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { captureRefParam, recordReferral } from "@/lib/referral";
 
 async function signUpWithGoogle(role?: string) {
   if (role) localStorage.setItem("oauth_role", role);
@@ -45,6 +46,7 @@ export default function RegisterPage() {
       setRole(param);
       setStep(2);
     }
+    captureRefParam();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -110,6 +112,8 @@ export default function RegisterPage() {
         setError("Failed to create profile: " + profileError.message);
         return;
       }
+
+      await recordReferral(data.user.id);
 
       if (role === "seafarer") {
         const { error: seafarerError } = await supabase

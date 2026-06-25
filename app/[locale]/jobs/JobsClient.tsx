@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -32,6 +32,7 @@ export type VacancyWithCompany = {
   contract_duration: string | null;
   joining_date: string | null;
   created_at: string;
+  featured_until: string | null;
   companies: {
     name: string | null;
     logo_url: string | null;
@@ -43,6 +44,10 @@ export type VacancyWithCompany = {
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+function isFeatured(featuredUntil: string | null): boolean {
+  return !!featuredUntil && new Date(featuredUntil) > new Date();
 }
 
 function formatSalary(v: VacancyWithCompany): string {
@@ -184,12 +189,20 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
             {pageItems.map((v) => {
               const salary = formatSalary(v);
+              const featured = isFeatured(v.featured_until);
               return (
                 <Link
                   key={v.id}
                   href={`/jobs/${slugId(v.title, v.id)}`}
-                  className="group block rounded-2xl border border-white/10 bg-card p-5 transition hover:border-white/20"
+                  className={`group block rounded-2xl border bg-card p-5 transition hover:border-white/20 ${
+                    featured ? "border-brass/40" : "border-white/10"
+                  }`}
                 >
+                  {featured && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
+                      <Sparkles size={11} /> Featured
+                    </div>
+                  )}
                   <div className="flex items-start gap-4">
                     {/* Company logo */}
                     {v.companies?.logo_url && (

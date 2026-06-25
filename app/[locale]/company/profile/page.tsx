@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { CheckCircle, AlertCircle, Upload, Building2, Plus, Trash2, Phone, Mail, Users } from "lucide-react";
+import { CheckCircle, AlertCircle, Upload, Building2, Plus, Trash2, Phone, Mail, Users, Link2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { CrewManager } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
@@ -40,6 +40,8 @@ export default function CompanyProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -65,6 +67,7 @@ export default function CompanyProfilePage() {
         setPhones(data.phones?.length ? data.phones : [""]);
         setEmails(data.emails?.length ? data.emails : [""]);
         setManagers(data.crew_managers ?? []);
+        setReferralCode(data.referral_code ?? null);
       } else {
         setPhones([""]);
         setEmails([""]);
@@ -73,6 +76,15 @@ export default function CompanyProfilePage() {
     }
     loadProfile();
   }, []);
+
+  function copyReferralLink() {
+    if (!referralCode || typeof window === "undefined") return;
+    const link = `${window.location.origin}/auth/register?ref=${referralCode}`;
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   function handleChange(field: keyof ProfileForm, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -206,6 +218,57 @@ export default function CompanyProfilePage() {
           </p>
         </div>
       )}
+
+      {/* Invite a seafarer / referral */}
+      {referralCode && (() => {
+        const referralLink =
+          typeof window !== "undefined" ? `${window.location.origin}/auth/register?ref=${referralCode}` : "";
+        return (
+          <div className="mb-6 rounded-2xl border border-teal/30 bg-teal/5 p-6">
+            <div className="flex items-start gap-4">
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal to-teal/60">
+                <Link2 size={20} className="text-deep" />
+              </div>
+              <div className="flex-1">
+                <h2 className="font-display text-lg font-semibold text-white">{t.cref_title}</h2>
+                <p className="mt-1 text-sm text-mist">{t.cref_desc}</p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <div className="rounded-xl border border-white/10 bg-navy2 px-3.5 py-2.5 text-sm text-foam/80 truncate max-w-full">
+                    {referralLink}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={copyReferralLink}
+                    className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  >
+                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                    {copied ? t.ref_copied : t.ref_copy}
+                  </button>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(`${t.cref_share_msg} ${referralLink}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    <MessageCircle size={16} className="text-teal" />
+                    {t.ref_share_whatsapp}
+                  </a>
+                  <a
+                    href={`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(t.cref_share_msg)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  >
+                    <Send size={16} className="text-teal" />
+                    {t.ref_share_telegram}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
