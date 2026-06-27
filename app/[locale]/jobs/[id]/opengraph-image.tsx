@@ -34,7 +34,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       .eq("id", id)
       .single();
     if (data) {
-      title = (data.title ?? title).slice(0, 90);
+      title = (data.title ?? title).slice(0, 70);
       rank = data.rank;
       vessel = data.vessel_type;
       salary = salaryText(data);
@@ -42,6 +42,12 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       company = co?.name ?? "";
     }
   } catch { /* fall back to generic card */ }
+
+  // Facebook (and most chat apps) crop link-preview images toward a near-square
+  // frame instead of showing the full 1200x630 canvas, so anything close to the
+  // left/right edges gets cut off. Keep all text/badges inside a centered
+  // SAFE_WIDTH column that stays within that crop on every platform.
+  const SAFE_WIDTH = 640;
 
   return new ImageResponse(
     (
@@ -52,9 +58,10 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           background: "#0a1f33",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
           justifyContent: "space-between",
           fontFamily: "serif",
-          padding: 64,
+          padding: "56px 0",
           position: "relative",
         }}
       >
@@ -69,54 +76,54 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         />
 
         {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, width: SAFE_WIDTH }}>
           <div
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 14,
+              width: 44,
+              height: 44,
+              borderRadius: 12,
               background: "linear-gradient(135deg, #c9a227, #e3c04a)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#061523" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#061523" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="5" r="3" fill="#061523" stroke="none" />
               <line x1="12" y1="8" x2="12" y2="22" />
               <line x1="5" y1="12" x2="19" y2="12" />
               <path d="M5 20C5 16.5 8.13 14 12 14s7 2.5 7 6" />
             </svg>
           </div>
-          <span style={{ fontSize: 38, fontWeight: 700, color: "#ffffff", letterSpacing: "-1px" }}>
+          <span style={{ fontSize: 30, fontWeight: 700, color: "#ffffff", letterSpacing: "-1px" }}>
             SeaJobs<span style={{ color: "#e3c04a" }}>.pro</span>
           </span>
         </div>
 
         {/* Body */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div style={{ display: "flex", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: SAFE_WIDTH }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10 }}>
             {rank && (
-              <span style={{ fontSize: 24, color: "#e3c04a", background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.3)", borderRadius: 999, padding: "6px 18px" }}>
+              <span style={{ fontSize: 20, color: "#e3c04a", background: "rgba(201,162,39,0.12)", border: "1px solid rgba(201,162,39,0.3)", borderRadius: 999, padding: "5px 16px" }}>
                 {rank}
               </span>
             )}
             {vessel && (
-              <span style={{ fontSize: 24, color: "#2dd4bf", background: "rgba(45,212,191,0.12)", border: "1px solid rgba(45,212,191,0.3)", borderRadius: 999, padding: "6px 18px" }}>
+              <span style={{ fontSize: 20, color: "#2dd4bf", background: "rgba(45,212,191,0.12)", border: "1px solid rgba(45,212,191,0.3)", borderRadius: 999, padding: "5px 16px" }}>
                 {vessel}
               </span>
             )}
           </div>
-          <div style={{ fontSize: 60, fontWeight: 700, color: "#ffffff", lineHeight: 1.1, letterSpacing: "-1px" }}>
+          <div style={{ width: "100%", fontSize: 38, fontWeight: 700, color: "#ffffff", lineHeight: 1.15, letterSpacing: "-0.5px", textAlign: "center" }}>
             {title}
           </div>
-          {company && <div style={{ fontSize: 30, color: "#8aa0b0" }}>{company}</div>}
+          {company && <div style={{ fontSize: 22, color: "#8aa0b0" }}>{company}</div>}
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 40, fontWeight: 700, color: "#e3c04a" }}>{salary}</span>
-          <span style={{ fontSize: 24, color: "#8aa0b0" }}>Apply on seajobs.pro</span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, width: SAFE_WIDTH }}>
+          <span style={{ fontSize: 32, fontWeight: 700, color: "#e3c04a" }}>{salary}</span>
+          <span style={{ fontSize: 18, color: "#8aa0b0" }}>Apply on seajobs.pro</span>
         </div>
 
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 6, background: "linear-gradient(90deg, #c9a227, #e3c04a)" }} />
