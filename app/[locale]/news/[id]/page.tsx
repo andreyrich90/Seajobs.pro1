@@ -170,9 +170,39 @@ async function resolveArticle(id: string, locale: string): Promise<InitialArticl
   return null;
 }
 
+const BASE_URL = "https://seajobs.pro";
+
 export default async function NewsArticlePage({ params }: { params: Promise<{ id: string; locale: string }> }) {
   const { id, locale } = await params;
   const initialArticle = await resolveArticle(id, locale);
-  return <ArticleClient id={id} initialArticle={initialArticle} />;
+  if (!initialArticle) return <ArticleClient id={id} initialArticle={initialArticle} />;
+
+  const languages = hreflangAlternates(`/news/${id}`);
+  const publishedDate = initialArticle.date ? new Date(initialArticle.date) : null;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": initialArticle.title,
+    "description": excerpt(initialArticle.body, 200),
+    ...(publishedDate ? { "datePublished": publishedDate.toISOString(), "dateModified": publishedDate.toISOString() } : {}),
+    ...(initialArticle.coverUrl ? { "image": [initialArticle.coverUrl] } : {}),
+    "author": { "@type": "Organization", "name": "SeaJobs.pro", "url": BASE_URL },
+    "publisher": {
+      "@type": "Organization",
+      "name": "SeaJobs.pro",
+      "logo": { "@type": "ImageObject", "url": `${BASE_URL}/logo-oauth.png`, "width": 120, "height": 120 },
+    },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": languages[locale] ?? `${BASE_URL}/news/${id}` },
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ArticleClient id={id} initialArticle={initialArticle} />
+    </>
+  );
 }
 
