@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Upload, CheckCircle, AlertCircle, RefreshCw, ExternalLink,
   Building2, Briefcase, DollarSign, Clock, Calendar, FileText, Link2,
+  ImagePlus,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -33,9 +34,69 @@ export default function ImportVacancyPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<{ id: string; title: string }[]>([]);
+  const [parsing, setParsing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
+
+  async function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setParsing(true);
+    setError(null);
+    try {
+      const fileBase64: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setError("Not authenticated."); setParsing(false); return; }
+
+      const res = await fetch("/api/admin/parse-vacancy-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ fileBase64, mediaType: file.type }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.detail ?? data.error ?? "Could not read the screenshot.");
+        setParsing(false);
+        return;
+      }
+
+      const v = data.vacancy ?? {};
+      setForm((p) => ({
+        ...p,
+        companyName: v.companyName ?? p.companyName,
+        companyLocation: v.companyLocation ?? p.companyLocation,
+        companyWebsite: v.companyWebsite ?? p.companyWebsite,
+        title: v.title ?? p.title,
+        rank: v.rank ?? p.rank,
+        vesselType: v.vesselType ?? p.vesselType,
+        salaryFrom: v.salaryFrom != null ? String(v.salaryFrom) : p.salaryFrom,
+        salaryTo: v.salaryTo != null ? String(v.salaryTo) : p.salaryTo,
+        currency: v.currency ?? p.currency,
+        contractDuration: v.contractDuration ?? p.contractDuration,
+        joiningDate: v.joiningDate ?? p.joiningDate,
+        description: v.description ?? p.description,
+        contactEmail: v.contactEmail ?? p.contactEmail,
+      }));
+    } catch (err) {
+      console.error(err);
+      setError("Could not read the screenshot.");
+    } finally {
+      setParsing(false);
+    }
+  }
 
   async function submit(andAnother: boolean) {
     if (!form.title.trim() || !form.companyName.trim()) {
@@ -112,8 +173,24 @@ export default function ImportVacancyPage() {
             Imported vacancies are visible on site but excluded from Google for Jobs indexing.
           </p>
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleScreenshot}
+          className="hidden"
+        />
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={parsing}
+          className="ml-auto flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+        >
+          {parsing ? <RefreshCw size={15} className="animate-spin" /> : <ImagePlus size={15} />}
+          {parsing ? "Reading screenshot..." : "Fill from screenshot"}
+        </button>
         {saved.length > 0 && (
-          <span className="ml-auto rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-bold text-teal">
+          <span className="rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-bold text-teal">
             {saved.length} imported
           </span>
         )}
