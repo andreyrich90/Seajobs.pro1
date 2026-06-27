@@ -428,6 +428,7 @@ export interface Database {
           id: string;
           user_id: string | null;
           author_name: string | null;
+          is_anonymous: boolean;
           title: Record<string, string>;
           content: Record<string, string>;
           category_id: string | null;
@@ -439,6 +440,7 @@ export interface Database {
           id?: string;
           user_id?: string | null;
           author_name?: string | null;
+          is_anonymous?: boolean;
           title: Record<string, string>;
           content: Record<string, string>;
           category_id?: string | null;
@@ -450,6 +452,7 @@ export interface Database {
           id?: string;
           user_id?: string | null;
           author_name?: string | null;
+          is_anonymous?: boolean;
           title?: Record<string, string>;
           content?: Record<string, string>;
           category_id?: string | null;
@@ -489,6 +492,7 @@ export interface Database {
           topic_id: string;
           user_id: string | null;
           author_name: string | null;
+          is_anonymous: boolean;
           content: string;
           created_at: string;
           updated_at: string | null;
@@ -498,6 +502,7 @@ export interface Database {
           topic_id: string;
           user_id?: string | null;
           author_name?: string | null;
+          is_anonymous?: boolean;
           content: string;
           created_at?: string;
           updated_at?: string | null;
@@ -507,6 +512,7 @@ export interface Database {
           topic_id?: string;
           user_id?: string | null;
           author_name?: string | null;
+          is_anonymous?: boolean;
           content?: string;
           created_at?: string;
           updated_at?: string | null;

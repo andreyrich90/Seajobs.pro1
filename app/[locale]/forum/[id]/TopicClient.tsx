@@ -195,6 +195,7 @@ export default function TopicClient({
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
   const [session, setSession] = useState<Session | null>(null);
   const [replyText, setReplyText] = useState("");
+  const [replyAnonymous, setReplyAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -215,11 +216,11 @@ export default function TopicClient({
     setSubmitting(true);
     setError(null);
 
-    const authorName = await resolveAuthorName(session.user.id);
+    const authorName = replyAnonymous ? null : await resolveAuthorName(session.user.id);
 
     const { data, error: insertError } = await supabase
       .from("forum_posts")
-      .insert({ topic_id: id, user_id: session.user.id, author_name: authorName, content: replyText.trim() })
+      .insert({ topic_id: id, user_id: session.user.id, author_name: authorName, is_anonymous: replyAnonymous, content: replyText.trim() })
       .select()
       .single();
 
@@ -228,6 +229,7 @@ export default function TopicClient({
     } else if (data) {
       setPosts((prev) => [...prev, data]);
       setReplyText("");
+      setReplyAnonymous(false);
     }
     setSubmitting(false);
   }
@@ -357,7 +359,7 @@ export default function TopicClient({
 
         {!editingTopic && (
           <PostCard
-            authorName={topic.author_name}
+            authorName={topic.is_anonymous ? "Anonymous" : topic.author_name}
             date={topic.created_at}
             content={loc(topic.content, lang)}
             isOwn={false}
@@ -375,7 +377,7 @@ export default function TopicClient({
             {posts.map((post) => (
               <PostCard
                 key={post.id}
-                authorName={post.author_name}
+                authorName={post.is_anonymous ? "Anonymous" : post.author_name}
                 date={post.created_at}
                 content={post.content}
                 isOwn={session?.user.id === post.user_id}
@@ -404,7 +406,17 @@ export default function TopicClient({
                   rows={4} disabled={submitting}
                   className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
                 />
-                <div>
+                <div className="flex items-center justify-between gap-4">
+                  <label className="flex items-center gap-2 text-sm text-mist">
+                    <input
+                      type="checkbox"
+                      checked={replyAnonymous}
+                      onChange={(e) => setReplyAnonymous(e.target.checked)}
+                      disabled={submitting}
+                      className="h-4 w-4 rounded border-white/10 bg-navy2 accent-brass"
+                    />
+                    Post anonymously
+                  </label>
                   <button
                     type="submit"
                     disabled={submitting || !replyText.trim()}

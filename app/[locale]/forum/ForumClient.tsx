@@ -69,6 +69,7 @@ export default function ForumClient({
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,13 +89,14 @@ export default function ForumClient({
     setSubmitting(true);
     setError(null);
 
-    const authorName = await resolveAuthorName(session.user.id);
+    const authorName = isAnonymous ? null : await resolveAuthorName(session.user.id);
 
     const { data, error: insertError } = await supabase
       .from("forum_topics")
       .insert({
         user_id: session.user.id,
         author_name: authorName,
+        is_anonymous: isAnonymous,
         title: { [lang]: title.trim() },
         content: { [lang]: content.trim() },
         category_id: categoryId || null,
@@ -109,6 +111,7 @@ export default function ForumClient({
       setTitle("");
       setContent("");
       setCategoryId("");
+      setIsAnonymous(false);
       setShowForm(false);
       fetch("/api/forum/translate-topic", {
         method: "POST",
@@ -195,6 +198,16 @@ export default function ForumClient({
                   </select>
                 </div>
               )}
+              <label className="flex items-center gap-2 text-sm text-mist">
+                <input
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  disabled={submitting}
+                  className="h-4 w-4 rounded border-white/10 bg-navy2 accent-brass"
+                />
+                Post anonymously
+              </label>
               <div className="flex gap-3">
                 <button
                   type="submit" disabled={submitting}
@@ -203,7 +216,7 @@ export default function ForumClient({
                   {submitting ? "Posting..." : "Post Topic"}
                 </button>
                 <button
-                  type="button" onClick={() => { setShowForm(false); setError(null); }}
+                  type="button" onClick={() => { setShowForm(false); setError(null); setIsAnonymous(false); }}
                   className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
                 >
                   Cancel
@@ -271,7 +284,7 @@ export default function ForumClient({
                     )}
                   </div>
                   <p className="mt-0.5 text-xs text-mist">
-                    by <span className="text-foam">{topic.author_name ?? "Anonymous"}</span>
+                    by <span className="text-foam">{topic.is_anonymous ? "Anonymous" : topic.author_name ?? "Anonymous"}</span>
                     {" · "}{timeAgo(topic.created_at)}
                   </p>
                 </div>
