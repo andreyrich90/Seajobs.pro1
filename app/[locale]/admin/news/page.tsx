@@ -258,9 +258,12 @@ export default function AdminNewsPage() {
                     value={form.body[activeLang] ?? ""}
                     onChange={(e) => setForm((f) => ({ ...f, body: { ...f.body, [activeLang]: e.target.value } }))}
                     placeholder={activeLang === "en" ? "Article content (required)" : "Translation (optional)"}
-                    rows={6}
+                    rows={10}
                     className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass resize-none"
                   />
+                  <p className="text-xs text-mist">
+                    Leave a blank line between paragraphs. Start a line with <code className="text-brass2">## </code> for a subheading, wrap text in <code className="text-brass2">**bold**</code> for emphasis.
+                  </p>
                 </div>
               </div>
             </div>
