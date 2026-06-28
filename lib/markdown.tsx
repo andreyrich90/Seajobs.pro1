@@ -1,14 +1,21 @@
 import { Fragment, type ReactNode } from "react";
 
 function renderInline(text: string): ReactNode[] {
-  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/);
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~|!\[[^\]]*\]\([^)]+\)|\[[^\]]+\]\([^)]+\))/);
   return parts.map((part, i) => {
     if (!part) return null;
     if (part.startsWith("**") && part.endsWith("**")) {
       return <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>;
     }
+    if (part.startsWith("~~") && part.endsWith("~~")) {
+      return <del key={i}>{part.slice(2, -2)}</del>;
+    }
     if (part.startsWith("*") && part.endsWith("*")) {
       return <em key={i}>{part.slice(1, -1)}</em>;
+    }
+    const image = part.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (image) {
+      return <img key={i} src={image[2]} alt={image[1]} className="my-2 max-w-full rounded-lg" />;
     }
     const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (link) {
@@ -31,7 +38,7 @@ function withLineBreaks(text: string): ReactNode[] {
   ));
 }
 
-/** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, **bold**, *italic*, [text](url). */
+/** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, "---" rules, **bold**, *italic*, ~~strike~~, [text](url), ![alt](url). */
 export function renderMarkdown(content: string): ReactNode[] {
   const blocks = content.split(/\n\n+/);
   return blocks.map((block, bi) => {
@@ -39,6 +46,9 @@ export function renderMarkdown(content: string): ReactNode[] {
     if (!trimmed) return null;
     const lines = trimmed.split("\n");
 
+    if (trimmed === "---" || trimmed === "***") {
+      return <hr key={bi} className="my-6 border-white/10" />;
+    }
     if (trimmed.startsWith("## ")) {
       return (
         <h2 key={bi} className="mb-3 mt-7 font-display text-lg font-semibold text-white first:mt-0">
