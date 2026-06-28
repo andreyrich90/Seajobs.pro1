@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import NextLink from "next/link";
 import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
+import { renderMarkdown } from "@/lib/markdown";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -20,42 +22,6 @@ function loc(field: unknown, lang: string): string {
     return loc(obj[lang] ?? ukFallback ?? obj.en ?? obj.ru ?? Object.values(obj)[0], lang);
   }
   return "";
-}
-
-function renderInline(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/);
-  return parts.map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>
-    ) : (
-      <Fragment key={i}>{part}</Fragment>
-    )
-  );
-}
-
-function renderMarkdown(content: string) {
-  const blocks = content.split(/\n\n+/);
-  return blocks.map((block, bi) => {
-    const trimmed = block.trim();
-    if (!trimmed) return null;
-    if (trimmed.startsWith("## ")) {
-      return (
-        <h2 key={bi} className="mt-5 mb-2 font-display text-base font-semibold text-white">
-          {trimmed.slice(3)}
-        </h2>
-      );
-    }
-    return (
-      <p key={bi} className="mb-3 text-sm text-foam leading-relaxed">
-        {trimmed.split("\n").map((line, li) => (
-          <Fragment key={li}>
-            {li > 0 && <br />}
-            {renderInline(line)}
-          </Fragment>
-        ))}
-      </p>
-    );
-  });
 }
 
 function timeAgo(dateStr: string): string {
@@ -151,12 +117,12 @@ function PostCard({
 
       {editing ? (
         <div className="flex flex-col gap-2">
-          <textarea
+          <MarkdownEditor
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={setDraft}
             rows={5}
             disabled={saving}
-            className="w-full resize-none rounded-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+            textareaClassName="w-full resize-none rounded-b-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
           />
           <div className="flex gap-2">
             <button
@@ -302,12 +268,12 @@ export default function TopicClient({
               </div>
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-mist">Content</label>
-                <textarea
+                <MarkdownEditor
                   value={topicContentDraft}
-                  onChange={(e) => setTopicContentDraft(e.target.value)}
+                  onChange={setTopicContentDraft}
                   rows={8}
                   disabled={savingTopic}
-                  className="w-full resize-none rounded-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  textareaClassName="w-full resize-none rounded-b-xl border border-brass/30 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                 />
               </div>
               <div className="flex gap-2">
@@ -399,12 +365,12 @@ export default function TopicClient({
                 </div>
               )}
               <form onSubmit={handleReply} className="flex flex-col gap-3">
-                <textarea
+                <MarkdownEditor
                   value={replyText}
-                  onChange={(e) => { setReplyText(e.target.value); setError(null); }}
+                  onChange={(v) => { setReplyText(v); setError(null); }}
                   placeholder="Write your reply..."
-                  rows={4} disabled={submitting}
-                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
+                  rows={4}
+                  disabled={submitting}
                 />
                 <div className="flex items-center justify-between gap-4">
                   <label className="flex items-center gap-2 text-sm text-mist">

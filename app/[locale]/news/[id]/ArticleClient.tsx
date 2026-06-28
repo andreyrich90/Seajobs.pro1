@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ChevronLeft, Calendar, Tag, Share2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 import { extractId } from "@/lib/slug";
+import { renderMarkdown } from "@/lib/markdown";
 
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
@@ -95,42 +97,6 @@ const SHARE_PLATFORMS = [
       `https://wa.me/?text=${encodeURIComponent(title + " " + url)}`,
   },
 ];
-
-function renderInline(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/);
-  return parts.map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? (
-      <strong key={i} className="font-semibold text-white">{part.slice(2, -2)}</strong>
-    ) : (
-      <Fragment key={i}>{part}</Fragment>
-    )
-  );
-}
-
-function renderBody(body: string) {
-  const blocks = body.split(/\n\n+/);
-  return blocks.map((block, bi) => {
-    const trimmed = block.trim();
-    if (!trimmed) return null;
-    if (trimmed.startsWith("## ")) {
-      return (
-        <h2 key={bi} className="mb-3 mt-7 font-display text-lg font-semibold text-white first:mt-0">
-          {trimmed.slice(3)}
-        </h2>
-      );
-    }
-    return (
-      <p key={bi} className="mb-5 text-sm leading-7 text-foam last:mb-0">
-        {trimmed.split("\n").map((line, li) => (
-          <Fragment key={li}>
-            {li > 0 && <br />}
-            {renderInline(line)}
-          </Fragment>
-        ))}
-      </p>
-    );
-  });
-}
 
 function formatDate(d: string, lang: string) {
   return new Date(d).toLocaleDateString(
@@ -311,7 +277,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
 
         {/* Body */}
         <div className="rounded-2xl border border-white/10 bg-card px-6 py-8 sm:px-8">
-          {renderBody(article.body)}
+          {renderMarkdown(article.body)}
         </div>
 
         {/* Share */}
@@ -362,14 +328,13 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
               />
             </div>
             <div className="mb-3">
-              <textarea
+              <MarkdownEditor
                 value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
+                onChange={setCommentText}
                 placeholder={t.news_comment_text_ph}
                 maxLength={2000}
-                required
                 rows={3}
-                className="w-full resize-none rounded-xl border border-white/10 bg-navy px-4 py-2.5 text-sm text-white placeholder-mist/50 outline-none focus:border-brass/40 transition"
+                textareaClassName="w-full resize-none rounded-b-xl border border-white/10 bg-navy px-4 py-2.5 text-sm text-white placeholder-mist/50 outline-none focus:border-brass/40 transition"
               />
             </div>
             {submitError && (
@@ -402,7 +367,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
                       <p className="text-xs text-mist">{formatCommentDate(c.created_at, lang)}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-foam leading-relaxed">{c.content}</p>
+                  <div className="leading-relaxed">{renderMarkdown(c.content)}</div>
                 </div>
               ))}
             </div>

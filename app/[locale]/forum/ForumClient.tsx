@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { MessageSquare, Pin, Plus, X, AlertCircle, LogIn } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumCategory } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
@@ -176,12 +177,12 @@ export default function ForumClient({
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-foam">Content</label>
-                <textarea
+                <MarkdownEditor
                   value={content}
-                  onChange={(e) => { setContent(e.target.value); setError(null); }}
+                  onChange={(v) => { setContent(v); setError(null); }}
                   placeholder="Write your post..."
-                  rows={5} disabled={submitting}
-                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
+                  rows={5}
+                  disabled={submitting}
                 />
               </div>
               {categories.length > 0 && (

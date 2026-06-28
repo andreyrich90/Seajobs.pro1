@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Plus, Trash2, Pencil, X, Eye, EyeOff, AlertCircle, CheckCircle, Languages } from "lucide-react";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 
@@ -254,12 +255,11 @@ export default function AdminNewsPage() {
                     Body {activeLang === "en" && <span className="text-coral">*</span>}
                     <span className="ml-1 text-xs text-mist uppercase">{activeLang}</span>
                   </label>
-                  <textarea
+                  <MarkdownEditor
                     value={form.body[activeLang] ?? ""}
-                    onChange={(e) => setForm((f) => ({ ...f, body: { ...f.body, [activeLang]: e.target.value } }))}
+                    onChange={(v) => setForm((f) => ({ ...f, body: { ...f.body, [activeLang]: v } }))}
                     placeholder={activeLang === "en" ? "Article content (required)" : "Translation (optional)"}
                     rows={10}
-                    className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass resize-none"
                   />
                   <p className="text-xs text-mist">
                     Leave a blank line between paragraphs. Start a line with <code className="text-brass2">## </code> for a subheading, wrap text in <code className="text-brass2">**bold**</code> for emphasis.
