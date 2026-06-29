@@ -12,6 +12,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase, notify } from "@/lib/supabase/client";
+import { renderMarkdown } from "@/lib/markdown";
 
 export type VacancyDetail = {
   id: string;
@@ -308,8 +309,8 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
             {vacancy.description && (
               <div className="rounded-2xl border border-white/10 bg-card p-6">
                 <h2 className="font-display text-lg font-semibold text-white mb-4">Job Description</h2>
-                <div className="text-sm text-foam/80 leading-relaxed whitespace-pre-wrap">
-                  {vacancy.description}
+                <div className="leading-relaxed">
+                  {renderMarkdown(vacancy.description)}
                 </div>
               </div>
             )}

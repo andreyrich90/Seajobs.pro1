@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight } from "lucide-react";
 import { supabase, notify } from "@/lib/supabase/client";
 import type { Vacancy } from "@/lib/supabase/types";
+import MarkdownEditor from "@/components/MarkdownEditor";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
@@ -409,12 +410,12 @@ export default function VacanciesPage() {
             {/* Description */}
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">{t.va_desc}</label>
-              <textarea
+              <MarkdownEditor
                 value={form.description}
-                onChange={(e) => handleChange("description", e.target.value)}
+                onChange={(v) => handleChange("description", v)}
                 placeholder={t.va_desc_ph}
-                rows={4} disabled={submitting}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50 resize-none"
+                rows={6}
+                disabled={submitting}
               />
             </div>
 
