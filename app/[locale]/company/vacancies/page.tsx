@@ -40,6 +40,17 @@ type VacancyForm = {
   is_active: boolean;
 };
 
+// Starter skeleton so company-posted vacancies follow the same structured
+// layout as the imported ones (intro + requirements list + how-to-apply).
+const DESCRIPTION_TEMPLATE = `Short intro: company, position, vessel and trading area.
+
+## Requirements
+-
+-
+
+## How to apply
+How candidates should apply (or just let them apply through SeaJobs.pro).`;
+
 const EMPTY_FORM: VacancyForm = {
   title: "",
   rank: "",
@@ -117,7 +128,7 @@ export default function VacanciesPage() {
 
   function openAdd() {
     setEditingId(null);
-    setForm(EMPTY_FORM);
+    setForm({ ...EMPTY_FORM, description: DESCRIPTION_TEMPLATE });
     setError(null);
     setShowForm(true);
   }
