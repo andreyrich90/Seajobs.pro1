@@ -38,3 +38,13 @@ export function hreflangAlternates(pathname: string): Record<string, string> {
 export function alternateOgLocales(current: string): string[] {
   return routing.locales.filter((l) => l !== current).map((l) => OG_LOCALE[l]);
 }
+
+/**
+ * Absolute canonical/og:url for a pathname in a given ROUTE locale ("en", "ru",
+ * "ua", "pl"). Built straight from the localized path so it never depends on the
+ * hreflang map keying — `hreflangAlternates(...)[locale]` returns undefined for
+ * "ua" because that map is keyed by the language code "uk", not the route.
+ */
+export function canonicalUrl(pathname: string, locale: string): string {
+  return `${BASE}${getPathname({ locale, href: pathname })}`;
+}

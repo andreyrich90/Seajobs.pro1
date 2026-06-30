@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -26,6 +26,7 @@ export async function generateMetadata({
     || `${data.name} on SeaJobs.pro — open vacancies and company profile for seafarers.`;
 
   const languages = hreflangAlternates(`/companies/${id}`);
+  const canonical = canonicalUrl(`/companies/${id}`, locale);
 
   return {
     title,
@@ -35,7 +36,7 @@ export async function generateMetadata({
       description,
       type: "website",
       siteName: "SeaJobs.pro",
-      url: languages[locale],
+      url: canonical,
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
@@ -45,7 +46,7 @@ export async function generateMetadata({
       description,
     },
     alternates: {
-      canonical: languages[locale],
+      canonical,
       languages,
     },
   };

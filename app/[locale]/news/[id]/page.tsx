@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { NEWS } from "@/lib/data";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { extractId } from "@/lib/slug";
 import ArticleClient from "./ArticleClient";
 
@@ -103,7 +103,7 @@ export async function generateMetadata(
       description,
       type: "article",
       siteName: "SeaJobs.pro",
-      url: languages[locale],
+      url: canonicalUrl(`/news/${id}`, locale),
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
       ...(date ? { publishedTime: new Date(date).toISOString() } : {}),
@@ -115,7 +115,7 @@ export async function generateMetadata(
       description,
     },
     alternates: {
-      canonical: languages[locale],
+      canonical: canonicalUrl(`/news/${id}`, locale),
       languages,
     },
   };
@@ -177,7 +177,6 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
   const initialArticle = await resolveArticle(id, locale);
   if (!initialArticle) return <ArticleClient id={id} initialArticle={initialArticle} />;
 
-  const languages = hreflangAlternates(`/news/${id}`);
   const publishedDate = initialArticle.date ? new Date(initialArticle.date) : null;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -192,7 +191,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
       "name": "SeaJobs.pro",
       "logo": { "@type": "ImageObject", "url": `${BASE_URL}/logo-oauth.png`, "width": 120, "height": 120 },
     },
-    "mainEntityOfPage": { "@type": "WebPage", "@id": languages[locale] ?? `${BASE_URL}/news/${id}` },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl(`/news/${id}`, locale) },
   };
 
   return (

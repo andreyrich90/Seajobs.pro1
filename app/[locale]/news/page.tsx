@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { hreflangAlternates } from "@/lib/seo";
+import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import NewsClient, { type DbArticle } from "./NewsClient";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: TITLES[locale] ?? TITLES.en,
     description: DESCS[locale] ?? DESCS.en,
-    alternates: { canonical: languages[locale], languages },
+    alternates: { canonical: canonicalUrl("/news", locale), languages },
   };
 }
 

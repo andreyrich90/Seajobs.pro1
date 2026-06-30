@@ -3,7 +3,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -59,7 +59,7 @@ export async function generateMetadata({
       description: meta.description,
     },
     alternates: {
-      canonical: hreflangAlternates("/")[locale],
+      canonical: canonicalUrl("/", locale),
       languages: hreflangAlternates("/"),
     },
   };

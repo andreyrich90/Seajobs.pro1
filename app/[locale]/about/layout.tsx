@@ -1,7 +1,7 @@
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 
 const SITE_META: Record<string, { title: string; description: string }> = {
   en: {
@@ -61,7 +61,7 @@ export async function generateMetadata({
       description: meta.description,
     },
     alternates: {
-      canonical: hreflangAlternates("/about")[locale],
+      canonical: canonicalUrl("/about", locale),
       languages: hreflangAlternates("/about"),
     },
   };

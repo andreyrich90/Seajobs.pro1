@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
@@ -80,7 +80,9 @@ export async function generateMetadata(
 
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;
   const description = `${rankPart}position${vesselPart}${locationPart}.${salaryPart} Apply on SeaJobs.pro — the maritime job board for seafarers.`;
-  const languages = hreflangAlternates(`/jobs/${slugId(vacancy.title, vacancy.id)}`);
+  const path = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
+  const languages = hreflangAlternates(path);
+  const canonical = canonicalUrl(path, locale);
 
   return {
     title,
@@ -90,7 +92,7 @@ export async function generateMetadata(
       description,
       type: "website",
       siteName: "SeaJobs.pro",
-      url: languages[locale],
+      url: canonical,
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
@@ -100,7 +102,7 @@ export async function generateMetadata(
       description,
     },
     alternates: {
-      canonical: languages[locale],
+      canonical,
       languages,
     },
   };
