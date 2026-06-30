@@ -25,8 +25,10 @@ const TXT: Record<string, Record<string, string>> = {
   empty:   { ua: "Поки немає листувань", pl: "Brak wiadomości", ru: "Пока нет переписок", en: "No messages yet" },
   emptyC:  { ua: "Напишіть кандидату зі сторінки відгуків.", pl: "Napisz do kandydata ze strony aplikacji.", ru: "Напишите кандидату со страницы откликов.", en: "Message a candidate from the applications page." },
   emptyS:  { ua: "Компанія напише вам після вашого відгуку.", pl: "Firma napisze do Ciebie po Twojej aplikacji.", ru: "Компания напишет вам после вашего отклика.", en: "A company will message you after you apply." },
+  emptyA:  { ua: "Напишіть користувачу зі сторінки «Користувачі».", pl: "Napisz do użytkownika ze strony „Użytkownicy”.", ru: "Напишите пользователю со страницы «Пользователи».", en: "Message a user from the Users page." },
   pick:    { ua: "Виберіть листування", pl: "Wybierz wiadomość", ru: "Выберите переписку", en: "Select a conversation" },
   you:     { ua: "Ви: ", pl: "Ty: ", ru: "Вы: ", en: "You: " },
+  team:    { ua: "Команда SeaJobs", pl: "Zespół SeaJobs", ru: "Команда SeaJobs", en: "SeaJobs Team" },
 };
 
 function fmtWhen(d: string | null): string {
@@ -39,7 +41,7 @@ function fmtWhen(d: string | null): string {
     : date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-export default function MessagesView({ role }: { role: "company" | "seafarer" }) {
+export default function MessagesView({ role }: { role: "company" | "seafarer" | "admin" }) {
   const { lang } = useLang();
   const tx = (k: string) => TXT[k]?.[lang] ?? TXT[k]?.en ?? k;
   const searchParams = useSearchParams();
@@ -50,29 +52,39 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
   const [selected, setSelected] = useState<string | null>(null);
 
   const load = useCallback(async (uid: string) => {
-    const mineCol = role === "company" ? "company_id" : "seafarer_id";
-    const otherCol = role === "company" ? "seafarer_id" : "company_id";
+    // The current user is a participant; the "other" side is whichever of the
+    // two conversation columns isn't them. Admins can sit in either column
+    // (company_id for seafarer threads, seafarer_id for company threads).
+    const otherIdOf = (r: { company_id: string; seafarer_id: string }) =>
+      r.company_id === uid ? r.seafarer_id : r.company_id;
 
-    const { data: rows } = await supabase
+    let q = supabase
       .from("conversations")
-      .select("id, company_id, seafarer_id, last_message_at, created_at")
-      .eq(mineCol, uid)
+      .select("id, company_id, seafarer_id, last_message_at, created_at");
+    if (role === "company") q = q.eq("company_id", uid);
+    else if (role === "seafarer") q = q.eq("seafarer_id", uid);
+    else q = q.or(`company_id.eq.${uid},seafarer_id.eq.${uid}`); // admin
+    const { data: rows } = await q
       .order("last_message_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
     const list = rows ?? [];
-    const otherIds = [...new Set(list.map((r) => r[otherCol] as string))];
+    const otherIds = [...new Set(list.map(otherIdOf))];
 
-    // Counterpart names/avatars/subtitles.
+    // Resolve each counterpart from whichever table they belong to, so the same
+    // view works for company, seafarer and admin threads. SeaJobs staff have no
+    // seafarers/companies row, so they're labelled from the profiles flag.
+    const teamLabel = TXT.team[lang] ?? TXT.team.en;
     const names: Record<string, { name: string; avatar: string | null; subtitle: string | null }> = {};
     if (otherIds.length > 0) {
-      if (role === "company") {
-        const { data: sf } = await supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds);
-        for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url, subtitle: s.rank };
-      } else {
-        const { data: co } = await supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds);
-        for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url, subtitle: c.location };
-      }
+      const [{ data: profs }, { data: sf }, { data: co }] = await Promise.all([
+        supabase.from("profiles").select("id, is_admin").in("id", otherIds),
+        supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds),
+        supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds),
+      ]);
+      for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url, subtitle: s.rank };
+      for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url, subtitle: c.location };
+      for (const p of profs ?? []) if (p.is_admin) names[p.id] = { name: teamLabel, avatar: null, subtitle: null };
     }
 
     // Last message + unread counts in one query.
@@ -93,7 +105,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
 
     setConvos(
       list.map((r) => {
-        const otherId = r[otherCol] as string;
+        const otherId = otherIdOf(r);
         return {
           id: r.id,
           otherId,
@@ -108,7 +120,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
       })
     );
     setLoading(false);
-  }, [role]);
+  }, [role, lang]);
 
   useEffect(() => {
     (async () => {
@@ -137,7 +149,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" })
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">
           <MessageCircle size={40} className="mx-auto mb-3 text-mist/40" />
           <p className="text-lg font-semibold text-foam">{tx("empty")}</p>
-          <p className="mt-1 text-sm text-mist">{role === "company" ? tx("emptyC") : tx("emptyS")}</p>
+          <p className="mt-1 text-sm text-mist">{role === "admin" ? tx("emptyA") : role === "company" ? tx("emptyC") : tx("emptyS")}</p>
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">

@@ -281,9 +281,13 @@ ${certRows ? `<h3>Certificates</h3><ul>${certRows}</ul>` : ""}
       const recipientId = caller.id === convo.company_id ? convo.seafarer_id : convo.company_id;
       const recipientIsSeafarer = recipientId === convo.seafarer_id;
 
-      // Sender's display name.
+      // Sender's display name. An admin participant (SeaJobs staff messaging a
+      // user) has no companies/seafarers row, so label them explicitly.
       let senderName = "Someone";
-      if (caller.id === convo.company_id) {
+      const { data: callerProfile } = await admin.from("profiles").select("is_admin").eq("id", caller.id).single();
+      if (callerProfile?.is_admin) {
+        senderName = "SeaJobs Team";
+      } else if (caller.id === convo.company_id) {
         const { data: c } = await admin.from("companies").select("name").eq("id", caller.id).single();
         senderName = c?.name || "A company";
       } else {

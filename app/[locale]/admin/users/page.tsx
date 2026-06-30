@@ -3,7 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2 } from "lucide-react";
+import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2, MessageCircle } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
 
 type UserRow = {
@@ -21,10 +22,17 @@ function formatDate(d: string) {
 }
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const [users, setUsers]     = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<"all" | "seafarer" | "company" | "blocked">("all");
   const [query, setQuery]     = useState("");
+  const [adminId, setAdminId] = useState<string | null>(null);
+  const [messaging, setMessaging] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setAdminId(data.session?.user.id ?? null));
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -81,6 +89,29 @@ export default function AdminUsersPage() {
     if (!confirm("Delete this user and all their data? This cannot be undone.")) return;
     const { error } = await supabase.from("profiles").delete().eq("id", id);
     if (!error) setUsers((prev) => prev.filter((u) => u.id !== id));
+  }
+
+  // Open (or start) an admin↔user chat. The admin sits in the column opposite
+  // the user's natural role, so the user sees the thread in their own Messages
+  // page and can reply. One thread per user (unique company_id+seafarer_id).
+  async function messageUser(user: UserRow) {
+    if (!adminId || messaging) return;
+    setMessaging(user.id);
+    const company_id  = user.role === "seafarer" ? adminId : user.id;
+    const seafarer_id = user.role === "seafarer" ? user.id : adminId;
+
+    const { data: existing } = await supabase
+      .from("conversations").select("id")
+      .eq("company_id", company_id).eq("seafarer_id", seafarer_id).maybeSingle();
+
+    let convoId = existing?.id ?? null;
+    if (!convoId) {
+      const { data: created, error } = await supabase
+        .from("conversations").insert({ company_id, seafarer_id }).select("id").single();
+      if (error) { alert(error.message); setMessaging(null); return; }
+      convoId = created.id;
+    }
+    router.push(`/admin/chats?c=${convoId}`);
   }
 
   const filtered = users.filter((u) => {
@@ -174,6 +205,14 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {!u.is_admin && (
+                        <button onClick={() => messageUser(u)} disabled={messaging === u.id || !adminId}
+                          title="Message this user"
+                          className="rounded-lg border border-brass/20 bg-brass/10 p-1.5 text-brass2 hover:bg-brass/20 transition disabled:opacity-30"
+                        >
+                          <MessageCircle size={14} />
+                        </button>
+                      )}
                       <button onClick={() => toggleBlock(u)} disabled={u.is_admin}
                         title={u.is_blocked ? "Unblock" : "Block"}
                         className={`rounded-lg border p-1.5 transition disabled:opacity-30 ${
