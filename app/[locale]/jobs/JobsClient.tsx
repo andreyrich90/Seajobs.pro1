@@ -60,14 +60,20 @@ function formatSalary(v: VacancyWithCompany): string {
 export default function JobsClient({ initialVacancies }: { initialVacancies: VacancyWithCompany[] }) {
   const searchParams = useSearchParams();
   const vacancies = initialVacancies;
+  // Initialise filters from the URL so they survive a back-navigation from a
+  // vacancy detail page (state alone would reset on remount).
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [rank, setRank] = useState("");
-  const [vessel, setVessel] = useState("");
+  const [rank, setRank] = useState(searchParams.get("rank") ?? "");
+  const [vessel, setVessel] = useState(searchParams.get("vessel") ?? "");
   const [userId, setUserId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(() => {
+    const p = parseInt(searchParams.get("page") ?? "1", 10);
+    return Number.isFinite(p) && p > 0 ? p : 1;
+  });
   const PAGE_SIZE = 30;
   const resultsRef = useRef<HTMLDivElement>(null);
+  const firstRun = useRef(true);
 
   useEffect(() => {
     // Saved jobs are user-specific — load them on the client.
@@ -117,12 +123,28 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     return matchQuery && matchRank && matchVessel;
   });
 
-  // Reset to the first page whenever the filters change the result set.
-  useEffect(() => { setPage(1); }, [query, rank, vessel]);
+  // Reset to the first page whenever the filters change the result set — but
+  // not on the initial mount, so a page restored from the URL is preserved.
+  useEffect(() => {
+    if (firstRun.current) { firstRun.current = false; return; }
+    setPage(1);
+  }, [query, rank, vessel]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  // Mirror the active filters into the URL (without a navigation/refetch) so
+  // returning to this page via the browser Back button restores them.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (rank) params.set("rank", rank);
+    if (vessel) params.set("vessel", vessel);
+    if (currentPage > 1) params.set("page", String(currentPage));
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  }, [query, rank, vessel, currentPage]);
 
   function goToPage(p: number) {
     setPage(Math.min(Math.max(1, p), totalPages));
