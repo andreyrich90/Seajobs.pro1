@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import NextLink from "next/link";
-import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X } from "lucide-react";
+import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X, FolderInput } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { supabase } from "@/lib/supabase/client";
-import type { ForumTopic, ForumPost } from "@/lib/supabase/types";
+import type { ForumTopic, ForumPost, ForumCategory } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 import { renderMarkdown } from "@/lib/markdown";
+import { sectionLabel } from "@/lib/forumSections";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -151,15 +152,19 @@ function PostCard({
 export default function TopicClient({
   initialTopic,
   initialPosts,
+  initialCategories = [],
 }: {
   initialTopic: ForumTopic;
   initialPosts: ForumPost[];
+  initialCategories?: ForumCategory[];
 }) {
   const router = useRouter();
   const { lang } = useLang();
   const [topic, setTopic] = useState<ForumTopic>(initialTopic);
   const [posts, setPosts] = useState<ForumPost[]>(initialPosts);
   const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [movingCat, setMovingCat] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyAnonymous, setReplyAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -173,8 +178,25 @@ export default function TopicClient({
   const id = topic.id;
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    supabase.auth.getSession().then(async ({ data }) => {
+      setSession(data.session);
+      if (data.session) {
+        const { data: profile } = await supabase
+          .from("profiles").select("is_admin").eq("id", data.session.user.id).single();
+        setIsAdmin(!!profile?.is_admin);
+      }
+    });
   }, []);
+
+  async function moveToCategory(categoryId: string) {
+    if (movingCat) return;
+    setMovingCat(true);
+    const next = categoryId || null;
+    const { error: moveError } = await supabase
+      .from("forum_topics").update({ category_id: next }).eq("id", id);
+    if (!moveError) setTopic((prev) => ({ ...prev, category_id: next }));
+    setMovingCat(false);
+  }
 
   async function handleReply(e: React.FormEvent) {
     e.preventDefault();
@@ -320,6 +342,24 @@ export default function TopicClient({
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {isAdmin && !editingTopic && initialCategories.length > 0 && (
+          <div className="mb-6 flex items-center gap-2 rounded-xl border border-brass/20 bg-brass/5 px-4 py-2.5">
+            <FolderInput size={16} className="shrink-0 text-brass2" />
+            <span className="text-sm font-semibold text-foam">Section:</span>
+            <select
+              value={topic.category_id ?? ""}
+              onChange={(e) => moveToCategory(e.target.value)}
+              disabled={movingCat}
+              className="flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-1.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+            >
+              <option value="">— No section —</option>
+              {initialCategories.map((c) => (
+                <option key={c.id} value={c.id}>{sectionLabel(c.name, lang)}</option>
+              ))}
+            </select>
           </div>
         )}
 

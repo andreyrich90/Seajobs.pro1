@@ -12,6 +12,7 @@ import type { ForumTopic, ForumCategory } from "@/lib/supabase/types";
 import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
+import { sectionLabel, sectionDesc } from "@/lib/forumSections";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -243,7 +244,7 @@ export default function ForumClient({
                     className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                   >
                     <option value="">— No section —</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {categories.map((c) => <option key={c.id} value={c.id}>{sectionLabel(c.name, lang)}</option>)}
                   </select>
                 </div>
               )}
@@ -315,7 +316,7 @@ export default function ForumClient({
                   activeCat === c.id ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
                 }`}
               >
-                {c.name}
+                {sectionLabel(c.name, lang)}
               </button>
             ))}
           </div>
@@ -332,8 +333,10 @@ export default function ForumClient({
               <div key={section.key}>
                 <div className="mb-2.5 flex items-baseline justify-between gap-3 border-b border-white/10 pb-1.5">
                   <div>
-                    <h2 className="font-display text-lg font-semibold text-brass2">{section.name}</h2>
-                    {section.description && <p className="mt-0.5 text-xs text-mist">{section.description}</p>}
+                    <h2 className="font-display text-lg font-semibold text-brass2">{sectionLabel(section.name, lang)}</h2>
+                    {sectionDesc(section.name, lang, section.description) && (
+                      <p className="mt-0.5 text-xs text-mist">{sectionDesc(section.name, lang, section.description)}</p>
+                    )}
                   </div>
                   <span className="shrink-0 text-xs font-semibold text-mist">
                     {section.topics.length} {section.topics.length === 1 ? "topic" : "topics"}

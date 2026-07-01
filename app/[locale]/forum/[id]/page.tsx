@@ -12,12 +12,13 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
   const id = extractId(param) ?? param;
   const sb = getServerSupabase();
 
-  const [{ data: topic }, { data: posts }] = await Promise.all([
+  const [{ data: topic }, { data: posts }, { data: cats }] = await Promise.all([
     sb.from("forum_topics").select("*").eq("id", id).single(),
     sb.from("forum_posts").select("*").eq("topic_id", id).order("created_at", { ascending: true }),
+    sb.from("forum_categories").select("*").order("sort_order").order("name"),
   ]);
 
   if (!topic) notFound();
 
-  return <TopicClient initialTopic={topic} initialPosts={posts ?? []} />;
+  return <TopicClient initialTopic={topic} initialPosts={posts ?? []} initialCategories={cats ?? []} />;
 }
