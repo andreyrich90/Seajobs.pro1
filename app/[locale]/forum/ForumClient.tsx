@@ -24,6 +24,15 @@ function loc(field: unknown, lang: string): string {
   return "";
 }
 
+// Sections whose name matches this are treated as "Questions & Reviews":
+// the title is optional there and auto-derived from the question text.
+const QNA_RE = /question|review|вопрос|отзыв|питанн|відгук|pytani|opini/i;
+
+function deriveTitle(text: string): string {
+  const firstLine = text.trim().split("\n")[0].trim();
+  return firstLine.length > 70 ? `${firstLine.slice(0, 70).trimEnd()}…` : firstLine;
+}
+
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const m = Math.floor(diff / 60000);
@@ -83,7 +92,12 @@ export default function ForumClient({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session) return;
-    if (!title.trim() || !content.trim()) {
+    const qna = QNA_RE.test(categories.find((c) => c.id === categoryId)?.name ?? "");
+    if (!content.trim()) {
+      setError("Please write your message.");
+      return;
+    }
+    if (!qna && !title.trim()) {
       setError("Title and content are required.");
       return;
     }
@@ -91,6 +105,7 @@ export default function ForumClient({
     setError(null);
 
     const authorName = isAnonymous ? null : await resolveAuthorName(session.user.id);
+    const finalTitle = title.trim() || deriveTitle(content);
 
     const { data, error: insertError } = await supabase
       .from("forum_topics")
@@ -98,7 +113,7 @@ export default function ForumClient({
         user_id: session.user.id,
         author_name: authorName,
         is_anonymous: isAnonymous,
-        title: { [lang]: title.trim() },
+        title: { [lang]: finalTitle },
         content: { [lang]: content.trim() },
         category_id: categoryId || null,
       })
@@ -123,6 +138,7 @@ export default function ForumClient({
     setSubmitting(false);
   }
 
+  const isQnA = QNA_RE.test(categories.find((c) => c.id === categoryId)?.name ?? "");
   const visibleTopics = activeCat === "all" ? topics : topics.filter((t) => t.category_id === activeCat);
 
   return (
@@ -157,7 +173,7 @@ export default function ForumClient({
 
         {showForm && (
           <div className="mb-8 rounded-2xl border border-brass/20 bg-card p-6">
-            <h2 className="mb-4 font-display text-lg font-semibold text-white">Create New Topic</h2>
+            <h2 className="mb-4 font-display text-lg font-semibold text-white">{isQnA ? "Ask a Question / Leave a Review" : "Create New Topic"}</h2>
             {error && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
                 <AlertCircle size={16} className="mt-0.5 shrink-0 text-coral" />
@@ -165,26 +181,6 @@ export default function ForumClient({
               </div>
             )}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-foam">Title</label>
-                <input
-                  type="text" value={title}
-                  onChange={(e) => { setTitle(e.target.value); setError(null); }}
-                  placeholder="What would you like to discuss?"
-                  disabled={submitting}
-                  className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-foam">Content</label>
-                <MarkdownEditor
-                  value={content}
-                  onChange={(v) => { setContent(v); setError(null); }}
-                  placeholder="Write your post..."
-                  rows={5}
-                  disabled={submitting}
-                />
-              </div>
               {categories.length > 0 && (
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-semibold text-foam">Section</label>
@@ -199,6 +195,28 @@ export default function ForumClient({
                   </select>
                 </div>
               )}
+              {!isQnA && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-semibold text-foam">Title</label>
+                  <input
+                    type="text" value={title}
+                    onChange={(e) => { setTitle(e.target.value); setError(null); }}
+                    placeholder="What would you like to discuss?"
+                    disabled={submitting}
+                    className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-semibold text-foam">{isQnA ? "Your question or review" : "Content"}</label>
+                <MarkdownEditor
+                  value={content}
+                  onChange={(v) => { setContent(v); setError(null); }}
+                  placeholder={isQnA ? "Ask your question or leave a review…" : "Write your post..."}
+                  rows={5}
+                  disabled={submitting}
+                />
+              </div>
               <label className="flex items-center gap-2 text-sm text-mist">
                 <input
                   type="checkbox"
@@ -277,7 +295,7 @@ export default function ForumClient({
                         Pinned
                       </span>
                     )}
-                    <h3 className="font-semibold text-white truncate">{loc(topic.title, lang)}</h3>
+                    <h3 className="font-semibold text-white text-sm sm:text-base break-words">{loc(topic.title, lang)}</h3>
                     {catName(topic.category_id) && (
                       <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-xs font-semibold text-teal">
                         {catName(topic.category_id)}
