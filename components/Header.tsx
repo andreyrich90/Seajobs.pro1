@@ -11,6 +11,7 @@ import {
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { supabase } from "@/lib/supabase/client";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Header() {
   const { lang, setLang } = useLang();
@@ -118,6 +119,9 @@ export default function Header() {
             )}
           </div>
 
+          {/* Message / notification bell — any page, all sizes, when logged in */}
+          {dashboardHref && <NotificationBell />}
+
           {/* Admin button — md+ only */}
           {isAdmin && (
             <div className="hidden md:block">
@@ -167,12 +171,20 @@ export default function Header() {
               </Link>
             )}
             {dashboardHref ? (
-              <Link
-                href={dashboardHref}
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-              >
-                <LayoutDashboard size={16} /> Cabinet
-              </Link>
+              <>
+                <Link
+                  href={dashboardHref.replace("/dashboard", "/messages")}
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2"
+                >
+                  <MessageSquare size={18} /> {t.cab_messages}
+                </Link>
+                <Link
+                  href={dashboardHref}
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                >
+                  <LayoutDashboard size={16} /> Cabinet
+                </Link>
+              </>
             ) : (
               <NextLink
                 href="/auth/login"
