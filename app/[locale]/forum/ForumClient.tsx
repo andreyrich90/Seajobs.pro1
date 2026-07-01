@@ -139,7 +139,59 @@ export default function ForumClient({
   }
 
   const isQnA = QNA_RE.test(categories.find((c) => c.id === categoryId)?.name ?? "");
-  const visibleTopics = activeCat === "all" ? topics : topics.filter((t) => t.category_id === activeCat);
+
+  const renderTopicRow = (topic: ForumTopic) => (
+    <Link
+      key={topic.id}
+      href={`/forum/${slugId(loc(topic.title, lang), topic.id)}`}
+      className="flex items-start gap-4 px-5 py-4 transition hover:bg-white/5"
+    >
+      <div className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${topic.is_pinned ? "bg-brass/15" : "bg-teal/10"}`}>
+        {topic.is_pinned
+          ? <Pin size={16} className="text-brass2" />
+          : <MessageSquare size={16} className="text-teal" />
+        }
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          {topic.is_pinned && (
+            <span className="rounded-full bg-brass/15 border border-brass/20 px-2 py-0.5 text-xs font-semibold text-brass2">
+              Pinned
+            </span>
+          )}
+          <h3 className="font-semibold text-white text-sm sm:text-base break-words">{loc(topic.title, lang)}</h3>
+        </div>
+        <p className="mt-0.5 text-xs text-mist">
+          by <span className="text-foam">{topic.is_anonymous ? "Anonymous" : topic.author_name ?? "Anonymous"}</span>
+          {" · "}{timeAgo(topic.created_at)}
+        </p>
+      </div>
+      <div className="flex shrink-0 items-center gap-1.5 text-mist">
+        <MessageSquare size={14} />
+        <span className="text-sm font-semibold">{countMap[topic.id] ?? 0}</span>
+      </div>
+    </Link>
+  );
+
+  // Grouped view (sections with topics inside) when no single section is picked;
+  // a flat list when the user filters to one section.
+  const sections =
+    activeCat === "all"
+      ? [
+          ...categories.map((c) => ({
+            key: c.id,
+            name: c.name,
+            description: c.description,
+            topics: topics.filter((t) => t.category_id === c.id),
+          })),
+          {
+            key: "__none",
+            name: "General discussion",
+            description: null as string | null,
+            topics: topics.filter((t) => !t.category_id || !categories.some((c) => c.id === t.category_id)),
+          },
+        ].filter((s) => s.topics.length > 0)
+      : [{ key: activeCat, name: catName(activeCat) ?? "", description: null as string | null, topics: topics.filter((t) => t.category_id === activeCat) }];
 
   return (
     <div className="min-h-screen bg-navy">
@@ -269,49 +321,28 @@ export default function ForumClient({
           </div>
         )}
 
-        {visibleTopics.length === 0 ? (
+        {topics.length === 0 ? (
           <div className="rounded-2xl border border-white/10 bg-card p-16 text-center">
             <MessageSquare size={32} className="mx-auto mb-3 text-mist" />
             <p className="text-mist">No topics yet. Be the first to start a discussion!</p>
           </div>
         ) : (
-          <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-card overflow-hidden">
-            {visibleTopics.map((topic) => (
-              <Link
-                key={topic.id}
-                href={`/forum/${slugId(loc(topic.title, lang), topic.id)}`}
-                className="flex items-start gap-4 px-5 py-4 transition hover:bg-white/5"
-              >
-                <div className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${topic.is_pinned ? "bg-brass/15" : "bg-teal/10"}`}>
-                  {topic.is_pinned
-                    ? <Pin size={16} className="text-brass2" />
-                    : <MessageSquare size={16} className="text-teal" />
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {topic.is_pinned && (
-                      <span className="rounded-full bg-brass/15 border border-brass/20 px-2 py-0.5 text-xs font-semibold text-brass2">
-                        Pinned
-                      </span>
-                    )}
-                    <h3 className="font-semibold text-white text-sm sm:text-base break-words">{loc(topic.title, lang)}</h3>
-                    {catName(topic.category_id) && (
-                      <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-xs font-semibold text-teal">
-                        {catName(topic.category_id)}
-                      </span>
-                    )}
+          <div className="flex flex-col gap-7">
+            {sections.map((section) => (
+              <div key={section.key}>
+                <div className="mb-2.5 flex items-baseline justify-between gap-3 border-b border-white/10 pb-1.5">
+                  <div>
+                    <h2 className="font-display text-lg font-semibold text-brass2">{section.name}</h2>
+                    {section.description && <p className="mt-0.5 text-xs text-mist">{section.description}</p>}
                   </div>
-                  <p className="mt-0.5 text-xs text-mist">
-                    by <span className="text-foam">{topic.is_anonymous ? "Anonymous" : topic.author_name ?? "Anonymous"}</span>
-                    {" · "}{timeAgo(topic.created_at)}
-                  </p>
+                  <span className="shrink-0 text-xs font-semibold text-mist">
+                    {section.topics.length} {section.topics.length === 1 ? "topic" : "topics"}
+                  </span>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5 text-mist">
-                  <MessageSquare size={14} />
-                  <span className="text-sm font-semibold">{countMap[topic.id] ?? 0}</span>
+                <div className="flex flex-col divide-y divide-white/5 rounded-2xl border border-white/10 bg-card overflow-hidden">
+                  {section.topics.map(renderTopicRow)}
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
