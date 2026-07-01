@@ -77,14 +77,16 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
     const teamLabel = TXT.team[lang] ?? TXT.team.en;
     const names: Record<string, { name: string; avatar: string | null; subtitle: string | null }> = {};
     if (otherIds.length > 0) {
-      const [{ data: profs }, { data: sf }, { data: co }] = await Promise.all([
-        supabase.from("profiles").select("id, is_admin").in("id", otherIds),
+      // profiles RLS hides other users' rows, so admin participants are found
+      // via a SECURITY DEFINER function that returns only the admin ids.
+      const [{ data: adminIds }, { data: sf }, { data: co }] = await Promise.all([
+        supabase.rpc("filter_admin_ids", { ids: otherIds }),
         supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds),
         supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds),
       ]);
       for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url, subtitle: s.rank };
       for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url, subtitle: c.location };
-      for (const p of profs ?? []) if (p.is_admin) names[p.id] = { name: teamLabel, avatar: null, subtitle: null };
+      for (const id of (adminIds as string[] | null) ?? []) names[id] = { name: teamLabel, avatar: null, subtitle: null };
     }
 
     // Last message + unread counts in one query.

@@ -718,6 +718,10 @@ export interface Database {
         Args: { vid: string };
         Returns: undefined;
       };
+      filter_admin_ids: {
+        Args: { ids: string[] };
+        Returns: string[];
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
