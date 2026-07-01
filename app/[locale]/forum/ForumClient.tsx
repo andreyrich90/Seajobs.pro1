@@ -25,6 +25,16 @@ function loc(field: unknown, lang: string): string {
   return "";
 }
 
+const FORUM_UI: Record<string, Record<string, string>> = {
+  title: { en: "Community Forum", ru: "Форум сообщества", ua: "Форум спільноти", pl: "Forum społeczności" },
+  subtitle: {
+    en: "Discuss maritime topics, share experience, ask questions.",
+    ru: "Обсуждайте морские темы, делитесь опытом, задавайте вопросы.",
+    ua: "Обговорюйте морські теми, діліться досвідом, ставте запитання.",
+    pl: "Dyskutuj o tematach morskich, dziel się doświadczeniem i zadawaj pytania.",
+  },
+};
+
 // Sections whose name matches this are treated as "Questions & Reviews":
 // the title is optional there and auto-derived from the question text.
 const QNA_RE = /question|review|вопрос|отзыв|питанн|відгук|pytani|opini/i;
@@ -201,9 +211,9 @@ export default function ForumClient({
       <div className="mx-auto max-w-4xl px-5 py-10">
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-display text-3xl font-semibold text-white">Community Forum</h1>
+            <h1 className="font-display text-3xl font-semibold text-white">{FORUM_UI.title[lang] ?? FORUM_UI.title.en}</h1>
             <p className="mt-1.5 text-sm text-mist">
-              Discuss maritime topics, share experience, ask questions.
+              {FORUM_UI.subtitle[lang] ?? FORUM_UI.subtitle.en}
             </p>
           </div>
           {session ? (
@@ -295,30 +305,6 @@ export default function ForumClient({
                 </button>
               </div>
             </form>
-          </div>
-        )}
-
-        {categories.length > 0 && (
-          <div className="mb-5 flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveCat("all")}
-              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                activeCat === "all" ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
-              }`}
-            >
-              All
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setActiveCat(c.id)}
-                className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                  activeCat === c.id ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
-                }`}
-              >
-                {sectionLabel(c.name, lang)}
-              </button>
-            ))}
           </div>
         )}
 
