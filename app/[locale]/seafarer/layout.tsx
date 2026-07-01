@@ -86,7 +86,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+      <nav className="px-3 py-4 flex flex-col gap-1">
         {NAV_KEYS.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -106,7 +106,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-white/10 flex flex-col gap-1">
+      <div className="px-3 py-4 border-t border-white/10 flex flex-col gap-1 mt-1">
         {/* Notifications */}
         <div className="mb-1 flex items-center gap-3 px-3 py-1">
           <NotificationBell placement="up-left" />
