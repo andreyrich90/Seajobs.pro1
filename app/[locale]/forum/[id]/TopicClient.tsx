@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import NextLink from "next/link";
-import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X, FolderInput } from "lucide-react";
+import { ChevronLeft, MessageSquare, LogIn, AlertCircle, Trash2, Pin, Pencil, Check, X, FolderInput, Reply } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -53,7 +53,7 @@ async function resolveAuthorName(userId: string): Promise<string> {
 }
 
 function PostCard({
-  authorName, date, content, isOwn, onDelete, onSaveEdit, highlight,
+  authorName, date, content, isOwn, onDelete, onSaveEdit, onReply, highlight,
 }: {
   authorName: string | null;
   date: string;
@@ -61,6 +61,7 @@ function PostCard({
   isOwn: boolean;
   onDelete?: () => void;
   onSaveEdit?: (newContent: string) => Promise<void>;
+  onReply?: () => void;
   highlight?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
@@ -92,9 +93,18 @@ function PostCard({
             <p className="text-xs text-mist">{timeAgo(date)}</p>
           </div>
         </div>
-        {isOwn && (
+        {!editing && (onReply || isOwn) && (
           <div className="flex items-center gap-1.5">
-            {onSaveEdit && !editing && (
+            {onReply && (
+              <button
+                onClick={onReply}
+                className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs font-semibold text-mist hover:text-white transition"
+                title="Reply"
+              >
+                <Reply size={13} /> Reply
+              </button>
+            )}
+            {isOwn && onSaveEdit && (
               <button
                 onClick={() => { setDraft(content); setEditing(true); }}
                 className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-mist hover:text-white transition"
@@ -103,7 +113,7 @@ function PostCard({
                 <Pencil size={13} />
               </button>
             )}
-            {onDelete && !editing && (
+            {isOwn && onDelete && (
               <button
                 onClick={onDelete}
                 className="rounded-lg bg-coral/10 border border-coral/20 p-1.5 text-coral hover:bg-coral/20 transition"
@@ -167,8 +177,10 @@ export default function TopicClient({
   const [movingCat, setMovingCat] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replyAnonymous, setReplyAnonymous] = useState(false);
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const replyFormRef = useRef<HTMLDivElement>(null);
 
   const [editingTopic, setEditingTopic] = useState(false);
   const [topicTitleDraft, setTopicTitleDraft] = useState("");
@@ -208,7 +220,7 @@ export default function TopicClient({
 
     const { data, error: insertError } = await supabase
       .from("forum_posts")
-      .insert({ topic_id: id, user_id: session.user.id, author_name: authorName, is_anonymous: replyAnonymous, content: replyText.trim() })
+      .insert({ topic_id: id, user_id: session.user.id, author_name: authorName, is_anonymous: replyAnonymous, content: replyText.trim(), parent_id: replyTo?.id ?? null })
       .select()
       .single();
 
@@ -218,9 +230,38 @@ export default function TopicClient({
       setPosts((prev) => [...prev, data]);
       setReplyText("");
       setReplyAnonymous(false);
+      setReplyTo(null);
     }
     setSubmitting(false);
   }
+
+  function startReplyTo(post: ForumPost) {
+    setReplyTo({ id: post.id, name: post.is_anonymous ? "Anonymous" : (post.author_name ?? "Anonymous") });
+    setError(null);
+    requestAnimationFrame(() => replyFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }
+
+  const childrenOf = (parentId: string) => posts.filter((p) => p.parent_id === parentId);
+  const topLevelPosts = posts.filter((p) => !p.parent_id || !posts.some((x) => x.id === p.parent_id));
+
+  const renderPost = (post: ForumPost) => (
+    <div key={post.id} className="flex flex-col gap-3">
+      <PostCard
+        authorName={post.is_anonymous ? "Anonymous" : post.author_name}
+        date={post.created_at}
+        content={post.content}
+        isOwn={session?.user.id === post.user_id}
+        onDelete={() => handleDeletePost(post.id)}
+        onSaveEdit={(newContent) => handleEditPost(post.id, newContent)}
+        onReply={session ? () => startReplyTo(post) : undefined}
+      />
+      {childrenOf(post.id).length > 0 && (
+        <div className="ml-4 flex flex-col gap-3 border-l border-white/10 pl-3 sm:ml-6 sm:pl-4">
+          {childrenOf(post.id).map(renderPost)}
+        </div>
+      )}
+    </div>
+  );
 
   async function handleDeletePost(postId: string) {
     if (!confirm("Delete this reply?")) return;
@@ -380,24 +421,22 @@ export default function TopicClient({
           </div>
 
           <div className="flex flex-col gap-3">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                authorName={post.is_anonymous ? "Anonymous" : post.author_name}
-                date={post.created_at}
-                content={post.content}
-                isOwn={session?.user.id === post.user_id}
-                onDelete={() => handleDeletePost(post.id)}
-                onSaveEdit={(newContent) => handleEditPost(post.id, newContent)}
-              />
-            ))}
+            {topLevelPosts.map(renderPost)}
           </div>
         </div>
 
         <div className="mt-8">
           {session ? (
-            <div className="rounded-2xl border border-white/10 bg-card p-5">
+            <div ref={replyFormRef} className="rounded-2xl border border-white/10 bg-card p-5">
               <h3 className="mb-4 font-semibold text-white">Write a reply</h3>
+              {replyTo && (
+                <div className="mb-3 flex items-center justify-between gap-2 rounded-xl border border-brass/20 bg-brass/5 px-3 py-2 text-xs text-mist">
+                  <span>Replying to <span className="font-semibold text-foam">{replyTo.name}</span></span>
+                  <button type="button" onClick={() => setReplyTo(null)} className="text-mist transition hover:text-white" title="Cancel reply">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
               {error && (
                 <div className="mb-4 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
                   <AlertCircle size={16} className="mt-0.5 shrink-0 text-coral" />

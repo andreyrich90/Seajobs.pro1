@@ -494,6 +494,7 @@ export interface Database {
           author_name: string | null;
           is_anonymous: boolean;
           content: string;
+          parent_id: string | null;
           created_at: string;
           updated_at: string | null;
         };
@@ -504,6 +505,7 @@ export interface Database {
           author_name?: string | null;
           is_anonymous?: boolean;
           content: string;
+          parent_id?: string | null;
           created_at?: string;
           updated_at?: string | null;
         };
@@ -514,6 +516,7 @@ export interface Database {
           author_name?: string | null;
           is_anonymous?: boolean;
           content?: string;
+          parent_id?: string | null;
           created_at?: string;
           updated_at?: string | null;
         };
