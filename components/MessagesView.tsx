@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { MessageCircle, ArrowLeft, Anchor } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import ChatPanel from "@/components/ChatPanel";
@@ -18,6 +18,7 @@ type Convo = {
   lastAt: string | null;
   lastMine: boolean;
   unread: number;
+  isTeam: boolean;
 };
 
 const TXT: Record<string, Record<string, string>> = {
@@ -76,6 +77,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
     // seafarers/companies row, so they're labelled from the profiles flag.
     const teamLabel = TXT.team[lang] ?? TXT.team.en;
     const names: Record<string, { name: string; avatar: string | null; subtitle: string | null }> = {};
+    let adminSet = new Set<string>();
     if (otherIds.length > 0) {
       // profiles RLS hides other users' rows, so admin participants are found
       // via a SECURITY DEFINER function that returns only the admin ids.
@@ -84,9 +86,10 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
         supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds),
         supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds),
       ]);
+      adminSet = new Set((adminIds as string[] | null) ?? []);
       for (const s of sf ?? []) names[s.id] = { name: [s.first_name, s.last_name].filter(Boolean).join(" ") || "Seafarer", avatar: s.photo_url, subtitle: s.rank };
       for (const c of co ?? []) names[c.id] = { name: c.name || "Company", avatar: c.logo_url, subtitle: c.location };
-      for (const id of (adminIds as string[] | null) ?? []) names[id] = { name: teamLabel, avatar: null, subtitle: null };
+      for (const id of adminSet) names[id] = { name: teamLabel, avatar: null, subtitle: null };
     }
 
     // Last message + unread counts in one query.
@@ -118,6 +121,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
           lastAt: lastByConvo[r.id]?.at ?? r.last_message_at,
           lastMine: lastByConvo[r.id]?.mine ?? false,
           unread: unreadByConvo[r.id] ?? 0,
+          isTeam: adminSet.has(otherId),
         };
       })
     );
@@ -168,7 +172,11 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
                       selected === c.id ? "bg-white/5" : ""
                     }`}
                   >
-                    {c.avatar ? (
+                    {c.isTeam ? (
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-deep">
+                        <Anchor size={20} />
+                      </div>
+                    ) : c.avatar ? (
                       <Image src={c.avatar} alt={c.name} width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover" />
                     ) : (
                       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
@@ -203,7 +211,11 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
                   <button onClick={() => setSelected(null)} className="text-mist transition hover:text-white lg:hidden" aria-label="Back">
                     <ArrowLeft size={18} />
                   </button>
-                  {selectedConvo.avatar ? (
+                  {selectedConvo.isTeam ? (
+                    <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-deep">
+                      <Anchor size={16} />
+                    </div>
+                  ) : selectedConvo.avatar ? (
                     <Image src={selectedConvo.avatar} alt={selectedConvo.name} width={36} height={36} className="h-9 w-9 rounded-full object-cover" />
                   ) : (
                     <div className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-sm font-bold text-white">
