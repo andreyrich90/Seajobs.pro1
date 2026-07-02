@@ -16,10 +16,10 @@ export const metadata = {
   metadataBase: new URL("https://seajobs.pro"),
   title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
   description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков по всему миру — поиск по рангу, типу судна и зарплате. Free platform for seafarers and crewing companies.",
-  keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs, jobs for seamen, crew jobs, sailor jobs, marine jobs, able seaman jobs, chief engineer jobs, deck officer jobs, crewing agency vacancies, " +
-    "вакансии для моряков, работа в море, работа на судне, крюинг вакансии, работа моряком, морские вакансии, вакансии моряк, контракт на судно, крюинговая компания вакансии, " +
-    "робота для моряків, вакансії моряк, робота на судні, " +
-    "praca dla marynarzy, oferty pracy marynarz",
+  keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs, jobs for seamen, crew jobs, sailor jobs, marine jobs, jobs at sea, seafarer recruitment, able seaman jobs, ordinary seaman jobs, bosun jobs, motorman jobs, oiler jobs, ship cook jobs, chief engineer jobs, second engineer jobs, deck officer jobs, master mariner jobs, ETO jobs, deck cadet jobs, engine cadet jobs, crewing agency vacancies, tanker jobs, container ship jobs, bulk carrier jobs, offshore vacancies, cruise ship jobs, seafarer jobs no experience, " +
+    "вакансии для моряков, работа в море, работа на судне, крюинг вакансии, работа моряком, работа моряком без опыта, морские вакансии, вакансии моряк, свежие вакансии для моряков, контракт на судно, крюинговая компания вакансии, крюинговые компании, вакансии матрос, вакансии моторист, вакансии повар на судно, вакансии механик, вакансии капитан, работа на танкере, работа на оффшоре, зарплата моряка, " +
+    "робота для моряків, вакансії моряк, робота на судні, робота моряком, робота в морі, крюїнг вакансії, робота моряком без досвіду, " +
+    "praca dla marynarzy, oferty pracy marynarz, praca na statku, praca na morzu, crewing praca, praca marynarz bez doświadczenia",
   openGraph: {
     title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
     description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков — поиск по рангу, типу судна и зарплате.",

@@ -39,11 +39,49 @@ function localizedEntries(
   }));
 }
 
+// Rank/vessel-filtered job listings that act as SEO landing pages — they get
+// their own title/description/canonical via generateMetadata in jobs/page.tsx.
+// Values must match the taxonomy in lib/ranks.ts / JobsClient exactly.
+const POPULAR_RANKS = [
+  "AB (Able Seaman)", "OS (Ordinary Seaman)", "Bosun", "Motorman", "Oiler",
+  "Chief Cook / Cook", "Messman / Steward", "Master (Captain)",
+  "Chief Officer (Chief Mate)", "2nd Officer", "3rd Officer",
+  "Chief Engineer", "2nd Engineer", "3rd Engineer",
+  "ETO (Electro-Technical Officer)", "Electrician", "Fitter",
+  "Deck Cadet", "Engine Cadet",
+];
+const POPULAR_VESSELS = [
+  "General Cargo", "Bulk Carrier", "Container Ship", "Chemical Tanker",
+  "RoRo Cargo", "Coaster",
+];
+
+function filteredJobsEntries(now: Date): MetadataRoute.Sitemap {
+  const filters = [
+    ...POPULAR_RANKS.map((v) => ["rank", v] as const),
+    ...POPULAR_VESSELS.map((v) => ["vessel", v] as const),
+  ];
+  return filters.flatMap(([key, value]) => {
+    const qs = new URLSearchParams({ [key]: value });
+    const query = `?${qs.toString()}`;
+    const languages = Object.fromEntries(
+      Object.entries(hreflangAlternates("/jobs")).map(([k, v]) => [k, `${v}${query}`])
+    );
+    return routing.locales.map((locale) => ({
+      url: `${BASE}${getPathname({ locale, href: "/jobs" })}${query}`,
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+      alternates: { languages },
+    }));
+  });
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const staticRoutes: MetadataRoute.Sitemap = [
     ...localizedEntries("/", { lastModified: now, changeFrequency: "daily", priority: 1.0 }),
     ...localizedEntries("/jobs", { lastModified: now, changeFrequency: "hourly", priority: 0.9 }),
+    ...filteredJobsEntries(now),
     ...localizedEntries("/forum", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
