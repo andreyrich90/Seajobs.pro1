@@ -13,6 +13,7 @@ import type { Session } from "@supabase/supabase-js";
 import { useLang } from "@/components/LangProvider";
 import { renderMarkdown } from "@/lib/markdown";
 import { sectionLabel } from "@/lib/forumSections";
+import PopularJobLinks from "@/components/PopularJobLinks";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -413,6 +414,8 @@ export default function TopicClient({
             highlight
           />
         )}
+
+        <PopularJobLinks variant="section" />
 
         <div className="mt-8">
           <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-mist">

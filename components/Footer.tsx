@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
+import PopularJobLinks from "@/components/PopularJobLinks";
 
 const SOCIAL = [
   {
@@ -146,6 +147,8 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+
+        <PopularJobLinks variant="footer" />
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
           <p className="text-xs text-mist">© {new Date().getFullYear()} SeaJobs.pro. {t.footer_rights}</p>
