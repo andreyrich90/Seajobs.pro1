@@ -240,6 +240,7 @@ SELECT
 ## Шаг 4. Первый контракт — самое трудное
 
 Без опыта берут неохотно, это правда. Что реально помогает:
+
 - регистрация сразу в нескольких крюингах и на профильных площадках;
 - готовность идти на низкую стартовую позицию (OS, wiper, ученик повара);
 - честное CV без выдуманного опыта;
@@ -271,6 +272,7 @@ Travel passport, medical exam, basic STCW courses (Basic Safety Training, etc.),
 ## Step 4. The first contract — the hardest part
 
 It is true that companies are reluctant to take someone with no experience. What actually helps:
+
 - registering with several crewing agencies and job boards at once;
 - being willing to take a low entry position (OS, wiper, galley trainee);
 - an honest CV with no invented experience;
@@ -376,6 +378,7 @@ SELECT
 ## Схема сертификации (IMCA/Nautical Institute)
 
 Путь обычно такой:
+
 1. **Induction course** — вводный курс DP.
 2. **Морская практика (DP sea time)** — набор часов и записей в DP logbook под наблюдением.
 3. **Simulator/Advanced course** — продвинутый курс на симуляторе.
@@ -408,6 +411,7 @@ An officer who runs the ship in DP mode: platform supply (PSV), anchor handling 
 ## The certification path (IMCA/Nautical Institute)
 
 The route usually is:
+
 1. **Induction course** — the introductory DP course.
 2. **DP sea time** — logging hours and entries in a DP logbook under supervision.
 3. **Simulator/Advanced course** — the advanced simulator course.
