@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 import { extractId } from "@/lib/slug";
 import { renderMarkdown } from "@/lib/markdown";
+import PopularJobLinks from "@/components/PopularJobLinks";
 
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
@@ -304,6 +305,8 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
             {copied ? t.news_copied : t.news_copy_link}
           </button>
         </div>
+
+        <PopularJobLinks variant="section" />
 
         {/* Comments */}
         <div className="mt-10">
