@@ -307,11 +307,30 @@ ${certRows ? `<h3>Certificates</h3><ul>${certRows}</ul>` : ""}
 
       const { data: { user } } = await admin.auth.admin.getUserById(recipientId);
       if (user?.email) {
-        await sendEmail(
-          user.email,
-          `New message from ${senderName}`,
-          `<p>Hello,</p><p><strong>${senderName}</strong> sent you a message on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
-        );
+        // Throttle: at most one instant email per conversation/recipient per
+        // 15 minutes — a burst of messages emails only its FIRST message. The
+        // daily unread-messages digest cron picks up anything that arrived
+        // after this email and is still unread. In-app notifications above are
+        // untouched and fire for every message.
+        const { data: log } = await admin
+          .from("chat_email_log")
+          .select("sent_at")
+          .eq("conversation_id", conversationId)
+          .eq("recipient_id", recipientId)
+          .maybeSingle();
+        const throttled = !!log?.sent_at && Date.now() - new Date(log.sent_at).getTime() < 15 * 60_000;
+        if (!throttled) {
+          await sendEmail(
+            user.email,
+            `New message from ${senderName}`,
+            `<p>Hello,</p><p><strong>${senderName}</strong> sent you a message on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
+          );
+          await admin.from("chat_email_log").upsert({
+            conversation_id: conversationId,
+            recipient_id: recipientId,
+            sent_at: new Date().toISOString(),
+          });
+        }
       }
       return NextResponse.json({ ok: true });
     }

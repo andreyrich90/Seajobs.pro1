@@ -1,6 +1,7 @@
 {
   "crons": [
     { "path": "/api/cron/close-expired-vacancies", "schedule": "0 1 * * *" },
-    { "path": "/api/cron/referral-reminders", "schedule": "0 2 * * *" }
+    { "path": "/api/cron/referral-reminders", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/unread-messages-digest", "schedule": "0 7 * * *" }
   ]
 }

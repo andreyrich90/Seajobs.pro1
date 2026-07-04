@@ -684,6 +684,24 @@ export interface Database {
         };
         Relationships: [];
       };
+      chat_email_log: {
+        Row: {
+          conversation_id: string;
+          recipient_id: string;
+          sent_at: string;
+        };
+        Insert: {
+          conversation_id: string;
+          recipient_id: string;
+          sent_at?: string;
+        };
+        Update: {
+          conversation_id?: string;
+          recipient_id?: string;
+          sent_at?: string;
+        };
+        Relationships: [];
+      };
       referrals: {
         Row: {
           id: string;
