@@ -31,6 +31,11 @@ const SYNONYM_GROUPS: string[][] = [
   ["welder", "сварщик", "зварювальник"],
   ["electrician", "электрик", "електрик"],
   ["pumpman", "помповый", "насосчик", "донкерман"],
+  // ── Equipment operators ──
+  ["excavator", "excavator operator", "экскаватор", "экскаваторщик", "екскаватор", "koparka", "operator koparki"],
+  ["crane operator", "crane", "крановщик", "кранмейстер", "кран оператор", "операторкрана", "dźwig", "operator dźwigu"],
+  ["bulldozer", "бульдозер", "бульдозерист", "spychacz"],
+  ["dpo", "dynamic positioning", "дпо", "оператор динамического позиционирования", "динамическое позиционирование"],
   // ── Catering ──
   ["cook", "chief cook", "повар", "кок", "кухар"],
   ["steward", "messman", "стюард", "буфетчик", "вестовой"],
