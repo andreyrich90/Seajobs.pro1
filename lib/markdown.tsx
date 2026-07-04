@@ -38,9 +38,42 @@ function withLineBreaks(text: string): ReactNode[] {
   ));
 }
 
+type LineKind = "blank" | "h" | "q" | "ul" | "ol" | "p";
+
+function lineKind(l: string): LineKind {
+  if (l.trim() === "") return "blank";
+  if (l.startsWith("## ")) return "h";
+  if (l.startsWith("> ")) return "q";
+  if (/^[-*]\s/.test(l)) return "ul";
+  if (/^\d+\.\s/.test(l)) return "ol";
+  return "p";
+}
+
+// User-typed markdown often glues a heading/list/quote straight onto the
+// previous line with a single newline. The block splitter below needs blank
+// lines, so insert one wherever two adjacent non-blank lines belong to
+// different block types (a heading always starts its own block).
+function normalizeBlocks(content: string): string {
+  const lines = content.split("\n");
+  const out: string[] = [];
+  let prev: LineKind | null = null; // last emitted non-blank line, null after a blank
+  for (const line of lines) {
+    const kind = lineKind(line);
+    if (kind === "blank") {
+      out.push(line);
+      prev = null;
+      continue;
+    }
+    if (prev !== null && (kind !== prev || kind === "h")) out.push("");
+    out.push(line);
+    prev = kind;
+  }
+  return out.join("\n");
+}
+
 /** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, "---" rules, **bold**, *italic*, ~~strike~~, [text](url), ![alt](url). */
 export function renderMarkdown(content: string): ReactNode[] {
-  const blocks = content.split(/\n\n+/);
+  const blocks = normalizeBlocks(content).split(/\n\n+/);
   return blocks.map((block, bi) => {
     const trimmed = block.trim();
     if (!trimmed) return null;

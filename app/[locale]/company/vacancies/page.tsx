@@ -41,15 +41,16 @@ type VacancyForm = {
 };
 
 // Starter skeleton so company-posted vacancies follow the same structured
-// layout as the imported ones (intro + requirements list + how-to-apply).
-const DESCRIPTION_TEMPLATE = `Short intro: company, position, vessel and trading area.
-
+// layout as the imported ones. Every line must be safe to publish as-is —
+// companies often leave the prefill untouched, so no instruction text here
+// (guidance lives in the field placeholder instead). First line is left empty
+// for the company's own intro.
+const DESCRIPTION_TEMPLATE = `
 ## Requirements
--
 -
 
 ## How to apply
-How candidates should apply (or just let them apply through SeaJobs.pro).`;
+Apply directly through SeaJobs.pro — your CV goes straight to our crewing team.`;
 
 const EMPTY_FORM: VacancyForm = {
   title: "",
