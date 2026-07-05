@@ -1,0 +1,36 @@
+# SeaJobs.pro
+
+> Maritime job board connecting seafarers with verified crewing agencies and shipowners. Free for seafarers: search vacancies by rank, vessel type and salary, build a maritime CV, and apply in one click — the CV goes straight to the crewing manager. Free vacancy posting for crewing companies. Available in English, Russian (/ru), Ukrainian (/ua) and Polish (/pl).
+
+Fresh vacancies are posted daily across the merchant fleet (bulk carriers, container ships, tankers, general cargo, RoRo/PCTC), offshore (PSV, AHTS, drillships, cable/pipe layers), cruise, tugs and dredging. Every vacancy page lists rank, vessel type, salary, contract length, joining date and requirements, with JobPosting structured data.
+
+## Jobs
+
+- [All vacancies](https://seajobs.pro/jobs): live listing, filterable by rank, vessel type and fleet
+- [AB jobs](https://seajobs.pro/jobs?rank=AB%20%28Able%20Seaman%29): Able Seaman vacancies
+- [Master jobs](https://seajobs.pro/jobs?rank=Master%20%28Captain%29): Captain vacancies
+- [Chief Engineer jobs](https://seajobs.pro/jobs?rank=Chief%20Engineer): Chief Engineer vacancies
+- [Chief Officer jobs](https://seajobs.pro/jobs?rank=Chief%20Officer%20%28Chief%20Mate%29): Chief Officer vacancies
+- [2nd Engineer jobs](https://seajobs.pro/jobs?rank=2nd%20Engineer): Second Engineer vacancies
+- [ETO jobs](https://seajobs.pro/jobs?rank=ETO%20%28Electro-Technical%20Officer%29): Electro-Technical Officer vacancies
+- [Cook jobs](https://seajobs.pro/jobs?rank=Chief%20Cook%20%2F%20Cook): Ship cook vacancies
+- [Bulk carrier jobs](https://seajobs.pro/jobs?vessel=Bulk%20Carrier): vacancies on bulk carriers
+- [Container ship jobs](https://seajobs.pro/jobs?vessel=Container%20Ship): vacancies on container ships
+- [Offshore jobs](https://seajobs.pro/jobs?fleet=offshore): PSV, AHTS, drillships, cable and pipe layers
+
+## Guides (Forum)
+
+- [Forum](https://seajobs.pro/forum): guides and Q&A for seafarers — how to write a seaman's CV, seafarer documents (seaman's book, CoC, visas), seafarer taxes, how to become a seafarer, flags of convenience, DP operator career, cruise ship jobs, ship ranks explained, reading a seafarer employment agreement (SEA/MLC), and a Maritime English course (deck, engine, VHF, SMCP commands, interview English)
+
+## For Companies
+
+- [For crewing companies](https://seajobs.pro/for-companies): free vacancy posting, candidate database with CV search, direct chat with applicants
+
+## News
+
+- [Maritime news](https://seajobs.pro/news): industry news for seafarers — workforce reports, safety, regulations, fleet deals
+
+## Contact
+
+- Site: https://seajobs.pro
+- The platform is free for seafarers; crewing companies register at https://seajobs.pro/auth/register?role=company
