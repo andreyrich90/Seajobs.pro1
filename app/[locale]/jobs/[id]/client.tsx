@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import NextLink from "next/link";
@@ -8,6 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
+  CheckCircle2, Upload,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -62,6 +63,15 @@ function formatSalary(v: VacancyDetail): string {
   return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
 }
 
+function readAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetail }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
@@ -74,6 +84,11 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
   // Applying requires a phone number and at least one sea-service record, so
   // the crewing agency always receives contacts + a real CV. null = not loaded.
   const [profileGaps, setProfileGaps] = useState<{ phone: boolean; experience: boolean } | null>(null);
+  // One-shot CV import inside the apply modal: parse a PDF/DOCX with
+  // /api/cv-parse and write straight into the profile (same as the cabinet).
+  const [cvUploading, setCvUploading] = useState(false);
+  const [cvNotice, setCvNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const cvInputRef = useRef<HTMLInputElement | null>(null);
   const [savingToggle, setSavingToggle] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -155,6 +170,104 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
     setShowModal(false);
     setCoverLetter("");
     setApplying(false);
+  }
+
+  // Parse an uploaded CV (PDF/DOCX) and write the extracted data straight into
+  // the seafarer's profile — the same import the cabinet uses, but one-shot so
+  // the seafarer can apply immediately after.
+  async function handleCvFile(file: File) {
+    if (!userId) return;
+    const lower = file.name.toLowerCase();
+    const isPdf = file.type === "application/pdf" || lower.endsWith(".pdf");
+    const isDocx =
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      lower.endsWith(".docx");
+    if (!isPdf && !isDocx) {
+      setCvNotice({ type: "error", text: "Please upload a PDF or DOCX file." });
+      return;
+    }
+    setCvUploading(true);
+    setCvNotice(null);
+    try {
+      const fileBase64 = await readAsDataURL(file);
+      const mediaType = isPdf
+        ? "application/pdf"
+        : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      const res = await fetch("/api/cv-parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fileBase64, mediaType }),
+      });
+      const data = await res.json();
+      if (!data.ok || !data.profile) {
+        setCvNotice({ type: "error", text: "Could not read the CV. Please fill in your profile manually." });
+        return;
+      }
+      const p = data.profile as Record<string, unknown>;
+
+      // Profile fields: only overwrite with values the CV actually contains.
+      const fields = [
+        "first_name", "last_name", "rank", "nationality", "phone", "date_of_birth",
+        "readiness_date", "about", "seamans_book", "seamans_book_expiry", "passport_no",
+        "passport_expiry", "service_record_book", "medical", "medical_expiry", "diploma",
+        "diploma_expiry", "us_visa", "schengen_visa", "education", "languages", "competencies",
+      ] as const;
+      const upd: { [K in (typeof fields)[number]]?: string } = {};
+      for (const k of fields) if (typeof p[k] === "string" && p[k]) upd[k] = p[k] as string;
+      if (Object.keys(upd).length) {
+        await supabase.from("seafarers").update(upd).eq("id", userId);
+      }
+
+      if (Array.isArray(p.certificates)) {
+        const rows = (p.certificates as Record<string, string | null>[])
+          .filter((c) => c?.name)
+          .map((c) => ({
+            seafarer_id: userId,
+            name: c.name as string,
+            number: c.number ?? null,
+            issue_date: c.issue_date ?? null,
+            expiry_date: c.expiry_date ?? null,
+            issuing_authority: c.issuing_authority ?? null,
+          }));
+        if (rows.length) await supabase.from("certificates").insert(rows);
+      }
+
+      if (Array.isArray(p.experience)) {
+        const rows = (p.experience as Record<string, string | null>[])
+          .filter((x) => x?.vessel_name)
+          .map((x) => ({
+            seafarer_id: userId,
+            vessel_name: x.vessel_name as string,
+            vessel_type: x.vessel_type ?? null,
+            rank: x.rank ?? null,
+            company: x.company ?? null,
+            flag: x.flag ?? null,
+            dwt: x.dwt ?? null,
+            engine: x.engine ?? null,
+            from_date: x.from_date ?? null,
+            to_date: x.to_date ?? null,
+          }));
+        if (rows.length) await supabase.from("sea_experience").insert(rows);
+      }
+
+      // Re-check what is still missing (e.g. the CV had no phone number).
+      const [{ data: sf }, { count: expCount }] = await Promise.all([
+        supabase.from("seafarers").select("phone").eq("id", userId).maybeSingle(),
+        supabase.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", userId),
+      ]);
+      const gaps = { phone: !(sf?.phone ?? "").trim(), experience: (expCount ?? 0) === 0 };
+      setProfileGaps(gaps);
+      setCvNotice(
+        gaps.phone || gaps.experience
+          ? { type: "error", text: "CV imported, but something is still missing — see the list above." }
+          : { type: "success", text: "CV imported — your profile is complete. You can apply now." }
+      );
+    } catch {
+      setCvNotice({ type: "error", text: "Upload failed. Please try again or fill in your profile manually." });
+    } finally {
+      setCvUploading(false);
+      if (cvInputRef.current) cvInputRef.current.value = "";
+    }
   }
 
   async function toggleSave() {
@@ -336,13 +449,21 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
 
               {!userId && (
                 <div>
-                  <p className="text-sm text-mist mb-4">Sign in as a seafarer to apply for this position.</p>
-                  <NextLink
-                    href={loginHref}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-                  >
-                    <Send size={16} /> Sign in to Apply
-                  </NextLink>
+                  <p className="text-sm text-mist mb-4">Sign in or create a free seafarer account to apply — your CV is sent to the crewing agency with one click.</p>
+                  <div className="flex flex-wrap gap-3">
+                    <NextLink
+                      href={loginHref}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                    >
+                      <Send size={16} /> Sign in to Apply
+                    </NextLink>
+                    <NextLink
+                      href="/auth/register?role=seafarer"
+                      className="inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/10"
+                    >
+                      Create account
+                    </NextLink>
+                  </div>
                 </div>
               )}
 
@@ -363,12 +484,24 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
               )}
 
               {userId && userRole === "seafarer" && !applicationStatus && (
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-                >
-                  <Send size={16} /> Apply Now
-                </button>
+                <div>
+                  {profileGaps && !profileGaps.phone && !profileGaps.experience && (
+                    <p className="mb-3 flex items-center gap-2 text-sm text-teal">
+                      <CheckCircle2 size={16} /> Your CV is on SeaJobs.pro — it will be sent with your application.
+                    </p>
+                  )}
+                  {profileGaps && (profileGaps.phone || profileGaps.experience) && (
+                    <p className="mb-3 flex items-center gap-2 text-sm text-brass2">
+                      <Upload size={16} /> Upload your CV (PDF/DOCX) or complete your profile — takes a minute.
+                    </p>
+                  )}
+                  <button
+                    onClick={() => setShowModal(true)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  >
+                    <Send size={16} /> Apply Now
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -470,12 +603,36 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                     </ul>
                   </div>
                 </div>
+
+                <div className="mb-4 rounded-xl border border-white/10 bg-navy2 px-4 py-3">
+                  <p className="mb-2 text-sm font-semibold text-foam">Fastest way: upload your CV</p>
+                  <p className="mb-3 text-xs text-mist">Upload a PDF or DOCX — we read it and fill your profile automatically, then your formatted CV is sent with the application.</p>
+                  <input
+                    ref={cvInputRef}
+                    type="file"
+                    accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCvFile(f); }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => cvInputRef.current?.click()}
+                    disabled={cvUploading}
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                  >
+                    <Upload size={15} /> {cvUploading ? "Reading your CV..." : "Upload CV (PDF / DOCX)"}
+                  </button>
+                  {cvNotice && (
+                    <p className={`mt-2 text-xs ${cvNotice.type === "success" ? "text-teal" : "text-coral"}`}>{cvNotice.text}</p>
+                  )}
+                </div>
+
                 <div className="flex gap-3">
                   <NextLink
                     href={profileGaps.phone ? "/seafarer/profile" : "/seafarer/experience"}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                    className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
                   >
-                    Complete profile
+                    Fill in manually
                   </NextLink>
                   <button
                     onClick={() => { setShowModal(false); setApplyError(null); }}
@@ -487,6 +644,11 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
               </>
             ) : (
               <>
+                {profileGaps && !profileGaps.phone && !profileGaps.experience && (
+                  <p className="mb-4 flex items-center gap-2 text-sm text-teal">
+                    <CheckCircle2 size={16} /> Your profile is complete — your CV will be sent with this application.
+                  </p>
+                )}
                 <div className="flex flex-col gap-1.5 mb-4">
                   <label className="text-sm font-semibold text-foam">
                     Cover Letter <span className="text-mist font-normal">(optional)</span>
