@@ -11,6 +11,7 @@ import { NEWS } from "@/lib/data";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
+import { FLEETS, fleetLabel } from "@/lib/fleets";
 
 export type DbVacancy = {
   id: string;
@@ -167,6 +168,19 @@ export default function HomeClient({
               >
                 {t.hero_cta} <ArrowRight size={17} />
               </Link>
+            </div>
+
+            {/* Fleet quick links */}
+            <div className="mt-4 flex max-w-2xl flex-wrap items-center gap-2">
+              {FLEETS.map((f) => (
+                <Link
+                  key={f.key}
+                  href={{ pathname: "/jobs", query: { fleet: f.key } }}
+                  className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist backdrop-blur transition hover:border-brass/50 hover:text-brass2"
+                >
+                  {fleetLabel(f.key, lang)}
+                </Link>
+              ))}
             </div>
           </div>
         </div>

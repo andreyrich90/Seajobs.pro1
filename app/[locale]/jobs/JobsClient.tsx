@@ -11,6 +11,8 @@ import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { searchMatches } from "@/lib/searchSynonyms";
 import { slugId } from "@/lib/slug";
+import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
+import { useLang } from "@/components/LangProvider";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -62,9 +64,11 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   const vacancies = initialVacancies;
   // Initialise filters from the URL so they survive a back-navigation from a
   // vacancy detail page (state alone would reset on remount).
+  const { lang } = useLang();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [rank, setRank] = useState(searchParams.get("rank") ?? "");
   const [vessel, setVessel] = useState(searchParams.get("vessel") ?? "");
+  const [fleet, setFleet] = useState(searchParams.get("fleet") ?? "");
   const [userId, setUserId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(() => {
@@ -120,7 +124,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
       (rank === "AB (Able Seaman)" && (v.rank?.startsWith("AB ") ?? false)) ||
       (rank === "OS (Ordinary Seaman)" && (v.rank?.startsWith("OS ") ?? false));
     const matchVessel = !vessel || v.vessel_type === vessel;
-    return matchQuery && matchRank && matchVessel;
+    const matchFleet = !fleet || fleetMatches(fleet, `${v.vessel_type ?? ""} ${v.title}`);
+    return matchQuery && matchRank && matchVessel && matchFleet;
   });
 
   // Reset to the first page whenever the filters change the result set — but
@@ -128,7 +133,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   useEffect(() => {
     if (firstRun.current) { firstRun.current = false; return; }
     setPage(1);
-  }, [query, rank, vessel]);
+  }, [query, rank, vessel, fleet]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -141,10 +146,11 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     if (query) params.set("q", query);
     if (rank) params.set("rank", rank);
     if (vessel) params.set("vessel", vessel);
+    if (fleet) params.set("fleet", fleet);
     if (currentPage > 1) params.set("page", String(currentPage));
     const qs = params.toString();
     window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-  }, [query, rank, vessel, currentPage]);
+  }, [query, rank, vessel, fleet, currentPage]);
 
   function goToPage(p: number) {
     setPage(Math.min(Math.max(1, p), totalPages));
@@ -198,6 +204,24 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               </optgroup>
             ))}
           </select>
+
+          {/* Fleet quick filter */}
+          <div className="flex w-full flex-wrap gap-2 border-t border-white/10 pt-3">
+            {FLEETS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setFleet(fleet === f.key ? "" : f.key)}
+                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                  fleet === f.key
+                    ? "border-brass bg-brass/20 text-brass2"
+                    : "border-white/10 bg-white/5 text-mist hover:border-brass/40 hover:text-brass2"
+                }`}
+              >
+                {fleetLabel(f.key, lang)}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Results */}
