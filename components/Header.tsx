@@ -6,7 +6,7 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare,
-  Newspaper, LayoutDashboard, Menu, X, ShieldCheck,
+  Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus,
 } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
@@ -186,12 +186,20 @@ export default function Header() {
                 </Link>
               </>
             ) : (
-              <NextLink
-                href="/auth/login"
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
-              >
-                <LogIn size={16} /> {t.login}
-              </NextLink>
+              <>
+                <NextLink
+                  href="/auth/login"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                >
+                  <LogIn size={16} /> {t.login}
+                </NextLink>
+                <NextLink
+                  href="/auth/register"
+                  className="flex items-center gap-2 rounded-lg border border-brass/40 px-4 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/10"
+                >
+                  <UserPlus size={16} /> {t.register}
+                </NextLink>
+              </>
             )}
           </div>
         </div>

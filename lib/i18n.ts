@@ -9,7 +9,7 @@ export const LANGS: { code: Lang; label: string; flag: string }[] = [
 
 export const T: Record<Lang, Record<string, string>> = {
   ua: {
-    nav_jobs: "Вакансії", nav_forum: "Форум", nav_news: "Новини", login: "Увійти",
+    nav_jobs: "Вакансії", nav_forum: "Форум", nav_news: "Новини", login: "Увійти", register: "Реєстрація",
     tagline: "Гавань для морської кар'єри",
     hero_kicker: "Платформа морської кар'єри",
     hero_title: "Твій наступний рейс починається тут",
@@ -58,7 +58,7 @@ export const T: Record<Lang, Record<string, string>> = {
     dash_suggestions_subtitle: "Маєте питання чи пропозицію? Напишіть нам — ми читаємо все.",
   },
   pl: {
-    nav_jobs: "Oferty", nav_forum: "Forum", nav_news: "Aktualności", login: "Zaloguj",
+    nav_jobs: "Oferty", nav_forum: "Forum", nav_news: "Aktualności", login: "Zaloguj", register: "Rejestracja",
     tagline: "Port kariery morskiej",
     hero_kicker: "Platforma kariery morskiej",
     hero_title: "Twój następny rejs zaczyna się tutaj",
@@ -107,7 +107,7 @@ export const T: Record<Lang, Record<string, string>> = {
     dash_suggestions_subtitle: "Masz pytanie lub sugestię? Napisz do nas — czytamy wszystko.",
   },
   ru: {
-    nav_jobs: "Вакансии", nav_forum: "Форум", nav_news: "Новости", login: "Войти",
+    nav_jobs: "Вакансии", nav_forum: "Форум", nav_news: "Новости", login: "Войти", register: "Регистрация",
     tagline: "Гавань для морской карьеры",
     hero_kicker: "Платформа морской карьеры",
     hero_title: "Твой следующий рейс начинается здесь",
@@ -156,7 +156,7 @@ export const T: Record<Lang, Record<string, string>> = {
     dash_suggestions_subtitle: "Есть вопрос или предложение? Напишите нам — мы читаем всё.",
   },
   en: {
-    nav_jobs: "Vacancies", nav_forum: "Forum", nav_news: "News", login: "Log in",
+    nav_jobs: "Vacancies", nav_forum: "Forum", nav_news: "News", login: "Log in", register: "Register",
     tagline: "The harbour for maritime careers",
     hero_kicker: "Maritime career platform",
     hero_title: "Your next voyage starts here",
