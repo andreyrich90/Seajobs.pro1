@@ -21,6 +21,99 @@ async function sendEmail(to: string, subject: string, html: string) {
   }).catch(() => {});
 }
 
+// Renders the seafarer's CV as email-safe HTML, mirroring the /seafarer/cv
+// sheet (header with contacts, personal information, identity documents &
+// visas, certificates, sea service history). Sent to the crewing agency /
+// company with every application, so they get contacts + the full CV at once.
+async function buildCvEmailHtml(
+  admin: ReturnType<typeof getAdmin>,
+  seafarerId: string,
+  email: string | null,
+  coverLetter?: string | null,
+): Promise<{ html: string; name: string }> {
+  const [{ data: sf }, { data: experience }, { data: certificates }] = await Promise.all([
+    admin.from("seafarers")
+      .select("first_name, last_name, nationality, date_of_birth, phone, rank, readiness_date, about, passport_no, passport_expiry, seamans_book, seamans_book_expiry, medical, medical_expiry, diploma, diploma_expiry, schengen_visa, us_visa")
+      .eq("id", seafarerId).single(),
+    admin.from("sea_experience")
+      .select("vessel_name, vessel_type, rank, company, dwt, engine, from_date, to_date")
+      .eq("seafarer_id", seafarerId).order("from_date", { ascending: false }).limit(10),
+    admin.from("certificates")
+      .select("name, issuing_authority, expiry_date")
+      .eq("seafarer_id", seafarerId).order("expiry_date", { ascending: false }).limit(20),
+  ]);
+
+  const name = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ") || "Seafarer";
+  const fmt = (d?: string | null) =>
+    d ? new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : null;
+  const availability = sf?.readiness_date
+    ? new Date(sf.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    : "Immediate";
+
+  const th = "background:#16324f;color:#ffffff;text-align:left;padding:8px 12px;font-size:13px;letter-spacing:0.4px;";
+  const label = "background:#f4f6f8;padding:8px 12px;border:1px solid #e3e8ee;width:38%;color:#334155;font-size:13px;";
+  const val = "padding:8px 12px;border:1px solid #e3e8ee;color:#111827;font-size:13px;";
+  const section = (title: string) => `<tr><td colspan="2" style="${th}">${title}</td></tr>`;
+  const row = (l: string, v?: string | null) =>
+    v ? `<tr><td style="${label}">${l}</td><td style="${val}">${v}</td></tr>` : "";
+  const withExpiry = (no?: string | null, expiry?: string | null) =>
+    no ? `${no}${fmt(expiry) ? ` — exp. ${fmt(expiry)}` : ""}` : null;
+
+  const docRows = [
+    row("Foreign passport", withExpiry(sf?.passport_no, sf?.passport_expiry)),
+    row("Seaman's book", withExpiry(sf?.seamans_book, sf?.seamans_book_expiry)),
+    row("Medical certificate", withExpiry(sf?.medical, sf?.medical_expiry)),
+    row("Diploma / CoC", withExpiry(sf?.diploma, sf?.diploma_expiry)),
+    row("Schengen visa", sf?.schengen_visa),
+    row("US visa", sf?.us_visa),
+  ].join("");
+
+  const certRows = (certificates ?? []).map((c) =>
+    row(c.name, [c.issuing_authority, fmt(c.expiry_date) ? `exp. ${fmt(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "—")
+  ).join("");
+
+  const expHeader = `<tr>${["Vessel", "Type", "DWT", "Rank", "Company", "Period"]
+    .map((h) => `<td style="${label}width:auto;font-weight:bold;">${h}</td>`).join("")}</tr>`;
+  const expRows = (experience ?? []).map((e) => {
+    const period = e.from_date ? `${fmt(e.from_date)} – ${e.to_date ? fmt(e.to_date) : "present"}` : "—";
+    return `<tr>${[e.vessel_name, e.vessel_type ?? "—", e.dwt ?? "—", e.rank ?? "—", e.company ?? "—", period]
+      .map((v) => `<td style="${val}">${v}</td>`).join("")}</tr>`;
+  }).join("");
+
+  const html = `
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:640px;">
+  <h2 style="color:#16324f;margin:20px 0 2px;text-transform:uppercase;">${name}</h2>
+  <p style="color:#b8860b;font-weight:bold;margin:0 0 10px;text-transform:uppercase;">${sf?.rank ?? ""}</p>
+  <p style="margin:0 0 10px;font-size:13px;color:#111827;">
+    <strong>Email:</strong> ${email ?? "—"}<br/>
+    <strong>Phone / WhatsApp:</strong> ${sf?.phone ?? "—"}<br/>
+    <strong>Availability:</strong> ${availability}${sf?.nationality ? ` · ${sf.nationality}` : ""}
+  </p>
+  ${sf?.about ? `<p style="font-size:13px;color:#374151;">${sf.about}</p>` : ""}
+  <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:12px;">
+    ${section("PERSONAL INFORMATION")}
+    ${row("Date of birth", sf?.date_of_birth ? new Date(sf.date_of_birth).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : null)}
+    ${row("Citizenship", sf?.nationality)}
+    ${row("Availability", availability)}
+    ${row("Rank / Position", sf?.rank)}
+    ${row("Phone", sf?.phone)}
+    ${row("Email", email)}
+    ${docRows ? section("IDENTITY DOCUMENTS &amp; VISAS") + docRows : ""}
+    ${certRows ? section("COMPETENCY &amp; STCW CERTIFICATES") + certRows : ""}
+  </table>
+  ${expRows ? `
+  <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:14px;">
+    <tr><td colspan="6" style="${th}">SEA SERVICE HISTORY — last ${(experience ?? []).length} voyages</td></tr>
+    ${expHeader}
+    ${expRows}
+  </table>` : ""}
+  ${coverLetter ? `<h3 style="color:#16324f;margin:16px 0 6px;">Cover letter</h3><p style="font-size:13px;color:#374151;">${coverLetter}</p>` : ""}
+  <p style="margin-top:18px;"><a href="https://seajobs.pro/seafarers/${seafarerId}" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View full profile on SeaJobs.pro →</a></p>
+</div>`;
+
+  return { html, name };
+}
+
 export async function POST(req: Request) {
   try {
     const admin = getAdmin();
@@ -48,24 +141,21 @@ export async function POST(req: Request) {
       }
       // And an application must actually exist.
       const { data: appExists } = await admin
-        .from("applications").select("id").eq("vacancy_id", vacancyId).eq("seafarer_id", seafarerId).maybeSingle();
+        .from("applications").select("id, cover_letter").eq("vacancy_id", vacancyId).eq("seafarer_id", seafarerId).maybeSingle();
       if (!appExists) return NextResponse.json({ ok: false }, { status: 404 });
 
       const { data: vacancy } = await admin
         .from("vacancies").select("title, company_id").eq("id", vacancyId).single();
       if (!vacancy) return NextResponse.json({ ok: false }, { status: 404 });
 
-      const { data: seafarer } = await admin
-        .from("seafarers")
-        .select("first_name, last_name, rank, nationality, phone, readiness_date")
-        .eq("id", seafarerId).single();
-      const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "A seafarer";
+      const { data: { user: seafarerUser } } = await admin.auth.admin.getUserById(seafarerId);
+      const cv = await buildCvEmailHtml(admin, seafarerId, seafarerUser?.email ?? caller.email ?? null, appExists.cover_letter);
 
       await admin.from("notifications").insert({
         user_id: vacancy.company_id,
         type: "application_received",
         title: "New Application",
-        body: `${name} applied for "${vacancy.title}"`,
+        body: `${cv.name} applied for "${vacancy.title}"`,
         link: "/company/applications",
       });
 
@@ -73,32 +163,20 @@ export async function POST(req: Request) {
       const { data: companyRow } = await admin
         .from("companies").select("emails").eq("id", vacancy.company_id).single();
       const { data: { user: companyUser } } = await admin.auth.admin.getUserById(vacancy.company_id);
-      const { data: { user: seafarerUser } } = await admin.auth.admin.getUserById(seafarerId);
 
       const recipients = [
         ...(companyUser?.email ? [companyUser.email] : []),
         ...((companyRow?.emails ?? []) as string[]),
       ].filter((e, i, arr) => e && arr.indexOf(e) === i);
 
-      const available = seafarer?.readiness_date
-        ? new Date(seafarer.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-        : "—";
       const html =
         `<p>Hello,</p>
-<p>You have a new candidate for <strong>${vacancy.title}</strong> on SeaJobs.pro.</p>
-<h3>Candidate</h3>
-<ul>
-  <li>Name: ${name}</li>
-  <li>Rank: ${seafarer?.rank ?? "—"}</li>
-  <li>Nationality: ${seafarer?.nationality ?? "—"}</li>
-  <li>Available from: ${available}</li>
-  <li>Phone: ${seafarer?.phone ?? "—"}</li>
-  <li>Email: ${seafarerUser?.email ?? "—"}</li>
-</ul>
-<p><a href="https://seajobs.pro/company/applications" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View full CV & reply →</a></p>`;
+<p>You have a new candidate for <strong>${vacancy.title}</strong> on SeaJobs.pro. The full CV is below.</p>
+${cv.html}
+<p style="margin-top:14px;"><a href="https://seajobs.pro/company/applications">Reply in your SeaJobs.pro cabinet →</a></p>`;
 
       for (const to of recipients) {
-        await sendEmail(to, `New candidate for "${vacancy.title}" — ${name}`, html);
+        await sendEmail(to, `New candidate for "${vacancy.title}" — ${cv.name}`, html);
       }
       return NextResponse.json({ ok: true });
     }
@@ -120,57 +198,13 @@ export async function POST(req: Request) {
         .from("vacancies").select("title, contact_email").eq("id", vacancyId).single();
       if (!vacancy?.contact_email) return NextResponse.json({ ok: false }, { status: 404 });
 
-      const [{ data: seafarer }, { data: experience }, { data: certificates }] = await Promise.all([
-        admin.from("seafarers").select("first_name, last_name, nationality, phone, rank, readiness_date, about").eq("id", seafarerId).single(),
-        admin.from("sea_experience").select("vessel_name, vessel_type, rank, company, from_date, to_date").eq("seafarer_id", seafarerId).order("from_date", { ascending: false }),
-        admin.from("certificates").select("name, issuing_authority, expiry_date").eq("seafarer_id", seafarerId).order("expiry_date", { ascending: false }),
-      ]);
-
-      const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
-
-      // Total sea time across all experience entries, in months.
-      let totalMonths = 0;
-      for (const e of experience ?? []) {
-        if (!e.from_date) continue;
-        const start = new Date(e.from_date);
-        const end = e.to_date ? new Date(e.to_date) : new Date();
-        totalMonths += Math.max(0, (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()));
-      }
-      const seaTime = totalMonths > 0
-        ? `${Math.floor(totalMonths / 12)}y ${totalMonths % 12}m`
-        : "—";
-
-      const expRows = (experience ?? []).map((e) => {
-        const period = e.from_date
-          ? `${new Date(e.from_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })} – ${e.to_date ? new Date(e.to_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "present"}`
-          : "";
-        return `<li>${[e.rank, e.vessel_name, e.vessel_type, e.company, period].filter(Boolean).join(" — ")}</li>`;
-      }).join("");
-
-      const certRows = (certificates ?? []).map((c) => {
-        const expiry = c.expiry_date ? `, exp. ${new Date(c.expiry_date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}` : "";
-        return `<li>${[c.name, c.issuing_authority].filter(Boolean).join(" — ")}${expiry}</li>`;
-      }).join("");
+      const { data: { user: sfUser } } = await admin.auth.admin.getUserById(seafarerId);
+      const cv = await buildCvEmailHtml(admin, seafarerId, sfUser?.email ?? caller.email ?? null, appExists.cover_letter);
 
       await sendEmail(
         vacancy.contact_email,
-        `New application for "${vacancy.title}" — ${name}`,
-        `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro.</p>
-<h3>Candidate</h3>
-<ul>
-  <li>Name: ${name}</li>
-  <li>Rank: ${seafarer?.rank ?? "—"}</li>
-  <li>Nationality: ${seafarer?.nationality ?? "—"}</li>
-  <li>Total sea time: ${seaTime}</li>
-  <li>Available from: ${seafarer?.readiness_date ? new Date(seafarer.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}</li>
-  <li>Phone: ${seafarer?.phone ?? "—"}</li>
-  <li>Email: ${caller.email ?? "—"}</li>
-</ul>
-${seafarer?.about ? `<h3>About</h3><p>${seafarer.about}</p>` : ""}
-${appExists.cover_letter ? `<h3>Cover letter</h3><p>${appExists.cover_letter}</p>` : ""}
-${expRows ? `<h3>Sea experience</h3><ul>${expRows}</ul>` : ""}
-${certRows ? `<h3>Certificates</h3><ul>${certRows}</ul>` : ""}
-<p><a href="https://seajobs.pro/seafarers/${seafarerId}">View full profile →</a></p>`,
+        `New application for "${vacancy.title}" — ${cv.name}`,
+        `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro. The full CV is below.</p>${cv.html}`,
       );
 
       return NextResponse.json({ ok: true });

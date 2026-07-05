@@ -71,6 +71,9 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
   const [coverLetter, setCoverLetter] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  // Applying requires a phone number and at least one sea-service record, so
+  // the crewing agency always receives contacts + a real CV. null = not loaded.
+  const [profileGaps, setProfileGaps] = useState<{ phone: boolean; experience: boolean } | null>(null);
   const [savingToggle, setSavingToggle] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -102,12 +105,18 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
       supabase.rpc("increment_vacancy_views", { vid: vacancy.id }).then(() => {});
 
       if (uid && role === "seafarer") {
-        const [{ data: appData }, { data: savedData }] = await Promise.all([
+        const [{ data: appData }, { data: savedData }, { data: sf }, { count: expCount }] = await Promise.all([
           supabase.from("applications").select("status").eq("vacancy_id", vacancy.id).eq("seafarer_id", uid).maybeSingle(),
           supabase.from("saved_vacancies").select("vacancy_id").eq("vacancy_id", vacancy.id).eq("seafarer_id", uid).maybeSingle(),
+          supabase.from("seafarers").select("phone").eq("id", uid).maybeSingle(),
+          supabase.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", uid),
         ]);
         if (appData) setApplicationStatus(appData.status as ApplicationStatus);
         setSaved(!!savedData);
+        setProfileGaps({
+          phone: !(sf?.phone ?? "").trim(),
+          experience: (expCount ?? 0) === 0,
+        });
       }
     }
     loadAuth();
@@ -126,7 +135,13 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
     });
 
     if (error) {
-      setApplyError(error.message);
+      // DB trigger blocks applications from incomplete profiles (see
+      // enforce_profile_complete_on_apply migration).
+      setApplyError(
+        error.message.includes("PROFILE_INCOMPLETE")
+          ? "Please add your phone number and at least one sea service record to your profile before applying."
+          : error.message
+      );
       setApplying(false);
       return;
     }
@@ -438,35 +453,71 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
               </div>
             )}
 
-            <div className="flex flex-col gap-1.5 mb-4">
-              <label className="text-sm font-semibold text-foam">
-                Cover Letter <span className="text-mist font-normal">(optional)</span>
-              </label>
-              <textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Briefly describe your experience and why you're a good fit..."
-                rows={5}
-                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass resize-none"
-              />
-            </div>
+            {profileGaps && (profileGaps.phone || profileGaps.experience) ? (
+              <>
+                <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0 text-brass2" />
+                  <div className="text-sm text-foam">
+                    <p className="mb-2 font-semibold">Complete your profile to apply</p>
+                    <p className="mb-2 text-mist">The crewing agency receives your CV with your application, so it must include your contacts and sea service:</p>
+                    <ul className="list-disc pl-5 text-mist">
+                      {profileGaps.phone && (
+                        <li>Add your <NextLink href="/seafarer/profile" className="text-brass2 underline hover:text-brass">phone number</NextLink></li>
+                      )}
+                      {profileGaps.experience && (
+                        <li>Add at least one <NextLink href="/seafarer/experience" className="text-brass2 underline hover:text-brass">sea service record</NextLink></li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <NextLink
+                    href={profileGaps.phone ? "/seafarer/profile" : "/seafarer/experience"}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  >
+                    Complete profile
+                  </NextLink>
+                  <button
+                    onClick={() => { setShowModal(false); setApplyError(null); }}
+                    className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-1.5 mb-4">
+                  <label className="text-sm font-semibold text-foam">
+                    Cover Letter <span className="text-mist font-normal">(optional)</span>
+                  </label>
+                  <textarea
+                    value={coverLetter}
+                    onChange={(e) => setCoverLetter(e.target.value)}
+                    placeholder="Briefly describe your experience and why you're a good fit..."
+                    rows={5}
+                    className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass resize-none"
+                  />
+                </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleApply}
-                disabled={applying}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
-              >
-                <Send size={15} />
-                {applying ? "Submitting..." : "Submit Application"}
-              </button>
-              <button
-                onClick={() => { setShowModal(false); setApplyError(null); }}
-                className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
-              >
-                Cancel
-              </button>
-            </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleApply}
+                    disabled={applying}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                  >
+                    <Send size={15} />
+                    {applying ? "Submitting..." : "Submit Application"}
+                  </button>
+                  <button
+                    onClick={() => { setShowModal(false); setApplyError(null); }}
+                    className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
