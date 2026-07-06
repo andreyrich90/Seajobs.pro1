@@ -80,6 +80,8 @@
   "dash_experience_desc": "Log sea experience",
   "dash_download_cv": "Download CV",
   "dash_download_cv_desc": "Generate your CV",
+  "dash_browse_jobs": "Browse Jobs",
+  "dash_browse_jobs_desc": "View all open vacancies",
   "dash_job_alerts": "Job Alerts",
   "dash_alert_active": "Active — notifying you of new {rank} positions",
   "dash_alert_get_notified": "Get notified when new {rank} vacancies are posted",

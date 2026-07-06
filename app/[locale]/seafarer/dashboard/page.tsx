@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
@@ -139,6 +139,23 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Browse jobs CTA */}
+      <Link
+        href="/jobs"
+        className="group mb-6 flex items-center justify-between gap-4 rounded-2xl border border-brass/30 bg-gradient-to-br from-brass/15 to-brass2/5 p-5 transition hover:border-brass/50 hover:from-brass/20"
+      >
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shrink-0">
+            <Search size={20} className="text-deep" />
+          </div>
+          <div>
+            <p className="font-semibold text-white">{t.dash_browse_jobs}</p>
+            <p className="text-xs text-mist">{t.dash_browse_jobs_desc}</p>
+          </div>
+        </div>
+        <ChevronRight size={18} className="text-brass2 shrink-0 transition group-hover:translate-x-0.5" />
+      </Link>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">

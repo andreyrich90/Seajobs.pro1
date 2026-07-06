@@ -80,6 +80,8 @@
   "dash_experience_desc": "Добавить рейс в опыт",
   "dash_download_cv": "Скачать CV",
   "dash_download_cv_desc": "Сгенерировать резюме",
+  "dash_browse_jobs": "Найти вакансии",
+  "dash_browse_jobs_desc": "Смотреть все вакансии",
   "dash_job_alerts": "Уведомления о вакансиях",
   "dash_alert_active": "Активно — уведомляем о новых вакансиях {rank}",
   "dash_alert_get_notified": "Получайте уведомления о новых вакансиях {rank}",

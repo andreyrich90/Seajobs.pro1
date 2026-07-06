@@ -80,6 +80,8 @@
   "dash_experience_desc": "Înregistrează experiența pe mare",
   "dash_download_cv": "Descarcă CV",
   "dash_download_cv_desc": "Generează-ți CV-ul",
+  "dash_browse_jobs": "Găsește posturi",
+  "dash_browse_jobs_desc": "Vezi toate posturile vacante",
   "dash_job_alerts": "Alerte de posturi",
   "dash_alert_active": "Activ — te anunțăm despre noile posturi de {rank}",
   "dash_alert_get_notified": "Primește notificări când apar posturi noi de {rank}",

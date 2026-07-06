@@ -80,6 +80,8 @@
   "dash_experience_desc": "Dodaj doświadczenie morskie",
   "dash_download_cv": "Pobierz CV",
   "dash_download_cv_desc": "Wygeneruj swoje CV",
+  "dash_browse_jobs": "Znajdź oferty",
+  "dash_browse_jobs_desc": "Zobacz wszystkie oferty pracy",
   "dash_job_alerts": "Powiadomienia o ofertach",
   "dash_alert_active": "Aktywne — powiadamiamy o nowych ofertach {rank}",
   "dash_alert_get_notified": "Otrzymuj powiadomienia o nowych ofertach {rank}",
