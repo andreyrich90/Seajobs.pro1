@@ -30,6 +30,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "Oferty pracy dla marynarzy na całym świecie — szukaj według rangi, typu statku i wynagrodzenia. Bezpłatna platforma dla marynarzy i firm crewingowych.",
   },
+  ro: {
+    title: "Joburi maritime pentru marinari și companii de crewing | SeaJobs",
+    description:
+      "Găsește joburi maritime în întreaga lume — caută după rang, tip de navă și salariu. Platformă gratuită pentru marinari și companii de crewing.",
+  },
 };
 
 export async function generateMetadata({
@@ -40,7 +45,7 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
-  const meta = SITE_META[locale];
+  const meta = SITE_META[locale] ?? SITE_META.en;
 
   return {
     title: meta.title,

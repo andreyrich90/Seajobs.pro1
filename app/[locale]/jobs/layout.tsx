@@ -57,7 +57,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const meta = SITE_META[locale];
+  const meta = SITE_META[locale] ?? SITE_META.en;
 
   return {
     title: meta.title,
