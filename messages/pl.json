@@ -265,6 +265,7 @@
   "cert_title": "Certyfikaty",
   "cert_add": "Dodaj certyfikat",
   "cert_new": "Nowy certyfikat",
+  "cert_edit": "Edytuj certyfikat",
   "cert_saving": "Zapisywanie…",
   "cert_name": "Nazwa certyfikatu",
   "cert_number": "Numer certyfikatu",

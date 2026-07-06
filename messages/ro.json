@@ -265,6 +265,7 @@
   "cert_title": "Certificate",
   "cert_add": "Adaugă certificat",
   "cert_new": "Certificat nou",
+  "cert_edit": "Editează certificatul",
   "cert_saving": "Se salvează...",
   "cert_name": "Denumirea certificatului",
   "cert_number": "Numărul certificatului",

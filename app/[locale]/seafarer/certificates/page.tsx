@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, AlertCircle, X } from "lucide-react";
+import { Plus, Trash2, Pencil, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
@@ -69,6 +69,7 @@ export default function CertificatesPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<CertForm>(EMPTY_FORM);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -96,6 +97,21 @@ export default function CertificatesPage() {
     setError(null);
   }
 
+  function openEdit(cert: Certificate) {
+    setForm({
+      name: cert.name ?? "",
+      number: cert.number ?? "",
+      issue_date: cert.issue_date ?? "",
+      expiry_date: cert.expiry_date ?? "",
+      issuing_authority: cert.issuing_authority ?? "",
+      file_url: cert.file_url ?? "",
+    });
+    setEditingId(cert.id);
+    setShowForm(true);
+    setError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     if (!userId) return;
@@ -106,26 +122,45 @@ export default function CertificatesPage() {
     setSubmitting(true);
     setError(null);
 
-    const { data, error: insertError } = await supabase
-      .from("certificates")
-      .insert({
-        seafarer_id: userId,
-        name: form.name.trim(),
-        number: form.number || null,
-        issue_date: form.issue_date || null,
-        expiry_date: form.expiry_date || null,
-        issuing_authority: form.issuing_authority || null,
-        file_url: form.file_url || null,
-      })
-      .select()
-      .single();
+    const payload = {
+      name: form.name.trim(),
+      number: form.number || null,
+      issue_date: form.issue_date || null,
+      expiry_date: form.expiry_date || null,
+      issuing_authority: form.issuing_authority || null,
+      file_url: form.file_url || null,
+    };
 
-    if (insertError) {
-      setError(t.cert_add_failed + insertError.message);
-    } else if (data) {
-      setCerts((prev) => [...prev, data]);
-      setForm(EMPTY_FORM);
-      setShowForm(false);
+    if (editingId) {
+      const { data, error: updateError } = await supabase
+        .from("certificates")
+        .update(payload)
+        .eq("id", editingId)
+        .select()
+        .single();
+
+      if (updateError) {
+        setError(t.exp_update_failed + updateError.message);
+      } else if (data) {
+        setCerts((prev) => prev.map((c) => (c.id === editingId ? data : c)));
+        setForm(EMPTY_FORM);
+        setEditingId(null);
+        setShowForm(false);
+      }
+    } else {
+      const { data, error: insertError } = await supabase
+        .from("certificates")
+        .insert({ seafarer_id: userId, ...payload })
+        .select()
+        .single();
+
+      if (insertError) {
+        setError(t.cert_add_failed + insertError.message);
+      } else if (data) {
+        setCerts((prev) => [...prev, data]);
+        setForm(EMPTY_FORM);
+        setShowForm(false);
+      }
     }
     setSubmitting(false);
   }
@@ -156,7 +191,7 @@ export default function CertificatesPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-semibold text-white">{t.cert_title}</h1>
         <button
-          onClick={() => { setShowForm(true); setError(null); }}
+          onClick={() => { setShowForm(true); setEditingId(null); setForm(EMPTY_FORM); setError(null); }}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
         >
           <Plus size={16} /> {t.cert_add}
@@ -167,8 +202,8 @@ export default function CertificatesPage() {
       {showForm && (
         <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-semibold text-white">{t.cert_new}</h2>
-            <button onClick={() => setShowForm(false)} className="text-mist hover:text-white transition">
+            <h2 className="font-display text-lg font-semibold text-white">{editingId ? t.cert_edit : t.cert_new}</h2>
+            <button onClick={() => { setShowForm(false); setEditingId(null); setForm(EMPTY_FORM); }} className="text-mist hover:text-white transition">
               <X size={18} />
             </button>
           </div>
@@ -264,11 +299,11 @@ export default function CertificatesPage() {
                 disabled={submitting}
                 className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
-                {submitting ? t.cert_saving : t.cert_add}
+                {submitting ? t.cert_saving : editingId ? t.exp_update : t.cert_add}
               </button>
               <button
                 type="button"
-                onClick={() => { setShowForm(false); setForm(EMPTY_FORM); setError(null); }}
+                onClick={() => { setShowForm(false); setEditingId(null); setForm(EMPTY_FORM); setError(null); }}
                 className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
               >
                 {t.cancel}
@@ -332,6 +367,12 @@ export default function CertificatesPage() {
                               View
                             </a>
                           )}
+                          <button
+                            onClick={() => openEdit(cert)}
+                            className="rounded-lg bg-white/5 border border-white/10 p-1.5 text-mist hover:text-white hover:bg-white/10 transition"
+                          >
+                            <Pencil size={14} />
+                          </button>
                           <button
                             onClick={() => handleDelete(cert.id)}
                             className="rounded-lg bg-coral/10 border border-coral/20 p-1.5 text-coral hover:bg-coral/20 transition"
