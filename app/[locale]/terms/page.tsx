@@ -6,6 +6,44 @@ import { useLang } from "@/components/LangProvider";
 import type { Lang } from "@/lib/i18n";
 
 const TRANSLATIONS = {
+  ro: {
+    title: "Termeni și condiții",
+    updated: "Ultima actualizare: iunie 2026",
+    sections: [
+      {
+        title: "1. Acceptarea termenilor",
+        body: "Prin accesarea sau utilizarea SeaJobs.pro, sunteți de acord să respectați acești Termeni și condiții. Dacă nu sunteți de acord cu acești termeni, vă rugăm să nu utilizați platforma. Acești termeni se aplică tuturor vizitatorilor, marinarilor și companiilor care utilizează platforma.",
+      },
+      {
+        title: "2. Utilizarea platformei",
+        body: "SeaJobs.pro oferă o piață digitală care conectează marinarii cu agențiile de crewing. Puteți utiliza platforma pentru a vă crea un profil, a aplica la posturi vacante și a comunica cu potențiali angajatori. Sunteți de acord să nu utilizați platforma în mod abuziv, să nu publicați informații false și să nu vă implicați în activități frauduloase.",
+      },
+      {
+        title: "3. Conturile utilizatorilor",
+        body: "Sunteți responsabil pentru păstrarea confidențialității datelor de acces ale contului dumneavoastră. Sunteți de acord să furnizați informații corecte, actuale și complete la înregistrare și să vă mențineți profilul actualizat. SeaJobs.pro își rezervă dreptul de a suspenda sau închide conturile care încalcă acești termeni.",
+      },
+      {
+        title: "4. Profilurile marinarilor",
+        body: "Când vă creați un profil de marinar, anumite informații pot fi vizibile companiilor de crewing înregistrate. Dumneavoastră controlați ce informații includeți în profil. SeaJobs.pro nu este responsabil pentru modul în care companiile utilizează informațiile afișate în profilul dumneavoastră public.",
+      },
+      {
+        title: "5. Conturile companiilor",
+        body: "Companiile trebuie să furnizeze informații corecte despre activitatea lor. Publicarea de anunțuri de angajare frauduloase sau colectarea de date personale în alte scopuri decât recrutarea legitimă este strict interzisă și poate duce la închiderea definitivă a contului.",
+      },
+      {
+        title: "6. Proprietate intelectuală",
+        body: "Întregul conținut de pe SeaJobs.pro, inclusiv logo-urile, designul și textele, este proprietatea SeaJobs.pro și este protejat de legislația aplicabilă privind proprietatea intelectuală. Nu puteți reproduce sau distribui niciun conținut fără permisiunea scrisă prealabilă.",
+      },
+      {
+        title: "7. Limitarea răspunderii",
+        body: "SeaJobs.pro acționează ca platformă intermediară și nu este responsabil pentru deciziile de angajare ale companiilor sau pentru acuratețea anunțurilor. Nu garantăm obținerea unui loc de muncă și nu răspundem pentru niciun prejudiciu rezultat din utilizarea platformei.",
+      },
+      {
+        title: "8. Modificarea termenilor",
+        body: "Ne rezervăm dreptul de a modifica acești Termeni și condiții în orice moment. Modificările intră în vigoare imediat după publicare. Continuarea utilizării platformei după modificări constituie acceptarea termenilor actualizați.",
+      },
+    ],
+  },
   en: {
     title: "Terms of Service",
     updated: "Last updated: June 2026",
@@ -162,8 +200,7 @@ const TRANSLATIONS = {
 
 export default function TermsPage() {
   const { lang } = useLang();
-  // Romanian legal text not written yet — those readers get English.
-  const t = (TRANSLATIONS as Partial<Record<Lang, typeof TRANSLATIONS.en>>)[lang] ?? TRANSLATIONS.en;
+  const t = TRANSLATIONS[lang] ?? TRANSLATIONS.en;
 
   return (
     <div className="min-h-screen flex flex-col">

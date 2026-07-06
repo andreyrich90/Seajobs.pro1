@@ -6,6 +6,61 @@ import { useLang } from "@/components/LangProvider";
 import type { Lang } from "@/lib/i18n";
 
 const TRANSLATIONS = {
+  ro: {
+    title: "Politica de confidențialitate",
+    updated: "Ultima actualizare: iunie 2026",
+    intro: "SeaJobs.pro („noi” sau „al nostru”) se angajează să vă protejeze confidențialitatea. Această politică explică ce informații colectăm, cum le folosim și ce drepturi aveți asupra datelor dumneavoastră.",
+    sections: [
+      {
+        title: "1. Informațiile pe care le colectăm",
+        body: "Colectăm informațiile pe care le furnizați la înregistrare, inclusiv numele, adresa de e-mail și rolul (marinar sau companie). Marinarii pot furniza informații suplimentare de profil, precum naționalitatea, rangul, data nașterii, numărul de telefon, stagiul pe mare și certificatele. Companiile pot furniza denumirea, locația, site-ul și logo-ul. Dacă vă autentificați cu Google, primim de la Google numele și adresa de e-mail.",
+      },
+      {
+        title: "2. Cum folosim informațiile",
+        body: "Folosim informațiile pentru a opera platforma, a facilita conexiunile dintre marinari și companiile de crewing, a trimite notificări relevante despre aplicări și activitatea contului și a ne îmbunătăți serviciile. Nu vindem datele dumneavoastră personale către terți.",
+      },
+      {
+        title: "3. Vizibilitatea profilului",
+        body: "Profilurile marinarilor (nume, rang, naționalitate, experiență pe mare) pot fi vizibile companiilor de crewing înregistrate pe platformă. Informațiile sensibile, precum numerele de telefon și datele nașterii, nu sunt afișate public. Puteți actualiza sau șterge informațiile din profil oricând, din panoul dumneavoastră.",
+      },
+      {
+        title: "4. Comunicări prin e-mail",
+        body: "Putem trimite e-mailuri tranzacționale legate de activitatea contului, precum actualizări ale statusului aplicărilor și alerte de posturi la care v-ați abonat. Aceste e-mailuri sunt necesare funcționării serviciului. Puteți gestiona preferințele de notificare din setările contului.",
+      },
+      {
+        title: "5. Stocarea datelor și securitatea",
+        body: "Datele dumneavoastră sunt stocate pe servere securizate furnizate de Supabase (găzduite pe infrastructura AWS). Aplicăm măsuri de securitate standard din industrie, inclusiv conexiuni criptate (HTTPS/TLS), autentificare securizată prin Supabase Auth și politici de securitate la nivel de rând (RLS), astfel încât utilizatorii să aibă acces doar la propriile date.",
+      },
+      {
+        title: "6. Cookie-uri și analiză",
+        body: "Folosim cookie-uri de sesiune necesare autentificării. Folosim de asemenea Google Analytics 4 pentru statistici de utilizare anonimizate (pagini vizitate, durata sesiunii, țara). Google Analytics poate seta propriile cookie-uri. Nu folosim cookie-uri de publicitate sau retargeting. Preferința de limbă este stocată în local storage-ul browserului.",
+      },
+      {
+        title: "7. Servicii terțe",
+        body: "Folosim următoarele servicii terțe: Supabase (bază de date și autentificare), Google OAuth (autentificare cu Google), Google Analytics (statistici anonimizate) și Vercel (găzduire). Fiecare dintre aceste servicii are propria politică de confidențialitate. Nu partajăm datele dumneavoastră personale cu alți terți.",
+      },
+      {
+        title: "8. Drepturile dumneavoastră (GDPR)",
+        body: "Dacă vă aflați în Uniunea Europeană sau Ucraina, aveți dreptul de a accesa, corecta, exporta sau șterge datele personale. Puteți solicita o copie a datelor sau ștergerea contului contactându-ne prin formularul de contact. Răspundem în termen de 5 zile lucrătoare.",
+      },
+      {
+        title: "9. Păstrarea datelor",
+        body: "Păstrăm datele contului atât timp cât contul este activ. Dacă solicitați ștergerea contului, datele personale sunt eliminate în termen de 30 de zile, cu excepția cazurilor în care legea impune păstrarea lor. Evidențele aplicărilor pot fi păstrate în formă anonimizată în scopuri statistice.",
+      },
+      {
+        title: "10. Confidențialitatea minorilor",
+        body: "SeaJobs.pro nu se adresează persoanelor sub 18 ani. Nu colectăm cu bună știință informații personale de la minori. Dacă aveți motive să credeți că un minor ne-a furnizat date personale, vă rugăm să ne contactați pentru a le elimina.",
+      },
+      {
+        title: "11. Modificări ale acestei politici",
+        body: "Putem actualiza periodic această Politică de confidențialitate. Modificările vor fi publicate pe această pagină, cu data actualizată. Continuarea utilizării platformei după modificări constituie acceptarea politicii actualizate.",
+      },
+      {
+        title: "12. Contact",
+        body: "Pentru orice întrebări legate de confidențialitate, cereri de acces la date sau cereri de ștergere, vă rugăm să ne contactați prin formularul de contact de pe site. Răspundem în termen de 5 zile lucrătoare.",
+      },
+    ],
+  },
   en: {
     title: "Privacy Policy",
     updated: "Last updated: June 2026",
@@ -230,8 +285,7 @@ const TRANSLATIONS = {
 
 export default function PrivacyPage() {
   const { lang } = useLang();
-  // Romanian legal text not written yet — those readers get English.
-  const t = (TRANSLATIONS as Partial<Record<Lang, typeof TRANSLATIONS.en>>)[lang] ?? TRANSLATIONS.en;
+  const t = TRANSLATIONS[lang] ?? TRANSLATIONS.en;
 
   return (
     <div className="min-h-screen flex flex-col">
