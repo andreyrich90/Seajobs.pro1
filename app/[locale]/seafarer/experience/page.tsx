@@ -492,8 +492,11 @@ export default function ExperiencePage() {
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
+                {/* On phones the dates wrap onto their own full-width line so
+                    they never slide under the edit/delete buttons; from sm up
+                    they sit top-right as before. */}
+                <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                  <div className="min-w-0">
                     <h3 className="font-semibold text-white">{entry.vessel_name}</h3>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       {entry.vessel_type && (
@@ -511,12 +514,17 @@ export default function ExperiencePage() {
                       )}
                     </div>
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="order-last w-full sm:order-none sm:w-auto sm:shrink-0 sm:text-right">
                     <p className="text-sm font-semibold text-white">
                       {formatDate(entry.from_date)} — {formatDate(entry.to_date)}
+                      {entry.from_date && (
+                        <span className="ml-2 text-xs font-normal text-mist sm:hidden">
+                          · {calcDuration(entry.from_date, entry.to_date)}
+                        </span>
+                      )}
                     </p>
                     {entry.from_date && (
-                      <p className="text-xs text-mist mt-0.5">
+                      <p className="mt-0.5 hidden text-xs text-mist sm:block">
                         {calcDuration(entry.from_date, entry.to_date)}
                       </p>
                     )}
