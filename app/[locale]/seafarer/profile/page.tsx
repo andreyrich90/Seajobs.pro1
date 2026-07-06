@@ -742,28 +742,28 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-2 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">{t.sp_diplomas}</label>
               {diplomas.map((d, i) => (
-                <div key={i} className="flex flex-col gap-2 rounded-xl border border-white/10 bg-navy2/40 p-3 sm:flex-row sm:items-center">
+                <div key={i} className="flex flex-col gap-2 rounded-xl border border-white/10 bg-navy2/40 p-3 sm:flex-row sm:flex-wrap sm:items-center">
                   <input
                     type="text" value={d.name}
                     onChange={(e) => updateDiploma(i, "name", e.target.value)}
                     placeholder={t.sp_diploma_name_ph} disabled={saving}
-                    className="flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                    className="min-w-0 flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                   />
                   <input
                     type="text" value={d.number}
                     onChange={(e) => updateDiploma(i, "number", e.target.value)}
                     placeholder={t.sp_diploma_no_ph} disabled={saving}
-                    className="flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                    className="min-w-0 flex-1 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                   />
                   <input
                     type="date" value={d.expiry}
                     onChange={(e) => updateDiploma(i, "expiry", e.target.value)}
                     disabled={saving}
-                    className="rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
+                    className="w-full shrink-0 rounded-lg border border-white/10 bg-navy2 px-3 py-2.5 text-sm text-white outline-none focus:border-brass disabled:opacity-50 sm:w-40"
                   />
                   <button type="button" onClick={() => removeDiploma(i)}
                     title={t.sp_remove} disabled={saving}
-                    className="self-end rounded-lg border border-coral/20 bg-coral/10 p-2 text-coral transition hover:bg-coral/20 disabled:opacity-50 sm:self-auto">
+                    className="shrink-0 self-end rounded-lg border border-coral/20 bg-coral/10 p-2 text-coral transition hover:bg-coral/20 disabled:opacity-50 sm:self-auto">
                     <Trash2 size={14} />
                   </button>
                 </div>
