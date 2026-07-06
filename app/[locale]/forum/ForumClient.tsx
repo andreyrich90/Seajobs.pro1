@@ -26,12 +26,13 @@ function loc(field: unknown, lang: string): string {
 }
 
 const FORUM_UI: Record<string, Record<string, string>> = {
-  title: { en: "Community Forum", ru: "Форум сообщества", ua: "Форум спільноти", pl: "Forum społeczności" },
+  title: { en: "Community Forum", ru: "Форум сообщества", ua: "Форум спільноти", pl: "Forum społeczności", ro: "Forumul comunității" },
   subtitle: {
     en: "Discuss maritime topics, share experience, ask questions.",
     ru: "Обсуждайте морские темы, делитесь опытом, задавайте вопросы.",
     ua: "Обговорюйте морські теми, діліться досвідом, ставте запитання.",
     pl: "Dyskutuj o tematach morskich, dziel się doświadczeniem i zadawaj pytania.",
+    ro: "Discută subiecte maritime, împărtășește experiența, pune întrebări.",
   },
 };
 

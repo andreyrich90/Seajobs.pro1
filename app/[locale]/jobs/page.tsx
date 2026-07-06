@@ -27,6 +27,10 @@ const FILTER_META: Record<string, { title: (label: string) => string; desc: (lab
     title: (l) => `${l} — oferty pracy na morzu | SeaJobs.pro`,
     desc: (l) => `Aktualne oferty ${l} od zweryfikowanych firm crewingowych: wynagrodzenie, długość kontraktu, daty zaokrętowania. Aplikuj bezpłatnie na SeaJobs.pro.`,
   },
+  ro: {
+    title: (l) => `${l} — joburi pe mare | SeaJobs.pro`,
+    desc: (l) => `Posturi actuale de ${l} de la companii de crewing verificate: salariu, durata contractului, date de îmbarcare. Aplică gratuit pe SeaJobs.pro.`,
+  },
 };
 
 export async function generateMetadata({

@@ -19,18 +19,18 @@ type Payload = {
 };
 
 const L: Record<string, Record<string, string>> = {
-  contact:    { ua: "Контакти", pl: "Kontakt", ru: "Контакты", en: "Contact" },
-  documents:  { ua: "Документи", pl: "Dokumenty", ru: "Документы", en: "Documents" },
-  experience: { ua: "Морський досвід", pl: "Doświadczenie morskie", ru: "Морской опыт", en: "Sea experience" },
-  certs:      { ua: "Сертифікати", pl: "Certyfikaty", ru: "Сертификаты", en: "Certificates" },
-  education:  { ua: "Освіта", pl: "Edukacja", ru: "Образование", en: "Education" },
-  languages:  { ua: "Мови", pl: "Języki", ru: "Языки", en: "Languages" },
-  about:      { ua: "Про себе", pl: "O sobie", ru: "О себе", en: "About" },
-  available:  { ua: "Готовий з", pl: "Dostępny od", ru: "Готов с", en: "Available from" },
-  message:    { ua: "Написати", pl: "Napisz", ru: "Написать", en: "Message" },
-  loading:    { ua: "Завантаження…", pl: "Ładowanie…", ru: "Загрузка…", en: "Loading…" },
-  noData:     { ua: "CV недоступне", pl: "CV niedostępne", ru: "CV недоступно", en: "CV unavailable" },
-  present:    { ua: "Зараз", pl: "Obecnie", ru: "Сейчас", en: "Present" },
+  contact:    { ua: "Контакти", pl: "Kontakt", ru: "Контакты", en: "Contact", ro: "Contact" },
+  documents:  { ua: "Документи", pl: "Dokumenty", ru: "Документы", en: "Documents", ro: "Documente" },
+  experience: { ua: "Морський досвід", pl: "Doświadczenie morskie", ru: "Морской опыт", en: "Sea experience", ro: "Experiență pe mare" },
+  certs:      { ua: "Сертифікати", pl: "Certyfikaty", ru: "Сертификаты", en: "Certificates", ro: "Certificate" },
+  education:  { ua: "Освіта", pl: "Edukacja", ru: "Образование", en: "Education", ro: "Educație" },
+  languages:  { ua: "Мови", pl: "Języki", ru: "Языки", en: "Languages", ro: "Limbi" },
+  about:      { ua: "Про себе", pl: "O sobie", ru: "О себе", en: "About", ro: "Despre" },
+  available:  { ua: "Готовий з", pl: "Dostępny od", ru: "Готов с", en: "Available from", ro: "Disponibil din" },
+  message:    { ua: "Написати", pl: "Napisz", ru: "Написать", en: "Message", ro: "Scrie" },
+  loading:    { ua: "Завантаження…", pl: "Ładowanie…", ru: "Загрузка…", en: "Loading…", ro: "Se încarcă…" },
+  noData:     { ua: "CV недоступне", pl: "CV niedostępne", ru: "CV недоступно", en: "CV unavailable", ro: "CV indisponibil" },
+  present:    { ua: "Зараз", pl: "Obecnie", ru: "Сейчас", en: "Present", ro: "Prezent" },
 };
 
 function fmt(d: string | null, short = true): string {

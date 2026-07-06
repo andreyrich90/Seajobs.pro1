@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLang } from "@/components/LangProvider";
+import type { Lang } from "@/lib/i18n";
 
 const TRANSLATIONS = {
   en: {
@@ -229,7 +230,8 @@ const TRANSLATIONS = {
 
 export default function PrivacyPage() {
   const { lang } = useLang();
-  const t = TRANSLATIONS[lang] ?? TRANSLATIONS.en;
+  // Romanian legal text not written yet — those readers get English.
+  const t = (TRANSLATIONS as Partial<Record<Lang, typeof TRANSLATIONS.en>>)[lang] ?? TRANSLATIONS.en;
 
   return (
     <div className="min-h-screen flex flex-col">

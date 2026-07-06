@@ -19,14 +19,15 @@ export const metadata = {
   keywords: "maritime jobs, seafarer jobs, crewing, maritime career, ship jobs, jobs for seamen, crew jobs, sailor jobs, marine jobs, jobs at sea, seafarer recruitment, able seaman jobs, ordinary seaman jobs, bosun jobs, motorman jobs, oiler jobs, ship cook jobs, chief engineer jobs, second engineer jobs, deck officer jobs, master mariner jobs, ETO jobs, deck cadet jobs, engine cadet jobs, crewing agency vacancies, tanker jobs, container ship jobs, bulk carrier jobs, offshore vacancies, cruise ship jobs, seafarer jobs no experience, " +
     "вакансии для моряков, работа в море, работа на судне, крюинг вакансии, работа моряком, работа моряком без опыта, морские вакансии, вакансии моряк, свежие вакансии для моряков, контракт на судно, крюинговая компания вакансии, крюинговые компании, вакансии матрос, вакансии моторист, вакансии повар на судно, вакансии механик, вакансии капитан, работа на танкере, работа на оффшоре, зарплата моряка, " +
     "робота для моряків, вакансії моряк, робота на судні, робота моряком, робота в морі, крюїнг вакансії, робота моряком без досвіду, " +
-    "praca dla marynarzy, oferty pracy marynarz, praca na statku, praca na morzu, crewing praca, praca marynarz bez doświadczenia",
+    "praca dla marynarzy, oferty pracy marynarz, praca na statku, praca na morzu, crewing praca, praca marynarz bez doświadczenia, " +
+    "joburi pentru marinari, locuri de munca marinari, angajari marinari, munca pe mare, joburi pe vapor, agentii crewing",
   openGraph: {
     title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
     description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков — поиск по рангу, типу судна и зарплате.",
     type: "website",
     siteName: "SeaJobs.pro",
     locale: "en_US",
-    alternateLocale: ["ru_RU", "uk_UA", "pl_PL"],
+    alternateLocale: ["ru_RU", "uk_UA", "pl_PL", "ro_RO"],
   },
   twitter: {
     card: "summary",
@@ -42,7 +43,7 @@ const orgJsonLd = {
       "@type": "Organization",
       "@id": "https://seajobs.pro/#organization",
       "name": "SeaJobs.pro",
-      "alternateName": ["Вакансии для моряков", "Робота для моряків", "Praca dla marynarzy"],
+      "alternateName": ["Вакансии для моряков", "Робота для моряків", "Praca dla marynarzy", "Joburi pentru marinari"],
       "url": "https://seajobs.pro",
       "description": "Maritime job board connecting seafarers with crewing companies worldwide",
       "logo": {
@@ -55,7 +56,7 @@ const orgJsonLd = {
       "@id": "https://seajobs.pro/#website",
       "url": "https://seajobs.pro",
       "name": "SeaJobs.pro",
-      "inLanguage": ["en", "ru", "uk", "pl"],
+      "inLanguage": ["en", "ru", "uk", "pl", "ro"],
       "publisher": { "@id": "https://seajobs.pro/#organization" },
       "potentialAction": {
         "@type": "SearchAction",

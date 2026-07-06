@@ -1,6 +1,6 @@
 # SeaJobs.pro
 
-> Maritime job board connecting seafarers with verified crewing agencies and shipowners. Free for seafarers: search vacancies by rank, vessel type and salary, build a maritime CV, and apply in one click — the CV goes straight to the crewing manager. Free vacancy posting for crewing companies. Available in English, Russian (/ru), Ukrainian (/ua) and Polish (/pl).
+> Maritime job board connecting seafarers with verified crewing agencies and shipowners. Free for seafarers: search vacancies by rank, vessel type and salary, build a maritime CV, and apply in one click — the CV goes straight to the crewing manager. Free vacancy posting for crewing companies. Available in English, Russian (/ru), Ukrainian (/ua), Polish (/pl) and Romanian (/ro).
 
 Fresh vacancies are posted daily across the merchant fleet (bulk carriers, container ships, tankers, general cargo, RoRo/PCTC), offshore (PSV, AHTS, drillships, cable/pipe layers), cruise, tugs and dredging. Every vacancy page lists rank, vessel type, salary, contract length, joining date and requirements, with JobPosting structured data.
 

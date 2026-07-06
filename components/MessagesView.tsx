@@ -22,14 +22,14 @@ type Convo = {
 };
 
 const TXT: Record<string, Record<string, string>> = {
-  title:   { ua: "Повідомлення", pl: "Wiadomości", ru: "Сообщения", en: "Messages" },
-  empty:   { ua: "Поки немає листувань", pl: "Brak wiadomości", ru: "Пока нет переписок", en: "No messages yet" },
-  emptyC:  { ua: "Напишіть кандидату зі сторінки відгуків.", pl: "Napisz do kandydata ze strony aplikacji.", ru: "Напишите кандидату со страницы откликов.", en: "Message a candidate from the applications page." },
-  emptyS:  { ua: "Компанія напише вам після вашого відгуку.", pl: "Firma napisze do Ciebie po Twojej aplikacji.", ru: "Компания напишет вам после вашего отклика.", en: "A company will message you after you apply." },
-  emptyA:  { ua: "Напишіть користувачу зі сторінки «Користувачі».", pl: "Napisz do użytkownika ze strony „Użytkownicy”.", ru: "Напишите пользователю со страницы «Пользователи».", en: "Message a user from the Users page." },
-  pick:    { ua: "Виберіть листування", pl: "Wybierz wiadomość", ru: "Выберите переписку", en: "Select a conversation" },
-  you:     { ua: "Ви: ", pl: "Ty: ", ru: "Вы: ", en: "You: " },
-  team:    { ua: "Команда SeaJobs", pl: "Zespół SeaJobs", ru: "Команда SeaJobs", en: "SeaJobs Team" },
+  title:   { ua: "Повідомлення", pl: "Wiadomości", ru: "Сообщения", en: "Messages", ro: "Mesaje" },
+  empty:   { ua: "Поки немає листувань", pl: "Brak wiadomości", ru: "Пока нет переписок", en: "No messages yet", ro: "Încă nu ai conversații" },
+  emptyC:  { ua: "Напишіть кандидату зі сторінки відгуків.", pl: "Napisz do kandydata ze strony aplikacji.", ru: "Напишите кандидату со страницы откликов.", en: "Message a candidate from the applications page.", ro: "Scrie unui candidat din pagina de aplicări." },
+  emptyS:  { ua: "Компанія напише вам після вашого відгуку.", pl: "Firma napisze do Ciebie po Twojej aplikacji.", ru: "Компания напишет вам после вашего отклика.", en: "A company will message you after you apply.", ro: "Compania îți va scrie după ce aplici." },
+  emptyA:  { ua: "Напишіть користувачу зі сторінки «Користувачі».", pl: "Napisz do użytkownika ze strony „Użytkownicy”.", ru: "Напишите пользователю со страницы «Пользователи».", en: "Message a user from the Users page.", ro: "Scrie unui utilizator din pagina „Utilizatori”." },
+  pick:    { ua: "Виберіть листування", pl: "Wybierz wiadomość", ru: "Выберите переписку", en: "Select a conversation", ro: "Alege o conversație" },
+  you:     { ua: "Ви: ", pl: "Ty: ", ru: "Вы: ", en: "You: ", ro: "Tu: " },
+  team:    { ua: "Команда SeaJobs", pl: "Zespół SeaJobs", ru: "Команда SeaJobs", en: "SeaJobs Team", ro: "Echipa SeaJobs" },
 };
 
 function fmtWhen(d: string | null): string {

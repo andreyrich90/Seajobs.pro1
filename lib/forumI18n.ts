@@ -1,5 +1,5 @@
 // Shared helpers for translating forum topics into all supported languages.
-export const LANGS = ["en", "ru", "ua", "pl"] as const;
+export const LANGS = ["en", "ru", "ua", "pl", "ro"] as const;
 export type Lang = (typeof LANGS)[number];
 
 const LANG_NAME: Record<Lang, string> = {
@@ -7,6 +7,7 @@ const LANG_NAME: Record<Lang, string> = {
   ru: "Russian",
   ua: "Ukrainian",
   pl: "Polish",
+  ro: "Romanian",
 };
 
 export const asText = (v: unknown) => (typeof v === "string" && v.trim() ? v : "");

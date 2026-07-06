@@ -12,7 +12,7 @@ export const FLEETS: {
 }[] = [
   {
     key: "merchant",
-    labels: { en: "Merchant fleet", ru: "Торговый флот", ua: "Торговий флот", pl: "Flota handlowa" },
+    labels: { en: "Merchant fleet", ru: "Торговый флот", ua: "Торговий флот", pl: "Flota handlowa", ro: "Flota comercială" },
     keywords: [
       "bulk", "cargo", "container", "tanker", "coaster", "reefer", "roro", "ro-ro",
       "pctc", "car carrier", "pcc", "heavy lift", "mpp", "lng", "lpg", "chemical",
@@ -21,7 +21,7 @@ export const FLEETS: {
   },
   {
     key: "offshore",
-    labels: { en: "Offshore", ru: "Оффшор", ua: "Офшор", pl: "Offshore" },
+    labels: { en: "Offshore", ru: "Оффшор", ua: "Офшор", pl: "Offshore", ro: "Offshore" },
     keywords: [
       "psv", "ahts", "osv", "mpsv", "offshore", "drill", "pipe layer", "pipelay",
       "cable", "jack-up", "supply", "support vessel", "survey", "multicat", "w2w",
@@ -31,17 +31,17 @@ export const FLEETS: {
   },
   {
     key: "passenger",
-    labels: { en: "Cruise & passenger", ru: "Круизы и пассажирский", ua: "Круїзи та пасажирський", pl: "Wycieczkowce i pasażerskie" },
+    labels: { en: "Cruise & passenger", ru: "Круизы и пассажирский", ua: "Круїзи та пасажирський", pl: "Wycieczkowce i pasażerskie", ro: "Croaziere și pasagere" },
     keywords: ["cruise", "ferry", "passenger", "yacht", "ropax"],
   },
   {
     key: "workboats",
-    labels: { en: "Tugs & dredging", ru: "Буксиры и дноуглубление", ua: "Буксири та днопоглиблення", pl: "Holowniki i pogłębiarki" },
+    labels: { en: "Tugs & dredging", ru: "Буксиры и дноуглубление", ua: "Буксири та днопоглиблення", pl: "Holowniki i pogłębiarki", ro: "Remorchere și dragare" },
     keywords: ["tug", "dredg", "hopper", "workboat", "pontoon", "barge", "pusher", "salvage"],
   },
   {
     key: "fishing",
-    labels: { en: "Fishing", ru: "Рыболовный", ua: "Рибальський", pl: "Rybołówstwo" },
+    labels: { en: "Fishing", ru: "Рыболовный", ua: "Рибальський", pl: "Rybołówstwo", ro: "Pescuit" },
     keywords: ["fishing", "trawler", "factory vessel", "longliner"],
   },
 ];

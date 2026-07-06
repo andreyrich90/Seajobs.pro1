@@ -24,6 +24,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "Firmy crewingowe: publikuj oferty pracy bezpłatnie i docieraj do ponad 32 000 zweryfikowanych marynarzy.",
   },
+  ro: {
+    title: "Publică gratuit joburi pentru marinari | Pentru companii de crewing | SeaJobs.pro",
+    description:
+      "Companii de crewing: publicați posturi gratuit și ajungeți la peste 32.000 de marinari verificați.",
+  },
 };
 
 const KEYWORDS =

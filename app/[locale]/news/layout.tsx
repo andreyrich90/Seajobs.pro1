@@ -24,6 +24,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "Najnowsze wiadomości morskie dla marynarzy: przepisy STCW, wynagrodzenia oficerów, niedobór załóg, bezpieczeństwo statków.",
   },
+  ro: {
+    title: "Știri maritime pentru marinari — industrie, reglementări, salarii | SeaJobs.pro",
+    description:
+      "Cele mai noi știri maritime pentru marinari: reglementări STCW, salariile ofițerilor, lipsa de echipaje, siguranța navelor.",
+  },
 };
 
 const KEYWORDS =

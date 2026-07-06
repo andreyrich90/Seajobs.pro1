@@ -24,6 +24,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "Oferty pracy dla marynarzy wszystkich rang i typów statków — szukaj według rangi, typu statku i wynagrodzenia.",
   },
+  ro: {
+    title: "Joburi pentru marinari — caută după rang și tip de navă | SeaJobs.pro",
+    description:
+      "Posturi vacante pentru marinari de toate rangurile și tipurile de nave — caută după rang, tip de navă și salariu.",
+  },
 };
 
 const KEYWORDS =
@@ -38,7 +43,9 @@ const KEYWORDS =
   // Ukrainian
   "робота для моряків, вакансії моряк, робота моряком, робота моряком без досвіду, робота в морі, робота на судні, крюїнг вакансії, крюїнгові компанії, свіжі вакансії для моряків, вакансії матрос, вакансії механік судно, вакансії на танкер, " +
   // Polish
-  "praca dla marynarzy, praca na statku, praca na morzu, oferty pracy marynarz, praca marynarz bez doświadczenia, crewing oferty pracy, praca oficer pokładowy, praca mechanik okrętowy, praca kucharz na statku, praca na tankowcu, praca na kontenerowcu, praca marynarz zarobki";
+  "praca dla marynarzy, praca na statku, praca na morzu, oferty pracy marynarz, praca marynarz bez doświadczenia, crewing oferty pracy, praca oficer pokładowy, praca mechanik okrętowy, praca kucharz na statku, praca na tankowcu, praca na kontenerowcu, praca marynarz zarobki, " +
+  // Romanian
+  "joburi pentru marinari, locuri de munca marinari, angajari marinari, joburi pe vapor, munca pe mare, agentii crewing romania, joburi ofiter maritim, joburi mecanic naval, marinar fara experienta, salariu marinar";
 
 export async function generateMetadata({
   params,

@@ -24,6 +24,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "Dołącz do społeczności marynarzy: dyskusje o agencjach crewingowych, kontraktach, statkach, wynagrodzeniach i życiu na morzu.",
   },
+  ro: {
+    title: "Forumul marinarilor — comunitate, joburi și discuții despre crewing | SeaJobs.pro",
+    description:
+      "Alătură-te comunității marinarilor: discuții despre agenții de crewing, contracte, nave, salarii și viața pe mare.",
+  },
 };
 
 const KEYWORDS =

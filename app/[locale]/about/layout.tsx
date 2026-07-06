@@ -24,6 +24,11 @@ const SITE_META: Record<string, { title: string; description: string }> = {
     description:
       "SeaJobs.pro łączy marynarzy ze zweryfikowanymi agencjami crewingowymi w Europie i na całym świecie.",
   },
+  ro: {
+    title: "Despre SeaJobs.pro — platforma de carieră maritimă pentru marinari | SeaJobs.pro",
+    description:
+      "SeaJobs.pro conectează marinarii cu agenții de crewing verificate din Europa și din întreaga lume.",
+  },
 };
 
 const KEYWORDS =

@@ -18,10 +18,10 @@ type Notification = {
 };
 
 const UI: Record<string, Record<Lang, string>> = {
-  notifications: { ua: "Сповіщення", pl: "Powiadomienia", ru: "Уведомления", en: "Notifications" },
-  markAll:       { ua: "Прочитати все", pl: "Oznacz przeczytane", ru: "Прочитать все", en: "Mark all read" },
-  empty:         { ua: "Поки немає сповіщень", pl: "Brak powiadomień", ru: "Пока нет уведомлений", en: "No notifications yet" },
-  justNow:       { ua: "щойно", pl: "przed chwilą", ru: "только что", en: "just now" },
+  notifications: { ua: "Сповіщення", pl: "Powiadomienia", ru: "Уведомления", en: "Notifications", ro: "Notificări" },
+  markAll:       { ua: "Прочитати все", pl: "Oznacz przeczytane", ru: "Прочитать все", en: "Mark all read", ro: "Marchează citite" },
+  empty:         { ua: "Поки немає сповіщень", pl: "Brak powiadomień", ru: "Пока нет уведомлений", en: "No notifications yet", ro: "Încă nu ai notificări" },
+  justNow:       { ua: "щойно", pl: "przed chwilą", ru: "только что", en: "just now", ro: "chiar acum" },
 };
 
 function timeAgo(dateStr: string, lang: Lang): string {
@@ -32,9 +32,9 @@ function timeAgo(dateStr: string, lang: Lang): string {
   const d = Math.floor(h / 24);
   const unit = (n: number, u: "m" | "h" | "d") => {
     const map = {
-      m: { ua: `${n} хв тому`, pl: `${n} min temu`, ru: `${n} мин назад`, en: `${n}m ago` },
-      h: { ua: `${n} год тому`, pl: `${n} godz temu`, ru: `${n} ч назад`, en: `${n}h ago` },
-      d: { ua: `${n} дн тому`, pl: `${n} dni temu`, ru: `${n} дн назад`, en: `${n}d ago` },
+      m: { ua: `${n} хв тому`, pl: `${n} min temu`, ru: `${n} мин назад`, en: `${n}m ago`, ro: `acum ${n} min` },
+      h: { ua: `${n} год тому`, pl: `${n} godz temu`, ru: `${n} ч назад`, en: `${n}h ago`, ro: `acum ${n} ore` },
+      d: { ua: `${n} дн тому`, pl: `${n} dni temu`, ru: `${n} дн назад`, en: `${n}d ago`, ro: `acum ${n} zile` },
     } as const;
     return map[u][lang];
   };
@@ -54,29 +54,29 @@ function localize(n: Notification, lang: Lang): { title: string; body: string | 
 
   if (n.type === "new_message") {
     const who = body.replace(/ sent you a message$/, "");
-    const title = { ua: "Нове повідомлення", pl: "Nowa wiadomość", ru: "Новое сообщение" }[lang];
-    const b = { ua: `${who} надіслав вам повідомлення`, pl: `${who} wysłał Ci wiadomość`, ru: `${who} отправил вам сообщение` }[lang];
+    const title = { ua: "Нове повідомлення", pl: "Nowa wiadomość", ru: "Новое сообщение", ro: "Mesaj nou" }[lang];
+    const b = { ua: `${who} надіслав вам повідомлення`, pl: `${who} wysłał Ci wiadomość`, ru: `${who} отправил вам сообщение`, ro: `${who} ți-a trimis un mesaj` }[lang];
     return { title, body: b };
   }
 
   if (n.type === "application_received") {
     const who = body.match(/^(.+?) applied for/)?.[1] ?? "";
-    const title = { ua: "Новий відгук", pl: "Nowe zgłoszenie", ru: "Новый отклик" }[lang];
-    const b = { ua: `${who} відгукнувся на «${quoted}»`, pl: `${who} zgłosił się na „${quoted}”`, ru: `${who} откликнулся на «${quoted}»` }[lang];
+    const title = { ua: "Новий відгук", pl: "Nowe zgłoszenie", ru: "Новый отклик", ro: "Aplicare nouă" }[lang];
+    const b = { ua: `${who} відгукнувся на «${quoted}»`, pl: `${who} zgłosił się na „${quoted}”`, ru: `${who} откликнулся на «${quoted}»`, ro: `${who} a aplicat la „${quoted}”` }[lang];
     return { title, body: b };
   }
 
   if (n.type === "status_changed") {
     const status = body.match(/has been (accepted|viewed|rejected)/)?.[1] ?? "";
-    const titleMap: Record<string, Record<"ua" | "pl" | "ru", string>> = {
-      accepted: { ua: "Відгук прийнято", pl: "Zgłoszenie zaakceptowane", ru: "Отклик принят" },
-      viewed:   { ua: "Відгук переглянуто", pl: "Zgłoszenie przejrzane", ru: "Отклик просмотрен" },
-      rejected: { ua: "Відгук відхилено", pl: "Zgłoszenie odrzucone", ru: "Отклик отклонён" },
+    const titleMap: Record<string, Record<"ua" | "pl" | "ru" | "ro", string>> = {
+      accepted: { ua: "Відгук прийнято", pl: "Zgłoszenie zaakceptowane", ru: "Отклик принят", ro: "Aplicare acceptată" },
+      viewed:   { ua: "Відгук переглянуто", pl: "Zgłoszenie przejrzane", ru: "Отклик просмотрен", ro: "Aplicare vizualizată" },
+      rejected: { ua: "Відгук відхилено", pl: "Zgłoszenie odrzucone", ru: "Отклик отклонён", ro: "Aplicare respinsă" },
     };
-    const bodyMap: Record<string, Record<"ua" | "pl" | "ru", string>> = {
-      accepted: { ua: `Ваш відгук на «${quoted}» прийнято.`, pl: `Twoje zgłoszenie na „${quoted}” zostało zaakceptowane.`, ru: `Ваш отклик на «${quoted}» принят.` },
-      viewed:   { ua: `Ваш відгук на «${quoted}» переглянуто.`, pl: `Twoje zgłoszenie na „${quoted}” zostało przejrzane.`, ru: `Ваш отклик на «${quoted}» просмотрен.` },
-      rejected: { ua: `Ваш відгук на «${quoted}» відхилено.`, pl: `Twoje zgłoszenie na „${quoted}” zostało odrzucone.`, ru: `Ваш отклик на «${quoted}» отклонён.` },
+    const bodyMap: Record<string, Record<"ua" | "pl" | "ru" | "ro", string>> = {
+      accepted: { ua: `Ваш відгук на «${quoted}» прийнято.`, pl: `Twoje zgłoszenie na „${quoted}” zostało zaakceptowane.`, ru: `Ваш отклик на «${quoted}» принят.`, ro: `Aplicarea ta la „${quoted}” a fost acceptată.` },
+      viewed:   { ua: `Ваш відгук на «${quoted}» переглянуто.`, pl: `Twoje zgłoszenie na „${quoted}” zostało przejrzane.`, ru: `Ваш отклик на «${quoted}» просмотрен.`, ro: `Aplicarea ta la „${quoted}” a fost vizualizată.` },
+      rejected: { ua: `Ваш відгук на «${quoted}» відхилено.`, pl: `Twoje zgłoszenie na „${quoted}” zostało odrzucone.`, ru: `Ваш отклик на «${quoted}» отклонён.`, ro: `Aplicarea ta la „${quoted}” a fost respinsă.` },
     };
     if (status && titleMap[status]) return { title: titleMap[status][lang], body: bodyMap[status][lang] };
   }
@@ -85,8 +85,8 @@ function localize(n: Notification, lang: Lang): { title: string; body: string | 
     const m = body.match(/^(.+?) posted a new (.+?) position:/);
     const company = m?.[1] ?? "";
     const rank = m?.[2] ?? "";
-    const title = { ua: "Нова вакансія", pl: "Nowa oferta", ru: "Новая вакансия" }[lang];
-    const b = { ua: `${company} розмістив нову вакансію ${rank}: «${quoted}»`, pl: `${company} dodał nową ofertę ${rank}: „${quoted}”`, ru: `${company} разместил новую вакансию ${rank}: «${quoted}»` }[lang];
+    const title = { ua: "Нова вакансія", pl: "Nowa oferta", ru: "Новая вакансия", ro: "Post nou" }[lang];
+    const b = { ua: `${company} розмістив нову вакансію ${rank}: «${quoted}»`, pl: `${company} dodał nową ofertę ${rank}: „${quoted}”`, ru: `${company} разместил новую вакансию ${rank}: «${quoted}»`, ro: `${company} a publicat un post nou de ${rank}: „${quoted}”` }[lang];
     return { title, body: b };
   }
 

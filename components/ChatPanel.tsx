@@ -10,6 +10,7 @@ type Message = Database["public"]["Tables"]["chat_messages"]["Row"];
 
 const PLACEHOLDER: Record<string, string> = {
   ua: "Напишіть повідомлення…", pl: "Napisz wiadomość…", ru: "Напишите сообщение…", en: "Type a message…",
+  ro: "Scrie un mesaj…",
 };
 
 function fmtTime(d: string): string {

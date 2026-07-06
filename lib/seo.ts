@@ -8,6 +8,7 @@ export const OG_LOCALE: Record<string, string> = {
   ru: "ru_RU",
   ua: "uk_UA",
   pl: "pl_PL",
+  ro: "ro_RO",
 };
 
 // The "ua" route prefix is a product choice; the correct hreflang language
@@ -17,6 +18,7 @@ export const HREFLANG: Record<string, string> = {
   ru: "ru",
   ua: "uk",
   pl: "pl",
+  ro: "ro",
 };
 
 /**

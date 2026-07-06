@@ -11,12 +11,14 @@ const TITLES: Record<string, string> = {
   pl: "Wiadomości morskie dla marynarzy | SeaJobs.pro",
   ru: "Морские новости для моряков | SeaJobs.pro",
   en: "Maritime News for Seafarers | SeaJobs.pro",
+  ro: "Știri maritime pentru marinari | SeaJobs.pro",
 };
 const DESCS: Record<string, string> = {
   ua: "Останні новини морської індустрії, регуляції та оновлення крюінгу.",
   pl: "Najnowsze wiadomości z branży morskiej, regulacje i aktualności crewingowe.",
   ru: "Свежие новости морской отрасли, регуляции и обновления крюинга.",
   en: "Latest maritime industry news, regulations and crewing updates.",
+  ro: "Cele mai noi știri din industria maritimă, reglementări și noutăți de crewing.",
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {

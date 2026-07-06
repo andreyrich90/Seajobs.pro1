@@ -37,6 +37,7 @@ const HEADING: Record<string, { jobs: string; vessels: string }> = {
   ru: { jobs: "Вакансии по должности", vessels: "Вакансии по типу судна" },
   ua: { jobs: "Вакансії за посадою", vessels: "Вакансії за типом судна" },
   pl: { jobs: "Praca według stanowiska", vessels: "Praca według typu statku" },
+  ro: { jobs: "Joburi după rang", vessels: "Joburi după tipul navei" },
 };
 
 export default function PopularJobLinks({ variant = "section" }: { variant?: "section" | "footer" }) {

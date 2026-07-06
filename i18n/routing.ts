@@ -1,7 +1,7 @@
 import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
-  locales: ["en", "ru", "ua", "pl"],
+  locales: ["en", "ru", "ua", "pl", "ro"],
   defaultLocale: "en",
   localePrefix: "as-needed",
   // Don't auto-redirect "/" to the visitor's browser language. With detection
