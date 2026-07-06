@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle, Search,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
@@ -15,6 +15,7 @@ import NotificationBell from "@/components/NotificationBell";
 
 const NAV_KEYS = [
   { key: "cab_dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
+  { key: "dash_browse_jobs", href: "/jobs", icon: Search },
   { key: "cab_profile",   href: "/seafarer/profile",   icon: User },
   { key: "cab_certificates", href: "/seafarer/certificates", icon: Award },
   { key: "cab_experience",   href: "/seafarer/experience",   icon: Ship },
