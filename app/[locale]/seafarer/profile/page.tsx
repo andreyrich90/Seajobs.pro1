@@ -273,11 +273,30 @@ export default function ProfilePage() {
       }
 
       // Certificates and sea experience are list tables — insert what we found
-      // so they show up immediately in those sections.
+      // so they show up immediately in those sections. Re-importing the same CV
+      // must not duplicate rows, so skip anything that already exists (and
+      // dedupe within the parsed batch itself).
+      const [{ data: exCerts }, { data: exExp }] = await Promise.all([
+        supabase.from("certificates").select("name, number").eq("seafarer_id", userId),
+        supabase.from("sea_experience").select("vessel_name, rank, from_date, to_date").eq("seafarer_id", userId),
+      ]);
+      const certKey = (name?: string | null, number?: string | null) =>
+        `${(name ?? "").trim().toLowerCase()}|${(number ?? "").trim().toLowerCase()}`;
+      const expKey = (vessel?: string | null, rank?: string | null, from?: string | null, to?: string | null) =>
+        `${(vessel ?? "").trim().toLowerCase()}|${(rank ?? "").trim().toLowerCase()}|${from ?? ""}|${to ?? ""}`;
+      const seenCerts = new Set((exCerts ?? []).map((c) => certKey(c.name, c.number)));
+      const seenExp = new Set((exExp ?? []).map((e) => expKey(e.vessel_name, e.rank, e.from_date, e.to_date)));
+
       let certCount = 0;
       if (Array.isArray(p.certificates)) {
         const rows = p.certificates
           .filter((c: { name?: string }) => c?.name)
+          .filter((c: Record<string, string | null>) => {
+            const k = certKey(c.name, c.number);
+            if (seenCerts.has(k)) return false;
+            seenCerts.add(k);
+            return true;
+          })
           .map((c: Record<string, string | null>) => ({
             seafarer_id: userId,
             name: c.name,
@@ -296,6 +315,12 @@ export default function ProfilePage() {
       if (Array.isArray(p.experience)) {
         const rows = p.experience
           .filter((x: { vessel_name?: string }) => x?.vessel_name)
+          .filter((x: Record<string, string | null>) => {
+            const k = expKey(x.vessel_name, x.rank, x.from_date, x.to_date);
+            if (seenExp.has(k)) return false;
+            seenExp.add(k);
+            return true;
+          })
           .map((x: Record<string, string | null>) => ({
             seafarer_id: userId,
             vessel_name: x.vessel_name,

@@ -218,9 +218,28 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
         await supabase.from("seafarers").update(upd).eq("id", userId);
       }
 
+      // Skip rows that already exist so re-uploading a CV never duplicates
+      // certificates or sea-service entries (also dedupes within the batch).
+      const [{ data: exCerts }, { data: exExp }] = await Promise.all([
+        supabase.from("certificates").select("name, number").eq("seafarer_id", userId),
+        supabase.from("sea_experience").select("vessel_name, rank, from_date, to_date").eq("seafarer_id", userId),
+      ]);
+      const certKey = (name?: string | null, number?: string | null) =>
+        `${(name ?? "").trim().toLowerCase()}|${(number ?? "").trim().toLowerCase()}`;
+      const expKey = (vessel?: string | null, rank?: string | null, from?: string | null, to?: string | null) =>
+        `${(vessel ?? "").trim().toLowerCase()}|${(rank ?? "").trim().toLowerCase()}|${from ?? ""}|${to ?? ""}`;
+      const seenCerts = new Set((exCerts ?? []).map((c) => certKey(c.name, c.number)));
+      const seenExp = new Set((exExp ?? []).map((e) => expKey(e.vessel_name, e.rank, e.from_date, e.to_date)));
+
       if (Array.isArray(p.certificates)) {
         const rows = (p.certificates as Record<string, string | null>[])
           .filter((c) => c?.name)
+          .filter((c) => {
+            const k = certKey(c.name, c.number);
+            if (seenCerts.has(k)) return false;
+            seenCerts.add(k);
+            return true;
+          })
           .map((c) => ({
             seafarer_id: userId,
             name: c.name as string,
@@ -235,6 +254,12 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
       if (Array.isArray(p.experience)) {
         const rows = (p.experience as Record<string, string | null>[])
           .filter((x) => x?.vessel_name)
+          .filter((x) => {
+            const k = expKey(x.vessel_name, x.rank, x.from_date, x.to_date);
+            if (seenExp.has(k)) return false;
+            seenExp.add(k);
+            return true;
+          })
           .map((x) => ({
             seafarer_id: userId,
             vessel_name: x.vessel_name as string,
