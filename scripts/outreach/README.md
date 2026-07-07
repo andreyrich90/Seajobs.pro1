@@ -22,19 +22,20 @@ SeaJobs.pro and post directly.
 - Copy is in the recipient's language → higher open/registration rate.
 
 ## Run (from repo root)
+Use `npm run outreach` (wraps `npx tsx scripts/outreach/send-invites.ts`).
 ```bash
 # 1) DRY RUN — prints exactly what would be sent, sends nothing
-npx tsx scripts/outreach/send-invites.ts
+npm run outreach
 
 # 2) PREVIEW — send all 3 languages to yourself first
-TEST_TO=you@example.com npx tsx scripts/outreach/send-invites.ts
+TEST_TO=you@example.com npm run outreach
 
 # 3) LIVE — send to everyone in recipients.json (skips anything in sent.log)
-SEND=1 npx tsx scripts/outreach/send-invites.ts
+SEND=1 npm run outreach
 
 # Optional filters
-SEND=1 LIMIT=10 npx tsx scripts/outreach/send-invites.ts   # first 10 only (batch it)
-SEND=1 ONLY=baltimex npx tsx scripts/outreach/send-invites.ts   # only matching company/email
+SEND=1 LIMIT=10 npm run outreach     # first 10 only (batch it)
+SEND=1 ONLY=baltimex npm run outreach   # only matching company/email
 ```
 
 Needs `RESEND_API_KEY` in the environment or in `.env.local` (read
