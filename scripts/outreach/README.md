@@ -1,46 +1,60 @@
 # Crewing-agency outreach mailer
 
 Invites crewing agencies (the ones whose vacancies we import) to register on
-SeaJobs.pro and post directly.
+SeaJobs.pro and post directly. Each agency gets **one** personalised email in
+its own language — never a BCC blast, so nobody sees anyone else's address
+(better privacy and deliverability).
+
+## Two ways to send
+
+### A) Browser link — no terminal (recommended)
+Route: `app/api/outreach/route.ts`. Just open a URL (works from phone/tablet).
+It uses the `RESEND_API_KEY` already configured on Vercel.
+
+One-time setup:
+1. Run `supabase/outreach_log.sql` once in the Supabase SQL Editor (creates the
+   table that remembers who was already emailed).
+2. Make sure `OUTREACH_SECRET` (or the existing `CRON_SECRET`) is set in Vercel
+   env vars. Use its value as `secret` below.
+
+Then open:
+```
+# preview to yourself (sends EN + PL + UK)
+https://seajobs.pro/api/outreach?secret=SECRET&test=you@example.com
+
+# see who would be sent (sends nothing)
+https://seajobs.pro/api/outreach?secret=SECRET
+
+# send the next 10 not-yet-emailed agencies
+https://seajobs.pro/api/outreach?secret=SECRET&send=1&limit=10
+
+# only a specific company/email
+https://seajobs.pro/api/outreach?secret=SECRET&send=1&only=baltimex
+```
+Re-open the `send=1&limit=10` link to send the next batch — already-sent
+addresses (tracked in `outreach_log`) are skipped automatically.
+
+### B) CLI — needs Node + terminal
+```bash
+npm run outreach                                # dry run
+TEST_TO=you@example.com npm run outreach        # preview to yourself
+SEND=1 npm run outreach                         # send to everyone
+SEND=1 LIMIT=10 npm run outreach                # first 10 only
+SEND=1 ONLY=baltimex npm run outreach           # matching only
+```
+Reads `RESEND_API_KEY` from the env or `.env.local`. Tracks sent addresses in
+`scripts/outreach/sent.log` (git-ignored).
 
 ## Files
-- `invite_EN.html`, `invite_PL.html`, `invite_UK.html` — single-language invites.
-- `invite_ALL.html` — one email containing all three languages stacked
-  (use this only if you want a single message and don't know the recipient's
-  language; the script does **not** use it).
+- `../../lib/outreach.ts` — **single source of truth**: templates (EN/PL/UK),
+  subjects, From/Reply-To, and the recipient list. Edit copy here.
 - `recipients.json` — `{ company, email, lang }` list. Edit `lang`
-  (`en` | `pl` | `uk`) per company as you see fit.
-- `send-invites.ts` — sends each agency **one** personalised email in its own
-  language via Resend (no BCC — nobody sees anyone else's address).
-- `sent.log` — appended as emails go out; git-ignored; used to skip
-  already-sent addresses on re-run (safe to resume).
-
-## Why per-language, not one big email / BCC
-- Each recipient gets their own message → no one sees other addresses.
-- Sent from the verified `seajobs.pro` domain with a real reply-to → far
-  better deliverability than a 57-address BCC blast (which usually hits spam).
-- Copy is in the recipient's language → higher open/registration rate.
-
-## Run (from repo root)
-Use `npm run outreach` (wraps `npx tsx scripts/outreach/send-invites.ts`).
-```bash
-# 1) DRY RUN — prints exactly what would be sent, sends nothing
-npm run outreach
-
-# 2) PREVIEW — send all 3 languages to yourself first
-TEST_TO=you@example.com npm run outreach
-
-# 3) LIVE — send to everyone in recipients.json (skips anything in sent.log)
-SEND=1 npm run outreach
-
-# Optional filters
-SEND=1 LIMIT=10 npm run outreach     # first 10 only (batch it)
-SEND=1 ONLY=baltimex npm run outreach   # only matching company/email
-```
-
-Needs `RESEND_API_KEY` in the environment or in `.env.local` (read
-automatically). Paces at ~1.4 emails/sec to stay under Resend's rate limit.
+  (`en` | `pl` | `uk`) per company.
+- `invite_ALL.html` — static preview of a single email with all three
+  languages stacked (not used by the sender; open it in a browser to look).
+- `send-invites.ts` — the CLI mailer (option B).
+- `sent.log` — CLI send log (git-ignored).
 
 ## Tip
-Send in small batches (`LIMIT=10`) across a few hours rather than all 50+ at
-once — gentler on your domain reputation.
+Send in small batches (`limit=10`) across a few hours rather than all 50+ at
+once — gentler on your domain reputation, less spam risk.
