@@ -24,6 +24,8 @@ export default function NotFound() {
         Вакансія могла бути закрита або видалена. Перегляньте актуальні вакансії.
         <br />
         Oferta mogła zostać zamknięta lub usunięta. Zobacz aktualne oferty.
+        <br />
+        Postul poate fi ocupat sau șters. Vezi ofertele actuale.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <a

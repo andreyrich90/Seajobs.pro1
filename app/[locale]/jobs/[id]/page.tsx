@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
@@ -109,11 +109,14 @@ export async function generateMetadata(
 }
 
 export default async function VacancyPage(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; locale: string }> }
 ) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const vacancy = await fetchVacancy(id);
-  if (!vacancy) notFound();
+  // Old/deleted vacancy links (still indexed by Google, or shared before the
+  // listing was removed) send the visitor to the job board instead of a 404 —
+  // keeping their locale (English has no prefix under localePrefix "as-needed").
+  if (!vacancy) redirect(locale === "en" ? "/jobs" : `/${locale}/jobs`);
 
   const company = vacancy.companies;
 
