@@ -553,6 +553,29 @@ export default function CVPage() {
     loadData();
   }, []);
 
+  // The browser uses document.title as the suggested filename when saving the
+  // print output as PDF. Swap it to "First Last - Rank" for the download, then
+  // restore the page title afterwards so navigation/SEO isn't affected.
+  function handleDownload() {
+    const sf = data.seafarer;
+    const fullName = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ").trim();
+    const rank = sf?.rank?.trim();
+    const filename = ([fullName || "Seafarer", rank].filter(Boolean).join(" - "))
+      .replace(/[\\/:*?"<>|]+/g, " ") // strip characters not allowed in filenames
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const original = document.title;
+    document.title = filename;
+    const restore = () => {
+      document.title = original;
+      window.removeEventListener("afterprint", restore);
+    };
+    window.addEventListener("afterprint", restore);
+    window.print();
+    setTimeout(restore, 3000); // fallback if afterprint doesn't fire (some mobile browsers)
+  }
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -580,7 +603,7 @@ export default function CVPage() {
             <p className="mt-1 text-sm text-mist">A one-page maritime résumé, generated from your profile. Pick a style and download.</p>
           </div>
           <button
-            onClick={() => window.print()}
+            onClick={handleDownload}
             className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
           >
             <Download size={16} /> Download PDF
