@@ -13,6 +13,7 @@ import { searchMatches } from "@/lib/searchSynonyms";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
 import { useLang } from "@/components/LangProvider";
+import { T } from "@/lib/i18n";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -52,11 +53,11 @@ function isFeatured(featuredUntil: string | null): boolean {
   return !!featuredUntil && new Date(featuredUntil) > new Date();
 }
 
-function formatSalary(v: VacancyWithCompany): string {
+function formatSalary(v: VacancyWithCompany, fromLabel: string, upToLabel: string): string {
   if (!v.salary_from && !v.salary_to) return "";
   if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
+  if (v.salary_from) return `${fromLabel} ${v.salary_from.toLocaleString()} ${v.currency}`;
+  return `${upToLabel} ${v.salary_to!.toLocaleString()} ${v.currency}`;
 }
 
 export default function JobsClient({ initialVacancies }: { initialVacancies: VacancyWithCompany[] }) {
@@ -65,6 +66,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   // Initialise filters from the URL so they survive a back-navigation from a
   // vacancy detail page (state alone would reset on remount).
   const { lang } = useLang();
+  const t = T[lang];
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [rank, setRank] = useState(searchParams.get("rank") ?? "");
   const [vessel, setVessel] = useState(searchParams.get("vessel") ?? "");
@@ -174,8 +176,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
       <Header />
 
       <div className="mx-auto max-w-7xl px-5 py-10">
-        <h1 className="font-display text-4xl font-semibold tracking-tight text-white">Maritime Jobs</h1>
-        <p className="mt-1 text-base text-mist">{`${filtered.length} vacancies found`}</p>
+        <h1 className="font-display text-4xl font-semibold tracking-tight text-white">{t.jobs_title}</h1>
+        <p className="mt-1 text-base text-mist">{`${filtered.length} ${t.jobs_found}`}</p>
 
         {/* Filters */}
         <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-card p-3.5">
@@ -184,12 +186,12 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search jobs, rank, vessel, company..."
+              placeholder={t.jobs_search_ph}
               className="w-full bg-transparent py-3 text-sm text-white outline-none"
             />
           </div>
           <select value={rank} onChange={(e) => setRank(e.target.value)} className={selectClass}>
-            <option value="">Rank: All</option>
+            <option value="">{t.jobs_rank_all}</option>
             {RANK_GROUPS.map((g) => (
               <optgroup key={g.label} label={g.label}>
                 {g.ranks.map((r) => <option key={r} value={r}>{r}</option>)}
@@ -197,7 +199,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
             ))}
           </select>
           <select value={vessel} onChange={(e) => setVessel(e.target.value)} className={selectClass}>
-            <option value="">Vessel: All</option>
+            <option value="">{t.jobs_vessel_all}</option>
             {VESSEL_TYPE_GROUPS.map((g) => (
               <optgroup key={g.label} label={g.label}>
                 {g.types.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -228,13 +230,13 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
         {filtered.length === 0 ? (
           <div className="mt-10 rounded-2xl border border-white/10 bg-card p-12 text-center">
             <Building2 size={40} className="mx-auto mb-3 text-mist/40" />
-            <p className="text-lg font-semibold text-foam">No vacancies found</p>
-            <p className="mt-1 text-sm text-mist">Try adjusting your search filters.</p>
+            <p className="text-lg font-semibold text-foam">{t.jobs_no_results}</p>
+            <p className="mt-1 text-sm text-mist">{t.jobs_none_hint}</p>
           </div>
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
             {pageItems.map((v) => {
-              const salary = formatSalary(v);
+              const salary = formatSalary(v, t.jobs_from, t.jobs_up_to);
               const featured = isFeatured(v.featured_until);
               return (
                 <Link
@@ -246,7 +248,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                 >
                   {featured && (
                     <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
-                      <Sparkles size={11} /> Featured
+                      <Sparkles size={11} /> {t.jobs_featured}
                     </div>
                   )}
                   <div className="flex items-start gap-4">
@@ -268,7 +270,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-xs text-mist">
-                              {v.companies?.name ?? "Unknown company"}
+                              {v.companies?.name ?? t.jobs_unknown_company}
                             </p>
                             {v.companies?.is_verified && (
                               <ShieldCheck size={13} className="text-teal" />
@@ -320,11 +322,11 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
 
                       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex flex-wrap gap-4 text-xs text-mist">
-                          {v.joining_date && <span>Joining: {formatDate(v.joining_date)}</span>}
-                          <span>Posted: {formatDate(v.created_at)}</span>
+                          {v.joining_date && <span>{t.jobs_joining}: {formatDate(v.joining_date)}</span>}
+                          <span>{t.jobs_posted}: {formatDate(v.created_at)}</span>
                         </div>
                         <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brass2 group-hover:gap-2.5 transition-all">
-                          View details & Apply <ArrowRight size={13} />
+                          {t.jobs_view_apply} <ArrowRight size={13} />
                         </span>
                       </div>
                     </div>
