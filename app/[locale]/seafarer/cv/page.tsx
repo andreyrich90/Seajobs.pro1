@@ -2,9 +2,15 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Download } from "lucide-react";
+import { Download, ZoomIn, ZoomOut } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
+import { T } from "@/lib/i18n";
+import { useLang } from "@/components/LangProvider";
+
+// A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
+// on-screen preview so a full A4 page fits the phone's viewport width.
+const A4_WIDTH_PX = (210 * 96) / 25.4;
 
 interface CVData {
   seafarer: Seafarer | null;
@@ -503,6 +509,8 @@ const TEMPLATES: { key: Template; label: string }[] = [
 ];
 
 export default function CVPage() {
+  const { lang } = useLang();
+  const t = T[lang];
   const [data, setData] = useState<CVData>({ seafarer: null, certificates: [], experience: [], email: "" });
   const [template, setTemplate] = useState<Template>("maritime");
   const [loading, setLoading] = useState(true);
@@ -514,6 +522,24 @@ export default function CVPage() {
   const measureRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [natH, setNatH] = useState<number | null>(null);
+
+  // Fit the on-screen preview to the container width (so the full A4 page fits
+  // a phone screen), with an optional manual zoom on top. The printed PDF is
+  // unaffected — it keeps the height-fit `scale` below.
+  const previewBoxRef = useRef<HTMLDivElement>(null);
+  const [boxW, setBoxW] = useState(0);
+  const [zoom, setZoom] = useState(1);
+  useLayoutEffect(() => {
+    const el = previewBoxRef.current;
+    if (!el) return;
+    const measure = () => setBoxW(el.clientWidth - 16); // minus padding
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fitScale = boxW ? Math.min(1, boxW / A4_WIDTH_PX) : 1;
+  const previewScale = Math.max(0.2, fitScale * zoom);
 
   useLayoutEffect(() => {
     const el = measureRef.current;
@@ -576,10 +602,16 @@ export default function CVPage() {
     setTimeout(restore, 3000); // fallback if afterprint doesn't fire (some mobile browsers)
   }
 
+  const TPL_LABEL: Record<Template, string> = {
+    maritime: t.cv_tpl_maritime,
+    classic: t.cv_tpl_classic,
+    modern: t.cv_tpl_modern,
+  };
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-sm text-mist">Loading...</p>
+        <p className="text-sm text-mist">{t.cab_loading}</p>
       </div>
     );
   }
@@ -599,19 +631,19 @@ export default function CVPage() {
       <div className="p-5 sm:p-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-semibold text-white">My CV</h1>
-            <p className="mt-1 text-sm text-mist">A one-page maritime résumé, generated from your profile. Pick a style and download.</p>
+            <h1 className="font-display text-2xl font-semibold text-white">{t.cab_cv}</h1>
+            <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
           </div>
           <button
             onClick={handleDownload}
             className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
           >
-            <Download size={16} /> Download PDF
+            <Download size={16} /> {t.cv_download_pdf}
           </button>
         </div>
 
-        {/* Template picker */}
-        <div className="mb-5 flex flex-wrap gap-2">
+        {/* Template picker + zoom controls */}
+        <div className="mb-5 flex flex-wrap items-center gap-2">
           {TEMPLATES.map((tpl) => (
             <button
               key={tpl.key}
@@ -622,20 +654,49 @@ export default function CVPage() {
                   : "border-white/10 bg-white/5 text-mist hover:text-white"
               }`}
             >
-              {tpl.label}
+              {TPL_LABEL[tpl.key]}
             </button>
           ))}
+          <div className="ml-auto flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
+            <button
+              onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.2).toFixed(2)))}
+              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-white"
+              aria-label="Zoom out"
+            >
+              <ZoomOut size={16} />
+            </button>
+            <span className="w-10 text-center text-xs font-semibold text-mist">{Math.round(fitScale * zoom * 100)}%</span>
+            <button
+              onClick={() => setZoom((z) => Math.min(2.5, +(z + 0.2).toFixed(2)))}
+              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-white"
+              aria-label="Zoom in"
+            >
+              <ZoomIn size={16} />
+            </button>
+          </div>
         </div>
 
-        {/* Preview (scaled to fit one A4 page) */}
-        <div className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-4 shadow-2xl">
+        {/* Preview — the exact printed A4 page, scaled to fit the screen width
+            (zoomable). Inner `scale` is the height-fit used for print; the outer
+            `previewScale` fits that A4 page onto the phone. */}
+        <div ref={previewBoxRef} className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-2 shadow-2xl sm:p-4">
           <div
             className="mx-auto shadow-xl"
-            style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}
+            style={{ width: A4_WIDTH_PX * previewScale, height: natH ? natH * scale * previewScale : undefined, overflow: "hidden" }}
           >
-            <div ref={measureRef} style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
-              <CVDocument template={template} data={data} />
+            <div style={{ width: A4_WIDTH_PX, height: natH ? natH * scale : undefined, overflow: "hidden", transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+              <div style={{ width: A4_WIDTH_PX, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+                <CVDocument template={template} data={data} />
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Hidden measurer — natural (unscaled) height of one A4 page, used for
+            both the print scale above and the preview height. */}
+        <div className="pointer-events-none absolute -left-[9999px] top-0" aria-hidden>
+          <div ref={measureRef} style={{ width: A4_WIDTH_PX }}>
+            <CVDocument template={template} data={data} />
           </div>
         </div>
       </div>
