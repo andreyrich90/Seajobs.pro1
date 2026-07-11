@@ -9,12 +9,13 @@ npm run dev       # start dev server at http://localhost:3000
 npm run build     # production build
 npm run start     # run a production build
 npm run lint      # ESLint via Next.js
+npm run outreach  # CLI crewing-agency invite mailer (scripts/outreach/send-invites.ts)
 ```
 
 There is no test suite configured.
 
 Local development needs Supabase env vars (see `.env.local.example`):
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, used by API routes), `ANTHROPIC_API_KEY` (CV parsing + forum translation), `RESEND_API_KEY` (transactional email), `CRON_SECRET` (verifies the Vercel cron request).
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, used by API routes), `ANTHROPIC_API_KEY` (CV parsing + forum translation + vacancy-image parsing), `RESEND_API_KEY` (transactional email), `CRON_SECRET` (verifies the Vercel cron requests; also the fallback secret for the outreach route), `OUTREACH_SECRET` (optional — gates `/api/outreach`).
 
 ## Architecture
 
@@ -31,7 +32,9 @@ There are two data sources, and which one a feature uses depends on when it was 
   - Schema lives in `supabase/*.sql` (one-off setup scripts, run manually in the Supabase SQL editor) and `supabase/migrations/*.sql` (dated, idempotent migrations). There is no migration runner — apply new SQL files manually against the Supabase project.
 - **`lib/data.ts`** is legacy static/seed data still used for the **news** feature (`NEWS: NewsItem[]`, multilingual `Record<Lang, string>` titles/bodies) and the `Job` type. News today is a hybrid: some articles are these hardcoded entries, others live in the `news_articles` Supabase table (see `app/[locale]/news/`). Don't add new vacancies here — vacancies are 100% Supabase (`vacancies` table); `lib/data.ts`'s `JOBS` array is unused dead data kept only for the `Job` type import in `components/JobCard.tsx`.
 
-Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories`, `forum_topics`, `forum_posts`, `news_articles`.
+Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories` (a.k.a. forum "sections"), `forum_topics`, `forum_posts`, `news_articles`, `news_comments`, `referrals` (referral tracking; `seafarers`/`companies` carry a unique `referral_code`), `outreach_log` (which crewing agencies have already been emailed).
+
+Migrations under `supabase/migrations/` are dated + idempotent; `20260608000000_baseline_schema.sql` is the consolidated baseline and later files layer on chat, referrals, forum sections/replies, anonymous forum posting, seafarer documents/diplomas, and the "profile required before applying" rule.
 
 ### Auth & roles
 
@@ -43,12 +46,14 @@ Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row p
 
 ### i18n
 
-The app supports four languages: `en` (default), `ru`, `ua` (Ukrainian — URL prefix `/ua`, not `/uk`), `pl`. There are **two parallel i18n systems**; know which one a file uses before editing strings:
+The app supports five languages: `en` (default), `ru`, `ua` (Ukrainian — URL prefix `/ua`, not `/uk`), `pl`, `ro` (Romanian). The `Lang` union and `LANGS` picker list live in `lib/i18n.ts`; `routing.locales` in `i18n/routing.ts` must stay in sync. There are **two parallel i18n systems**; know which one a file uses before editing strings:
 
 1. **`lib/i18n.ts`** (legacy, primary) — exports `T: Record<Lang, Record<string, string>>`, a flat key/value map per language with ~1600 lines of strings. `components/LangProvider.tsx` provides `useLang()` (reads the locale from the URL via `useParams()`, falls back to a `localStorage`-persisted preference only on `/auth/*` routes). Components call `const { lang } = useLang(); const t = T[lang];`. **This is where almost all UI copy lives — add new strings here.**
 2. **`next-intl`** (`i18n/routing.ts`, `i18n/request.ts`, `i18n/navigation.ts`) — owns the `/[locale]/...` URL structure, `middleware.ts` locale negotiation, and per-page `<title>`/OpenGraph metadata (`generateMetadata` in `layout.tsx` files, using `lib/seo.ts` for hreflang). `localePrefix: "as-needed"` means English has no prefix (`/jobs`, not `/en/jobs`); `localeDetection` is off so `/` is always English.
 
-`messages/*.json` are **generated**, not hand-edited — `scripts/export-messages.ts` (run ad hoc, e.g. `npx tsx scripts/export-messages.ts`) dumps `lib/i18n.ts`'s `T` into per-locale JSON files purely so `next-intl`'s `NextIntlClientProvider` has something to pass down; the actual `useTranslations()` next-intl hook is barely used (a couple of layout/metadata files). Re-run the export script after changing `lib/i18n.ts` if a next-intl-consuming file needs the update.
+`messages/*.json` (`en`, `ru`, `ua`, `pl`, `ro`) are **generated**, not hand-edited — `scripts/export-messages.ts` (run ad hoc, e.g. `npx tsx scripts/export-messages.ts`) dumps `lib/i18n.ts`'s `T` into per-locale JSON files purely so `next-intl`'s `NextIntlClientProvider` has something to pass down; the actual `useTranslations()` next-intl hook is barely used (a couple of layout/metadata files). Re-run the export script after changing `lib/i18n.ts` if a next-intl-consuming file needs the update.
+
+Some content is stored English-only in the DB and localized for display by small lookup maps rather than by `T`: `lib/forumSections.ts` (`sectionLabel`/`sectionDesc` for the built-in forum categories) and `lib/fleets.ts` (fleet-filter labels). Machine translation of admin-authored forum/news content into the other locales goes through `lib/forumI18n.ts` + the Anthropic API.
 
 Use `Link`/`useRouter`/`usePathname` from `@/i18n/navigation` (not `next/navigation`) inside the `[locale]` tree so links keep the correct locale prefix.
 
@@ -66,7 +71,7 @@ Almost everything lives under `app/[locale]/`; only the auth screens are unlocal
 | `/news`, `/news/[id]` | `app/[locale]/news/` | hybrid static (`lib/data.ts`) + `news_articles` table |
 | `/seafarer/*` | `app/[locale]/seafarer/` | dashboard, profile, cv, certificates, experience, applications, saved, messages |
 | `/company/*` | `app/[locale]/company/` | dashboard, profile, vacancies, applications, seafarers search, messages |
-| `/admin/*` | `app/[locale]/admin/` | dashboard, users, vacancies, import, messages, forum, news |
+| `/admin/*` | `app/[locale]/admin/` | dashboard, users, vacancies, import, messages, chats, forum, news |
 | `/auth/*` | `app/auth/` | login, register, forgot-password, callback — **not** under `[locale]` |
 | `/for-companies`, `/about`, `/privacy`, `/terms` | `app/[locale]/...` | static marketing/legal pages |
 
@@ -78,9 +83,14 @@ All route handlers use the Node runtime and a service-role Supabase client (`cre
 
 - `api/notify` — central notification dispatcher (in-app `notifications` row + email via Resend). Handles `application_received`, `external_application`, `status_changed`, `new_vacancy`, `new_message`. Always re-derives the caller from their bearer token and checks they own/are party to the resource before acting.
 - `api/admin/import-vacancy` — admin-only bulk vacancy import (used to seed listings scraped from partner sites; see `supabase/import_*.sql` for the source data this replaced).
-- `api/admin/translate-news`, `api/admin/translate-forum`, `api/forum/translate-topic` — call the Anthropic API (`lib/forumI18n.ts`) to machine-translate admin-authored content into the other 3 languages.
+- `api/admin/parse-vacancy-image` — admin-only: send a vacancy screenshot (JPEG/PNG/WebP), Claude extracts a JSON posting matching the Import Vacancy form fields so it can be reviewed before saving.
+- `api/admin/translate-news`, `api/admin/translate-forum`, `api/forum/translate-topic` — call the Anthropic API (`lib/forumI18n.ts`) to machine-translate admin-authored content into the other languages.
 - `api/cv-parse` — accepts an uploaded PDF/DOCX CV (`mammoth` for DOCX text extraction), asks Claude to extract structured fields matching the `seafarers`/`certificates`/`sea_experience` columns, returns JSON the client writes straight into the profile.
-- `api/cron/close-expired-vacancies` — Vercel Cron (`vercel.json`, daily 01:00 UTC), deactivates vacancies whose `joining_date` is >14 days in the past. Verifies `Authorization: Bearer <CRON_SECRET>` when that env var is set.
+- `api/cron/*` — three Vercel Crons (see `vercel.json`), each verifying `Authorization: Bearer <CRON_SECRET>` when the env var is set:
+  - `close-expired-vacancies` (daily 01:00 UTC) — deactivates vacancies whose `joining_date` is >14 days in the past.
+  - `referral-reminders` (daily 02:00 UTC) — emails referred users who signed up 7+ days ago but haven't finished their seafarer profile (finishing it is what rewards their referrer).
+  - `unread-messages-digest` (daily 07:00 UTC) — companion to the instant-email throttle in `api/notify`: sends one "you have unread messages" follow-up per conversation for still-unread messages that arrived after the last email.
+- `api/outreach` — browser-triggered crewing-agency invite mailer (open a URL, no terminal). Sends one personalised email per agency in its language via Resend, tracking sent addresses in `outreach_log` so repeat runs skip them. Gated by `OUTREACH_SECRET`/`CRON_SECRET`. Shares copy + recipient list with the `npm run outreach` CLI via `lib/outreach.ts` (see `scripts/outreach/README.md`).
 - `api/contact`, `api/company/applicant` — contact form submission and company-side applicant lookup.
 
 ### Styling
@@ -106,8 +116,20 @@ The `@/` path alias resolves to the repository root (configured in `tsconfig.jso
 
 `lib/seo.ts` builds hreflang `alternates.languages` maps and OpenGraph locale codes per route, used in every `[locale]` layout's `generateMetadata`. `app/sitemap.ts` and `app/robots.ts` are dynamic route handlers (not static files). Job and news detail pages have dedicated `opengraph-image.tsx`/`twitter-image.tsx` route handlers for per-item social cards. URL slugs are `<slugified-title>-<uuid>` (`lib/slug.ts`); always look records up by the trailing UUID, never by the slug text, so old/edited-title links keep resolving.
 
+### Shared components (`components/`)
+
+All are `"use client"`. The reused ones worth knowing:
+
+- `Header.tsx` / `Footer.tsx` — global chrome, including the language switcher (`LANGS`) and `NotificationBell.tsx` (polls the `notifications` table, opens on click).
+- `LangProvider.tsx` — provides `useLang()`; wrap-around for the whole locale tree (see i18n above).
+- `JobCard.tsx` / `PopularJobLinks.tsx` — vacancy card and the internal-linking block to rank/vessel SEO landing pages (same URLs the sitemap treats as landing pages).
+- `MessagesView.tsx` + `ChatPanel.tsx` — the shared company↔seafarer DM UI (`conversations`/`chat_messages`), rendered inside both dashboards' `messages` pages.
+- `MarkdownEditor.tsx` — toolbar textarea used for forum/news authoring; its output is rendered by `lib/markdown.tsx`, a small hand-rolled Markdown renderer (bold/italic/strike/links/images/lists), not a Markdown library.
+- `ApplicantCvModal.tsx` — company-facing applicant CV preview; `ContactForm.tsx`, `CookieBanner.tsx`.
+
 ### Conventions / gotchas
 
 - `next.config.js` sets `eslint.ignoreDuringBuilds` and `typescript.ignoreBuildErrors` to `true` — **`npm run build` will not fail on type or lint errors.** Run `npm run lint` and check `tsc` output yourself before considering a change verified.
 - Because most pages consume `useLang()` and/or talk to Supabase client-side, most page/component files are `"use client"`.
-- `lib/ranks.ts` (`RANK_GROUPS`) and `lib/searchSynonyms.ts` are the canonical rank taxonomy and search-synonym tables used by job filtering/search — extend these rather than hardcoding rank strings elsewhere.
+- `lib/ranks.ts` (`RANK_GROUPS`), `lib/searchSynonyms.ts`, and `lib/fleets.ts` (`FLEETS` — keyword-matched fleet filter) are the canonical rank/search/fleet taxonomies used by job filtering — extend these rather than hardcoding rank/vessel strings elsewhere.
+- Referrals: `lib/referral.ts` captures a `?ref=<code>` on the auth pages (persisted through the OAuth round-trip in `localStorage`) and records a `referrals` row once the new user has a session. `next.config.js` allows any HTTPS image host (`remotePatterns: **`) because logos/covers are free-text URLs.
