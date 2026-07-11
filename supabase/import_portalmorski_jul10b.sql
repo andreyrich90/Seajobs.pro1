@@ -1,20 +1,28 @@
 -- Vacancies from crewing.portalmorski.pl (10.07.2026, batch B).
--- Genuinely new vacancies are inserted (guarded by title); nothing is deleted.
--- Descriptions are unique, rewritten Markdown (role intro + vessel particulars
--- + requirements + how to apply) — never a verbatim copy of the source.
+-- Vacancies already on the board are REFRESHED (created_at/updated_at bumped so
+-- they resurface); genuinely new vacancies are inserted (guarded by title).
+-- Nothing is deleted. Descriptions are unique, rewritten Markdown (role intro +
+-- vessel particulars + requirements + how to apply) — never a verbatim copy.
 -- Idempotent — safe to re-run. Run once in the Supabase SQL Editor.
 --
--- Note: OSM "Chief Officer on PSV/CC" (14,410 USD) is already on the board as
--- "Chief Officer — OSV, 5-Week Rotation" (see import_portalmorski_jul10.sql),
--- so it is intentionally omitted here.
 -- BSM and Phoenocean accept applications only through their own web portals
 -- (Phoenocean explicitly deletes e-mailed applications), so those two carry no
 -- forwarding contact_email — the apply link lives in the description instead.
+
+-- ── Refresh recurring vacancies already on the board ────────────────────────
+-- OSM "Chief Officer on PSV/CC" (screenshot, 14,410 USD) is already listed as
+-- "Chief Officer — OSV, 5-Week Rotation" (import_portalmorski_jul10.sql) — just
+-- bump its date and joining date rather than inserting a duplicate.
+UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true, joining_date = '2026-07-30'
+  WHERE title = 'Chief Officer — OSV, 5-Week Rotation';
 
 -- ── OSM Poland — Steward/ess, Ro-Ro (Suecia Seaways, DFDS) ───────────────────
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title = 'Steward / Stewardess — Ro-Ro Ferry (Suecia Seaways, DFDS), Netherlands–England';
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'OSM Poland%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
@@ -45,6 +53,9 @@ END $$;
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title = 'AB (Able Seaman) — Ro-Ro / Con-Ro, Liverpool–Dublin';
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'MAG - Morska Agencja Gdynia%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
@@ -73,6 +84,9 @@ END $$;
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title = '2nd Engineer — Chemical Tanker (Ravel, IMO 9866952), Europe';
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'Bernhard Schulte Shipmanagement%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
@@ -102,6 +116,9 @@ END $$;
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title = 'Chief Officer (DPO) — PSV DP2 (Las Palmas → Nigeria), Worldwide';
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'Marlow Navigation Poland%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
@@ -131,6 +148,9 @@ END $$;
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title = 'Steward — Ro-Ro / Con-Ro (Cobelfret "Palatine"), Northern Europe';
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'Phoenocean%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
@@ -160,6 +180,12 @@ END $$;
 DO $$
 DECLARE v_company_id uuid;
 BEGIN
+  UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
+    WHERE title IN (
+      'Cook (with OS/AB license) — Oil Products Tanker (2,164 GT), Worldwide',
+      'Chief Engineer — Oil Products Tanker (2,164 GT), Worldwide'
+    );
+
   SELECT id INTO v_company_id FROM companies WHERE name ILIKE 'V.Ships%' LIMIT 1;
   IF v_company_id IS NULL THEN
     v_company_id := gen_random_uuid();
