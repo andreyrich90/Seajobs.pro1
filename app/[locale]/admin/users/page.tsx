@@ -171,6 +171,7 @@ export default function AdminUsersPage() {
             <thead>
               <tr className="border-b border-white/10 bg-deep">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">User</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Email</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden sm:table-cell">Role</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Registered</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">Status</th>
@@ -180,7 +181,7 @@ export default function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
               ) : filtered.map((u) => (
                 <tr key={u.id} className="bg-card hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
@@ -197,13 +198,23 @@ export default function AdminUsersPage() {
                             </span>
                           )}
                         </div>
-                        {u.email ? (
-                          <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
-                        ) : (
-                          <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
-                        )}
+                        {/* On mobile the Email column is hidden, so show it here instead. */}
+                        <div className="md:hidden">
+                          {u.email ? (
+                            <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
+                          ) : (
+                            <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
+                          )}
+                        </div>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {u.email ? (
+                      <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
+                    ) : (
+                      <span className="text-xs text-mist/40 font-mono">{u.id.slice(0,8)}…</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
