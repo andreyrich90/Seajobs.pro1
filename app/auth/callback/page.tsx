@@ -8,6 +8,7 @@ import { Anchor, Ship, Briefcase, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { recordReferral } from "@/lib/referral";
+import { localePath, type Lang } from "@/lib/i18n";
 
 type Role = "seafarer" | "company";
 
@@ -16,6 +17,18 @@ function safeRedirect(): string | null {
   if (typeof window === "undefined") return null;
   const r = new URLSearchParams(window.location.search).get("redirect") ?? "";
   return r.startsWith("/") && !r.startsWith("//") ? r : null;
+}
+
+// Language the user last chose (persisted by LangProvider) — used to open the
+// dashboard in the right locale after the (non-localized) auth flow.
+function storedLang(): Lang {
+  if (typeof window === "undefined") return "en";
+  const l = localStorage.getItem("lang");
+  return l === "uk" ? "ua" : (["en", "ru", "ua", "pl", "ro"].includes(l ?? "") ? (l as Lang) : "en");
+}
+
+function dashboardPath(role: Role): string {
+  return localePath(role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard", storedLang());
 }
 
 export default function AuthCallbackPage() {
@@ -45,9 +58,9 @@ export default function AuthCallbackPage() {
     if (role === "seafarer") {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await supabase.from("seafarers").insert({ id: uid } as any);
-      router.push(dest ?? "/seafarer/dashboard");
+      router.push(dest ?? dashboardPath("seafarer"));
     } else {
-      router.push(dest ?? "/company/dashboard");
+      router.push(dest ?? dashboardPath("company"));
     }
   }
 
@@ -76,7 +89,7 @@ export default function AuthCallbackPage() {
           const r = (profile as { role: string }).role;
           localStorage.setItem("user_role", r);
           const dest = safeRedirect();
-          router.push(dest ?? (r === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard"));
+          router.push(dest ?? dashboardPath(r === "seafarer" ? "seafarer" : "company"));
           return;
         }
 

@@ -2184,3 +2184,75 @@ Object.assign(T.en, CAB7_EN);
 Object.assign(T.ru, CAB7_RU);
 Object.assign(T.ua, CAB7_UA);
 Object.assign(T.pl, CAB7_PL);
+
+// Prefix an app path with the locale (default English carries no prefix, per
+// next-intl "as-needed"). Used to keep the language after the post-login
+// redirect into the (non-localized) auth flow.
+export function localePath(path: string, lang: Lang): string {
+  return lang === "en" ? path : `/${lang}${path}`;
+}
+
+// Auth screens live outside the [locale] tree and had no i18n, so their copy
+// lives here in a dedicated map (consumed via useLang() in app/auth/*).
+export const AUTH_T: Record<Lang, Record<string, string>> = {
+  en: {
+    tab_seafarer: "Seafarer", tab_crewing: "Crewing",
+    welcome: "Welcome back", signin_as: "Sign in as",
+    role_seafarer: "Seafarer", role_company: "Crewing Company",
+    google: "Sign in with Google", redirecting: "Redirecting...",
+    or: "or", email: "Email", password: "Password", password_ph: "Enter your password",
+    forgot: "Forgot password?", signin: "Sign in", signing: "Signing in...",
+    no_account: "No account?", create_one: "Create one",
+    blocked: "Your account has been blocked. Please contact support.",
+    err_failed: "Sign in failed. Please try again.",
+    err_unexpected: "An unexpected error occurred.",
+  },
+  ru: {
+    tab_seafarer: "Моряк", tab_crewing: "Крюинг",
+    welcome: "С возвращением", signin_as: "Вход как",
+    role_seafarer: "Моряк", role_company: "Крюинговая компания",
+    google: "Войти через Google", redirecting: "Перенаправление...",
+    or: "или", email: "Эл. почта", password: "Пароль", password_ph: "Введите пароль",
+    forgot: "Забыли пароль?", signin: "Войти", signing: "Вход...",
+    no_account: "Нет аккаунта?", create_one: "Создать",
+    blocked: "Ваш аккаунт заблокирован. Свяжитесь с поддержкой.",
+    err_failed: "Не удалось войти. Попробуйте ещё раз.",
+    err_unexpected: "Произошла непредвиденная ошибка.",
+  },
+  ua: {
+    tab_seafarer: "Моряк", tab_crewing: "Крюїнг",
+    welcome: "З поверненням", signin_as: "Вхід як",
+    role_seafarer: "Моряк", role_company: "Крюїнгова компанія",
+    google: "Увійти через Google", redirecting: "Перенаправлення...",
+    or: "або", email: "Ел. пошта", password: "Пароль", password_ph: "Введіть пароль",
+    forgot: "Забули пароль?", signin: "Увійти", signing: "Вхід...",
+    no_account: "Немає акаунта?", create_one: "Створити",
+    blocked: "Ваш акаунт заблоковано. Зверніться до підтримки.",
+    err_failed: "Не вдалося увійти. Спробуйте ще раз.",
+    err_unexpected: "Сталася непередбачена помилка.",
+  },
+  pl: {
+    tab_seafarer: "Marynarz", tab_crewing: "Crewing",
+    welcome: "Witaj ponownie", signin_as: "Zaloguj się jako",
+    role_seafarer: "Marynarz", role_company: "Agencja crewingowa",
+    google: "Zaloguj się przez Google", redirecting: "Przekierowanie...",
+    or: "lub", email: "E-mail", password: "Hasło", password_ph: "Wprowadź hasło",
+    forgot: "Nie pamiętasz hasła?", signin: "Zaloguj się", signing: "Logowanie...",
+    no_account: "Nie masz konta?", create_one: "Utwórz",
+    blocked: "Twoje konto zostało zablokowane. Skontaktuj się z pomocą.",
+    err_failed: "Logowanie nie powiodło się. Spróbuj ponownie.",
+    err_unexpected: "Wystąpił nieoczekiwany błąd.",
+  },
+  ro: {
+    tab_seafarer: "Marinar", tab_crewing: "Crewing",
+    welcome: "Bine ai revenit", signin_as: "Autentificare ca",
+    role_seafarer: "Marinar", role_company: "Agenție de crewing",
+    google: "Autentificare cu Google", redirecting: "Redirecționare...",
+    or: "sau", email: "E-mail", password: "Parolă", password_ph: "Introduceți parola",
+    forgot: "Ai uitat parola?", signin: "Autentificare", signing: "Se autentifică...",
+    no_account: "Nu ai cont?", create_one: "Creează unul",
+    blocked: "Contul tău a fost blocat. Contactează asistența.",
+    err_failed: "Autentificare eșuată. Încearcă din nou.",
+    err_unexpected: "A apărut o eroare neașteptată.",
+  },
+};

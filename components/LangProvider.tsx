@@ -43,6 +43,15 @@ export function LangProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthRoute]);
 
+  // On every localized page, remember the current language so the (non-localized)
+  // auth screens — and the post-login dashboard redirect — can pick it up. The
+  // unprefixed URL means the default locale (English).
+  useEffect(() => {
+    if (isAuthRoute) return;
+    const current = urlLocale && VALID_LANGS.includes(urlLocale) ? urlLocale : DEFAULT_LANG;
+    try { localStorage.setItem("lang", current); } catch { /* ignore */ }
+  }, [isAuthRoute, urlLocale]);
+
   // On a localized route, fall back to the default locale (English) when the
   // URL has no prefix — NOT to a stored preference. Otherwise the English
   // homepage "/" would get overridden back to a previously chosen language.
