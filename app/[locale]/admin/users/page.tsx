@@ -14,6 +14,7 @@ type UserRow = {
   is_admin: boolean;
   created_at: string;
   name: string;
+  email?: string;
   is_verified?: boolean;
 };
 
@@ -43,9 +44,18 @@ export default function AdminUsersPage() {
 
       if (!profiles) { setLoading(false); return; }
 
-      const [{ data: seafarers }, { data: companies }] = await Promise.all([
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      const [{ data: seafarers }, { data: companies }, emailRes] = await Promise.all([
         supabase.from("seafarers").select("id, first_name, last_name"),
         supabase.from("companies").select("id, name, is_verified"),
+        // Emails live in auth.users — fetched via an admin-only server route.
+        token
+          ? fetch("/api/admin/user-emails", { headers: { Authorization: `Bearer ${token}` } })
+              .then((r) => r.json())
+              .catch(() => ({ emails: {} }))
+          : Promise.resolve({ emails: {} }),
       ]);
 
       const sfMap: Record<string, string> = {};
@@ -56,10 +66,12 @@ export default function AdminUsersPage() {
       for (const c of companies ?? []) {
         coMap[c.id] = { name: c.name ?? "(no name)", is_verified: c.is_verified ?? false };
       }
+      const emailMap: Record<string, string> = emailRes?.emails ?? {};
 
       setUsers(profiles.map((p) => ({
         ...p,
         name: p.role === "seafarer" ? (sfMap[p.id] || "(no name)") : (coMap[p.id]?.name || "(no name)"),
+        email: emailMap[p.id],
         is_verified: p.role === "company" ? (coMap[p.id]?.is_verified ?? false) : undefined,
       })));
       setLoading(false);
@@ -118,7 +130,10 @@ export default function AdminUsersPage() {
     if (filter === "seafarer" && u.role !== "seafarer") return false;
     if (filter === "company"  && u.role !== "company")  return false;
     if (filter === "blocked"  && !u.is_blocked)          return false;
-    if (query && !u.name.toLowerCase().includes(query.toLowerCase()) && !u.id.includes(query)) return false;
+    if (query) {
+      const q = query.toLowerCase();
+      if (!u.name.toLowerCase().includes(q) && !u.id.includes(query) && !(u.email ?? "").toLowerCase().includes(q)) return false;
+    }
     return true;
   });
 
@@ -135,7 +150,7 @@ export default function AdminUsersPage() {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-mist" />
           <input
             type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name..."
+            placeholder="Search by name or email..."
             className="rounded-xl border border-white/10 bg-card pl-9 pr-4 py-2.5 text-sm text-white outline-none focus:border-brass w-56"
           />
         </div>
@@ -182,7 +197,11 @@ export default function AdminUsersPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
+                        {u.email ? (
+                          <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
+                        ) : (
+                          <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
+                        )}
                       </div>
                     </div>
                   </td>
