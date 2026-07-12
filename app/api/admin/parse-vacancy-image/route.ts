@@ -45,7 +45,12 @@ Rules:
 - "salaryFrom"/"salaryTo" = plain numbers (monthly), no currency symbols. If only one figure is given, set both to it.
 - "currency" = 3-letter ISO code (USD, EUR, GBP...).
 - "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
-- "description" = requirements/responsibilities/conditions text as written, concatenated into one block, in English if possible.
+- "description" = a UNIQUE, rewritten job description in English Markdown — NOT a verbatim copy of the screenshot text (duplicated text hurts SEO). Rephrase everything in your own words and structure it as:
+    1. A 2–4 sentence intro paragraph in your own words (vessel type, trading area, contract length, salary — whatever is given).
+    2. "## Vessel particulars" — a bullet list of any ship specs present (type, IMO, flag, year built, GRT/DWT, main engine, sailing area). Omit this whole section if the screenshot has no specs.
+    3. "## Requirements" — a bullet list of the required certificates/experience/English level, if any are given.
+    4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager."
+  Rephrase for uniqueness, but do NOT invent facts: only include specs, requirements and figures that actually appear in the screenshot. Skip any section whose data is absent (except "How to apply", which is always included).
 - Use null for anything not present in the image. Do not invent data.`;
 
 interface AnthropicContentBlock {
