@@ -2,17 +2,21 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Anchor, Ship, Briefcase, Eye, EyeOff, AlertCircle, ShieldOff } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useLang } from "@/components/LangProvider";
+import { AUTH_T, LANGS, localePath } from "@/lib/i18n";
 
 type Role = "seafarer" | "company";
 
 function LoginContent() {
   const router       = useRouter();
   const searchParams = useSearchParams();
+  const { lang, setLang } = useLang();
+  const t = AUTH_T[lang];
   const [role, setRole] = useState<Role>("seafarer");
   const isBlocked = searchParams.get("blocked") === "1";
   // Only allow safe internal redirects (avoid open-redirect to "//evil.com").
@@ -46,12 +50,12 @@ function LoginContent() {
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) { setError(signInError.message); return; }
-      if (!data.user) { setError("Sign in failed. Please try again."); return; }
+      if (!data.user) { setError(t.err_failed); return; }
 
       if (typeof window !== "undefined") localStorage.setItem("user_role", role);
-      router.push(redirect || (role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard"));
+      router.push(redirect || localePath(role === "seafarer" ? "/seafarer/dashboard" : "/company/dashboard", lang));
     } catch {
-      setError("An unexpected error occurred.");
+      setError(t.err_unexpected);
     } finally {
       setLoading(false);
     }
@@ -59,7 +63,7 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen bg-deep flex flex-col">
-      <header className="border-b border-white/10 bg-deep/80 backdrop-blur-md px-5 py-3">
+      <header className="flex items-center justify-between border-b border-white/10 bg-deep/80 backdrop-blur-md px-5 py-3">
         <Link href="/" className="inline-flex items-center gap-2.5">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
             <Anchor size={22} className="text-deep" strokeWidth={2.4} />
@@ -68,6 +72,21 @@ function LoginContent() {
             SeaJobs<span className="text-brass2">.pro</span>
           </span>
         </Link>
+        {/* Language switcher — auth screens have no global Header. */}
+        <div className="flex items-center gap-1">
+          {LANGS.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => setLang(l.code)}
+              title={l.label}
+              className={`rounded-lg px-2 py-1 text-sm transition ${
+                lang === l.code ? "bg-white/10 text-white" : "text-mist hover:text-white"
+              }`}
+            >
+              {l.flag}
+            </button>
+          ))}
+        </div>
       </header>
 
       <div className="flex flex-1 items-center justify-center px-5 py-12">
@@ -83,7 +102,7 @@ function LoginContent() {
                   : "border-white/10 bg-card text-mist hover:border-white/20"
               }`}
             >
-              <Ship size={20} /> Seafarer
+              <Ship size={20} /> {t.tab_seafarer}
             </button>
             <button
               onClick={() => setRole("company")}
@@ -93,17 +112,17 @@ function LoginContent() {
                   : "border-white/10 bg-card text-mist hover:border-white/20"
               }`}
             >
-              <Briefcase size={20} /> Crewing
+              <Briefcase size={20} /> {t.tab_crewing}
             </button>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-card p-8">
             <div className="mb-6 text-center">
-              <h1 className="font-display text-3xl font-semibold text-white">Welcome back</h1>
+              <h1 className="font-display text-3xl font-semibold text-white">{t.welcome}</h1>
               <p className="mt-1 text-sm text-mist">
-                Sign in as{" "}
+                {t.signin_as}{" "}
                 <span className={role === "seafarer" ? "text-teal font-semibold" : "text-brass2 font-semibold"}>
-                  {role === "seafarer" ? "Seafarer" : "Crewing Company"}
+                  {role === "seafarer" ? t.role_seafarer : t.role_company}
                 </span>
               </p>
             </div>
@@ -111,7 +130,7 @@ function LoginContent() {
             {isBlocked && (
               <div className="mb-5 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
                 <ShieldOff size={18} className="mt-0.5 shrink-0 text-coral" />
-                <p className="text-sm text-coral">Your account has been blocked. Please contact support.</p>
+                <p className="text-sm text-coral">{t.blocked}</p>
               </div>
             )}
 
@@ -134,18 +153,18 @@ function LoginContent() {
                 <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
                 <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/>
               </svg>
-              {googleLoading ? "Redirecting..." : "Sign in with Google"}
+              {googleLoading ? t.redirecting : t.google}
             </button>
 
             <div className="mb-4 flex items-center gap-3">
               <div className="h-px flex-1 bg-white/10" />
-              <span className="text-xs text-mist">or</span>
+              <span className="text-xs text-mist">{t.or}</span>
               <div className="h-px flex-1 bg-white/10" />
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-foam">Email</label>
+                <label className="text-sm font-semibold text-foam">{t.email}</label>
                 <input
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder="captain@example.com" required disabled={loading}
@@ -153,12 +172,12 @@ function LoginContent() {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-foam">Password</label>
+                <label className="text-sm font-semibold text-foam">{t.password}</label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"} value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password" required disabled={loading}
+                    placeholder={t.password_ph} required disabled={loading}
                     className="w-full rounded-xl border border-white/10 bg-navy2 px-4 py-3 pr-12 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
@@ -169,18 +188,18 @@ function LoginContent() {
               </div>
               <div className="text-right">
                 <Link href="/auth/forgot-password" className="text-xs text-mist hover:text-white transition">
-                  Forgot password?
+                  {t.forgot}
                 </Link>
               </div>
               <button type="submit" disabled={loading}
                 className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0">
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? t.signing : t.signin}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm text-mist">
-              No account?{" "}
-              <Link href="/auth/register" className="font-semibold text-brass2 hover:underline">Create one</Link>
+              {t.no_account}{" "}
+              <Link href="/auth/register" className="font-semibold text-brass2 hover:underline">{t.create_one}</Link>
             </p>
           </div>
         </div>
