@@ -2358,3 +2358,50 @@ Object.assign(AUTH_T.ro, {
   fp_sent_post: "Verifică inbox-ul și urmează instrucțiunile.", fp_back: "Înapoi la autentificare",
   fp_send: "Trimite link de resetare", fp_sending: "Se trimite...",
 });
+
+// Reset-password screen (the target of the email reset link).
+Object.assign(AUTH_T.en, {
+  rp_title: "Set a new password", rp_subtitle: "Enter and confirm your new password below.",
+  rp_new_password: "New password", rp_confirm_ph: "Repeat new password",
+  rp_submit: "Update password", rp_updating: "Updating...",
+  rp_success_title: "Password updated!", rp_success_body: "Your password has been changed. You can now sign in.",
+  rp_go_login: "Go to sign in", rp_verifying: "Verifying your reset link...",
+  rp_invalid: "This password reset link is invalid or has expired. Please request a new one.",
+  rp_request_new: "Request a new link",
+});
+Object.assign(AUTH_T.ru, {
+  rp_title: "Задайте новый пароль", rp_subtitle: "Введите и подтвердите новый пароль.",
+  rp_new_password: "Новый пароль", rp_confirm_ph: "Повторите новый пароль",
+  rp_submit: "Обновить пароль", rp_updating: "Обновление...",
+  rp_success_title: "Пароль обновлён!", rp_success_body: "Ваш пароль изменён. Теперь вы можете войти.",
+  rp_go_login: "Перейти ко входу", rp_verifying: "Проверяем ссылку для сброса...",
+  rp_invalid: "Ссылка для сброса пароля недействительна или истекла. Запросите новую.",
+  rp_request_new: "Запросить новую ссылку",
+});
+Object.assign(AUTH_T.ua, {
+  rp_title: "Задайте новий пароль", rp_subtitle: "Введіть і підтвердіть новий пароль.",
+  rp_new_password: "Новий пароль", rp_confirm_ph: "Повторіть новий пароль",
+  rp_submit: "Оновити пароль", rp_updating: "Оновлення...",
+  rp_success_title: "Пароль оновлено!", rp_success_body: "Ваш пароль змінено. Тепер ви можете увійти.",
+  rp_go_login: "Перейти до входу", rp_verifying: "Перевіряємо посилання для скидання...",
+  rp_invalid: "Посилання для скидання пароля недійсне або застаріле. Запросіть нове.",
+  rp_request_new: "Запросити нове посилання",
+});
+Object.assign(AUTH_T.pl, {
+  rp_title: "Ustaw nowe hasło", rp_subtitle: "Wprowadź i potwierdź nowe hasło poniżej.",
+  rp_new_password: "Nowe hasło", rp_confirm_ph: "Powtórz nowe hasło",
+  rp_submit: "Zaktualizuj hasło", rp_updating: "Aktualizowanie...",
+  rp_success_title: "Hasło zaktualizowane!", rp_success_body: "Twoje hasło zostało zmienione. Możesz się teraz zalogować.",
+  rp_go_login: "Przejdź do logowania", rp_verifying: "Weryfikacja linku resetującego...",
+  rp_invalid: "Ten link do resetu hasła jest nieprawidłowy lub wygasł. Poproś o nowy.",
+  rp_request_new: "Poproś o nowy link",
+});
+Object.assign(AUTH_T.ro, {
+  rp_title: "Setează o parolă nouă", rp_subtitle: "Introdu și confirmă noua parolă mai jos.",
+  rp_new_password: "Parolă nouă", rp_confirm_ph: "Repetă parola nouă",
+  rp_submit: "Actualizează parola", rp_updating: "Se actualizează...",
+  rp_success_title: "Parolă actualizată!", rp_success_body: "Parola ta a fost schimbată. Acum te poți autentifica.",
+  rp_go_login: "Mergi la autentificare", rp_verifying: "Se verifică linkul de resetare...",
+  rp_invalid: "Acest link de resetare a parolei este invalid sau a expirat. Solicită unul nou.",
+  rp_request_new: "Solicită un link nou",
+});
