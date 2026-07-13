@@ -31,6 +31,7 @@ export type VacancyWithCompany = {
   vessel_type: string | null;
   salary_from: number | null;
   salary_to: number | null;
+  salary_period: string | null;
   currency: string;
   contract_duration: string | null;
   joining_date: string | null;
@@ -53,11 +54,12 @@ function isFeatured(featuredUntil: string | null): boolean {
   return !!featuredUntil && new Date(featuredUntil) > new Date();
 }
 
-function formatSalary(v: VacancyWithCompany, fromLabel: string, upToLabel: string): string {
+function formatSalary(v: VacancyWithCompany, fromLabel: string, upToLabel: string, perDayLabel: string): string {
   if (!v.salary_from && !v.salary_to) return "";
-  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `${fromLabel} ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `${upToLabel} ${v.salary_to!.toLocaleString()} ${v.currency}`;
+  const per = v.salary_period === "day" ? perDayLabel : "";
+  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `${fromLabel} ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `${upToLabel} ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 export default function JobsClient({ initialVacancies }: { initialVacancies: VacancyWithCompany[] }) {
@@ -236,7 +238,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
             {pageItems.map((v) => {
-              const salary = formatSalary(v, t.jobs_from, t.jobs_up_to);
+              const salary = formatSalary(v, t.jobs_from, t.jobs_up_to, t.jobs_per_day);
               const featured = isFeatured(v.featured_until);
               return (
                 <Link

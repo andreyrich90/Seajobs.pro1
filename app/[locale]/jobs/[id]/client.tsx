@@ -22,6 +22,7 @@ export type VacancyDetail = {
   vessel_type: string | null;
   salary_from: number | null;
   salary_to: number | null;
+  salary_period: string | null;
   currency: string;
   contract_duration: string | null;
   joining_date: string | null;
@@ -57,10 +58,11 @@ function formatDate(dateStr: string | null): string {
 
 function formatSalary(v: VacancyDetail): string {
   if (!v.salary_from && !v.salary_to) return "";
+  const per = v.salary_period === "day" ? "/day" : "";
   if (v.salary_from && v.salary_to)
-    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
+    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 function readAsDataURL(file: File): Promise<string> {

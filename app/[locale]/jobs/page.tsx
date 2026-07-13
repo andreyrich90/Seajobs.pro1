@@ -77,7 +77,7 @@ export default async function JobsPage() {
   // Hide vacancies whose joining date passed more than 2 weeks ago.
   const { data } = await getServerSupabase()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, created_at, featured_until, companies(name, logo_url, location, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, created_at, featured_until, companies(name, logo_url, location, is_verified)")
     .eq("is_active", true)
     .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
     .order("featured_until", { ascending: false, nullsFirst: false })

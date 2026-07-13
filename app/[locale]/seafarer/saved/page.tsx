@@ -20,6 +20,7 @@ type SavedRow = {
     vessel_type: string | null;
     salary_from: number | null;
     salary_to: number | null;
+    salary_period: string | null;
     currency: string;
     contract_duration: string | null;
     joining_date: string | null;
@@ -40,10 +41,11 @@ function formatDate(dateStr: string | null): string {
 function formatSalary(v: SavedRow["vacancies"]): string {
   if (!v) return "";
   if (!v.salary_from && !v.salary_to) return "";
+  const per = v.salary_period === "day" ? "/day" : "";
   if (v.salary_from && v.salary_to)
-    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
+    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 export default function SavedJobsPage() {
@@ -61,7 +63,7 @@ export default function SavedJobsPage() {
 
       const { data } = await supabase
         .from("saved_vacancies")
-        .select("vacancy_id, created_at, vacancies(id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, companies(name, logo_url, location, is_verified))")
+        .select("vacancy_id, created_at, vacancies(id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, location, is_verified))")
         .eq("seafarer_id", session.user.id)
         .order("created_at", { ascending: false });
 

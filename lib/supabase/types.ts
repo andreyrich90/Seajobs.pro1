@@ -303,6 +303,7 @@ export interface Database {
           vessel_type: string | null;
           salary_from: number | null;
           salary_to: number | null;
+          salary_period: string;
           currency: string;
           contract_duration: string | null;
           joining_date: string | null;
@@ -329,6 +330,7 @@ export interface Database {
           vessel_type?: string | null;
           salary_from?: number | null;
           salary_to?: number | null;
+          salary_period?: string;
           currency?: string;
           contract_duration?: string | null;
           joining_date?: string | null;
@@ -355,6 +357,7 @@ export interface Database {
           vessel_type?: string | null;
           salary_from?: number | null;
           salary_to?: number | null;
+          salary_period?: string;
           currency?: string;
           contract_duration?: string | null;
           joining_date?: string | null;
