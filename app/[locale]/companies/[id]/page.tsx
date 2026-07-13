@@ -35,9 +35,10 @@ function formatDate(d: string | null): string {
 
 function formatSalary(v: Vacancy): string {
   if (!v.salary_from && !v.salary_to) return "";
-  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
+  const per = v.salary_period === "day" ? "/day" : "";
+  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 export default function PublicCompanyPage() {

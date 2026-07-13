@@ -5,16 +5,28 @@
 -- vessel particulars + requirements + how to apply) — never a verbatim copy.
 -- Idempotent — safe to re-run. Run once in the Supabase SQL Editor.
 --
--- Day-rate / "negotiable" posts store no monthly salary — the rate is stated in
--- the description instead, so the board never shows a misleading monthly figure.
+-- Day-rate posts store the day rate in salary_from with salary_period = 'day',
+-- so the board shows e.g. "250 EUR/day". "Negotiable" posts stay blank.
 
--- ── Refresh recurring posts already on the board (re-advertised today) ───────
+-- Ensure the salary_period column exists (matches the dated migration).
+alter table public.vacancies
+  add column if not exists salary_period text not null default 'month';
+
+-- ── Refresh recurring MONTHLY posts already on the board ─────────────────────
 UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true
   WHERE title IN (
     'Steward / Stewardess — Ro-Ro Ferry (Suecia Seaways, DFDS), Netherlands–England',
-    '2nd Cook — Offshore Vessel (OSV / DSV, DP2), Europe',
     '3rd Officer — Oil / Chemical Tanker (MT Azuryth), Europe'
   );
+
+-- ── Refresh + fix DAY-RATE posts already imported (set per-day salary) ───────
+UPDATE vacancies SET created_at = now(), updated_at = now(), is_active = true,
+    salary_from = 180, salary_to = NULL, salary_period = 'day', currency = 'EUR'
+  WHERE title = '2nd Cook — Offshore Vessel (OSV / DSV, DP2), Europe';
+UPDATE vacancies SET salary_from = 195, salary_to = NULL, salary_period = 'day', currency = 'EUR'
+  WHERE title = '2nd Officer (DPO) — Survey Vessel (Amber Cecilia), Baltic / Worldwide';
+UPDATE vacancies SET salary_from = 350, salary_to = NULL, salary_period = 'day', currency = 'EUR'
+  WHERE title = 'Chief Officer (DPO) — PSV DP2 (Las Palmas → Nigeria), Worldwide';
 
 -- ── OSM Poland — 3rd Officer (DPO), SOV / W2W ───────────────────────────────
 DO $$
@@ -147,8 +159,8 @@ BEGIN
     INSERT INTO companies (id, name, location) VALUES (v_company_id, 'Balteam Crewing Agency', 'Szczecin, Poland');
   END IF;
 
-  INSERT INTO vacancies (company_id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, is_active, is_imported, contact_email)
-  SELECT v_company_id, 'Single Engineer — CTV (Crew Transfer Vessel), Baltic', 'Single Engineer', 'CTV', NULL, NULL, 'EUR', '2 weeks (± 1)', '2026-07-14',
+  INSERT INTO vacancies (company_id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, is_active, is_imported, contact_email)
+  SELECT v_company_id, 'Single Engineer — CTV (Crew Transfer Vessel), Baltic', 'Single Engineer', 'CTV', 250, NULL, 'day', 'EUR', '2 weeks (± 1)', '2026-07-14',
 'Balteam Crewing Agency is looking for a Single Engineer for a crew transfer vessel (CTV) working the Polish Baltic offshore-wind sector. A short 2-week (± 1) rotation, paying a day rate of **EUR 250 per day on board** plus a 20 EUR food allowance and accommodation ashore. Joining 14 July 2026.
 
 ## Vessel particulars
@@ -165,8 +177,8 @@ BEGIN
 Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager.', true, true, 'application@balteam.pl'
   WHERE NOT EXISTS (SELECT 1 FROM vacancies WHERE title = 'Single Engineer — CTV (Crew Transfer Vessel), Baltic');
 
-  INSERT INTO vacancies (company_id, title, rank, vessel_type, salary_from, salary_to, currency, contract_duration, joining_date, description, is_active, is_imported, contact_email)
-  SELECT v_company_id, 'Master — CTV (Crew Transfer Vessel), Baltic', 'Master (Captain)', 'CTV', NULL, NULL, 'EUR', '2 weeks (± 1)', '2026-07-14',
+  INSERT INTO vacancies (company_id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, is_active, is_imported, contact_email)
+  SELECT v_company_id, 'Master — CTV (Crew Transfer Vessel), Baltic', 'Master (Captain)', 'CTV', 300, NULL, 'day', 'EUR', '2 weeks (± 1)', '2026-07-14',
 'Balteam Crewing Agency is recruiting a Master for a crew transfer vessel (CTV) in the Polish Baltic offshore-wind sector. A short 2-week (± 1) rotation, paying a day rate of **EUR 300 per day** plus a 20 EUR food allowance and accommodation ashore. Joining 14 July 2026.
 
 ## Vessel particulars

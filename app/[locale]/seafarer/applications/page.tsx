@@ -22,6 +22,7 @@ type ApplicationRow = {
     vessel_type: string | null;
     salary_from: number | null;
     salary_to: number | null;
+    salary_period: string | null;
     currency: string;
     companies: {
       name: string | null;
@@ -54,10 +55,11 @@ function formatDate(dateStr: string): string {
 function formatSalary(v: ApplicationRow["vacancies"]): string {
   if (!v) return "";
   if (!v.salary_from && !v.salary_to) return "";
+  const per = v.salary_period === "day" ? "/day" : "";
   if (v.salary_from && v.salary_to)
-    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}`;
+    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 export default function ApplicationsPage() {
@@ -73,7 +75,7 @@ export default function ApplicationsPage() {
 
       const { data } = await supabase
         .from("applications")
-        .select("id, status, created_at, cover_letter, vacancies(id, title, rank, vessel_type, salary_from, salary_to, currency, companies(name, logo_url, is_verified))")
+        .select("id, status, created_at, cover_letter, vacancies(id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, companies(name, logo_url, is_verified))")
         .eq("seafarer_id", session.user.id)
         .order("created_at", { ascending: false });
 
