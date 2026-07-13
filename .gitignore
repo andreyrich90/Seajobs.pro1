@@ -8,3 +8,7 @@ tsconfig.tsbuildinfo
 
 # outreach mailer send log (do not commit)
 scripts/outreach/sent.log
+
+# Python
+__pycache__/
+*.pyc
