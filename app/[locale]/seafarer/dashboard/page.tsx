@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
@@ -104,25 +104,21 @@ export default function DashboardPage() {
   return (
     <div className="p-8 max-w-5xl">
       {/* Welcome card */}
-      <div className="rounded-2xl border border-white/10 bg-card p-6 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-mist mb-1">{t.dash_welcome}</p>
-            <h1 className="font-display text-3xl font-semibold text-white">{fullName}</h1>
-            {stats.seafarer?.rank && (
-              <span className="mt-2 inline-block rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-semibold text-teal">
-                {stats.seafarer.rank}
-              </span>
-            )}
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-xs text-mist mb-1">{t.dash_profile_completion}</p>
-            <p className="font-display text-3xl font-bold text-brass2">{completion}%</p>
-          </div>
-        </div>
+      <div className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6 mb-6">
+        <p className="text-sm text-mist mb-1">{t.dash_welcome}</p>
+        <h1 className="font-display text-2xl sm:text-3xl font-semibold text-white break-words">{fullName}</h1>
+        {stats.seafarer?.rank && (
+          <span className="mt-2 inline-block rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-semibold text-teal">
+            {stats.seafarer.rank}
+          </span>
+        )}
 
-        {/* Progress bar */}
-        <div className="mt-4">
+        {/* Profile completion — label + % on one row above the bar */}
+        <div className="mt-5">
+          <div className="mb-1.5 flex items-end justify-between gap-3">
+            <p className="text-xs sm:text-sm text-mist">{t.dash_profile_completion}</p>
+            <p className="font-display text-2xl font-bold text-brass2 leading-none shrink-0">{completion}%</p>
+          </div>
           <div className="h-2 w-full rounded-full bg-white/5">
             <div
               className="h-2 rounded-full bg-gradient-to-r from-brass to-brass2 transition-all"
@@ -139,6 +135,23 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Auto-fill from CV CTA — upload a CV to fill the profile automatically */}
+      <Link
+        href="/seafarer/profile"
+        className="group mb-6 flex items-center justify-between gap-4 rounded-2xl border border-teal/30 bg-gradient-to-br from-teal/15 to-teal/5 p-5 transition hover:border-teal/50 hover:from-teal/20"
+      >
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal shrink-0">
+            <Sparkles size={20} className="text-deep" />
+          </div>
+          <div>
+            <p className="font-semibold text-white">{t.sp_autofill_title}</p>
+            <p className="text-xs text-mist">{t.sp_upload_cv}</p>
+          </div>
+        </div>
+        <ChevronRight size={18} className="text-teal shrink-0 transition group-hover:translate-x-0.5" />
+      </Link>
 
       {/* Browse jobs CTA */}
       <Link
