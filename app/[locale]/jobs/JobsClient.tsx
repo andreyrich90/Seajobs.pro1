@@ -267,7 +267,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-xs text-mist">
                               {v.companies?.name ?? t.jobs_unknown_company}
@@ -279,7 +279,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                               <span className="text-xs text-mist">· {v.companies.location}</span>
                             )}
                           </div>
-                          <h3 className="mt-0.5 font-semibold text-white group-hover:text-brass2 transition">
+                          <h3 className="mt-0.5 font-semibold text-white group-hover:text-brass2 transition line-clamp-2 break-words">
                             {v.title}
                           </h3>
                           <div className="mt-2 flex flex-wrap gap-2">
@@ -298,10 +298,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                         <div className="flex shrink-0 items-start gap-2">
                           <div className="text-right">
                             {salary && (
-                              <p className="text-sm font-bold text-white">{salary}</p>
-                            )}
-                            {v.contract_duration && (
-                              <p className="text-xs text-mist mt-0.5">{v.contract_duration}</p>
+                              <p className="whitespace-nowrap text-sm font-bold text-white">{salary}</p>
                             )}
                           </div>
                           {userId && (
@@ -321,7 +318,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                       </div>
 
                       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex flex-wrap gap-4 text-xs text-mist">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-mist">
+                          {v.contract_duration && <span>{v.contract_duration}</span>}
                           {v.joining_date && <span>{t.jobs_joining}: {formatDate(v.joining_date)}</span>}
                           <span>{t.jobs_posted}: {formatDate(v.created_at)}</span>
                         </div>
