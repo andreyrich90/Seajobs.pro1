@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
@@ -135,6 +135,23 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Auto-fill from CV CTA — upload a CV to fill the profile automatically */}
+      <Link
+        href="/seafarer/profile"
+        className="group mb-6 flex items-center justify-between gap-4 rounded-2xl border border-teal/30 bg-gradient-to-br from-teal/15 to-teal/5 p-5 transition hover:border-teal/50 hover:from-teal/20"
+      >
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal shrink-0">
+            <Sparkles size={20} className="text-deep" />
+          </div>
+          <div>
+            <p className="font-semibold text-white">{t.sp_autofill_title}</p>
+            <p className="text-xs text-mist">{t.sp_upload_cv}</p>
+          </div>
+        </div>
+        <ChevronRight size={18} className="text-teal shrink-0 transition group-hover:translate-x-0.5" />
+      </Link>
 
       {/* Browse jobs CTA */}
       <Link
