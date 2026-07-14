@@ -176,7 +176,7 @@ export default async function VacancyPage(
         ...(hasRange
           ? { "minValue": vacancy.salary_from, "maxValue": vacancy.salary_to }
           : { "value": single }),
-        "unitText": "MONTH",
+        "unitText": vacancy.salary_period === "day" ? "DAY" : "MONTH",
       },
     };
   }
