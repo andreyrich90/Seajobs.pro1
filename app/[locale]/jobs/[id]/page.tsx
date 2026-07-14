@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
+import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
+import type { Lang } from "@/lib/i18n";
 import VacancyDetailClient, { type VacancyDetail } from "./client";
 
 type VacancyFull = VacancyDetail & {
@@ -181,11 +183,39 @@ export default async function VacancyPage(
     };
   }
 
+  // Breadcrumb: Home › Vacancies › [rank landing, if any] › this vacancy.
+  const lang = locale as Lang;
+  const copy = RANK_COPY[lang] ?? RANK_COPY.en;
+  const path = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
+  const rankLanding = vacancy.rank ? RANK_LANDINGS.find((r) => r.rank === vacancy.rank) : undefined;
+  const crumbItems = [
+    { name: copy.home, url: `${BASE_URL}${locale === "en" ? "" : `/${locale}`}/` },
+    { name: copy.jobsCrumb, url: `${BASE_URL}${locale === "en" ? "" : `/${locale}`}/jobs` },
+    ...(rankLanding
+      ? [{ name: rankName(rankLanding, lang), url: `${BASE_URL}${locale === "en" ? "" : `/${locale}`}/jobs/rank/${rankLanding.slug}` }]
+      : []),
+    { name: vacancy.title, url: `${BASE_URL}${locale === "en" ? "" : `/${locale}`}${path}` },
+  ];
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbItems.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.url,
+    })),
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <VacancyDetailClient vacancy={vacancy} />
     </>

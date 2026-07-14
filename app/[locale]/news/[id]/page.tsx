@@ -194,11 +194,34 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
     "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl(`/news/${id}`, locale) },
   };
 
+  const NEWS_CRUMB: Record<string, { home: string; news: string }> = {
+    en: { home: "Home", news: "News" },
+    ru: { home: "Главная", news: "Новости" },
+    ua: { home: "Головна", news: "Новини" },
+    pl: { home: "Strona główna", news: "Aktualności" },
+    ro: { home: "Acasă", news: "Știri" },
+  };
+  const nc = NEWS_CRUMB[locale] ?? NEWS_CRUMB.en;
+  const prefix = locale === "en" ? "" : `/${locale}`;
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: nc.home, item: `${BASE_URL}${prefix}/` },
+      { "@type": "ListItem", position: 2, name: nc.news, item: `${BASE_URL}${prefix}/news` },
+      { "@type": "ListItem", position: 3, name: initialArticle.title, item: canonicalUrl(`/news/${id}`, locale) },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <ArticleClient id={id} initialArticle={initialArticle} />
     </>

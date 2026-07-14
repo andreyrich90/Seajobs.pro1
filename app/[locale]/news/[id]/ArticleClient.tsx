@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { ChevronLeft, Calendar, Tag, Share2, Copy, Check, MessageCircle, Send } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Tag, Share2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -252,9 +252,18 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
       <Header />
       <div className="mx-auto max-w-3xl px-5 py-10">
 
-        <Link href="/news" className="mb-8 inline-flex items-center gap-1.5 text-sm text-mist hover:text-white transition">
-          <ChevronLeft size={16} /> Back to News
-        </Link>
+        {/* Breadcrumbs */}
+        <nav className="mb-8 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-brass2">
+            {({ en: "Home", ru: "Главная", ua: "Головна", pl: "Strona główna", ro: "Acasă" } as Record<string, string>)[lang] ?? "Home"}
+          </Link>
+          <ChevronRight size={12} />
+          <Link href="/news" className="hover:text-brass2">
+            {({ en: "News", ru: "Новости", ua: "Новини", pl: "Aktualności", ro: "Știri" } as Record<string, string>)[lang] ?? "News"}
+          </Link>
+          <ChevronRight size={12} />
+          <span className="truncate text-foam max-w-[60vw] sm:max-w-none">{article.title}</span>
+        </nav>
 
         {/* Cover (large, no text overlay) */}
         <div className="mb-6 overflow-hidden rounded-2xl">

@@ -8,10 +8,13 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload,
+  CheckCircle2, Upload, ChevronRight, ArrowRight,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useLang } from "@/components/LangProvider";
+import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
+import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
 import { supabase, notify } from "@/lib/supabase/client";
 import { renderMarkdown } from "@/lib/markdown";
 
@@ -75,6 +78,7 @@ function readAsDataURL(file: File): Promise<string> {
 }
 
 export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetail }) {
+  const { lang } = useLang();
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
@@ -314,14 +318,30 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
   const salary = formatSalary(vacancy);
   const company = vacancy.companies;
 
+  const crumb = RANK_COPY[lang] ?? RANK_COPY.en;
+  const rankLanding = vacancy.rank ? RANK_LANDINGS.find((r) => r.rank === vacancy.rank) : undefined;
+  const vesselLanding = VESSEL_LANDINGS.find((v) => vacancyMatchesVessel(vacancy.vessel_type, vacancy.title, v.keywords));
+  const moreLabel = ({ en: "More vacancies", ru: "Больше вакансий", ua: "Більше вакансій", pl: "Więcej ofert", ro: "Mai multe posturi" } as Record<string, string>)[lang] ?? "More vacancies";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       <div className="mx-auto max-w-5xl px-5 py-10">
-        <Link href="/jobs" className="inline-flex items-center gap-2 text-sm text-mist hover:text-white transition mb-6">
-          <ArrowLeft size={16} /> Back to Jobs
-        </Link>
+        {/* Breadcrumbs */}
+        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-brass2">{crumb.home}</Link>
+          <ChevronRight size={12} />
+          <Link href="/jobs" className="hover:text-brass2">{crumb.jobsCrumb}</Link>
+          {rankLanding && (
+            <>
+              <ChevronRight size={12} />
+              <Link href={`/jobs/rank/${rankLanding.slug}`} className="hover:text-brass2">{rankName(rankLanding, lang)}</Link>
+            </>
+          )}
+          <ChevronRight size={12} />
+          <span className="truncate text-foam max-w-[60vw] sm:max-w-none">{vacancy.title}</span>
+        </nav>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Main content */}
@@ -710,6 +730,28 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
           </div>
         </div>
       )}
+
+      {/* Contextual internal links to the rank / vessel landing pages */}
+      {(rankLanding || vesselLanding) && (
+        <div className="mx-auto max-w-5xl px-5 pb-4">
+          <h2 className="mb-3 font-display text-base font-semibold text-white">{moreLabel}</h2>
+          <div className="flex flex-wrap gap-2">
+            {rankLanding && (
+              <Link href={`/jobs/rank/${rankLanding.slug}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brass2">
+                {rankName(rankLanding, lang)} <ArrowRight size={13} />
+              </Link>
+            )}
+            {vesselLanding && (
+              <Link href={`/jobs/vessel/${vesselLanding.slug}`}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brass2">
+                {vesselName(vesselLanding, lang)} <ArrowRight size={13} />
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
