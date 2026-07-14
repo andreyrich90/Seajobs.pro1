@@ -39,6 +39,7 @@ export interface Database {
           title: Record<string, string>;
           body: Record<string, string>;
           tag: string | null;
+          category: string;
           cover_gradient: string | null;
           cover_url: string | null;
           is_published: boolean;
@@ -51,6 +52,7 @@ export interface Database {
           title: Record<string, string>;
           body: Record<string, string>;
           tag?: string | null;
+          category?: string;
           cover_gradient?: string | null;
           cover_url?: string | null;
           is_published?: boolean;
@@ -63,6 +65,7 @@ export interface Database {
           title?: Record<string, string>;
           body?: Record<string, string>;
           tag?: string | null;
+          category?: string;
           cover_gradient?: string | null;
           cover_url?: string | null;
           is_published?: boolean;

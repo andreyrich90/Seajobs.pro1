@@ -84,6 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...countryLandingEntries(now),
     ...localizedEntries("/forum", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
+    ...localizedEntries("/guides", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/for-companies", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
@@ -122,7 +123,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .order("updated_at", { ascending: false }),
       admin
         .from("news_articles")
-        .select("id, title, published_at, created_at")
+        .select("id, title, published_at, created_at, category")
         .eq("is_published", true)
         .order("created_at", { ascending: false }),
     ]);
@@ -151,17 +152,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
     );
 
-    // News articles stored in the DB (created via the admin) — addressed by
-    // "<slug>-<uuid>", separate from the static lib/data news above.
-    const dbNewsRoutes: MetadataRoute.Sitemap = (dbNews ?? []).flatMap((n) =>
-      localizedEntries(`/news/${slugId(locTitle(n.title), n.id)}`, {
-        lastModified: new Date(n.published_at ?? n.created_at),
-        changeFrequency: "monthly",
-        priority: 0.6,
-      })
-    );
+    // DB articles (created via the admin) — addressed by "<slug>-<uuid>".
+    // Guides go under /guides, everything else under /news.
+    const dbNewsRoutes: MetadataRoute.Sitemap = (dbNews ?? [])
+      .filter((n) => n.category !== "guide")
+      .flatMap((n) =>
+        localizedEntries(`/news/${slugId(locTitle(n.title), n.id)}`, {
+          lastModified: new Date(n.published_at ?? n.created_at),
+          changeFrequency: "monthly",
+          priority: 0.6,
+        })
+      );
 
-    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes, ...dbNewsRoutes];
+    const guideRoutes: MetadataRoute.Sitemap = (dbNews ?? [])
+      .filter((n) => n.category === "guide")
+      .flatMap((n) =>
+        localizedEntries(`/guides/${slugId(locTitle(n.title), n.id)}`, {
+          lastModified: new Date(n.published_at ?? n.created_at),
+          changeFrequency: "monthly",
+          priority: 0.7,
+        })
+      );
+
+    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes, ...dbNewsRoutes, ...guideRoutes];
   } catch {
     return [...staticRoutes, ...newsRoutes];
   }

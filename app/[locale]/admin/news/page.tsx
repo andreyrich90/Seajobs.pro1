@@ -31,6 +31,7 @@ type ArticleForm = {
   title: Record<string, string>;
   body:  Record<string, string>;
   tag:   string;
+  category: string;
   cover_gradient: string;
   cover_url:      string;
   is_published:   boolean;
@@ -40,6 +41,7 @@ const EMPTY_FORM: ArticleForm = {
   title: { en: "", ua: "", pl: "", ru: "" },
   body:  { en: "", ua: "", pl: "", ru: "" },
   tag:   "Industry",
+  category: "news",
   cover_gradient: GRADIENTS[0].value,
   cover_url: "",
   is_published: false,
@@ -114,6 +116,7 @@ export default function AdminNewsPage() {
       title: { en: "", ua: title?.ua ?? "", pl: "", ru: "", ...title },
       body:  { en: "", ua: body?.ua ?? "", pl: "", ru: "", ...body },
       tag:   a.tag ?? "Industry",
+      category: a.category ?? "news",
       cover_gradient: a.cover_gradient ?? GRADIENTS[0].value,
       cover_url: a.cover_url ?? "",
       is_published:   a.is_published,
@@ -135,6 +138,7 @@ export default function AdminNewsPage() {
       title: form.title,
       body:  form.body,
       tag:   form.tag,
+      category: form.category,
       cover_gradient: form.cover_gradient,
       cover_url: form.cover_url.trim() || null,
       is_published:   form.is_published,
@@ -269,6 +273,16 @@ export default function AdminNewsPage() {
             </div>
 
             {/* Meta */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-semibold text-foam">Type</label>
+              <select value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass">
+                <option value="news">News article</option>
+                <option value="guide">Guide (blog)</option>
+              </select>
+              <p className="text-xs text-mist">News shows under /news; Guides show under /guides.</p>
+            </div>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-foam">Tag</label>
