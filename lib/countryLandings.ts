@@ -34,6 +34,16 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
     },
   },
   {
+    slug: "romania",
+    keywords: ["romania", "românia", "constanta", "constanța", "bucharest", "bucurești", "galati", "galați", "румыния", "констанца", "румунія"],
+    names: { en: "Romania", ru: "Румыния", ua: "Румунія", pl: "Rumunia", ro: "România" },
+    blurb: {
+      en: "Romania is a major source of officers and ratings, with crewing agencies centred on the Black Sea port of Constanța.",
+      ru: "Румыния — крупный источник офицеров и рядового состава; крюинговые агентства сосредоточены в черноморском порту Констанца.",
+      ua: "Румунія — велике джерело офіцерів і рядового складу; крюїнгові агентства зосереджені в чорноморському порту Констанца.",
+    },
+  },
+  {
     slug: "latvia",
     keywords: ["latvia", "latvija", "riga", "rīga", "рига", "латвия", "ventspils", "liepaja"],
     names: { en: "Latvia", ru: "Латвия", ua: "Латвія", pl: "Łotwa", ro: "Letonia" },
