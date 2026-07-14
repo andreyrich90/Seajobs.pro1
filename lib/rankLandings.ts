@@ -23,6 +23,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Master has overall command of the vessel, its crew and safe navigation, and is legally responsible for the ship.",
       ru: "Капитан осуществляет общее командование судном и экипажем, отвечает за безопасное судовождение и несёт полную ответственность за судно.",
       ua: "Капітан здійснює загальне командування судном та екіпажем, відповідає за безпечне судноводіння й несе повну відповідальність за судно.",
+      pl: "Kapitan sprawuje ogólne dowództwo nad statkiem i załogą, odpowiada za bezpieczną nawigację i ponosi pełną odpowiedzialność za statek.",
+      ro: "Comandantul deține comanda generală a navei și a echipajului, răspunde de navigația în siguranță și este responsabil legal pentru navă.",
     },
   },
   {
@@ -32,6 +34,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Chief Officer is second in command on deck, running cargo operations, stability and the deck crew.",
       ru: "Старший помощник — второй по старшинству на палубе: отвечает за грузовые операции, остойчивость и палубную команду.",
       ua: "Старший помічник — другий за старшинством на палубі: відповідає за вантажні операції, остійність і палубну команду.",
+      pl: "Starszy oficer jest drugim w hierarchii na pokładzie — odpowiada za operacje ładunkowe, stateczność i załogę pokładową.",
+      ro: "Ofițerul secund este al doilea în comandă la punte — răspunde de operațiunile de marfă, stabilitate și echipajul de punte.",
     },
   },
   {
@@ -41,6 +45,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Second Officer is the navigation officer, responsible for passage planning, charts and bridge watchkeeping.",
       ru: "Второй помощник — штурман: отвечает за прокладку маршрута, карты и несение ходовой вахты на мостике.",
       ua: "Другий помічник — штурман: відповідає за прокладання маршруту, карти й несення ходової вахти на містку.",
+      pl: "Drugi oficer jest oficerem nawigacyjnym — odpowiada za planowanie podróży, mapy i wachtę na mostku.",
+      ro: "Ofițerul II este ofițer de navigație — răspunde de planificarea voiajului, hărți și cartul pe puntea de comandă.",
     },
   },
   {
@@ -50,6 +56,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Third Officer keeps a bridge watch and is usually responsible for the ship's safety and life-saving equipment.",
       ru: "Третий помощник несёт вахту на мостике и обычно отвечает за спасательное и противопожарное оборудование судна.",
       ua: "Третій помічник несе вахту на містку й зазвичай відповідає за рятувальне та протипожежне обладнання судна.",
+      pl: "Trzeci oficer pełni wachtę na mostku i zwykle odpowiada za sprzęt ratunkowy i przeciwpożarowy statku.",
+      ro: "Ofițerul III ține cartul pe punte și răspunde de obicei de echipamentul de salvare și de stingere a incendiilor.",
     },
   },
   {
@@ -59,6 +67,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Chief Engineer heads the engine department and is responsible for the operation and maintenance of all machinery on board.",
       ru: "Старший механик возглавляет машинную команду и отвечает за работу и обслуживание всех судовых механизмов.",
       ua: "Старший механік очолює машинну команду й відповідає за роботу та обслуговування всіх суднових механізмів.",
+      pl: "Starszy mechanik kieruje działem maszynowym i odpowiada za pracę oraz konserwację wszystkich urządzeń na statku.",
+      ro: "Șeful mecanic conduce departamentul mașini și răspunde de funcționarea și întreținerea tuturor mașinilor de la bord.",
     },
   },
   {
@@ -68,6 +78,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Second Engineer is the senior watchkeeping engineer, deputising for the Chief and running day-to-day engine-room operations.",
       ru: "Второй механик — старший вахтенный механик, замещает старшего механика и руководит повседневной работой машинного отделения.",
       ua: "Другий механік — старший вахтовий механік, заміщає старшого механіка й керує щоденною роботою машинного відділення.",
+      pl: "Drugi mechanik to starszy oficer wachtowy w maszynowni — zastępuje starszego mechanika i kieruje bieżącą pracą siłowni.",
+      ro: "Secundul mecanic este ofițerul mecanic senior de cart — îl înlocuiește pe șeful mecanic și conduce operațiunile zilnice din compartimentul mașini.",
     },
   },
   {
@@ -77,6 +89,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Third Engineer keeps an engine-room watch and typically looks after generators, pumps and auxiliary machinery.",
       ru: "Третий механик несёт вахту в машинном отделении и обычно обслуживает генераторы, насосы и вспомогательные механизмы.",
       ua: "Третій механік несе вахту в машинному відділенні й зазвичай обслуговує генератори, насоси та допоміжні механізми.",
+      pl: "Trzeci mechanik pełni wachtę w maszynowni i zwykle obsługuje generatory, pompy i urządzenia pomocnicze.",
+      ro: "Ofițerul III mecanic ține cartul în compartimentul mașini și se ocupă de obicei de generatoare, pompe și mașini auxiliare.",
     },
   },
   {
@@ -86,6 +100,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Electro-Technical Officer maintains the vessel's electrical, electronic and automation systems.",
       ru: "Электромеханик (ETO) обслуживает электрические, электронные и автоматизированные системы судна.",
       ua: "Електромеханік (ETO) обслуговує електричні, електронні та автоматизовані системи судна.",
+      pl: "Oficer elektroautomatyk (ETO) konserwuje systemy elektryczne, elektroniczne i automatyki statku.",
+      ro: "Ofițerul electrician (ETO) întreține sistemele electrice, electronice și de automatizare ale navei.",
     },
   },
   {
@@ -95,6 +111,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The ship's Electrician maintains and repairs electrical equipment and wiring throughout the vessel.",
       ru: "Судовой электрик обслуживает и ремонтирует электрооборудование и проводку по всему судну.",
       ua: "Судновий електрик обслуговує та ремонтує електрообладнання й проводку по всьому судну.",
+      pl: "Elektryk okrętowy konserwuje i naprawia urządzenia elektryczne oraz instalacje na całym statku.",
+      ro: "Electricianul navei întreține și repară echipamentele electrice și cablajele de pe toată nava.",
     },
   },
   {
@@ -104,6 +122,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Fitter carries out welding, machining and mechanical repairs for the engine department.",
       ru: "Токарь-слесарь (fitter) выполняет сварочные, токарные и механические ремонтные работы для машинной команды.",
       ua: "Токар-слюсар (fitter) виконує зварювальні, токарні та механічні ремонтні роботи для машинної команди.",
+      pl: "Ślusarz (fitter) wykonuje prace spawalnicze, tokarskie i naprawy mechaniczne dla działu maszynowego.",
+      ro: "Fitter-ul execută lucrări de sudură, prelucrare și reparații mecanice pentru departamentul mașini.",
     },
   },
   {
@@ -113,6 +133,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Able Seaman is an experienced deck rating handling watchkeeping, mooring, cargo work and vessel maintenance.",
       ru: "Матрос первого класса (AB) — опытный член палубной команды: вахта, швартовка, грузовые работы и обслуживание судна.",
       ua: "Матрос першого класу (AB) — досвідчений член палубної команди: вахта, швартування, вантажні роботи та обслуговування судна.",
+      pl: "Starszy marynarz (AB) to doświadczony członek załogi pokładowej — wachta, cumowanie, prace ładunkowe i konserwacja statku.",
+      ro: "Marinarul (AB) este un membru cu experiență al echipajului de punte — cart, manevre de acostare, lucrări de marfă și întreținerea navei.",
     },
   },
   {
@@ -122,6 +144,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Ordinary Seaman is an entry-level deck rating who assists with maintenance, watchkeeping and general deck work.",
       ru: "Матрос второго класса (OS) — начальная должность в палубной команде: помощь в обслуживании, вахте и палубных работах.",
       ua: "Матрос другого класу (OS) — початкова посада в палубній команді: допомога в обслуговуванні, вахті та палубних роботах.",
+      pl: "Młodszy marynarz (OS) to stanowisko początkowe na pokładzie — pomoc przy konserwacji, wachcie i pracach pokładowych.",
+      ro: "Marinarul stagiar (OS) este un post de început pe punte — ajută la întreținere, cart și lucrări de punte.",
     },
   },
   {
@@ -131,6 +155,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Bosun leads the deck ratings, organising maintenance, mooring and cargo work under the Chief Officer.",
       ru: "Боцман руководит палубной командой, организует обслуживание, швартовку и грузовые работы под началом старшего помощника.",
       ua: "Боцман керує палубною командою, організовує обслуговування, швартування та вантажні роботи під керівництвом старшого помічника.",
+      pl: "Bosman kieruje marynarzami pokładowymi, organizuje konserwację, cumowanie i prace ładunkowe pod nadzorem starszego oficera.",
+      ro: "Șeful de echipaj (bosun) coordonează marinarii de punte, organizează întreținerea, manevrele și lucrările de marfă sub comanda ofițerului secund.",
     },
   },
   {
@@ -140,6 +166,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Motorman is an engine-room rating who assists the engineers with watchkeeping, maintenance and repairs.",
       ru: "Моторист — член машинной команды, помогает механикам нести вахту, обслуживать и ремонтировать механизмы.",
       ua: "Моторист — член машинної команди, допомагає механікам нести вахту, обслуговувати й ремонтувати механізми.",
+      pl: "Motorzysta to członek załogi maszynowej — pomaga mechanikom w wachcie, konserwacji i naprawach.",
+      ro: "Motoristul este un membru al echipajului de mașini — îi ajută pe ofițerii mecanici la cart, întreținere și reparații.",
     },
   },
   {
@@ -149,6 +177,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Oiler lubricates and monitors engine-room machinery and supports the engineers on watch.",
       ru: "Смазчик (oiler) смазывает и контролирует механизмы машинного отделения и помогает вахтенным механикам.",
       ua: "Мастильник (oiler) змащує й контролює механізми машинного відділення та допомагає вахтовим механікам.",
+      pl: "Smarownik (oiler) smaruje i kontroluje maszyny w maszynowni oraz wspiera mechaników na wachcie.",
+      ro: "Ungătorul (oiler) unge și monitorizează mașinile din compartimentul mașini și îi sprijină pe mecanicii de cart.",
     },
   },
   {
@@ -158,6 +188,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Ship's Cook prepares meals for the whole crew and manages provisions and galley hygiene on board.",
       ru: "Судовой повар (кок) готовит питание для всего экипажа, ведёт учёт провизии и следит за гигиеной камбуза.",
       ua: "Судновий кухар (кок) готує харчування для всього екіпажу, веде облік провізії та стежить за гігієною камбуза.",
+      pl: "Kucharz okrętowy przygotowuje posiłki dla całej załogi oraz zarządza prowiantem i higieną kambuza.",
+      ro: "Bucătarul de navă pregătește mesele pentru tot echipajul și gestionează proviziile și igiena bucătăriei.",
     },
   },
   {
@@ -167,6 +199,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Messman assists the cook and keeps the galley, mess rooms and accommodation clean and stocked.",
       ru: "Мессбой помогает повару и поддерживает чистоту и порядок на камбузе, в столовых и жилых помещениях.",
       ua: "Месбой допомагає кухарю та підтримує чистоту й порядок на камбузі, у їдальнях і житлових приміщеннях.",
+      pl: "Messman pomaga kucharzowi i utrzymuje czystość oraz zaopatrzenie kambuza, mes i pomieszczeń mieszkalnych.",
+      ro: "Ospătarul (messman) îl ajută pe bucătar și menține curățenia și aprovizionarea în bucătărie, careuri și cabine.",
     },
   },
   {
@@ -176,6 +210,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Deck Cadet is a trainee deck officer gaining the sea-time and skills needed to qualify as an officer.",
       ru: "Палубный кадет — стажёр палубной команды, набирает морской стаж и навыки для получения офицерского диплома.",
       ua: "Палубний кадет — стажист палубної команди, набирає морський стаж і навички для отримання офіцерського диплома.",
+      pl: "Praktykant pokładowy to przyszły oficer pokładowy zdobywający staż morski i umiejętności do uzyskania dyplomu oficerskiego.",
+      ro: "Cadetul de punte este un viitor ofițer de punte care acumulează stagiul de îmbarcare și competențele necesare pentru brevet.",
     },
   },
   {
@@ -185,6 +221,8 @@ export const RANK_LANDINGS: RankLanding[] = [
       en: "The Engine Cadet is a trainee engineer gaining the sea-time and skills needed to qualify as an engineer officer.",
       ru: "Машинный кадет — стажёр машинной команды, набирает морской стаж и навыки для получения диплома механика.",
       ua: "Машинний кадет — стажист машинної команди, набирає морський стаж і навички для отримання диплома механіка.",
+      pl: "Praktykant maszynowy to przyszły mechanik zdobywający staż morski i umiejętności do uzyskania dyplomu oficera mechanika.",
+      ro: "Cadetul mecanic este un viitor ofițer mecanic care acumulează stagiul de îmbarcare și competențele necesare pentru brevet.",
     },
   },
 ];

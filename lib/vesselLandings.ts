@@ -24,6 +24,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Tankers carry crude oil, refined products and chemicals in bulk; crews need tanker-specific safety and cargo certificates.",
       ru: "Танкеры перевозят наливом сырую нефть, нефтепродукты и химию; экипажу нужны танкерные сертификаты по безопасности и грузовым операциям.",
       ua: "Танкери перевозять наливом сиру нафту, нафтопродукти й хімію; екіпажу потрібні танкерні сертифікати з безпеки та вантажних операцій.",
+      pl: "Zbiornikowce przewożą luzem ropę, produkty naftowe i chemikalia; załoga potrzebuje specjalistycznych certyfikatów zbiornikowcowych.",
+      ro: "Tancurile transportă în vrac țiței, produse petroliere și substanțe chimice; echipajul are nevoie de certificate specifice de tanc.",
     },
   },
   {
@@ -34,6 +36,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Chemical tankers carry liquid chemicals and require a Chemical Tanker endorsement and strict cargo-handling procedures.",
       ru: "Химовозы перевозят жидкую химию; требуется допуск по химовозам (Chemical Tanker) и строгие процедуры работы с грузом.",
       ua: "Хімовози перевозять рідку хімію; потрібен допуск по хімовозах (Chemical Tanker) і суворі процедури роботи з вантажем.",
+      pl: "Chemikaliowce przewożą płynne chemikalia i wymagają uprawnień na chemikaliowce oraz ścisłych procedur obsługi ładunku.",
+      ro: "Tancurile chimice transportă substanțe chimice lichide și necesită atestat de tanc chimic și proceduri stricte de manipulare a mărfii.",
     },
   },
   {
@@ -44,6 +48,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Bulk carriers transport dry bulk cargo such as grain, coal and ore; a staple of the merchant fleet worldwide.",
       ru: "Балкеры перевозят навалочные грузы — зерно, уголь, руду; одна из самых массовых должностей в торговом флоте.",
       ua: "Балкери перевозять навалочні вантажі — зерно, вугілля, руду; одна з найпоширеніших робіт у торговому флоті.",
+      pl: "Masowce przewożą suche ładunki masowe, takie jak zboże, węgiel i rudy; podstawa światowej floty handlowej.",
+      ro: "Vrachierele transportă mărfuri vrac uscate precum cereale, cărbune și minereu; un pilon al flotei comerciale mondiale.",
     },
   },
   {
@@ -54,6 +60,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Container ships run fixed liner schedules carrying containerised cargo, from small feeders to ultra-large vessels.",
       ru: "Контейнеровозы работают на регулярных линиях и перевозят контейнеры — от небольших фидеров до сверхкрупных судов.",
       ua: "Контейнеровози працюють на регулярних лініях і перевозять контейнери — від невеликих фідерів до надвеликих суден.",
+      pl: "Kontenerowce kursują na stałych liniach żeglugowych, przewożąc kontenery — od małych dowozowców po jednostki ultra-wielkie.",
+      ro: "Portcontainerele operează pe linii regulate, transportând marfă în containere — de la feedere mici la nave ultra-mari.",
     },
   },
   {
@@ -64,6 +72,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "General cargo and multipurpose vessels carry mixed and project cargo; common on short-sea and coaster trades.",
       ru: "Суда генерального груза и многоцелевые (MPP) перевозят разнородный и проектный груз; часто в каботаже и на короткой линии.",
       ua: "Судна генерального вантажу та багатоцільові (MPP) перевозять різнорідний і проєктний вантаж; часто в каботажі та на короткій лінії.",
+      pl: "Drobnicowce i jednostki wielozadaniowe (MPP) przewożą ładunki drobnicowe i projektowe; częste w żegludze bliskiego zasięgu.",
+      ro: "Navele de marfă generală și multifuncționale (MPP) transportă marfă mixtă și de proiect; frecvente pe rutele de coastă și short-sea.",
     },
   },
   {
@@ -74,6 +84,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Gas carriers transport liquefied gas (LNG/LPG) and are among the highest-paying tankers, requiring gas-specific certificates.",
       ru: "Газовозы перевозят сжиженный газ (LNG/LPG) и относятся к самым высокооплачиваемым танкерам; нужны сертификаты по газовозам.",
       ua: "Газовози перевозять зріджений газ (LNG/LPG) і належать до найбільш високооплачуваних танкерів; потрібні сертифікати по газовозах.",
+      pl: "Gazowce przewożą skroplony gaz (LNG/LPG) i należą do najlepiej płatnych zbiornikowców; wymagają certyfikatów gazowcowych.",
+      ro: "Navele de gaz transportă gaz lichefiat (LNG/LPG) și sunt printre cele mai bine plătite tancuri; necesită certificate specifice de gaz.",
     },
   },
   {
@@ -84,6 +96,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Car carriers (PCTC/PCC) transport cars and rolling cargo on multiple decks via internal ramps.",
       ru: "Автовозы (PCTC/PCC) перевозят автомобили и накатный груз на нескольких палубах по внутренним рампам.",
       ua: "Автовози (PCTC/PCC) перевозять автомобілі та накатний вантаж на кількох палубах внутрішніми рампами.",
+      pl: "Samochodowce (PCTC/PCC) przewożą samochody i ładunki toczne na wielu pokładach za pomocą wewnętrznych ramp.",
+      ro: "Navele auto (PCTC/PCC) transportă automobile și marfă rulantă pe mai multe punți, prin rampe interne.",
     },
   },
   {
@@ -94,6 +108,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Offshore vessels (AHTS, PSV, OSV, wind SOV/CTV) support oil, gas and wind operations at sea, often on rotation and day rates.",
       ru: "Оффшорные суда (AHTS, PSV, OSV, ветровые SOV/CTV) обслуживают нефтегаз и ветропарки в море; часто вахтовая работа и суточные ставки.",
       ua: "Офшорні судна (AHTS, PSV, OSV, вітрові SOV/CTV) обслуговують нафтогаз і вітропарки в морі; часто вахтова робота та добові ставки.",
+      pl: "Jednostki offshore (AHTS, PSV, OSV, wiatrowe SOV/CTV) obsługują operacje naftowe, gazowe i wiatrowe na morzu, często w systemie rotacyjnym i stawkach dziennych.",
+      ro: "Navele offshore (AHTS, PSV, OSV, SOV/CTV pentru eoliene) susțin operațiuni petroliere, de gaz și eoliene pe mare, adesea în rotație și cu tarife zilnice.",
     },
   },
   {
@@ -104,6 +120,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Cruise ships carry passengers and employ large marine, hotel and entertainment crews on scheduled voyages.",
       ru: "Круизные суда перевозят пассажиров и нанимают большие судовые, гостиничные и развлекательные экипажи на регулярных рейсах.",
       ua: "Круїзні судна перевозять пасажирів і наймають великі суднові, готельні та розважальні екіпажі на регулярних рейсах.",
+      pl: "Wycieczkowce przewożą pasażerów i zatrudniają liczne załogi morskie, hotelowe i rozrywkowe na rejsach rozkładowych.",
+      ro: "Navele de croazieră transportă pasageri și angajează echipaje mari — de punte/mașini, hoteliere și de divertisment — pe voiaje programate.",
     },
   },
   {
@@ -114,6 +132,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Ferries and RoPax vessels carry passengers and vehicles on short fixed routes, often on equal-time rotations.",
       ru: "Паромы и суда RoPax перевозят пассажиров и транспорт на коротких регулярных линиях, часто по равномерным ротациям.",
       ua: "Пороми та судна RoPax перевозять пасажирів і транспорт на коротких регулярних лініях, часто за рівномірними ротаціями.",
+      pl: "Promy i jednostki RoPax przewożą pasażerów i pojazdy na krótkich stałych trasach, często w równym systemie rotacji.",
+      ro: "Feriboturile și navele RoPax transportă pasageri și vehicule pe rute scurte fixe, adesea în rotație egală.",
     },
   },
   {
@@ -124,6 +144,8 @@ export const VESSEL_LANDINGS: VesselLanding[] = [
       en: "Tugs assist berthing, towage and salvage operations in ports and at sea, usually on rotation contracts.",
       ru: "Буксиры выполняют швартовные операции, буксировку и спасательные работы в портах и в море, обычно по вахтовым контрактам.",
       ua: "Буксири виконують швартувальні операції, буксирування та рятувальні роботи в портах і в морі, зазвичай за вахтовими контрактами.",
+      pl: "Holowniki wspomagają cumowanie, holowanie i akcje ratownicze w portach i na morzu, zwykle na kontraktach rotacyjnych.",
+      ro: "Remorcherele asistă la acostare, remorcaj și operațiuni de salvare în porturi și pe mare, de obicei pe contracte în rotație.",
     },
   },
 ];
