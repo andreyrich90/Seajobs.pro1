@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { slugId } from "@/lib/slug";
+import { monthlyEquivalent } from "@/lib/salary";
 import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
 import type { Lang } from "@/lib/i18n";
 import {
@@ -92,10 +93,15 @@ export default async function RankLandingPage(
   const vacancies = await fetchRankVacancies(landing.rank);
 
   // ── Live stats woven into the intro ──
-  const monthly = vacancies.filter((v) => v.salary_period !== "day" && (v.salary_from || v.salary_to));
-  const lows = monthly.map((v) => v.salary_from ?? v.salary_to!).filter(Boolean) as number[];
-  const highs = monthly.map((v) => v.salary_to ?? v.salary_from!).filter(Boolean) as number[];
-  const curr = monthly[0]?.currency ?? "USD";
+  // Day rates are converted to a monthly equivalent (×30) so they're comparable
+  // with monthly salaries in the range. Compare within one (dominant) currency.
+  const withSal = vacancies.filter((v) => v.salary_from || v.salary_to);
+  const curTally = new Map<string, number>();
+  for (const v of withSal) curTally.set(v.currency, (curTally.get(v.currency) ?? 0) + 1);
+  const curr = [...curTally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "USD";
+  const inCur = withSal.filter((v) => v.currency === curr);
+  const lows = inCur.map((v) => monthlyEquivalent(v.salary_from ?? v.salary_to!, v.salary_period));
+  const highs = inCur.map((v) => monthlyEquivalent(v.salary_to ?? v.salary_from!, v.salary_period));
   const salaryMin = lows.length ? Math.min(...lows) : 0;
   const salaryMax = highs.length ? Math.max(...highs) : 0;
 
