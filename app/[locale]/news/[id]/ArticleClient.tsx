@@ -347,7 +347,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
               <button
                 type="submit"
                 disabled={submitting || !commentName.trim() || !commentText.trim()}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 border border-brass/30 px-5 py-2.5 text-sm font-semibold text-brass2 transition hover:border-brass/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#0a1f33] to-[#0e2a45] border border-brass/30 px-5 py-2.5 text-sm font-semibold text-brass2 transition hover:border-brass/60 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={14} />
                 {submitting ? t.news_posting : t.news_post_comment}

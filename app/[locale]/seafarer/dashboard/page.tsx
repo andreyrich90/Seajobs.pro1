@@ -143,7 +143,7 @@ export default function DashboardPage() {
       >
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-teal shrink-0">
-            <Sparkles size={20} className="text-deep" />
+            <Sparkles size={20} className="text-[#061523]" />
           </div>
           <div>
             <p className="font-semibold text-white">{t.sp_autofill_title}</p>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
       >
         <div className="flex items-center gap-3">
           <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shrink-0">
-            <Search size={20} className="text-deep" />
+            <Search size={20} className="text-[#061523]" />
           </div>
           <div>
             <p className="font-semibold text-white">{t.dash_browse_jobs}</p>
@@ -298,7 +298,7 @@ export default function DashboardPage() {
             className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
               stats.hasJobAlert
                 ? "border border-coral/30 bg-coral/10 text-coral hover:bg-coral/20"
-                : "bg-gradient-to-br from-brass to-brass2 text-deep hover:-translate-y-0.5"
+                : "bg-gradient-to-br from-brass to-brass2 text-[#061523] hover:-translate-y-0.5"
             }`}
           >
             {alertToggling ? "…" : stats.hasJobAlert ? t.dash_disable : t.dash_enable}

@@ -6,15 +6,17 @@ import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, LogIn, Briefcase, MessageSquare,
-  Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus,
+  Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
 } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
+import { useTheme } from "@/components/ThemeProvider";
 import { supabase } from "@/lib/supabase/client";
 import NotificationBell from "@/components/NotificationBell";
 
 export default function Header() {
   const { lang, setLang } = useLang();
+  const { theme, toggle: toggleTheme } = useTheme();
   const pathname = usePathname();
   const [langOpen, setLangOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,7 +52,7 @@ export default function Header() {
   const authButton = dashboardHref ? (
     <Link
       href={dashboardHref}
-      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
       <LayoutDashboard size={16} />
       <span className="hidden lg:inline">Cabinet</span>
@@ -58,7 +60,7 @@ export default function Header() {
   ) : (
     <NextLink
       href="/auth/login"
-      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
+      className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
       <LogIn size={16} />
       <span className="hidden lg:inline">{t.login}</span>
@@ -71,7 +73,7 @@ export default function Header() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg md:h-10 md:w-10">
-            <Anchor size={20} className="text-deep" strokeWidth={2.4} />
+            <Anchor size={20} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-xl font-bold text-white md:text-2xl">
             SeaJobs<span className="text-brass2">.pro</span>
@@ -90,6 +92,15 @@ export default function Header() {
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            className="flex items-center rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10"
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
           {/* Language picker */}
           <div className="relative">
             <button
@@ -180,7 +191,7 @@ export default function Header() {
                 </Link>
                 <Link
                   href={dashboardHref}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                 >
                   <LayoutDashboard size={16} /> Cabinet
                 </Link>
@@ -189,7 +200,7 @@ export default function Header() {
               <>
                 <NextLink
                   href="/auth/login"
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                 >
                   <LogIn size={16} /> {t.login}
                 </NextLink>

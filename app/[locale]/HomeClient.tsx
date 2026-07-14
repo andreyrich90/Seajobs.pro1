@@ -72,6 +72,7 @@ export default function HomeClient({
   }
 
   const dbVacancies = initialVacancies;
+  const heroCards = dbVacancies.slice(0, 3);
   const PAGE_SIZE = 30;
   const jobsRef = useRef<HTMLDivElement>(null);
 
@@ -140,38 +141,40 @@ export default function HomeClient({
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_70%_-10%,#0e2a45,#0a1f33_60%)]" />
-        <div className="relative mx-auto max-w-7xl px-5 py-20 md:py-28">
-          <div className="max-w-3xl">
+        <div className="hero-surface absolute inset-0" />
+        <div className="absolute -right-32 top-8 hidden h-96 w-96 rounded-full bg-brass/10 blur-3xl lg:block" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+          {/* Left column — copy + search */}
+          <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brass2">
               <Compass size={14} /> {t.hero_kicker}
             </div>
-            <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-white md:text-6xl">
+            <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-foam md:text-6xl">
               {t.hero_title}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
 
-            <div className="mt-8 flex max-w-2xl flex-wrap gap-2.5 rounded-2xl bg-white p-2 shadow-2xl">
+            <div className="mt-8 flex max-w-xl flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
-                <Search size={20} className="text-navy" />
+                <Search size={20} className="text-[#0a1f33]" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); runSearch(); } }}
                   placeholder={t.hero_search}
-                  className="w-full bg-transparent py-3 text-base text-navy outline-none"
+                  className="w-full bg-transparent py-3 text-base text-[#0a1f33] outline-none placeholder:text-[#0a1f33]/45"
                 />
               </div>
               <Link
                 href={query.trim() ? `/jobs?q=${encodeURIComponent(query.trim())}` : "/jobs"}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-navy to-navy2 px-6 py-3 text-base font-bold text-white transition hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-base font-bold text-[#0a1f33] transition hover:-translate-y-0.5"
               >
                 {t.hero_cta} <ArrowRight size={17} />
               </Link>
             </div>
 
             {/* Fleet quick links */}
-            <div className="mt-4 flex max-w-2xl flex-wrap items-center gap-2">
+            <div className="mt-4 flex max-w-xl flex-wrap items-center gap-2">
               {FLEETS.map((f) => (
                 <Link
                   key={f.key}
@@ -183,6 +186,45 @@ export default function HomeClient({
               ))}
             </div>
           </div>
+
+          {/* Right column — floating live vacancy cards */}
+          {heroCards.length > 0 && (
+            <div className="relative hidden lg:block">
+              <div className="flex flex-col gap-4">
+                {heroCards.map((v, i) => (
+                  <Link
+                    key={v.id}
+                    href={`/jobs/${slugId(v.title, v.id)}`}
+                    style={{ marginLeft: i === 1 ? "2.5rem" : i === 2 ? "1.25rem" : 0 }}
+                    className="group block rounded-2xl border border-white/10 bg-card px-5 py-4 shadow-xl backdrop-blur transition hover:-translate-y-0.5 hover:border-brass/40"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="truncate font-semibold text-sm text-white">{v.title}</p>
+                          {v.companies?.is_verified && <ShieldCheck size={13} className="shrink-0 text-teal" />}
+                        </div>
+                        {v.companies?.name && (
+                          <p className="mt-1 flex items-center gap-1 text-xs text-mist">
+                            <Building2 size={11} /> {v.companies.name}
+                          </p>
+                        )}
+                      </div>
+                      {(v.salary_from || v.salary_to) && (
+                        <span className="shrink-0 rounded-lg bg-brass/10 px-2 py-1 text-xs font-bold text-brass2">
+                          {v.salary_from ? v.salary_from.toLocaleString() : v.salary_to!.toLocaleString()} {v.currency}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                      {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-[11px] font-semibold text-brass2">{v.rank}</span>}
+                      {v.vessel_type && <span className="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 text-[11px] font-semibold text-teal">{v.vessel_type}</span>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

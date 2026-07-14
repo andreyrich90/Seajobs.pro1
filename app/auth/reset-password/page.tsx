@@ -73,7 +73,7 @@ function ResetPasswordContent() {
       <header className="flex items-center justify-between border-b border-white/10 bg-deep/80 backdrop-blur-md px-5 py-3">
         <Link href="/" className="inline-flex items-center gap-2.5">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
-            <Anchor size={22} className="text-deep" strokeWidth={2.4} />
+            <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-2xl font-bold text-white">
             SeaJobs<span className="text-brass2">.pro</span>
@@ -131,7 +131,7 @@ function ResetPasswordContent() {
                 <p className="mt-2 text-sm text-foam/80">{t.rp_success_body}</p>
                 <Link
                   href="/auth/login"
-                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                 >
                   {t.rp_go_login}
                 </Link>
@@ -194,7 +194,7 @@ function ResetPasswordContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                    className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
                   >
                     {loading ? t.rp_updating : t.rp_submit}
                   </button>

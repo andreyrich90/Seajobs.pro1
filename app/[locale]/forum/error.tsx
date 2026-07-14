@@ -27,7 +27,7 @@ export default function ForumError({
         <div className="flex justify-center gap-3">
           <button
             onClick={() => reset()}
-            className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep"
+            className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523]"
           >
             Try again
           </button>

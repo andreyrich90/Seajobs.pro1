@@ -189,7 +189,7 @@ export default function AuthCallbackPage() {
       <div className="min-h-screen bg-deep flex items-center justify-center">
         <div className="text-center">
           <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2">
-            <Anchor size={24} className="text-deep" />
+            <Anchor size={24} className="text-[#061523]" />
           </div>
           <p className="text-mist">Signing you in...</p>
         </div>
@@ -207,7 +207,7 @@ export default function AuthCallbackPage() {
           </div>
           <Link
             href="/auth/login"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
           >
             Back to sign in
           </Link>
@@ -222,7 +222,7 @@ export default function AuthCallbackPage() {
         <header className="border-b border-white/10 bg-deep/80 backdrop-blur-md px-5 py-3">
           <Link href="/" className="inline-flex items-center gap-2.5">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
-              <Anchor size={22} className="text-deep" strokeWidth={2.4} />
+              <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
             </div>
             <span className="font-display text-2xl font-bold text-white">
               SeaJobs<span className="text-brass2">.pro</span>

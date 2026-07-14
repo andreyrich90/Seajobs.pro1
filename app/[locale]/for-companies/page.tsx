@@ -89,7 +89,7 @@ export default function ForCompaniesPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <NextLink
                 href="/auth/register?role=company"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3.5 text-base font-bold text-[#061523] transition hover:-translate-y-0.5 shadow-lg"
               >
                 {t.fc_cta_post} <ArrowRight size={17} />
               </NextLink>
@@ -182,7 +182,7 @@ export default function ForCompaniesPage() {
           <div className="mt-10 text-center">
             <NextLink
               href="/auth/register?role=company"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-7 py-3.5 text-base font-bold text-deep transition hover:-translate-y-0.5 shadow-lg"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-7 py-3.5 text-base font-bold text-[#061523] transition hover:-translate-y-0.5 shadow-lg"
             >
               {t.fc_cta_create} <ArrowRight size={16} />
             </NextLink>
@@ -225,7 +225,7 @@ export default function ForCompaniesPage() {
                 placeholder={`${t.fc_email_ph} *`} required
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/50" />
               <button type="submit" disabled={sending || !email.trim() || !company.trim()}
-                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0">
+                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0">
                 <Send size={15} />
                 {sending ? t.fc_sending : t.fc_send_btn}
               </button>

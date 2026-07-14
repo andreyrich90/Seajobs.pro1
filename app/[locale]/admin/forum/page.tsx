@@ -171,7 +171,7 @@ export default function AdminForumPage() {
             className="min-w-[220px] flex-1 rounded-xl border border-white/10 bg-navy2 px-4 py-2.5 text-sm text-white outline-none focus:border-brass"
           />
           <button type="submit" disabled={savingCat || !newCat.trim()}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50">
+            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50">
             <Plus size={15} /> {savingCat ? "Adding…" : "Add section"}
           </button>
         </form>

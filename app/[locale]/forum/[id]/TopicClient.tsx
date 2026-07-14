@@ -140,7 +140,7 @@ function PostCard({
             <button
               onClick={save}
               disabled={saving || !draft.trim()}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50"
             >
               <Check size={13} /> {saving ? "Saving…" : "Save"}
             </button>
@@ -344,7 +344,7 @@ export default function TopicClient({
                 <button
                   onClick={saveTopicEdit}
                   disabled={savingTopic || !topicTitleDraft.trim() || !topicContentDraft.trim()}
-                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50"
                 >
                   <Check size={14} /> {savingTopic ? "Saving…" : "Save changes"}
                 </button>
@@ -468,7 +468,7 @@ export default function TopicClient({
                   <button
                     type="submit"
                     disabled={submitting || !replyText.trim()}
-                    className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                    className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
                   >
                     {submitting ? "Posting..." : "Post Reply"}
                   </button>
@@ -480,7 +480,7 @@ export default function TopicClient({
               <p className="text-sm text-mist">Log in to join the conversation.</p>
               <NextLink
                 href="/auth/login"
-                className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
               >
                 <LogIn size={15} /> Login
               </NextLink>

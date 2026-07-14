@@ -2,12 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme palette (RGB channels for Tailwind's <alpha-value>) ───────────────
+   :root is the dark theme (default). [data-theme="light"] overrides flip the
+   whole app; the attribute is set on <html> before paint (see layout.tsx). */
+:root {
+  --c-navy: 10 31 51;      /* page background */
+  --c-navy2: 14 42 69;     /* raised surface */
+  --c-deep: 6 21 35;       /* darkest background */
+  --c-card: 15 41 66;      /* card surface */
+  --c-brass: 201 162 39;   /* accent */
+  --c-brass2: 227 192 74;  /* accent light */
+  --c-foam: 232 240 242;   /* primary text */
+  --c-mist: 138 160 176;   /* secondary text */
+  --c-teal: 45 212 191;    /* vessel-type label */
+  --c-coral: 232 116 79;   /* hot badge / error */
+}
+
+:root[data-theme="light"] {
+  --c-navy: 244 247 250;   /* page background → soft off-white */
+  --c-navy2: 235 241 246;  /* raised surface */
+  --c-deep: 224 232 238;   /* darkest background → light grey */
+  --c-card: 255 255 255;   /* card surface → white */
+  --c-brass: 166 128 20;   /* accent (darker for contrast on light) */
+  --c-brass2: 143 108 14;  /* accent (readable link/label on light) */
+  --c-foam: 13 32 51;      /* primary text → dark navy */
+  --c-mist: 88 105 120;    /* secondary text → medium grey */
+  --c-teal: 13 138 124;    /* vessel-type label (darker) */
+  --c-coral: 205 82 42;    /* hot badge / error (darker) */
+}
+
 body {
-  background-color: #0a1f33;
-  color: #e8f0f2;
+  background-color: rgb(var(--c-navy));
+  color: rgb(var(--c-foam));
   font-family: var(--font-archivo), sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 * {
   box-sizing: border-box;
 }
+
+/* ── Hero backdrop (theme-aware) ─────────────────────────────────────────── */
+.hero-surface {
+  background: radial-gradient(1200px 500px at 72% -10%, #103155, #0a1f33 60%);
+}
+:root[data-theme="light"] .hero-surface {
+  background: radial-gradient(1200px 520px at 72% -10%, #dfe9f2, #f4f7fa 62%);
+}
+
+/* ── Light-mode remaps for literal white/ink utilities ───────────────────────
+   These utilities are hardcoded across the app and don't flip on their own.
+   The attribute+class selector outranks Tailwind's plain utility, so the
+   remap wins in light mode without !important. Dark mode is untouched. */
+:root[data-theme="light"] .text-white { color: #0d2033; }
+:root[data-theme="light"] .text-white\/85 { color: rgba(13, 32, 51, 0.85); }
+:root[data-theme="light"] .text-white\/50 { color: rgba(13, 32, 51, 0.5); }
+:root[data-theme="light"] .text-white\/10 { color: rgba(13, 32, 51, 0.1); }
+
+:root[data-theme="light"] .border-white\/5,
+:root[data-theme="light"] .border-white\/10,
+:root[data-theme="light"] .border-white\/15,
+:root[data-theme="light"] .border-white\/20,
+:root[data-theme="light"] .border-white\/25,
+:root[data-theme="light"] .border-white\/30 { border-color: rgba(13, 32, 51, 0.12); }
+
+:root[data-theme="light"] .bg-white\/5 { background-color: rgba(13, 32, 51, 0.035); }
+:root[data-theme="light"] .bg-white\/10 { background-color: rgba(13, 32, 51, 0.06); }
+:root[data-theme="light"] .bg-white\/20 { background-color: rgba(13, 32, 51, 0.09); }
+:root[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(13, 32, 51, 0.05); }
+:root[data-theme="light"] .hover\:bg-white\/10:hover { background-color: rgba(13, 32, 51, 0.08); }
+
+:root[data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+:root[data-theme="light"] .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(13, 32, 51, 0.1); }

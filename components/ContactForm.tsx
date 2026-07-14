@@ -131,7 +131,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
         <button
           type="submit"
           disabled={sending || !content.trim()}
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
           <Send size={15} />
           {sending ? t.cf_sending : t.cf_send}

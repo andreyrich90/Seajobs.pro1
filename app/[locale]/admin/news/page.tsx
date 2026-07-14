@@ -202,7 +202,7 @@ export default function AdminNewsPage() {
               <Languages size={16} /> {translating ? "Translating…" : "Translate existing"}
             </button>
             <button onClick={openAdd}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5">
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5">
               <Plus size={16} /> New Article
             </button>
           </div>
@@ -330,7 +330,7 @@ export default function AdminNewsPage() {
 
             <div className="flex gap-3">
               <button type="submit" disabled={submitting}
-                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50">
+                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50">
                 {submitting ? "Saving..." : editingId ? "Update" : "Create Article"}
               </button>
               <button type="button" onClick={closeForm}

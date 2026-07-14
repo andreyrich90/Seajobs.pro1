@@ -67,7 +67,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-flex items-center gap-2.5">
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 shadow-lg">
-                <Anchor size={18} className="text-deep" strokeWidth={2.4} />
+                <Anchor size={18} className="text-[#061523]" strokeWidth={2.4} />
               </div>
               <span className="font-display text-xl font-bold text-white">
                 SeaJobs<span className="text-brass2">.pro</span>

@@ -25,7 +25,7 @@ export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
     <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-brass hover:shadow-2xl lg:flex-row lg:items-center lg:gap-6">
       {/* Left: logo + main info */}
       <div className="flex items-center gap-4 lg:w-[300px] lg:shrink-0">
-        <div className="grid h-13 w-13 min-h-[52px] min-w-[52px] place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 text-base font-extrabold text-deep">
+        <div className="grid h-13 w-13 min-h-[52px] min-w-[52px] place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2 text-base font-extrabold text-[#061523]">
           {job.logo}
         </div>
         <div className="min-w-0">
