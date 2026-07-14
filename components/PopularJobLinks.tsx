@@ -2,26 +2,19 @@
 
 import { Link } from "@/i18n/navigation";
 import { useLang } from "@/components/LangProvider";
+import { RANK_LANDINGS, rankName } from "@/lib/rankLandings";
 
-// Internal-linking block to the rank/vessel filter landing pages. These are the
-// same URLs the sitemap and jobs/page.tsx generateMetadata already treat as SEO
-// landing pages, so every page that renders this passes link equity to them and
-// helps Google index the "Discovered / Crawled - currently not indexed" URLs.
-// Values MUST match the taxonomy in lib/ranks.ts / JobsClient exactly.
-const RANKS: { label: string; rank: string }[] = [
-  { label: "AB", rank: "AB (Able Seaman)" },
-  { label: "OS", rank: "OS (Ordinary Seaman)" },
-  { label: "Bosun", rank: "Bosun" },
-  { label: "Motorman", rank: "Motorman" },
-  { label: "Cook", rank: "Chief Cook / Cook" },
-  { label: "Master", rank: "Master (Captain)" },
-  { label: "Chief Officer", rank: "Chief Officer (Chief Mate)" },
-  { label: "2nd Officer", rank: "2nd Officer" },
-  { label: "Chief Engineer", rank: "Chief Engineer" },
-  { label: "2nd Engineer", rank: "2nd Engineer" },
-  { label: "ETO", rank: "ETO (Electro-Technical Officer)" },
-  { label: "Deck Cadet", rank: "Deck Cadet" },
+// Internal-linking block to the SEO landing pages. Ranks link to the dedicated
+// /jobs/rank/<slug> pages (unique title/H1/intro); vessels stay on the /jobs
+// query-param filter for now. Every page that renders this passes link equity
+// to the landings and helps Google index them.
+const RANK_CHIP_SLUGS = [
+  "master", "chief-officer", "2nd-officer", "chief-engineer", "2nd-engineer",
+  "3rd-engineer", "eto", "able-seaman", "ordinary-seaman", "bosun", "motorman", "cook",
 ];
+const RANK_CHIPS = RANK_CHIP_SLUGS
+  .map((s) => RANK_LANDINGS.find((r) => r.slug === s))
+  .filter((r): r is (typeof RANK_LANDINGS)[number] => Boolean(r));
 
 const VESSELS: { label: string; vessel: string }[] = [
   { label: "General Cargo", vessel: "General Cargo" },
@@ -44,13 +37,13 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
   const { lang } = useLang();
   const h = HEADING[lang] ?? HEADING.en;
 
-  const rankLinks = RANKS.map((r) => (
+  const rankLinks = RANK_CHIPS.map((r) => (
     <Link
-      key={r.rank}
-      href={{ pathname: "/jobs", query: { rank: r.rank } }}
+      key={r.slug}
+      href={`/jobs/rank/${r.slug}`}
       className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
     >
-      {r.label}
+      {rankName(r, lang)}
     </Link>
   ));
   const vesselLinks = VESSELS.map((v) => (
