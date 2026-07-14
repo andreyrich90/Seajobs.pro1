@@ -7,6 +7,8 @@ import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Bu
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import FaqSection from "@/components/FaqSection";
+import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
 import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
@@ -357,6 +359,9 @@ export default function HomeClient({
           <p className="text-sm text-mist leading-relaxed">{t.home_seo_p2}</p>
         </div>
       </section>
+
+      {/* FAQ */}
+      <FaqSection items={FAQ_SEAFARERS} />
 
       {/* Contact / Suggestions */}
       <section className="mx-auto max-w-7xl px-5 py-12">

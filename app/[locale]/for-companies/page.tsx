@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FaqSection from "@/components/FaqSection";
+import { FAQ_COMPANIES } from "@/lib/faq";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
@@ -198,6 +200,9 @@ export default function ForCompaniesPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      <FaqSection items={FAQ_COMPANIES} />
 
       {/* ── CONTACT FORM ── */}
       <section id="contact" className="bg-navy border-t border-white/10">
