@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { useLang } from "@/components/LangProvider";
 import { RANK_LANDINGS, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName } from "@/lib/vesselLandings";
+import { COUNTRY_LANDINGS, countryName } from "@/lib/countryLandings";
 
 // Internal-linking block to the SEO landing pages. Ranks link to the dedicated
 // /jobs/rank/<slug> pages (unique title/H1/intro); vessels stay on the /jobs
@@ -25,12 +26,12 @@ const VESSEL_CHIPS = VESSEL_CHIP_SLUGS
   .map((s) => VESSEL_LANDINGS.find((v) => v.slug === s))
   .filter((v): v is (typeof VESSEL_LANDINGS)[number] => Boolean(v));
 
-const HEADING: Record<string, { jobs: string; vessels: string }> = {
-  en: { jobs: "Jobs by rank", vessels: "Jobs by vessel type" },
-  ru: { jobs: "Вакансии по должности", vessels: "Вакансии по типу судна" },
-  ua: { jobs: "Вакансії за посадою", vessels: "Вакансії за типом судна" },
-  pl: { jobs: "Praca według stanowiska", vessels: "Praca według typu statku" },
-  ro: { jobs: "Joburi după rang", vessels: "Joburi după tipul navei" },
+const HEADING: Record<string, { jobs: string; vessels: string; countries: string }> = {
+  en: { jobs: "Jobs by rank", vessels: "Jobs by vessel type", countries: "Jobs by country" },
+  ru: { jobs: "Вакансии по должности", vessels: "Вакансии по типу судна", countries: "Вакансии по странам" },
+  ua: { jobs: "Вакансії за посадою", vessels: "Вакансії за типом судна", countries: "Вакансії за країнами" },
+  pl: { jobs: "Praca według stanowiska", vessels: "Praca według typu statku", countries: "Praca według kraju" },
+  ro: { jobs: "Joburi după rang", vessels: "Joburi după tipul navei", countries: "Joburi după țară" },
 };
 
 export default function PopularJobLinks({ variant = "section" }: { variant?: "section" | "footer" }) {
@@ -55,6 +56,15 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
       {vesselName(v, lang)}
     </Link>
   ));
+  const countryLinks = COUNTRY_LANDINGS.map((c) => (
+    <Link
+      key={c.slug}
+      href={`/jobs/country/${c.slug}`}
+      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
+    >
+      {countryName(c, lang)}
+    </Link>
+  ));
 
   if (variant === "footer") {
     return (
@@ -62,7 +72,9 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
         <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-mist">{h.jobs}</h4>
         <div className="mb-5 flex flex-wrap gap-2">{rankLinks}</div>
         <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-mist">{h.vessels}</h4>
-        <div className="flex flex-wrap gap-2">{vesselLinks}</div>
+        <div className="mb-5 flex flex-wrap gap-2">{vesselLinks}</div>
+        <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-mist">{h.countries}</h4>
+        <div className="flex flex-wrap gap-2">{countryLinks}</div>
       </div>
     );
   }
@@ -72,7 +84,9 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
       <h3 className="mb-3 font-display text-base font-semibold text-white">{h.jobs}</h3>
       <div className="mb-5 flex flex-wrap gap-2">{rankLinks}</div>
       <h3 className="mb-3 font-display text-base font-semibold text-white">{h.vessels}</h3>
-      <div className="flex flex-wrap gap-2">{vesselLinks}</div>
+      <div className="mb-5 flex flex-wrap gap-2">{vesselLinks}</div>
+      <h3 className="mb-3 font-display text-base font-semibold text-white">{h.countries}</h3>
+      <div className="flex flex-wrap gap-2">{countryLinks}</div>
     </section>
   );
 }
