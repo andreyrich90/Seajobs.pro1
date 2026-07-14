@@ -222,6 +222,33 @@ export default function Header() {
           <div className="ml-auto flex items-center gap-2">
             {dashboardHref && <NotificationBell />}
 
+            {/* Language — mobile only (desktop has it in tier 1) */}
+            <div className="relative md:hidden">
+              <button
+                onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
+                aria-label="Change language"
+                aria-expanded={langOpen}
+                className="flex items-center gap-1 rounded-lg p-2 text-foam transition hover:bg-white/10"
+              >
+                <Globe size={18} />
+                <span className="text-xs font-bold">{current.flag}</span>
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-12 z-50 min-w-[150px] rounded-xl border border-white/10 bg-navy2 p-1.5 shadow-2xl">
+                  {LANGS.map((l) => (
+                    <div key={l.code}
+                      onClick={() => { setLang(l.code); setLangOpen(false); }}
+                      className={`flex cursor-pointer items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold text-foam transition hover:bg-white/5 ${
+                        lang === l.code ? "bg-brass/15" : ""
+                      }`}
+                    >
+                      <span className="text-lg">{l.flag}</span> {l.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Admin — md+ */}
             {isAdmin && (
               <div className="hidden md:block">
@@ -281,20 +308,6 @@ export default function Header() {
                 <Briefcase size={18} /> {t.footer_for_companies}
               </Link>
             </nav>
-
-            {/* Language row */}
-            <div className="mt-3 flex flex-wrap gap-1.5 border-t border-white/10 pt-3">
-              {LANGS.map((l) => (
-                <button key={l.code}
-                  onClick={() => setLang(l.code)}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-foam transition hover:bg-white/5 ${
-                    lang === l.code ? "bg-brass/15" : ""
-                  }`}
-                >
-                  <span className="text-base">{l.flag}</span> {l.label}
-                </button>
-              ))}
-            </div>
 
             <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-3">
               {isAdmin && (
