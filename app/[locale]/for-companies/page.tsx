@@ -12,9 +12,18 @@ import Footer from "@/components/Footer";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
+const FC_STATS: Record<string, { thousands: string; visitors: string }> = {
+  en: { thousands: "Thousands", visitors: "Visit the portal daily" },
+  ru: { thousands: "Тысячи", visitors: "Посещают портал каждый день" },
+  ua: { thousands: "Тисячі", visitors: "Щодня відвідують портал" },
+  pl: { thousands: "Tysiące", visitors: "Codziennie odwiedzają portal" },
+  ro: { thousands: "Mii", visitors: "Vizitează portalul zilnic" },
+};
+
 export default function ForCompaniesPage() {
   const { lang } = useLang();
   const t = T[lang];
+  const fc = FC_STATS[lang] ?? FC_STATS.en;
 
   const [name, setName] = useState("");
   const [company, setCompany] = useState("");
@@ -118,10 +127,10 @@ export default function ForCompaniesPage() {
         <div className="mx-auto max-w-7xl px-5 py-10">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {[
-              { n: "12 000+", l: t.fc_stat_1 },
-              { n: "40+",     l: t.fc_stat_2 },
-              { n: "2 min",   l: t.fc_stat_3 },
-              { n: t.fc_stat_4, l: "" },
+              { n: fc.thousands, l: t.fc_stat_1 },
+              { n: fc.thousands, l: fc.visitors },
+              { n: "40+",        l: t.fc_stat_2 },
+              { n: "2 min",      l: t.fc_stat_3 },
             ].map((s, i) => (
               <div key={i} className="min-w-0 text-center">
                 <div className="font-display text-2xl font-bold leading-tight text-brass2 break-words sm:text-3xl">{s.n}</div>
