@@ -30,7 +30,7 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <a
           href="/jobs"
-          className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-semibold text-deep transition hover:-translate-y-0.5"
+          className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-semibold text-[#061523] transition hover:-translate-y-0.5"
         >
           Browse jobs / Вакансии
         </a>

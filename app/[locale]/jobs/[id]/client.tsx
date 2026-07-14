@@ -480,7 +480,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                   <div className="flex flex-wrap gap-3">
                     <NextLink
                       href={loginHref}
-                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                     >
                       <Send size={16} /> Sign in to Apply
                     </NextLink>
@@ -524,7 +524,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                   )}
                   <button
                     onClick={() => setShowModal(true)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                   >
                     <Send size={16} /> Apply Now
                   </button>
@@ -645,7 +645,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                     type="button"
                     onClick={() => cvInputRef.current?.click()}
                     disabled={cvUploading}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
                   >
                     <Upload size={15} /> {cvUploading ? "Reading your CV..." : "Upload CV (PDF / DOCX)"}
                   </button>
@@ -693,7 +693,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                   <button
                     onClick={handleApply}
                     disabled={applying}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
                   >
                     <Send size={15} />
                     {applying ? "Submitting..." : "Submit Application"}

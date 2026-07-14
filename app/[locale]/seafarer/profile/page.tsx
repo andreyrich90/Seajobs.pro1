@@ -435,7 +435,7 @@ export default function ProfilePage() {
       <div className="mb-6 rounded-2xl border border-brass/30 bg-brass/5 p-6">
         <div className="flex items-start gap-4">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2">
-            <Sparkles size={22} className="text-deep" />
+            <Sparkles size={22} className="text-[#061523]" />
           </div>
           <div className="flex-1">
             <h2 className="font-display text-lg font-semibold text-white">{t.sp_autofill_title}</h2>
@@ -444,7 +444,7 @@ export default function ProfilePage() {
               type="button"
               onClick={() => cvInputRef.current?.click()}
               disabled={parsingCv || saving}
-              className="mt-4 flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+              className="mt-4 flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
             >
               <FileText size={16} />
               {parsingCv ? t.sp_reading_cv : t.sp_upload_cv}
@@ -469,7 +469,7 @@ export default function ProfilePage() {
         <div className="mb-6 rounded-2xl border border-teal/30 bg-teal/5 p-6">
           <div className="flex items-start gap-4">
             <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal to-teal/60">
-              <Link2 size={20} className="text-deep" />
+              <Link2 size={20} className="text-[#061523]" />
             </div>
             <div className="flex-1">
               <h2 className="font-display text-lg font-semibold text-white">{t.ref_title}</h2>
@@ -482,7 +482,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={copyReferralLink}
-                  className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                  className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                 >
                   {copied ? <Check size={16} /> : <Copy size={16} />}
                   {copied ? t.ref_copied : t.ref_copy}
@@ -833,7 +833,7 @@ export default function ProfilePage() {
 
         <button
           type="submit" disabled={saving || uploading}
-          className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+          className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
           {saving ? t.sp_saving : t.sp_save}
         </button>

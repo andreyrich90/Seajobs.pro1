@@ -149,7 +149,7 @@ export default function ChatPanel({
           onClick={send}
           disabled={sending || !input.trim()}
           aria-label="Send"
-          className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-xl bg-brass text-deep transition hover:bg-brass2 disabled:opacity-40"
+          className="grid h-[42px] w-[42px] shrink-0 place-items-center rounded-xl bg-brass text-[#061523] transition hover:bg-brass2 disabled:opacity-40"
         >
           {sending ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
         </button>

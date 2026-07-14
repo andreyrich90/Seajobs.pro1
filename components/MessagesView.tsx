@@ -173,7 +173,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
                     }`}
                   >
                     {c.isTeam ? (
-                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-deep">
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-[#061523]">
                         <Anchor size={20} />
                       </div>
                     ) : c.avatar ? (
@@ -193,7 +193,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
                       </p>
                     </div>
                     {unread && (
-                      <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-brass px-1.5 text-[11px] font-bold text-deep">
+                      <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-brass px-1.5 text-[11px] font-bold text-[#061523]">
                         {c.unread}
                       </span>
                     )}
@@ -212,7 +212,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
                     <ArrowLeft size={18} />
                   </button>
                   {selectedConvo.isTeam ? (
-                    <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-deep">
+                    <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brass to-brass2 text-[#061523]">
                       <Anchor size={16} />
                     </div>
                   ) : selectedConvo.avatar ? (

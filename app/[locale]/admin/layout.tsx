@@ -60,7 +60,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <aside className="flex h-full w-64 flex-col bg-deep border-r border-white/10">
       <div className="px-5 py-4 border-b border-white/10 flex items-center gap-3">
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brass to-brass2">
-          <ShieldCheck size={18} className="text-deep" />
+          <ShieldCheck size={18} className="text-[#061523]" />
         </div>
         <div>
           <p className="font-display text-sm font-bold text-white">Admin Panel</p>

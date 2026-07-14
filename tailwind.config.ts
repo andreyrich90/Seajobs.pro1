@@ -8,16 +8,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: "#0a1f33",
-        navy2: "#0e2a45",
-        deep: "#061523",
-        card: "#0f2942",
-        brass: "#c9a227",
-        brass2: "#e3c04a",
-        foam: "#e8f0f2",
-        mist: "#8aa0b0",
-        teal: "#2dd4bf",
-        coral: "#e8744f",
+        // Theme-aware tokens — channels defined in globals.css and flipped by
+        // the `data-theme="light"` attribute on <html>. Opacity modifiers
+        // (bg-brass/10 etc.) keep working via the <alpha-value> placeholder.
+        navy: "rgb(var(--c-navy) / <alpha-value>)",
+        navy2: "rgb(var(--c-navy2) / <alpha-value>)",
+        deep: "rgb(var(--c-deep) / <alpha-value>)",
+        card: "rgb(var(--c-card) / <alpha-value>)",
+        brass: "rgb(var(--c-brass) / <alpha-value>)",
+        brass2: "rgb(var(--c-brass2) / <alpha-value>)",
+        foam: "rgb(var(--c-foam) / <alpha-value>)",
+        mist: "rgb(var(--c-mist) / <alpha-value>)",
+        teal: "rgb(var(--c-teal) / <alpha-value>)",
+        coral: "rgb(var(--c-coral) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-fraunces)", "serif"],

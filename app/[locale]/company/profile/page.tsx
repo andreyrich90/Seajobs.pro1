@@ -227,7 +227,7 @@ export default function CompanyProfilePage() {
           <div className="mb-6 rounded-2xl border border-teal/30 bg-teal/5 p-6">
             <div className="flex items-start gap-4">
               <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-teal to-teal/60">
-                <Link2 size={20} className="text-deep" />
+                <Link2 size={20} className="text-[#061523]" />
               </div>
               <div className="flex-1">
                 <h2 className="font-display text-lg font-semibold text-white">{t.cref_title}</h2>
@@ -240,7 +240,7 @@ export default function CompanyProfilePage() {
                   <button
                     type="button"
                     onClick={copyReferralLink}
-                    className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+                    className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-teal to-teal/60 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                   >
                     {copied ? <Check size={16} /> : <Copy size={16} />}
                     {copied ? t.ref_copied : t.ref_copy}
@@ -477,7 +477,7 @@ export default function CompanyProfilePage() {
 
         <button
           type="submit" disabled={saving || uploading}
-          className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+          className="self-start rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
         >
           {saving ? t.cp_saving : t.cp_save}
         </button>

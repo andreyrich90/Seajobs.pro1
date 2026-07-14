@@ -26,7 +26,7 @@ export default function AboutPage() {
           <div className="absolute inset-0 bg-[radial-gradient(800px_400px_at_50%_0%,#0e2a45,#0a1f33_60%)]" />
           <div className="relative mx-auto max-w-4xl px-5 py-20 text-center">
             <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-brass to-brass2 shadow-xl">
-              <Anchor size={30} className="text-deep" strokeWidth={2.4} />
+              <Anchor size={30} className="text-[#061523]" strokeWidth={2.4} />
             </div>
             <h1 className="font-display text-4xl font-semibold text-white md:text-5xl">
               About SeaJobs<span className="text-brass2">.pro</span>
@@ -69,7 +69,7 @@ export default function AboutPage() {
             <p className="text-mist mb-5">{t.about_cta_sub}</p>
             <a
               href="/"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
             >
               {t.about_cta_btn}
             </a>

@@ -4,6 +4,7 @@ import { Fraunces, Archivo } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { LangProvider } from "@/components/LangProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import CookieBanner from "@/components/CookieBanner";
 import { HREFLANG } from "@/lib/seo";
 import enMessages from "@/messages/en.json";
@@ -84,6 +85,12 @@ export default async function RootLayout({
     <html lang={htmlLang} className={`${fraunces.variable} ${archivo.variable}`}>
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}",
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
@@ -105,8 +112,10 @@ export default async function RootLayout({
           `}
         </Script>
         <NextIntlClientProvider locale="en" messages={enMessages}>
-          <LangProvider>{children}</LangProvider>
-          <CookieBanner />
+          <ThemeProvider>
+            <LangProvider>{children}</LangProvider>
+            <CookieBanner />
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

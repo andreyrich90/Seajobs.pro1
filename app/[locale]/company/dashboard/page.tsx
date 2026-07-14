@@ -89,7 +89,7 @@ export default function CompanyDashboardPage() {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/company/vacancies"
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
           >
             <Plus size={16} /> {t.co_post_vacancy}
           </Link>

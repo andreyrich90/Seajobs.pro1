@@ -294,7 +294,7 @@ export default function ExperiencePage() {
         <h1 className="font-display text-2xl font-semibold text-white">{t.exp_title}</h1>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
         >
           <Plus size={16} /> {t.exp_add}
         </button>
@@ -457,7 +457,7 @@ export default function ExperiencePage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
                 {submitting ? t.exp_saving : editingId ? t.exp_update : t.exp_add_entry}
               </button>

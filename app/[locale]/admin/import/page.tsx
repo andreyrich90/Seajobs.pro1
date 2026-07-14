@@ -372,7 +372,7 @@ export default function ImportVacancyPage() {
             type="button"
             onClick={() => submit(true)}
             disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50"
           >
             <RefreshCw size={15} className={saving ? "animate-spin" : ""} />
             {saving ? "Saving..." : "Save & Add Another"}

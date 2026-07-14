@@ -256,7 +256,7 @@ export default function VacanciesPage() {
         <h1 className="font-display text-2xl font-semibold text-white">{t.va_title}</h1>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
         >
           <Plus size={16} /> {t.va_post}
         </button>
@@ -452,7 +452,7 @@ export default function VacanciesPage() {
             <div className="flex gap-3 sm:col-span-2">
               <button
                 type="submit" disabled={submitting}
-                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
               >
                 {submitting ? t.va_saving : editingId ? t.va_update : t.va_post_btn}
               </button>

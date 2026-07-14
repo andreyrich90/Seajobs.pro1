@@ -220,7 +220,7 @@ export default function ForumClient({
           {session ? (
             <button
               onClick={() => { setShowForm((v) => !v); setError(null); }}
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5"
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
             >
               {showForm ? <X size={16} /> : <Plus size={16} />}
               {showForm ? "Cancel" : "New Topic"}
@@ -294,7 +294,7 @@ export default function ForumClient({
               <div className="flex gap-3">
                 <button
                   type="submit" disabled={submitting}
-                  className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-deep transition hover:-translate-y-0.5 disabled:opacity-50"
+                  className="rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50"
                 >
                   {submitting ? "Posting..." : "Post Topic"}
                 </button>
