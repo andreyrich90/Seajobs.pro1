@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { RANK_LANDINGS } from "@/lib/rankLandings";
+import { VESSEL_LANDINGS } from "@/lib/vesselLandings";
 import JobsClient, { type VacancyWithCompany } from "./JobsClient";
 
 export const dynamic = "force-dynamic";
@@ -60,12 +61,16 @@ export async function generateMetadata({
     ? RANK_LANDINGS.find((r) => r.rank === rank)?.slug
     : undefined;
 
-  if (rankSlug) {
-    const path = `/jobs/rank/${rankSlug}`;
+  const vesselSlug = vessel && !rank
+    ? VESSEL_LANDINGS.find((vl) => vl.keywords.some((k) => vessel.toLowerCase().includes(k)))?.slug
+    : undefined;
+
+  const landingPath = rankSlug ? `/jobs/rank/${rankSlug}` : vesselSlug ? `/jobs/vessel/${vesselSlug}` : null;
+  if (landingPath) {
     return {
       title: meta.title(label),
       description: meta.desc(label),
-      alternates: { canonical: canonicalUrl(path, locale), languages: hreflangAlternates(path) },
+      alternates: { canonical: canonicalUrl(landingPath, locale), languages: hreflangAlternates(landingPath) },
     };
   }
 
