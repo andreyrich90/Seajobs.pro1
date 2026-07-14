@@ -6,6 +6,7 @@ import { routing } from "@/i18n/routing";
 import { getPathname } from "@/i18n/navigation";
 import { slugId } from "@/lib/slug";
 import { RANK_LANDING_SLUGS } from "@/lib/rankLandings";
+import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 
 const BASE = "https://seajobs.pro";
 
@@ -40,14 +41,8 @@ function localizedEntries(
   }));
 }
 
-// Rank landing pages now live at /jobs/rank/<slug> (dedicated pages with unique
-// title/H1/intro), listed via rankLandingEntries below. Vessel-filtered listings
-// stay as query-param landings on /jobs for now.
-const POPULAR_VESSELS = [
-  "General Cargo", "Bulk Carrier", "Container Ship", "Chemical Tanker",
-  "RoRo Cargo", "Coaster",
-];
-
+// Rank and vessel landing pages now live at /jobs/rank/<slug> and
+// /jobs/vessel/<slug> (dedicated pages with unique title/H1/intro).
 function rankLandingEntries(now: Date): MetadataRoute.Sitemap {
   return RANK_LANDING_SLUGS.flatMap((slug) =>
     localizedEntries(`/jobs/rank/${slug}`, {
@@ -58,24 +53,14 @@ function rankLandingEntries(now: Date): MetadataRoute.Sitemap {
   );
 }
 
-function filteredJobsEntries(now: Date): MetadataRoute.Sitemap {
-  const filters = [
-    ...POPULAR_VESSELS.map((v) => ["vessel", v] as const),
-  ];
-  return filters.flatMap(([key, value]) => {
-    const qs = new URLSearchParams({ [key]: value });
-    const query = `?${qs.toString()}`;
-    const languages = Object.fromEntries(
-      Object.entries(hreflangAlternates("/jobs")).map(([k, v]) => [k, `${v}${query}`])
-    );
-    return routing.locales.map((locale) => ({
-      url: `${BASE}${getPathname({ locale, href: "/jobs" })}${query}`,
+function vesselLandingEntries(now: Date): MetadataRoute.Sitemap {
+  return VESSEL_LANDING_SLUGS.flatMap((slug) =>
+    localizedEntries(`/jobs/vessel/${slug}`, {
       lastModified: now,
-      changeFrequency: "daily" as const,
-      priority: 0.7,
-      alternates: { languages },
-    }));
-  });
+      changeFrequency: "daily",
+      priority: 0.8,
+    })
+  );
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -84,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/", { lastModified: now, changeFrequency: "daily", priority: 1.0 }),
     ...localizedEntries("/jobs", { lastModified: now, changeFrequency: "hourly", priority: 0.9 }),
     ...rankLandingEntries(now),
-    ...filteredJobsEntries(now),
+    ...vesselLandingEntries(now),
     ...localizedEntries("/forum", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),

@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import { useLang } from "@/components/LangProvider";
 import { RANK_LANDINGS, rankName } from "@/lib/rankLandings";
+import { VESSEL_LANDINGS, vesselName } from "@/lib/vesselLandings";
 
 // Internal-linking block to the SEO landing pages. Ranks link to the dedicated
 // /jobs/rank/<slug> pages (unique title/H1/intro); vessels stay on the /jobs
@@ -16,14 +17,13 @@ const RANK_CHIPS = RANK_CHIP_SLUGS
   .map((s) => RANK_LANDINGS.find((r) => r.slug === s))
   .filter((r): r is (typeof RANK_LANDINGS)[number] => Boolean(r));
 
-const VESSELS: { label: string; vessel: string }[] = [
-  { label: "General Cargo", vessel: "General Cargo" },
-  { label: "Bulk Carrier", vessel: "Bulk Carrier" },
-  { label: "Container Ship", vessel: "Container Ship" },
-  { label: "Chemical Tanker", vessel: "Chemical Tanker" },
-  { label: "RoRo", vessel: "RoRo Cargo" },
-  { label: "Coaster", vessel: "Coaster" },
+const VESSEL_CHIP_SLUGS = [
+  "tanker", "bulk-carrier", "container-ship", "general-cargo", "gas-carrier",
+  "car-carrier", "offshore", "cruise-ship", "ferry", "tug",
 ];
+const VESSEL_CHIPS = VESSEL_CHIP_SLUGS
+  .map((s) => VESSEL_LANDINGS.find((v) => v.slug === s))
+  .filter((v): v is (typeof VESSEL_LANDINGS)[number] => Boolean(v));
 
 const HEADING: Record<string, { jobs: string; vessels: string }> = {
   en: { jobs: "Jobs by rank", vessels: "Jobs by vessel type" },
@@ -46,13 +46,13 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
       {rankName(r, lang)}
     </Link>
   ));
-  const vesselLinks = VESSELS.map((v) => (
+  const vesselLinks = VESSEL_CHIPS.map((v) => (
     <Link
-      key={v.vessel}
-      href={{ pathname: "/jobs", query: { vessel: v.vessel } }}
+      key={v.slug}
+      href={`/jobs/vessel/${v.slug}`}
       className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
     >
-      {v.label}
+      {vesselName(v, lang)}
     </Link>
   ));
 
