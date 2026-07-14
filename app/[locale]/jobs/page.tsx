@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { RANK_LANDINGS } from "@/lib/rankLandings";
 import JobsClient, { type VacancyWithCompany } from "./JobsClient";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +53,21 @@ export async function generateMetadata({
   if (rank) qs.set("rank", rank);
   if (vessel) qs.set("vessel", vessel);
   const query = `?${qs.toString()}`;
+
+  // A rank-only filter has a dedicated landing at /jobs/rank/<slug> — point the
+  // canonical + hreflang there so the query-param URL doesn't compete with it.
+  const rankSlug = rank && !vessel
+    ? RANK_LANDINGS.find((r) => r.rank === rank)?.slug
+    : undefined;
+
+  if (rankSlug) {
+    const path = `/jobs/rank/${rankSlug}`;
+    return {
+      title: meta.title(label),
+      description: meta.desc(label),
+      alternates: { canonical: canonicalUrl(path, locale), languages: hreflangAlternates(path) },
+    };
+  }
 
   // hreflang map for the same filter on every locale variant.
   const languages = Object.fromEntries(
