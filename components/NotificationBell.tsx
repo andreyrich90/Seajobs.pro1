@@ -173,7 +173,9 @@ export default function NotificationBell({ placement = "down-right" }: { placeme
       {open && (
         <div
           className={`absolute z-50 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-white/10 bg-navy2 shadow-2xl ${
-            placement === "up-left" ? "bottom-12 left-0" : "right-0 top-12"
+            placement === "up-left"
+              ? "bottom-12 left-0"
+              : "right-0 top-12 max-md:fixed max-md:left-3 max-md:right-3 max-md:top-[4.75rem] max-md:w-auto max-md:max-w-none"
           }`}
         >
           {/* Header */}
