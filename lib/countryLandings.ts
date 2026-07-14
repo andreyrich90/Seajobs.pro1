@@ -21,6 +21,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Poland is one of Europe's biggest crewing hubs, with agencies in Gdynia, Gdańsk and Szczecin recruiting for merchant, offshore and passenger fleets.",
       ru: "Польша — один из крупнейших крюинговых центров Европы: агентства в Гдыне, Гданьске и Щецине набирают экипажи на торговый, оффшорный и пассажирский флот.",
       ua: "Польща — один із найбільших крюїнгових центрів Європи: агентства в Гдині, Гданську та Щецині набирають екіпажі на торговий, офшорний і пасажирський флот.",
+      pl: "Polska to jedno z największych centrów crewingowych w Europie — agencje w Gdyni, Gdańsku i Szczecinie rekrutują na flotę handlową, offshore i pasażerską.",
+      ro: "Polonia este unul dintre cele mai mari centre de crewing din Europa — agenții din Gdynia, Gdańsk și Szczecin recrutează pentru flotele comerciale, offshore și de pasageri.",
     },
   },
   {
@@ -31,6 +33,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Ukraine supplies a large share of the world's officers and ratings, with crewing agencies concentrated in Odesa.",
       ru: "Украина даёт значительную часть мировых офицеров и рядового состава; крюинговые агентства сосредоточены в Одессе.",
       ua: "Україна дає значну частину світових офіцерів і рядового складу; крюїнгові агентства зосереджені в Одесі.",
+      pl: "Ukraina dostarcza znaczną część światowych oficerów i marynarzy; agencje crewingowe skupione są w Odessie.",
+      ro: "Ucraina furnizează o mare parte dintre ofițerii și marinarii din lume; agențiile de crewing sunt concentrate în Odesa.",
     },
   },
   {
@@ -41,6 +45,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Romania is a major source of officers and ratings, with crewing agencies centred on the Black Sea port of Constanța.",
       ru: "Румыния — крупный источник офицеров и рядового состава; крюинговые агентства сосредоточены в черноморском порту Констанца.",
       ua: "Румунія — велике джерело офіцерів і рядового складу; крюїнгові агентства зосереджені в чорноморському порту Констанца.",
+      pl: "Rumunia to duże źródło oficerów i marynarzy, a agencje crewingowe skupiają się w czarnomorskim porcie Konstanca.",
+      ro: "România este o sursă importantă de ofițeri și marinari, iar agențiile de crewing sunt concentrate în portul Constanța, la Marea Neagră.",
     },
   },
   {
@@ -51,6 +57,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Latvia's crewing agencies, based mainly in Riga, recruit seafarers for merchant and offshore fleets across Europe.",
       ru: "Крюинговые агентства Латвии, в основном в Риге, набирают моряков на торговый и оффшорный флот по всей Европе.",
       ua: "Крюїнгові агентства Латвії, здебільшого в Ризі, набирають моряків на торговий і офшорний флот по всій Європі.",
+      pl: "Łotewskie agencje crewingowe, głównie w Rydze, rekrutują marynarzy na flotę handlową i offshore w całej Europie.",
+      ro: "Agențiile de crewing din Letonia, în principal din Riga, recrutează marinari pentru flotele comerciale și offshore din toată Europa.",
     },
   },
   {
@@ -61,6 +69,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Lithuania's maritime industry centres on Klaipeda, whose crewing agencies recruit for cargo, offshore and specialised vessels.",
       ru: "Морская отрасль Литвы сосредоточена в Клайпеде, откуда крюинговые агентства набирают экипажи на грузовой, оффшорный и специализированный флот.",
       ua: "Морська галузь Литви зосереджена в Клайпеді, звідки крюїнгові агентства набирають екіпажі на вантажний, офшорний і спеціалізований флот.",
+      pl: "Litewski przemysł morski koncentruje się w Kłajpedzie, skąd agencje crewingowe rekrutują na jednostki towarowe, offshore i specjalistyczne.",
+      ro: "Industria maritimă a Lituaniei este concentrată în Klaipeda, de unde agențiile de crewing recrutează pentru nave de marfă, offshore și specializate.",
     },
   },
   {
@@ -71,6 +81,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Greece is home to the world's largest ship-owning community; its agencies crew tankers, bulkers and container ships worldwide.",
       ru: "Греция — крупнейшее в мире судовладельческое сообщество; её агентства комплектуют танкеры, балкеры и контейнеровозы по всему миру.",
       ua: "Греція — найбільша у світі судновласницька спільнота; її агентства комплектують танкери, балкери та контейнеровози по всьому світу.",
+      pl: "Grecja to największa na świecie społeczność armatorska; jej agencje obsadzają zbiornikowce, masowce i kontenerowce na całym świecie.",
+      ro: "Grecia găzduiește cea mai mare comunitate de armatori din lume; agențiile sale echipează tancuri, vrachiere și portcontainere în toată lumea.",
     },
   },
   {
@@ -81,6 +93,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "Malta, one of the world's largest ship registries, hosts crewing agencies recruiting for internationally traded fleets.",
       ru: "Мальта — один из крупнейших судовых регистров мира; здесь работают крюинговые агентства для судов международного плавания.",
       ua: "Мальта — один із найбільших суднових регістрів світу; тут працюють крюїнгові агентства для суден міжнародного плавання.",
+      pl: "Malta, jeden z największych rejestrów statków na świecie, gości agencje crewingowe rekrutujące na floty w żegludze międzynarodowej.",
+      ro: "Malta, unul dintre cele mai mari registre navale din lume, găzduiește agenții de crewing care recrutează pentru flote în navigație internațională.",
     },
   },
   {
@@ -91,6 +105,8 @@ export const COUNTRY_LANDINGS: CountryLanding[] = [
       en: "The UK, and Aberdeen in particular, is a major hub for offshore and wind-farm crewing alongside merchant recruitment.",
       ru: "Великобритания, и особенно Абердин, — крупный центр найма на оффшор и ветропарки, а также на торговый флот.",
       ua: "Велика Британія, і особливо Абердин, — великий центр найму на офшор і вітропарки, а також на торговий флот.",
+      pl: "Wielka Brytania, a zwłaszcza Aberdeen, to ważny ośrodek rekrutacji na offshore i farmy wiatrowe, obok floty handlowej.",
+      ro: "Marea Britanie, în special Aberdeen, este un centru major de recrutare pentru offshore și parcuri eoliene, pe lângă flota comercială.",
     },
   },
 ];
