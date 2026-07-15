@@ -52,6 +52,42 @@ const DESCRIPTION_TEMPLATE = `
 ## How to apply
 Apply directly through SeaJobs.pro — your CV goes straight to our crewing team.`;
 
+// Nudge companies to write a real description. Rough count of meaningful text:
+// strips the prefilled skeleton (## headings, lone "-", the apply boilerplate)
+// so an untouched template doesn't pass as a filled-in description.
+function meaningfulDescLength(desc: string): number {
+  return desc
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && l !== "-" && !l.startsWith("#") &&
+      !/^Apply directly through SeaJobs\.pro/i.test(l))
+    .join(" ")
+    .length;
+}
+
+const DESC_UI: Record<string, { hint: string; error: string }> = {
+  en: {
+    hint: "Describe the vessel, requirements and conditions — a fuller description gets more applications and ranks better in search.",
+    error: "Please add a short description — vessel particulars, requirements or conditions. An empty description hurts applications and search visibility.",
+  },
+  ru: {
+    hint: "Опишите судно, требования и условия — подробное описание даёт больше откликов и лучше ранжируется в поиске.",
+    error: "Добавьте короткое описание — характеристики судна, требования или условия. Пустое описание снижает отклики и видимость в поиске.",
+  },
+  ua: {
+    hint: "Опишіть судно, вимоги та умови — докладний опис дає більше відгуків і краще ранжується в пошуку.",
+    error: "Додайте короткий опис — характеристики судна, вимоги чи умови. Порожній опис знижує відгуки та видимість у пошуку.",
+  },
+  pl: {
+    hint: "Opisz statek, wymagania i warunki — pełniejszy opis daje więcej zgłoszeń i lepszą pozycję w wyszukiwarce.",
+    error: "Dodaj krótki opis — dane statku, wymagania lub warunki. Pusty opis zmniejsza liczbę zgłoszeń i widoczność w wyszukiwarce.",
+  },
+  ro: {
+    hint: "Descrie nava, cerințele și condițiile — o descriere mai completă aduce mai multe aplicări și un loc mai bun în căutare.",
+    error: "Adaugă o descriere scurtă — detalii despre navă, cerințe sau condiții. O descriere goală reduce aplicările și vizibilitatea în căutare.",
+  },
+};
+
 const EMPTY_FORM: VacancyForm = {
   title: "",
   rank: "",
@@ -168,6 +204,10 @@ export default function VacanciesPage() {
     e.preventDefault();
     if (!userId) return;
     if (!form.title.trim()) { setError(t.va_title_required); return; }
+    if (meaningfulDescLength(form.description) < 40) {
+      setError((DESC_UI[lang] ?? DESC_UI.en).error);
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -429,6 +469,7 @@ export default function VacanciesPage() {
                 rows={6}
                 disabled={submitting}
               />
+              <p className="text-xs text-mist">{(DESC_UI[lang] ?? DESC_UI.en).hint}</p>
             </div>
 
             {/* Active toggle */}
