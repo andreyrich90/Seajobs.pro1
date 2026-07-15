@@ -22,6 +22,7 @@ export default async function Home() {
     sb.from("news_articles")
       .select("id, title, body, tag, cover_gradient, cover_url, published_at, created_at")
       .eq("is_published", true)
+      .neq("category", "guide")
       .order("published_at", { ascending: false })
       .limit(6),
   ]);

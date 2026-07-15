@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
+import { GUIDES_UI } from "@/lib/guidesUi";
 import PopularJobLinks from "@/components/PopularJobLinks";
 
 const SOCIAL = [
@@ -43,6 +44,7 @@ export default function Footer() {
     { label: t.footer_vacancies, href: "/jobs" },
     { label: t.footer_forum, href: "/forum" },
     { label: t.footer_news, href: "/news" },
+    { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
   ];
 
   const COMPANY = [
