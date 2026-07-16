@@ -10,6 +10,11 @@ export const routing = defineRouting({
   // is the single source of truth: "/" is always English; users pick a
   // language explicitly via the switcher.
   localeDetection: false,
+  // Don't emit the middleware's Link: <…>; hreflang=… response header. It uses
+  // our raw locale codes, and "ua" is not a valid hreflang language code (the
+  // Ukrainian code is "uk") — Lighthouse flags it. Correct hreflang alternates
+  // (with ua→uk mapped) are already emitted per page via generateMetadata.
+  alternateLinks: false,
 });
 
 export type AppLocale = (typeof routing.locales)[number];
