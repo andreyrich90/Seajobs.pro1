@@ -55,10 +55,7 @@ export async function POST(req: Request) {
       companyId = newId;
     }
 
-    // Insert vacancy
-    const { data: vacancy, error: vacErr } = await admin.from("vacancies").insert({
-      company_id: companyId,
-      title: title.trim(),
+    const fields = {
       rank: rank || null,
       vessel_type: vesselType || null,
       salary_from: salaryFrom ? Number(salaryFrom) : null,
@@ -71,6 +68,33 @@ export async function POST(req: Request) {
       is_imported: true,
       source_url: sourceUrl?.trim() || null,
       contact_email: contactEmail?.trim() || null,
+    };
+
+    // Recurring posting (same company + same title, case-insensitive) →
+    // refresh the existing row instead of creating a clone: bump the dates so
+    // it sorts as fresh, reactivate it, and overwrite with the new details.
+    const { data: duplicate } = await admin
+      .from("vacancies")
+      .select("id")
+      .eq("company_id", companyId)
+      .ilike("title", title.trim())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (duplicate) {
+      const { error: updErr } = await admin
+        .from("vacancies")
+        .update({ ...fields, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+        .eq("id", duplicate.id);
+      if (updErr) return NextResponse.json({ ok: false, error: updErr.message }, { status: 500 });
+      return NextResponse.json({ ok: true, vacancyId: duplicate.id, companyId, refreshed: true });
+    }
+
+    const { data: vacancy, error: vacErr } = await admin.from("vacancies").insert({
+      company_id: companyId,
+      title: title.trim(),
+      ...fields,
     }).select("id").single();
 
     if (vacErr) return NextResponse.json({ ok: false, error: vacErr.message }, { status: 500 });
