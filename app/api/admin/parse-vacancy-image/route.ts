@@ -42,15 +42,16 @@ Schema:
 Rules:
 - "rank" must be one of: ${RANK_GROUPS.flatMap((g) => g.ranks).join(", ")}. Pick the closest match, or null if none fits.
 - "title" = a short job title, e.g. "Chief Officer — Oil Tanker".
+- "vesselType": ALWAYS extract when any hint exists — check the dedicated vessel-type field, the job title (e.g. "3rd Eng || LPG || Yara" → "LPG Carrier"), the vessel description or its specs. Normalise to a standard English name: "Bulk Carrier", "Container Ship", "Oil Tanker", "Chemical Tanker", "LPG Carrier", "LNG Carrier", "General Cargo", "Car Carrier (PCTC)", "Ro-Ro", "AHTS", "PSV", "OSV", "Tug", "Dredger", "Cruise Ship", "Ferry (RoPax)", "Fishing Vessel", etc. Use null ONLY when the screenshot gives no clue at all.
 - "salaryFrom"/"salaryTo" = plain numbers (monthly), no currency symbols. If only one figure is given, set both to it.
 - "currency" = 3-letter ISO code (USD, EUR, GBP...).
 - "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
 - "description" = a UNIQUE, rewritten job description in English Markdown — NOT a verbatim copy of the screenshot text (duplicated text hurts SEO). Rephrase everything in your own words and structure it as:
-    1. A 2–4 sentence intro paragraph in your own words (vessel type, trading area, contract length, salary — whatever is given).
+    1. A 2–4 sentence intro paragraph in your own words (vessel type, trading area, contract length, salary — whatever is given). THIS is where the unique wording comes from.
     2. "## Vessel particulars" — a bullet list of any ship specs present (type, IMO, flag, year built, GRT/DWT, main engine, sailing area). Omit this whole section if the screenshot has no specs.
-    3. "## Requirements" — a bullet list of the required certificates/experience/English level, if any are given.
+    3. "## Requirements" — include EVERY requirement that appears in the screenshot: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet in your own phrasing, but NONE may be dropped, merged away or replaced with a generic line — applicants must see the real requirements for this exact vacancy. Do NOT add requirements that are not in the screenshot.
     4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager."
-  Rephrase for uniqueness, but do NOT invent facts: only include specs, requirements and figures that actually appear in the screenshot. Skip any section whose data is absent (except "How to apply", which is always included).
+  Uniqueness comes from rephrasing and the intro — never from inventing facts: only include specs, requirements and figures that actually appear in the screenshot. Skip any section whose data is absent (except "How to apply", which is always included).
 - Use null for anything not present in the image. Do not invent data.`;
 
 interface AnthropicContentBlock {
