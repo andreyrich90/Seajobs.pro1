@@ -175,7 +175,7 @@ export default function ImportVacancyPage() {
       return;
     }
 
-    setSaved((p) => [{ id: data.vacancyId, title: form.title }, ...p]);
+    setSaved((p) => [{ id: data.vacancyId, title: data.refreshed ? `${form.title} — refreshed (duplicate)` : form.title }, ...p]);
 
     if (queue.length > 0) {
       // Multi-vacancy screenshot: pull the next parsed vacancy into the form.
