@@ -19,27 +19,38 @@ function getAdmin() {
 // Schema mirrors the fields the admin Import Vacancy form (and
 // api/admin/import-vacancy) accepts, so the parsed result can be dropped
 // straight into the form for review before saving.
-const SCHEMA_PROMPT = `You extract a maritime job vacancy posting from a screenshot.
+const SCHEMA_PROMPT = `You extract maritime job vacancy postings from a screenshot.
 Return ONLY valid JSON — no markdown fences, no preamble, no commentary.
+
+A screenshot may contain ONE vacancy or SEVERAL distinct vacancies (e.g. a list
+page, a table of open positions, or an agency post advertising multiple ranks).
+Return one object PER DISTINCT VACANCY. A vacancy is distinct when it has its
+own rank/position (possibly with its own salary, vessel or joining date) —
+"Master and Chief Officer for mv X" is TWO vacancies sharing vessel data.
+Never merge different positions into one object.
 
 Schema:
 {
-  "companyName": string|null,
-  "companyLocation": string|null,
-  "companyWebsite": string|null,
-  "title": string|null,
-  "rank": string|null,
-  "vesselType": string|null,
-  "salaryFrom": number|null,
-  "salaryTo": number|null,
-  "currency": string|null,
-  "contractDuration": string|null,
-  "joiningDate": "YYYY-MM-DD"|null,
-  "description": string|null,
-  "contactEmail": string|null
+  "vacancies": [
+    {
+      "companyName": string|null,
+      "companyLocation": string|null,
+      "companyWebsite": string|null,
+      "title": string|null,
+      "rank": string|null,
+      "vesselType": string|null,
+      "salaryFrom": number|null,
+      "salaryTo": number|null,
+      "currency": string|null,
+      "contractDuration": string|null,
+      "joiningDate": "YYYY-MM-DD"|null,
+      "description": string|null,
+      "contactEmail": string|null
+    }
+  ]
 }
 
-Rules:
+Rules (apply to every vacancy object):
 - "rank" must be one of: ${RANK_GROUPS.flatMap((g) => g.ranks).join(", ")}. Pick the closest match, or null if none fits.
 - "title" = a short job title, e.g. "Chief Officer — Oil Tanker".
 - "vesselType": ALWAYS extract when any hint exists — check the dedicated vessel-type field, the job title (e.g. "3rd Eng || LPG || Yara" → "LPG Carrier"), the vessel description or its specs. Normalise to a standard English name: "Bulk Carrier", "Container Ship", "Oil Tanker", "Chemical Tanker", "LPG Carrier", "LNG Carrier", "General Cargo", "Car Carrier (PCTC)", "Ro-Ro", "AHTS", "PSV", "OSV", "Tug", "Dredger", "Cruise Ship", "Ferry (RoPax)", "Fishing Vessel", etc. Use null ONLY when the screenshot gives no clue at all.
@@ -52,6 +63,7 @@ Rules:
     3. "## Requirements" — include EVERY requirement that appears in the screenshot: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet in your own phrasing, but NONE may be dropped, merged away or replaced with a generic line — applicants must see the real requirements for this exact vacancy. Do NOT add requirements that are not in the screenshot.
     4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager."
   Uniqueness comes from rephrasing and the intro — never from inventing facts: only include specs, requirements and figures that actually appear in the screenshot. Skip any section whose data is absent (except "How to apply", which is always included).
+- When several vacancies share one vessel/company, repeat the shared company/vessel data in each object, but write each "description" separately with its own wording — no copy-pasted paragraphs between vacancies.
 - Use null for anything not present in the image. Do not invent data.`;
 
 interface AnthropicContentBlock {
@@ -102,7 +114,7 @@ export async function POST(req: NextRequest) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: 2048,
+        max_tokens: 8192,
         system: SCHEMA_PROMPT,
         messages: [{
           role: "user",
@@ -139,9 +151,9 @@ export async function POST(req: NextRequest) {
     const end = cleaned.lastIndexOf("}");
     const jsonText = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
 
-    let vacancy: unknown;
+    let parsed: unknown;
     try {
-      vacancy = JSON.parse(jsonText);
+      parsed = JSON.parse(jsonText);
     } catch {
       console.error("Vacancy parse: model did not return valid JSON:", cleaned.slice(0, 300));
       return NextResponse.json(
@@ -149,7 +161,25 @@ export async function POST(req: NextRequest) {
         { status: 422 }
       );
     }
-    return NextResponse.json({ ok: true, vacancy });
+
+    // New schema: { vacancies: [...] }. Tolerate a bare single object or a bare
+    // array so prompt drift never breaks the admin form.
+    const obj = parsed as Record<string, unknown>;
+    const vacancies: unknown[] = Array.isArray(obj?.vacancies)
+      ? (obj.vacancies as unknown[])
+      : Array.isArray(parsed)
+      ? (parsed as unknown[])
+      : [parsed];
+
+    if (vacancies.length === 0) {
+      return NextResponse.json(
+        { ok: false, error: "parse_failed", detail: "No vacancy could be read from the screenshot." },
+        { status: 422 }
+      );
+    }
+
+    // `vacancy` kept for backward compatibility with older clients.
+    return NextResponse.json({ ok: true, vacancies, vacancy: vacancies[0] });
   } catch (e) {
     console.error("[parse-vacancy-image]", e);
     return NextResponse.json(
