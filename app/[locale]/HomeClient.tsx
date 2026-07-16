@@ -141,6 +141,7 @@ export default function HomeClient({
     <div className="min-h-screen">
       <Header />
 
+      <main>
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="hero-surface absolute inset-0" />
@@ -374,6 +375,7 @@ export default function HomeClient({
           </div>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>
