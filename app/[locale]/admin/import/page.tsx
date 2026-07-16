@@ -29,16 +29,56 @@ const empty = () => ({
 
 type Form = ReturnType<typeof empty>;
 
+// Raw vacancy object as returned by /api/admin/parse-vacancy-image.
+type ParsedVacancy = {
+  companyName?: string | null; companyLocation?: string | null; companyWebsite?: string | null;
+  title?: string | null; rank?: string | null; vesselType?: string | null;
+  salaryFrom?: number | null; salaryTo?: number | null; currency?: string | null;
+  contractDuration?: string | null; joiningDate?: string | null;
+  description?: string | null; contactEmail?: string | null;
+};
+
 export default function ImportVacancyPage() {
   const [form, setForm] = useState<Form>(empty());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<{ id: string; title: string }[]>([]);
   const [parsing, setParsing] = useState(false);
+  // Remaining vacancies from a multi-vacancy screenshot; the next one is
+  // loaded into the form after each save (or via "load next").
+  const [queue, setQueue] = useState<ParsedVacancy[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
+
+  function applyParsed(v: ParsedVacancy) {
+    setForm((p) => ({
+      ...p,
+      companyName: v.companyName ?? p.companyName,
+      companyLocation: v.companyLocation ?? p.companyLocation,
+      companyWebsite: v.companyWebsite ?? p.companyWebsite,
+      title: v.title ?? "",
+      rank: v.rank ?? "",
+      vesselType: v.vesselType ?? "",
+      salaryFrom: v.salaryFrom != null ? String(v.salaryFrom) : "",
+      salaryTo: v.salaryTo != null ? String(v.salaryTo) : "",
+      currency: v.currency ?? p.currency,
+      contractDuration: v.contractDuration ?? "",
+      joiningDate: v.joiningDate ?? "",
+      description: v.description ?? "",
+      contactEmail: v.contactEmail ?? p.contactEmail,
+      // sourceUrl is set manually and shared by all vacancies from one page.
+    }));
+  }
+
+  function loadNextFromQueue() {
+    setQueue((q) => {
+      const [next, ...rest] = q;
+      if (next) applyParsed(next);
+      return rest;
+    });
+  }
 
   async function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -73,23 +113,18 @@ export default function ImportVacancyPage() {
         return;
       }
 
-      const v = data.vacancy ?? {};
-      setForm((p) => ({
-        ...p,
-        companyName: v.companyName ?? p.companyName,
-        companyLocation: v.companyLocation ?? p.companyLocation,
-        companyWebsite: v.companyWebsite ?? p.companyWebsite,
-        title: v.title ?? p.title,
-        rank: v.rank ?? p.rank,
-        vesselType: v.vesselType ?? p.vesselType,
-        salaryFrom: v.salaryFrom != null ? String(v.salaryFrom) : p.salaryFrom,
-        salaryTo: v.salaryTo != null ? String(v.salaryTo) : p.salaryTo,
-        currency: v.currency ?? p.currency,
-        contractDuration: v.contractDuration ?? p.contractDuration,
-        joiningDate: v.joiningDate ?? p.joiningDate,
-        description: v.description ?? p.description,
-        contactEmail: v.contactEmail ?? p.contactEmail,
-      }));
+      const list: ParsedVacancy[] = Array.isArray(data.vacancies)
+        ? data.vacancies
+        : data.vacancy
+        ? [data.vacancy]
+        : [];
+      if (list.length === 0) {
+        setError("No vacancy could be read from the screenshot.");
+        setParsing(false);
+        return;
+      }
+      applyParsed(list[0]);
+      setQueue(list.slice(1));
     } catch (err) {
       console.error(err);
       setError("Could not read the screenshot.");
@@ -142,7 +177,10 @@ export default function ImportVacancyPage() {
 
     setSaved((p) => [{ id: data.vacancyId, title: form.title }, ...p]);
 
-    if (andAnother) {
+    if (queue.length > 0) {
+      // Multi-vacancy screenshot: pull the next parsed vacancy into the form.
+      loadNextFromQueue();
+    } else if (andAnother) {
       // Keep company fields, clear vacancy fields
       setForm((p) => ({
         ...empty(),
@@ -195,6 +233,22 @@ export default function ImportVacancyPage() {
           </span>
         )}
       </div>
+
+      {/* Multi-vacancy screenshot queue */}
+      {queue.length > 0 && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-brass/30 bg-brass/10 p-4">
+          <p className="text-sm font-semibold text-brass2">
+            {queue.length} more {queue.length === 1 ? "vacancy" : "vacancies"} from this screenshot in the queue — save the current one and the next loads automatically.
+          </p>
+          <button
+            type="button"
+            onClick={loadNextFromQueue}
+            className="ml-auto rounded-lg border border-brass/40 px-3 py-1.5 text-xs font-bold text-brass2 transition hover:bg-brass/20"
+          >
+            Skip current — load next
+          </button>
+        </div>
+      )}
 
       {/* Saved log */}
       {saved.length > 0 && (
