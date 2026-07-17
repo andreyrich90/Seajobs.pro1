@@ -141,24 +141,28 @@ export default function ImportQueuePage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-6">
-      <header className="flex flex-wrap items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-xl bg-brass/15">
-          <Inbox className="text-brass2" size={20} />
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-1 items-start gap-3 min-w-0">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15">
+            <Inbox className="text-brass2" size={20} />
+          </div>
+          <div className="min-w-0">
+            <h1 className="font-display text-xl font-bold text-white">Auto-collection queue</h1>
+            <p className="text-sm text-mist">
+              Vacancies scraped from Telegram channels. Nothing goes live until you approve it.
+            </p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <h1 className="font-display text-xl font-bold text-white">Auto-collection queue</h1>
-          <p className="text-sm text-mist">
-            Vacancies scraped from Telegram channels. Nothing goes live until you approve it.
-          </p>
+        <div className="flex shrink-0 items-center gap-3">
+          <button onClick={load} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-mist hover:text-white hover:border-white/20 transition">
+            <RefreshCw size={15} /> Refresh
+          </button>
+          <button onClick={collectNow} disabled={collecting}
+            className="flex items-center gap-2 rounded-xl bg-brass px-4 py-2 text-sm font-semibold text-[#061523] hover:bg-brass2 transition disabled:opacity-60">
+            {collecting ? <RefreshCw size={15} className="animate-spin" /> : <Play size={15} />}
+            {collecting ? "Collecting…" : "Collect now"}
+          </button>
         </div>
-        <button onClick={load} className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-mist hover:text-white hover:border-white/20 transition">
-          <RefreshCw size={15} /> Refresh
-        </button>
-        <button onClick={collectNow} disabled={collecting}
-          className="flex items-center gap-2 rounded-xl bg-brass px-4 py-2 text-sm font-semibold text-[#061523] hover:bg-brass2 transition disabled:opacity-60">
-          {collecting ? <RefreshCw size={15} className="animate-spin" /> : <Play size={15} />}
-          {collecting ? "Collecting…" : "Collect now"}
-        </button>
       </header>
 
       {notice && (
