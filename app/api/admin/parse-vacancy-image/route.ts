@@ -19,11 +19,14 @@ function getAdmin() {
 // Schema mirrors the fields the admin Import Vacancy form (and
 // api/admin/import-vacancy) accepts, so the parsed result can be dropped
 // straight into the form for review before saving.
-const SCHEMA_PROMPT = `You extract maritime job vacancy postings from a screenshot.
+const SCHEMA_PROMPT = `You extract maritime job vacancy postings from the input, which is either a
+screenshot image or pasted text (e.g. Telegram channel posts).
 Return ONLY valid JSON — no markdown fences, no preamble, no commentary.
 
-A screenshot may contain ONE vacancy or SEVERAL distinct vacancies (e.g. a list
-page, a table of open positions, or an agency post advertising multiple ranks).
+The input may contain ONE vacancy or SEVERAL distinct vacancies (e.g. a list
+page, a table of open positions, several channel posts, or an agency post
+advertising multiple ranks). Ignore non-vacancy noise (greetings, ads, channel
+promos) — extract only actual job vacancies.
 Return one object PER DISTINCT VACANCY. A vacancy is distinct when it has its
 own rank/position (possibly with its own salary, vessel or joining date) —
 "Master and Chief Officer for mv X" is TWO vacancies sharing vessel data.
@@ -89,21 +92,36 @@ export async function POST(req: NextRequest) {
       .from("profiles").select("is_admin").eq("id", user.id).single();
     if (!profile?.is_admin) return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
 
-    let body: { fileBase64?: string; mediaType?: string };
+    let body: { fileBase64?: string; mediaType?: string; text?: string };
     try {
       body = await req.json();
     } catch {
       return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
     }
 
-    const { fileBase64, mediaType } = body;
-    if (!fileBase64 || (mediaType !== JPEG_TYPE && mediaType !== PNG_TYPE && mediaType !== WEBP_TYPE)) {
-      return NextResponse.json({ ok: false, error: "unsupported_file" }, { status: 400 });
+    const { fileBase64, mediaType, text } = body;
+    const hasText = typeof text === "string" && text.trim().length > 0;
+    const hasImage = !!fileBase64 && (mediaType === JPEG_TYPE || mediaType === PNG_TYPE || mediaType === WEBP_TYPE);
+    if (!hasText && !hasImage) {
+      return NextResponse.json({ ok: false, error: "unsupported_input" }, { status: 400 });
     }
 
-    const base64 = fileBase64.includes(",")
-      ? fileBase64.slice(fileBase64.indexOf(",") + 1)
-      : fileBase64;
+    // Either an image (screenshot) or pasted text (e.g. Telegram channel posts).
+    const userContent = hasImage
+      ? [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: mediaType,
+              data: fileBase64!.includes(",") ? fileBase64!.slice(fileBase64!.indexOf(",") + 1) : fileBase64!,
+            },
+          },
+          { type: "text", text: "Extract every vacancy in this posting into the JSON schema." },
+        ]
+      : [
+          { type: "text", text: `Extract every vacancy in the text below into the JSON schema.\n\n---\n${text!.slice(0, 24000)}` },
+        ];
 
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -116,13 +134,7 @@ export async function POST(req: NextRequest) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 8192,
         system: SCHEMA_PROMPT,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } },
-            { type: "text", text: "Extract this vacancy posting into the JSON schema." },
-          ],
-        }],
+        messages: [{ role: "user", content: userContent }],
       }),
     });
 
@@ -142,11 +154,11 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await r.json();
-    const text: string = (data.content as AnthropicContentBlock[] | undefined ?? [])
+    const responseText: string = (data.content as AnthropicContentBlock[] | undefined ?? [])
       .map((i) => i.text ?? "")
       .join("");
 
-    const cleaned = text.replace(/```json|```/g, "").trim();
+    const cleaned = responseText.replace(/```json|```/g, "").trim();
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
     const jsonText = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
