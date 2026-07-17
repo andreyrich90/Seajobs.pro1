@@ -50,7 +50,32 @@ export default function ImportVacancyPage() {
   const [queue, setQueue] = useState<ParsedVacancy[]>([]);
   const [pasteOpen, setPasteOpen] = useState(false);
   const [pasteText, setPasteText] = useState("");
+  const [tgHandle, setTgHandle] = useState("");
+  const [tgProbing, setTgProbing] = useState(false);
+  const [tgResult, setTgResult] = useState<{
+    readable?: boolean; status?: number; ms?: number; messageCount?: number;
+    sampleMessages?: string[]; error?: string; detail?: string; looksBlocked?: boolean;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function probeTelegram() {
+    const handle = tgHandle.trim().replace(/^@/, "").replace(/^https?:\/\/t\.me\/(s\/)?/i, "");
+    if (!handle) return;
+    setTgProbing(true);
+    setTgResult(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setTgResult({ error: "Not authenticated" }); return; }
+      const res = await fetch(`/api/admin/tg-probe?handle=${encodeURIComponent(handle)}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      setTgResult(await res.json());
+    } catch (e) {
+      setTgResult({ error: e instanceof Error ? e.message : "failed" });
+    } finally {
+      setTgProbing(false);
+    }
+  }
 
   function loadParsedList(list: ParsedVacancy[]) {
     applyParsed(list[0]);
@@ -299,6 +324,47 @@ export default function ImportVacancyPage() {
           <span className="rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-bold text-teal">
             {saved.length} imported
           </span>
+        )}
+      </div>
+
+      {/* Telegram feasibility probe (temporary diagnostic) */}
+      <div className="mb-6 rounded-2xl border border-white/10 bg-navy2 p-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">
+          Telegram probe — can the server read a public channel? (diagnostic)
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            value={tgHandle}
+            onChange={(e) => setTgHandle(e.target.value)}
+            placeholder="channel handle, e.g. marinejobs"
+            disabled={tgProbing}
+            className="flex-1 min-w-[200px] rounded-xl border border-white/10 bg-navy px-4 py-2.5 text-sm text-white outline-none focus:border-brass placeholder:text-mist/40"
+          />
+          <button
+            type="button"
+            onClick={probeTelegram}
+            disabled={tgProbing || !tgHandle.trim()}
+            className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+          >
+            {tgProbing ? <RefreshCw size={15} className="animate-spin" /> : <ExternalLink size={15} />}
+            {tgProbing ? "Probing..." : "Probe channel"}
+          </button>
+        </div>
+        {tgResult && (
+          <div className="mt-3 rounded-xl border border-white/10 bg-navy p-3 text-xs">
+            {tgResult.readable ? (
+              <p className="font-bold text-teal">✓ Readable — server can fetch this channel ({tgResult.messageCount} posts, {tgResult.status}, {tgResult.ms}ms)</p>
+            ) : (
+              <p className="font-bold text-coral">✗ Not readable{tgResult.status ? ` (HTTP ${tgResult.status})` : ""}{tgResult.error ? ` — ${tgResult.error}` : ""}{tgResult.detail ? `: ${tgResult.detail}` : ""}</p>
+            )}
+            {tgResult.sampleMessages && tgResult.sampleMessages.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {tgResult.sampleMessages.slice(0, 2).map((m, i) => (
+                  <p key={i} className="whitespace-pre-wrap text-mist line-clamp-4">{m.slice(0, 400)}</p>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
