@@ -7,7 +7,7 @@ import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   Anchor, LayoutDashboard, Users, Briefcase, MessageSquare, MessageCircle,
-  Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload,
+  Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload, Inbox,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -16,6 +16,7 @@ const navItems = [
   { label: "Users",      href: "/admin/users",       icon: Users },
   { label: "Vacancies",  href: "/admin/vacancies",   icon: Briefcase },
   { label: "Import",     href: "/admin/import",      icon: Upload },
+  { label: "Auto-queue", href: "/admin/import-queue", icon: Inbox },
   { label: "Messages",   href: "/admin/messages",    icon: Mail },
   { label: "Chats",      href: "/admin/chats",        icon: MessageCircle },
   { label: "Forum",      href: "/admin/forum",       icon: MessageSquare },
