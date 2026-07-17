@@ -44,7 +44,8 @@ export default function ImportVacancyPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<{ id: string; title: string }[]>([]);
   const [parsing, setParsing] = useState(false);
-  // Remaining vacancies from a multi-vacancy screenshot; the next one is
+  const [parseProgress, setParseProgress] = useState<string | null>(null);
+  // Remaining vacancies from multi-vacancy screenshots; the next one is
   // loaded into the form after each save (or via "load next").
   const [queue, setQueue] = useState<ParsedVacancy[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,55 +82,66 @@ export default function ImportVacancyPage() {
   }
 
   async function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file) return;
+    if (files.length === 0) return;
 
     setParsing(true);
     setError(null);
+    setParseProgress(files.length > 1 ? `1/${files.length}` : null);
     try {
-      const fileBase64: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setError("Not authenticated."); setParsing(false); return; }
+      if (!session) { setError("Not authenticated."); return; }
 
-      const res = await fetch("/api/admin/parse-vacancy-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ fileBase64, mediaType: file.type }),
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        setError(data.detail ?? data.error ?? "Could not read the screenshot.");
-        setParsing(false);
-        return;
+      // Parse screenshots one by one (predictable order, no API rate spikes);
+      // vacancies from every file land in one review queue.
+      const all: ParsedVacancy[] = [];
+      const failed: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        setParseProgress(files.length > 1 ? `${i + 1}/${files.length}` : null);
+        const file = files[i];
+        try {
+          const fileBase64: string = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          const res = await fetch("/api/admin/parse-vacancy-image", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ fileBase64, mediaType: file.type }),
+          });
+          const data = await res.json();
+          const list: ParsedVacancy[] = data.ok
+            ? Array.isArray(data.vacancies) ? data.vacancies : data.vacancy ? [data.vacancy] : []
+            : [];
+          if (list.length === 0) failed.push(file.name);
+          else all.push(...list);
+        } catch {
+          failed.push(file.name);
+        }
       }
 
-      const list: ParsedVacancy[] = Array.isArray(data.vacancies)
-        ? data.vacancies
-        : data.vacancy
-        ? [data.vacancy]
-        : [];
-      if (list.length === 0) {
-        setError("No vacancy could be read from the screenshot.");
-        setParsing(false);
+      if (all.length === 0) {
+        setError("No vacancy could be read from the screenshot" + (files.length > 1 ? "s." : "."));
         return;
       }
-      applyParsed(list[0]);
-      setQueue(list.slice(1));
+      if (failed.length > 0) {
+        setError(`Could not read ${failed.length} of ${files.length} screenshots (${failed.join(", ")}) — the rest are loaded.`);
+      }
+      applyParsed(all[0]);
+      setQueue(all.slice(1));
     } catch (err) {
       console.error(err);
       setError("Could not read the screenshot.");
     } finally {
       setParsing(false);
+      setParseProgress(null);
     }
   }
 
@@ -215,6 +227,7 @@ export default function ImportVacancyPage() {
           ref={fileInputRef}
           type="file"
           accept="image/png,image/jpeg,image/webp"
+          multiple
           onChange={handleScreenshot}
           className="hidden"
         />
@@ -225,7 +238,9 @@ export default function ImportVacancyPage() {
           className="ml-auto flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
         >
           {parsing ? <RefreshCw size={15} className="animate-spin" /> : <ImagePlus size={15} />}
-          {parsing ? "Reading screenshot..." : "Fill from screenshot"}
+          {parsing
+            ? `Reading screenshot${parseProgress ? ` ${parseProgress}` : ""}...`
+            : "Fill from screenshots"}
         </button>
         {saved.length > 0 && (
           <span className="rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-bold text-teal">
