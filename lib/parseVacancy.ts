@@ -1,4 +1,5 @@
 import { RANK_GROUPS } from "@/lib/ranks";
+import { companyFromEmail } from "@/lib/companyName";
 
 // Shared server-side vacancy parser used by both the admin image/text route
 // (api/admin/parse-vacancy-image) and the automated collector cron. Calls the
@@ -152,5 +153,10 @@ export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]
     ? [parsed]
     : [];
 
-  return list.filter((v) => v && typeof v === "object") as ParsedVacancy[];
+  return (list.filter((v) => v && typeof v === "object") as ParsedVacancy[]).map((v) => ({
+    ...v,
+    // When the model found a contact email but no company name, derive the
+    // name from the email domain (e.g. cv@ariesnav.com → "Ariesnav").
+    companyName: v.companyName?.trim() || companyFromEmail(v.contactEmail) || v.companyName || null,
+  }));
 }

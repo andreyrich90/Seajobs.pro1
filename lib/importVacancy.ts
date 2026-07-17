@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { companyFromEmail } from "@/lib/companyName";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
 // scraped draft. Finds/creates the company by name, then either refreshes a
@@ -35,7 +36,9 @@ export async function importVacancy(
   input: ImportVacancyInput
 ): Promise<ImportVacancyResult> {
   const title = input.title?.trim();
-  const companyName = input.companyName?.trim();
+  // Fall back to the crewing email's domain when no company name was parsed
+  // (e.g. cv@ariesnav.com → "Ariesnav").
+  const companyName = input.companyName?.trim() || companyFromEmail(input.contactEmail) || "";
   if (!title || !companyName) throw new Error("Title and company name are required");
 
   // Find or create company by name (case-insensitive).

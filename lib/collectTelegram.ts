@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 import { fetchTelegramPosts } from "@/lib/telegram";
 import { parseVacancies } from "@/lib/parseVacancy";
+import { companyFromEmail } from "@/lib/companyName";
 
 // Poll every active Telegram source and turn fresh posts into vacancy_drafts
 // for admin review. Shared by the hourly cron (api/cron/collect-telegram) and
@@ -61,6 +62,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
             .update(`tg:${source.handle}:${post.id ?? post.text}:${i}`)
             .digest("hex");
 
+          const contactEmail = v.contactEmail || source.default_contact_email || null;
           const { error: insErr } = await admin.from("vacancy_drafts").insert({
             source_id: source.id,
             source_kind: "telegram",
@@ -69,7 +71,10 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
             raw_text: post.text,
             parsed: {
               ...v,
-              contactEmail: v.contactEmail || source.default_contact_email || null,
+              contactEmail,
+              // Derive the company name from the crewing email when the post
+              // didn't state one (e.g. cv@ariesnav.com → "Ariesnav").
+              companyName: v.companyName || companyFromEmail(contactEmail) || null,
             },
             dedup_key: dedupKey,
             status: "pending",
