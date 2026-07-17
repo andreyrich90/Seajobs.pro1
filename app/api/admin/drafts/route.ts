@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { importVacancy, type ImportVacancyInput } from "@/lib/importVacancy";
+import { companyFromEmail } from "@/lib/companyName";
 
 export const runtime = "nodejs";
 
@@ -72,6 +73,7 @@ export async function POST(req: Request) {
     // Admin-edited fields (body.parsed) win over the stored parse.
     const p = { ...(draft.parsed ?? {}), ...(body.parsed ?? {}) } as ImportVacancyInput;
     if (!p.sourceUrl && draft.source_url) p.sourceUrl = draft.source_url;
+    if (!p.companyName?.trim()) p.companyName = companyFromEmail(p.contactEmail) ?? p.companyName;
     if (!p.title?.trim() || !p.companyName?.trim()) {
       return NextResponse.json(
         { ok: false, error: "Title and company name are required to approve" },
