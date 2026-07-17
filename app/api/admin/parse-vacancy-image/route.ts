@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { RANK_GROUPS } from "@/lib/ranks";
+import { parseVacancies } from "@/lib/parseVacancy";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -16,67 +16,8 @@ function getAdmin() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
-// Schema mirrors the fields the admin Import Vacancy form (and
-// api/admin/import-vacancy) accepts, so the parsed result can be dropped
-// straight into the form for review before saving.
-const SCHEMA_PROMPT = `You extract maritime job vacancy postings from the input, which is either a
-screenshot image or pasted text (e.g. Telegram channel posts).
-Return ONLY valid JSON — no markdown fences, no preamble, no commentary.
-
-The input may contain ONE vacancy or SEVERAL distinct vacancies (e.g. a list
-page, a table of open positions, several channel posts, or an agency post
-advertising multiple ranks). Ignore non-vacancy noise (greetings, ads, channel
-promos) — extract only actual job vacancies.
-Return one object PER DISTINCT VACANCY. A vacancy is distinct when it has its
-own rank/position (possibly with its own salary, vessel or joining date) —
-"Master and Chief Officer for mv X" is TWO vacancies sharing vessel data.
-Never merge different positions into one object.
-
-Schema:
-{
-  "vacancies": [
-    {
-      "companyName": string|null,
-      "companyLocation": string|null,
-      "companyWebsite": string|null,
-      "title": string|null,
-      "rank": string|null,
-      "vesselType": string|null,
-      "salaryFrom": number|null,
-      "salaryTo": number|null,
-      "currency": string|null,
-      "contractDuration": string|null,
-      "joiningDate": "YYYY-MM-DD"|null,
-      "description": string|null,
-      "contactEmail": string|null
-    }
-  ]
-}
-
-Rules (apply to every vacancy object):
-- "rank" must be one of: ${RANK_GROUPS.flatMap((g) => g.ranks).join(", ")}. Pick the closest match, or null if none fits.
-- "title" = a short job title, e.g. "Chief Officer — Oil Tanker".
-- "vesselType": ALWAYS extract when any hint exists — check the dedicated vessel-type field, the job title (e.g. "3rd Eng || LPG || Yara" → "LPG Carrier"), the vessel description or its specs. Normalise to a standard English name: "Bulk Carrier", "Container Ship", "Oil Tanker", "Chemical Tanker", "LPG Carrier", "LNG Carrier", "General Cargo", "Car Carrier (PCTC)", "Ro-Ro", "AHTS", "PSV", "OSV", "Tug", "Dredger", "Cruise Ship", "Ferry (RoPax)", "Fishing Vessel", etc. Use null ONLY when the screenshot gives no clue at all.
-- "salaryFrom"/"salaryTo" = plain numbers (monthly), no currency symbols. If only one figure is given, set both to it.
-- "currency" = 3-letter ISO code (USD, EUR, GBP...).
-- "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
-- "description" = a UNIQUE, rewritten job description in English Markdown — NOT a verbatim copy of the screenshot text (duplicated text hurts SEO). Rephrase everything in your own words and structure it as:
-    1. A 2–4 sentence intro paragraph in your own words (vessel type, trading area, contract length, salary — whatever is given). THIS is where the unique wording comes from.
-    2. "## Vessel particulars" — a bullet list of any ship specs present (type, IMO, flag, year built, GRT/DWT, main engine, sailing area). Omit this whole section if the screenshot has no specs.
-    3. "## Requirements" — include EVERY requirement that appears in the screenshot: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet in your own phrasing, but NONE may be dropped, merged away or replaced with a generic line — applicants must see the real requirements for this exact vacancy. Do NOT add requirements that are not in the screenshot.
-    4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager."
-  Uniqueness comes from rephrasing and the intro — never from inventing facts: only include specs, requirements and figures that actually appear in the screenshot. Skip any section whose data is absent (except "How to apply", which is always included).
-- When several vacancies share one vessel/company, repeat the shared company/vessel data in each object, but write each "description" separately with its own wording — no copy-pasted paragraphs between vacancies.
-- Use null for anything not present in the image. Do not invent data.`;
-
-interface AnthropicContentBlock {
-  type: string;
-  text?: string;
-}
-
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ ok: false, error: "missing_api_key" }, { status: 500 });
   }
 
@@ -106,86 +47,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "unsupported_input" }, { status: 400 });
     }
 
-    // Either an image (screenshot) or pasted text (e.g. Telegram channel posts).
-    const userContent = hasImage
-      ? [
-          {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: mediaType,
-              data: fileBase64!.includes(",") ? fileBase64!.slice(fileBase64!.indexOf(",") + 1) : fileBase64!,
-            },
-          },
-          { type: "text", text: "Extract every vacancy in this posting into the JSON schema." },
-        ]
-      : [
-          { type: "text", text: `Extract every vacancy in the text below into the JSON schema.\n\n---\n${text!.slice(0, 24000)}` },
-        ];
-
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 8192,
-        system: SCHEMA_PROMPT,
-        messages: [{ role: "user", content: userContent }],
-      }),
-    });
-
-    if (!r.ok) {
-      const detail = await r.text();
-      console.error("Anthropic error:", r.status, detail);
-      let message = detail;
-      try {
-        message = JSON.parse(detail)?.error?.message ?? detail;
-      } catch {
-        /* keep raw text */
+    let vacancies;
+    try {
+      vacancies = await parseVacancies(
+        hasImage ? { imageBase64: fileBase64, mediaType } : { text }
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("Vacancy parse failed:", msg);
+      if (msg.startsWith("anthropic_")) {
+        return NextResponse.json(
+          { ok: false, error: "api_failed", detail: msg.slice(0, 300) },
+          { status: 502 }
+        );
       }
       return NextResponse.json(
-        { ok: false, error: "api_failed", status: r.status, detail: String(message).slice(0, 300) },
-        { status: 502 }
+        { ok: false, error: "request_failed", detail: msg },
+        { status: 500 }
       );
     }
 
-    const data = await r.json();
-    const responseText: string = (data.content as AnthropicContentBlock[] | undefined ?? [])
-      .map((i) => i.text ?? "")
-      .join("");
-
-    const cleaned = responseText.replace(/```json|```/g, "").trim();
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
-    const jsonText = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch {
-      console.error("Vacancy parse: model did not return valid JSON:", cleaned.slice(0, 300));
+    if (!vacancies.length) {
       return NextResponse.json(
-        { ok: false, error: "parse_failed", detail: "The screenshot could not be read as structured data." },
-        { status: 422 }
-      );
-    }
-
-    // New schema: { vacancies: [...] }. Tolerate a bare single object or a bare
-    // array so prompt drift never breaks the admin form.
-    const obj = parsed as Record<string, unknown>;
-    const vacancies: unknown[] = Array.isArray(obj?.vacancies)
-      ? (obj.vacancies as unknown[])
-      : Array.isArray(parsed)
-      ? (parsed as unknown[])
-      : [parsed];
-
-    if (vacancies.length === 0) {
-      return NextResponse.json(
-        { ok: false, error: "parse_failed", detail: "No vacancy could be read from the screenshot." },
+        { ok: false, error: "parse_failed", detail: "No vacancy could be read from the input." },
         { status: 422 }
       );
     }
