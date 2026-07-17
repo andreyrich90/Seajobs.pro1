@@ -45,10 +45,17 @@ export default function ImportVacancyPage() {
   const [saved, setSaved] = useState<{ id: string; title: string }[]>([]);
   const [parsing, setParsing] = useState(false);
   const [parseProgress, setParseProgress] = useState<string | null>(null);
-  // Remaining vacancies from multi-vacancy screenshots; the next one is
+  // Remaining vacancies from multi-vacancy screenshots/text; the next one is
   // loaded into the form after each save (or via "load next").
   const [queue, setQueue] = useState<ParsedVacancy[]>([]);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function loadParsedList(list: ParsedVacancy[]) {
+    applyParsed(list[0]);
+    setQueue(list.slice(1));
+  }
 
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
@@ -134,14 +141,52 @@ export default function ImportVacancyPage() {
       if (failed.length > 0) {
         setError(`Could not read ${failed.length} of ${files.length} screenshots (${failed.join(", ")}) — the rest are loaded.`);
       }
-      applyParsed(all[0]);
-      setQueue(all.slice(1));
+      loadParsedList(all);
     } catch (err) {
       console.error(err);
       setError("Could not read the screenshot.");
     } finally {
       setParsing(false);
       setParseProgress(null);
+    }
+  }
+
+  async function handlePasteText() {
+    const text = pasteText.trim();
+    if (!text) return;
+    setParsing(true);
+    setError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setError("Not authenticated."); return; }
+
+      const res = await fetch("/api/admin/parse-vacancy-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ text }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        setError(data.detail ?? data.error ?? "Could not read the text.");
+        return;
+      }
+      const list: ParsedVacancy[] = Array.isArray(data.vacancies)
+        ? data.vacancies : data.vacancy ? [data.vacancy] : [];
+      if (list.length === 0) {
+        setError("No vacancy could be read from the text.");
+        return;
+      }
+      loadParsedList(list);
+      setPasteText("");
+      setPasteOpen(false);
+    } catch (err) {
+      console.error(err);
+      setError("Could not read the text.");
+    } finally {
+      setParsing(false);
     }
   }
 
@@ -239,8 +284,16 @@ export default function ImportVacancyPage() {
         >
           {parsing ? <RefreshCw size={15} className="animate-spin" /> : <ImagePlus size={15} />}
           {parsing
-            ? `Reading screenshot${parseProgress ? ` ${parseProgress}` : ""}...`
+            ? `Reading${parseProgress ? ` ${parseProgress}` : ""}...`
             : "Fill from screenshots"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setPasteOpen((o) => !o)}
+          disabled={parsing}
+          className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm font-semibold text-foam transition hover:bg-white/10 disabled:opacity-50"
+        >
+          <FileText size={15} /> Paste text
         </button>
         {saved.length > 0 && (
           <span className="rounded-full bg-teal/10 border border-teal/20 px-3 py-1 text-xs font-bold text-teal">
@@ -249,7 +302,43 @@ export default function ImportVacancyPage() {
         )}
       </div>
 
-      {/* Multi-vacancy screenshot queue */}
+      {/* Paste text (e.g. Telegram channel posts) */}
+      {pasteOpen && (
+        <div className="mb-6 rounded-2xl border border-white/10 bg-navy2 p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mist">
+            Paste vacancy text — one or many postings (e.g. copied Telegram posts). Claude splits them into separate vacancies.
+          </p>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            rows={8}
+            placeholder="Paste vacancy text here…"
+            disabled={parsing}
+            className="w-full rounded-xl border border-white/10 bg-navy px-4 py-3 text-sm text-white outline-none focus:border-brass placeholder:text-mist/40"
+          />
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handlePasteText}
+              disabled={parsing || !pasteText.trim()}
+              className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+            >
+              {parsing ? <RefreshCw size={15} className="animate-spin" /> : <FileText size={15} />}
+              {parsing ? "Reading text..." : "Parse text"}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setPasteText(""); setPasteOpen(false); }}
+              disabled={parsing}
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Multi-vacancy screenshot/text queue */}
       {queue.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-brass/30 bg-brass/10 p-4">
           <p className="text-sm font-semibold text-brass2">
