@@ -50,6 +50,7 @@ export async function POST(req: Request) {
       handle,
       label: body.label?.trim() || null,
       default_contact_email: body.defaultContactEmail?.trim() || null,
+      auto_publish: typeof body.autoPublish === "boolean" ? body.autoPublish : true,
     })
     .select("*")
     .single();
@@ -66,6 +67,7 @@ export async function PATCH(req: Request) {
   if (!body.id) return NextResponse.json({ ok: false, error: "missing_id" }, { status: 400 });
   const patch: Record<string, unknown> = {};
   if (typeof body.is_active === "boolean") patch.is_active = body.is_active;
+  if (typeof body.auto_publish === "boolean") patch.auto_publish = body.auto_publish;
   if (typeof body.label === "string") patch.label = body.label.trim() || null;
   if (typeof body.defaultContactEmail === "string")
     patch.default_contact_email = body.defaultContactEmail.trim() || null;
