@@ -7,6 +7,7 @@ import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import PopularJobLinks from "@/components/PopularJobLinks";
+import NoPaymentWarning from "@/components/NoPaymentWarning";
 
 const SOCIAL = [
   {
@@ -149,6 +150,8 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+
+        <NoPaymentWarning className="mt-10" />
 
         <PopularJobLinks variant="footer" />
 

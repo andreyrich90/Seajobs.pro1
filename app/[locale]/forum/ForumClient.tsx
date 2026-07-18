@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import { MessageSquare, Pin, Plus, X, AlertCircle, LogIn } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NoPaymentWarning from "@/components/NoPaymentWarning";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { supabase } from "@/lib/supabase/client";
 import type { ForumTopic, ForumCategory } from "@/lib/supabase/types";
@@ -234,6 +235,8 @@ export default function ForumClient({
             </NextLink>
           )}
         </div>
+
+        <NoPaymentWarning className="mb-8" />
 
         {showForm && (
           <div className="mb-8 rounded-2xl border border-brass/20 bg-card p-6">
