@@ -3,11 +3,14 @@ import { createHash } from "crypto";
 import { fetchTelegramPosts } from "@/lib/telegram";
 import { parseVacancies } from "@/lib/parseVacancy";
 import { companyFromEmail } from "@/lib/companyName";
+import { importVacancy } from "@/lib/importVacancy";
 
-// Poll every active Telegram source and turn fresh posts into vacancy_drafts
-// for admin review. Shared by the hourly cron (api/cron/collect-telegram) and
-// the admin "run now" button (api/admin/collect-now). Nothing goes live here —
-// drafts only become real vacancies when an admin approves them.
+// Poll every active Telegram source and turn fresh posts into vacancies.
+// Shared by the hourly cron (api/cron/collect-telegram) and the admin "run now"
+// button (api/admin/collect-now). Per source: auto_publish channels turn a
+// qualifying post (position + crewing name) straight into a live vacancy;
+// otherwise it becomes a pending draft for manual review. Posts with no crewing
+// name at all are dropped either way.
 
 // Cap posts parsed per run so one busy channel can't blow the time/token budget.
 const MAX_POSTS_PER_SOURCE = 8;
@@ -19,6 +22,7 @@ export type CollectReport = {
   ok: boolean;
   sources: number;
   drafts: number;
+  published: number;
   report: Array<Record<string, unknown>>;
 };
 
@@ -33,6 +37,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
 
   const report: Array<Record<string, unknown>> = [];
   let totalDrafts = 0;
+  let totalPublished = 0;
 
   for (const source of sources ?? []) {
     const entry: Record<string, unknown> = { handle: source.handle };
@@ -47,6 +52,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
 
       let maxId = hwm;
       let drafted = 0;
+      let published = 0;
       let scanned = 0;
       let skipped = 0; // vacancies dropped for having no crewing name
 
@@ -72,6 +78,35 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
           const dedupKey = createHash("sha256")
             .update(`tg:${source.handle}:${post.id ?? post.text}:${i}`)
             .digest("hex");
+          const payload = { ...v, contactEmail, companyName };
+
+          // Auto-publish channels: qualifying posts (position + crewing name)
+          // become live vacancies straight away. Dedup + the unique-description
+          // rewrite already run inside importVacancy / the parser. A record is
+          // still written to vacancy_drafts (status "approved") for the audit
+          // trail and the dedup key. Sources with auto_publish off go to the
+          // manual review queue as pending drafts.
+          if (source.auto_publish) {
+            try {
+              const res = await importVacancy(admin, { ...payload, sourceUrl: post.url });
+              published++;
+              await admin.from("vacancy_drafts").insert({
+                source_id: source.id, source_kind: "telegram", source_handle: source.handle,
+                source_url: post.url, raw_text: post.text, parsed: payload,
+                dedup_key: dedupKey, status: "approved",
+                vacancy_id: res.vacancyId, reviewed_at: new Date().toISOString(),
+              });
+            } catch {
+              // Publishing failed — fall back to a pending draft so it's not lost.
+              const { error: fbErr } = await admin.from("vacancy_drafts").insert({
+                source_id: source.id, source_kind: "telegram", source_handle: source.handle,
+                source_url: post.url, raw_text: post.text, parsed: payload,
+                dedup_key: dedupKey, status: "pending",
+              });
+              if (!fbErr) drafted++;
+            }
+            continue;
+          }
 
           const { error: insErr } = await admin.from("vacancy_drafts").insert({
             source_id: source.id,
@@ -79,7 +114,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
             source_handle: source.handle,
             source_url: post.url,
             raw_text: post.text,
-            parsed: { ...v, contactEmail, companyName },
+            parsed: payload,
             dedup_key: dedupKey,
             status: "pending",
           });
@@ -93,8 +128,10 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
         .eq("id", source.id);
 
       totalDrafts += drafted;
+      totalPublished += published;
       entry.scanned = scanned;
       entry.drafted = drafted;
+      entry.published = published;
       entry.skippedNoName = skipped;
       entry.newHwm = maxId;
     } catch (e) {
@@ -108,5 +145,5 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
     report.push(entry);
   }
 
-  return { ok: true, sources: report.length, drafts: totalDrafts, report };
+  return { ok: true, sources: report.length, drafts: totalDrafts, published: totalPublished, report };
 }

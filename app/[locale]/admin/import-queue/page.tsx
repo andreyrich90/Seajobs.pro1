@@ -17,6 +17,7 @@ type Source = {
   label: string | null;
   default_contact_email: string | null;
   is_active: boolean;
+  auto_publish: boolean;
   last_checked_at: string | null;
   last_post_id: number | null;
   last_error: string | null;
@@ -117,6 +118,14 @@ export default function ImportQueuePage() {
     load();
   }
 
+  async function toggleAutoPublish(s: Source) {
+    await authFetch("/api/admin/sources", {
+      method: "PATCH",
+      body: JSON.stringify({ id: s.id, auto_publish: !s.auto_publish }),
+    });
+    load();
+  }
+
   async function deleteSource(s: Source) {
     if (!confirm(`Remove @${s.handle}?`)) return;
     await authFetch("/api/admin/sources", { method: "DELETE", body: JSON.stringify({ id: s.id }) });
@@ -131,7 +140,9 @@ export default function ImportQueuePage() {
       const res = await authFetch("/api/admin/collect-now", { method: "POST" });
       const json = await res.json();
       if (!json.ok) { setError(json.error ?? "Collection failed"); return; }
-      setNotice(`Collected ${json.drafts} new draft(s) from ${json.sources} source(s).`);
+      setNotice(
+        `From ${json.sources} source(s): ${json.published ?? 0} published, ${json.drafts} queued for review.`
+      );
       load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Collection failed");
@@ -196,6 +207,17 @@ export default function ImportQueuePage() {
               </a>
               {s.label && <span className="text-xs text-mist">· {s.label}</span>}
               {s.default_contact_email && <span className="text-xs text-mist">· {s.default_contact_email}</span>}
+              <button
+                onClick={() => toggleAutoPublish(s)}
+                title={s.auto_publish ? "Auto-publishing — click to send to review instead" : "Review queue — click to auto-publish"}
+                className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold transition ${
+                  s.auto_publish
+                    ? "border-teal/30 bg-teal/10 text-teal hover:bg-teal/20"
+                    : "border-brass/30 bg-brass/10 text-brass2 hover:bg-brass/20"
+                }`}
+              >
+                {s.auto_publish ? "Auto-publish" : "Review first"}
+              </button>
               <span className="ml-auto text-[11px] text-mist">
                 {s.last_error
                   ? <span className="text-coral">error: {s.last_error.slice(0, 60)}</span>
