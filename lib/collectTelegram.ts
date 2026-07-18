@@ -48,6 +48,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       let maxId = hwm;
       let drafted = 0;
       let scanned = 0;
+      let skipped = 0; // vacancies dropped for having no crewing name
 
       for (const post of fresh) {
         if (post.id && post.id > maxId) maxId = post.id;
@@ -58,24 +59,27 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
         for (let i = 0; i < parsed.length; i++) {
           const v = parsed[i];
           if (!v.title && !v.rank) continue;
+
+          const contactEmail = v.contactEmail || source.default_contact_email || null;
+          // Company name: stated in the post, else derived from the crewing
+          // email domain (cv@ariesnav.com → "Ariesnav"). We only keep vacancies
+          // that end up with a real crewing name — posts with no name and only
+          // a free mailbox (gmail, mail.ru, …) or no email at all are skipped
+          // entirely so the site stays clean of anonymous listings.
+          const companyName = v.companyName?.trim() || companyFromEmail(contactEmail);
+          if (!companyName) { skipped++; continue; }
+
           const dedupKey = createHash("sha256")
             .update(`tg:${source.handle}:${post.id ?? post.text}:${i}`)
             .digest("hex");
 
-          const contactEmail = v.contactEmail || source.default_contact_email || null;
           const { error: insErr } = await admin.from("vacancy_drafts").insert({
             source_id: source.id,
             source_kind: "telegram",
             source_handle: source.handle,
             source_url: post.url,
             raw_text: post.text,
-            parsed: {
-              ...v,
-              contactEmail,
-              // Derive the company name from the crewing email when the post
-              // didn't state one (e.g. cv@ariesnav.com → "Ariesnav").
-              companyName: v.companyName || companyFromEmail(contactEmail) || null,
-            },
+            parsed: { ...v, contactEmail, companyName },
             dedup_key: dedupKey,
             status: "pending",
           });
@@ -91,6 +95,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       totalDrafts += drafted;
       entry.scanned = scanned;
       entry.drafted = drafted;
+      entry.skippedNoName = skipped;
       entry.newHwm = maxId;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
