@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { useLang } from "@/components/LangProvider";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
@@ -494,6 +495,8 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
             <div className="rounded-2xl border border-white/10 bg-card p-6">
               <h2 className="font-display text-lg font-semibold text-white mb-4">Apply for this Position</h2>
 
+              <NoPaymentWarning variant="compact" className="mb-4" />
+
               {!userId && (
                 <div>
                   <p className="text-sm text-mist mb-4">Sign in or create a free seafarer account to apply — your CV is sent to the crewing agency with one click.</p>
@@ -696,6 +699,7 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                     <CheckCircle2 size={16} /> Your profile is complete — your CV will be sent with this application.
                   </p>
                 )}
+                <NoPaymentWarning variant="compact" className="mb-4" />
                 <div className="flex flex-col gap-1.5 mb-4">
                   <label className="text-sm font-semibold text-foam">
                     Cover Letter <span className="text-mist font-normal">(optional)</span>

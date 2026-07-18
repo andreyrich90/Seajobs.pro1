@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { Building2, Send, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
+import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { T } from "@/lib/i18n";
 
 type ApplicationRow = {
@@ -105,6 +106,8 @@ export default function ApplicationsPage() {
         <h1 className="font-display text-2xl font-semibold text-white">{t.app_title}</h1>
         <p className="mt-1 text-sm text-mist">{applications.length} {t.app_count}</p>
       </div>
+
+      <NoPaymentWarning variant="compact" className="mb-6" />
 
       {applications.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-card p-12 text-center">

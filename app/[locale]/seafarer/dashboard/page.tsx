@@ -6,6 +6,7 @@ import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOf
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
+import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { T, type Lang } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
@@ -103,6 +104,8 @@ export default function DashboardPage() {
 
   return (
     <div className="p-8 max-w-5xl">
+      <NoPaymentWarning className="mb-6" />
+
       {/* Welcome card */}
       <div className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6 mb-6">
         <p className="text-sm text-mist mb-1">{t.dash_welcome}</p>
