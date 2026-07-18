@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { companyFromEmail } from "@/lib/companyName";
 
 type Source = {
   id: string;
@@ -262,7 +263,14 @@ function DraftCard({
   onError: (m: string) => void;
   onNotice: (m: string) => void;
 }) {
-  const [p, setP] = useState<Parsed>(draft.parsed ?? {});
+  // Fill the company from the crewing email domain when the stored draft has
+  // none (older drafts collected before the fallback shipped).
+  const [p, setP] = useState<Parsed>(() => {
+    const base = draft.parsed ?? {};
+    if (base.companyName?.trim()) return base;
+    const derived = companyFromEmail(base.contactEmail);
+    return derived ? { ...base, companyName: derived } : base;
+  });
   const [busy, setBusy] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
 
