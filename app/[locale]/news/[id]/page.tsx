@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
 import { NEWS } from "@/lib/data";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
-import { extractId } from "@/lib/slug";
+import { extractId, slugId } from "@/lib/slug";
 import ArticleClient from "./ArticleClient";
 
 export const dynamicParams = true;
@@ -90,7 +90,12 @@ export async function generateMetadata(
 
   const title = `${titleLoc || titleEn} | SeaJobs.pro`;
   const description = excerpt(bodyLoc || bodyEn, 160);
-  const languages = hreflangAlternates(`/news/${id}`);
+  // Normalise the canonical to a stable slug built from the English title, so
+  // every slug-variant of the same article (routing is slug-agnostic, matched
+  // by the trailing UUID) points to one canonical URL — otherwise Google sees
+  // duplicates with no user-selected canonical.
+  const path = uuid ? `/news/${slugId(titleEn || titleLoc, uuid)}` : `/news/${id}`;
+  const languages = hreflangAlternates(path);
 
   return {
     title,
@@ -103,7 +108,7 @@ export async function generateMetadata(
       description,
       type: "article",
       siteName: "SeaJobs.pro",
-      url: canonicalUrl(`/news/${id}`, locale),
+      url: canonicalUrl(path, locale),
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
       ...(date ? { publishedTime: new Date(date).toISOString() } : {}),
@@ -115,7 +120,7 @@ export async function generateMetadata(
       description,
     },
     alternates: {
-      canonical: canonicalUrl(`/news/${id}`, locale),
+      canonical: canonicalUrl(path, locale),
       languages,
     },
   };
@@ -124,6 +129,7 @@ export async function generateMetadata(
 type InitialArticle = {
   id: string;
   title: string;
+  slugTitle: string; // English title used for the stable canonical slug
   body: string;
   tag: string;
   gradient: string;
@@ -138,6 +144,7 @@ async function resolveArticle(id: string, locale: string): Promise<InitialArticl
     return {
       id,
       title: loc(found.title, locale),
+      slugTitle: loc(found.title, "en") || loc(found.title, locale),
       body: loc(found.body, locale),
       tag: found.tag,
       gradient: found.gradient,
@@ -156,6 +163,7 @@ async function resolveArticle(id: string, locale: string): Promise<InitialArticl
         return {
           id,
           title: loc(data.title, locale),
+          slugTitle: loc(data.title, "en") || loc(data.title, locale),
           body: loc(data.body, locale),
           tag: data.tag ?? "News",
           gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
@@ -177,6 +185,9 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
   const initialArticle = await resolveArticle(id, locale);
   if (!initialArticle) return <ArticleClient id={id} initialArticle={initialArticle} />;
 
+  const nUuid = extractId(id);
+  const canonicalPath = nUuid ? `/news/${slugId(initialArticle.slugTitle, nUuid)}` : `/news/${id}`;
+
   const publishedDate = initialArticle.date ? new Date(initialArticle.date) : null;
   const jsonLd = {
     "@context": "https://schema.org",
@@ -191,7 +202,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
       "name": "SeaJobs.pro",
       "logo": { "@type": "ImageObject", "url": `${BASE_URL}/logo-oauth.png`, "width": 120, "height": 120 },
     },
-    "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl(`/news/${id}`, locale) },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl(canonicalPath, locale) },
   };
 
   const NEWS_CRUMB: Record<string, { home: string; news: string }> = {
@@ -209,7 +220,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ id
     itemListElement: [
       { "@type": "ListItem", position: 1, name: nc.home, item: `${BASE_URL}${prefix}/` },
       { "@type": "ListItem", position: 2, name: nc.news, item: `${BASE_URL}${prefix}/news` },
-      { "@type": "ListItem", position: 3, name: initialArticle.title, item: canonicalUrl(`/news/${id}`, locale) },
+      { "@type": "ListItem", position: 3, name: initialArticle.title, item: canonicalUrl(canonicalPath, locale) },
     ],
   };
 
