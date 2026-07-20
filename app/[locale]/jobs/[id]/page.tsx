@@ -164,20 +164,27 @@ export default async function VacancyPage(
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
   };
 
-  if (vacancy.salary_from || vacancy.salary_to) {
-    // Google wants either a single `value` or a complete `minValue`+`maxValue`
-    // pair. Providing only one bound triggers a "missing maxValue" warning, so
-    // when just one number is set we emit it as a single `value` instead.
+  // Always emit baseSalary — Google flags "missing field baseSalary" otherwise.
+  // Google wants either a single `value` or a complete `minValue`+`maxValue`
+  // pair. Providing only one bound triggers a "missing maxValue" warning, so
+  // when just one number is set we emit it as a single `value`. When no salary
+  // is given at all (common for scraped/imported vacancies), we fall back to a
+  // nominal 1 USD placeholder so the structured data stays valid — the visible
+  // card shows no salary, so no "$1" is displayed to seafarers.
+  {
     const hasRange = vacancy.salary_from && vacancy.salary_to;
     const single = vacancy.salary_from ?? vacancy.salary_to;
+    const hasAny = vacancy.salary_from || vacancy.salary_to;
     jsonLd["baseSalary"] = {
       "@type": "MonetaryAmount",
-      "currency": vacancy.currency,
+      "currency": hasAny ? vacancy.currency : "USD",
       "value": {
         "@type": "QuantitativeValue",
         ...(hasRange
           ? { "minValue": vacancy.salary_from, "maxValue": vacancy.salary_to }
-          : { "value": single }),
+          : hasAny
+          ? { "value": single }
+          : { "minValue": 1, "maxValue": 1 }),
         "unitText": vacancy.salary_period === "day" ? "DAY" : "MONTH",
       },
     };
