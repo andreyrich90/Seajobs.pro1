@@ -51,6 +51,7 @@ const orgJsonLd = {
         "@type": "ImageObject",
         "url": "https://seajobs.pro/opengraph-image",
       },
+      "sameAs": ["https://www.linkedin.com/in/seajobs-pro"],
     },
     {
       "@type": "WebSite",

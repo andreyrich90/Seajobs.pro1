@@ -12,7 +12,7 @@ import NoPaymentWarning from "@/components/NoPaymentWarning";
 const SOCIAL = [
   {
     label: "LinkedIn",
-    href: "https://linkedin.com/company/seajobspro",
+    href: "https://www.linkedin.com/in/seajobs-pro",
     icon: (
       <Linkedin size={18} />
     ),
