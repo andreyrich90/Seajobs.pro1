@@ -2,7 +2,7 @@ import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { extractId } from "@/lib/slug";
+import { extractId, slugId } from "@/lib/slug";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import type { Lang } from "@/lib/i18n";
@@ -55,7 +55,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!guide) return { title: "Guide not found — SeaJobs.pro" };
   const title = `${guide.title} | SeaJobs.pro`;
   const description = excerpt(guide.body, 160);
-  const canonical = canonicalUrl(`/guides/${id}`, locale);
+  // Normalise the canonical to a stable slug (routing is slug-agnostic, matched
+  // by the trailing UUID) so slug-variants don't create duplicate canonicals.
+  const uuid = extractId(id);
+  const gPath = uuid ? `/guides/${slugId(guide.title, uuid)}` : `/guides/${id}`;
+  const canonical = canonicalUrl(gPath, locale);
   return {
     title,
     description,
@@ -65,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       ...(guide.coverUrl ? { images: [guide.coverUrl] } : {}),
     },
     twitter: { card: "summary_large_image", title, description },
-    alternates: { canonical, languages: hreflangAlternates(`/guides/${id}`) },
+    alternates: { canonical, languages: hreflangAlternates(gPath) },
   };
 }
 
@@ -78,6 +82,8 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
   const ui = GUIDES_UI[locale as Lang] ?? GUIDES_UI.en;
   const prefix = locale === "en" ? "" : `/${locale}`;
   const published = guide.date ? new Date(guide.date).toISOString() : undefined;
+  const gUuid = extractId(id);
+  const gCanonical = canonicalUrl(gUuid ? `/guides/${slugId(guide.title, gUuid)}` : `/guides/${id}`, locale);
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -92,7 +98,7 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
       name: "SeaJobs.pro",
       logo: { "@type": "ImageObject", url: `${BASE_URL}/logo-oauth.png`, width: 120, height: 120 },
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl(`/guides/${id}`, locale) },
+    mainEntityOfPage: { "@type": "WebPage", "@id": gCanonical },
   };
   const breadcrumbLd = {
     "@context": "https://schema.org",
@@ -100,7 +106,7 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
     itemListElement: [
       { "@type": "ListItem", position: 1, name: ui.home, item: `${BASE_URL}${prefix}/` },
       { "@type": "ListItem", position: 2, name: ui.crumb, item: `${BASE_URL}${prefix}/guides` },
-      { "@type": "ListItem", position: 3, name: guide.title, item: canonicalUrl(`/guides/${id}`, locale) },
+      { "@type": "ListItem", position: 3, name: guide.title, item: gCanonical },
     ],
   };
 
