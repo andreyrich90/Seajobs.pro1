@@ -4,6 +4,9 @@ import type { MetadataRoute } from "next";
 const DISALLOW = [
   "/seafarer/", "/company/", "/admin/", "/auth/",
   "/*/seafarer/", "/*/company/", "/*/admin/",
+  // Public seafarer profiles hold personal CV data — keep them out of search
+  // for privacy (GDPR); companies view them while logged in via direct links.
+  "/seafarers/", "/*/seafarers/",
 ];
 
 // AI search / assistant crawlers, listed explicitly so our welcome is
