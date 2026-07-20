@@ -20,6 +20,7 @@ export type ParsedVacancy = {
   joiningDate?: string | null;
   description?: string | null;
   contactEmail?: string | null;
+  contactPhone?: string | null;
 };
 
 // Schema mirrors the fields the admin Import Vacancy form (and
@@ -53,7 +54,8 @@ Schema:
       "contractDuration": string|null,
       "joiningDate": "YYYY-MM-DD"|null,
       "description": string|null,
-      "contactEmail": string|null
+      "contactEmail": string|null,
+      "contactPhone": string|null
     }
   ]
 }
@@ -71,6 +73,7 @@ Rules (apply to every vacancy object):
     3. "## Requirements" — include EVERY requirement that appears in the source: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet in your own phrasing, but NONE may be dropped, merged away or replaced with a generic line — applicants must see the real requirements for this exact vacancy. Do NOT add requirements that are not in the source.
     4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager."
   Uniqueness comes from rephrasing and the intro — never from inventing facts: only include specs, requirements and figures that actually appear in the source. Skip any section whose data is absent (except "How to apply", which is always included).
+- "contactPhone": if the ad gives a phone/WhatsApp/Viber/Telegram number to reach the crewing, extract it in international format where possible (e.g. "+380 50 123 45 67"). Null if none is shown. Do NOT invent a number.
 - When several vacancies share one vessel/company, repeat the shared company/vessel data in each object, but write each "description" separately with its own wording — no copy-pasted paragraphs between vacancies.
 - Use null for anything not present in the source. Do not invent data.`;
 
