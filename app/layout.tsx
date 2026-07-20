@@ -111,6 +111,18 @@ export default async function RootLayout({
             gtag('config', 'G-1H5KRW7TS9');
           `}
         </Script>
+        {/* Plerdy — heatmaps, click maps and behaviour analytics */}
+        <Script id="plerdy" strategy="afterInteractive">
+          {`
+            var _protocol="https:"==document.location.protocol?"https://":"http://";
+            _site_hash_code = "8275a467c76f1af4b73873ff85dd9ca4",_suid=77434, plerdyScript=document.createElement("script");
+            plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
+            plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+            var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
+            plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
+            try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
+          `}
+        </Script>
         <NextIntlClientProvider locale="en" messages={enMessages}>
           <ThemeProvider>
             <LangProvider>{children}</LangProvider>
