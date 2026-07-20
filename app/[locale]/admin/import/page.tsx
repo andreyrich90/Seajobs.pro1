@@ -24,7 +24,7 @@ const empty = () => ({
   companyName: "", companyLocation: "", companyWebsite: "",
   title: "", rank: "", vesselType: "",
   salaryFrom: "", salaryTo: "", currency: "USD",
-  contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "",
+  contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "", contactPhone: "",
 });
 
 type Form = ReturnType<typeof empty>;
@@ -35,7 +35,7 @@ type ParsedVacancy = {
   title?: string | null; rank?: string | null; vesselType?: string | null;
   salaryFrom?: number | null; salaryTo?: number | null; currency?: string | null;
   contractDuration?: string | null; joiningDate?: string | null;
-  description?: string | null; contactEmail?: string | null;
+  description?: string | null; contactEmail?: string | null; contactPhone?: string | null;
 };
 
 export default function ImportVacancyPage() {
@@ -101,6 +101,7 @@ export default function ImportVacancyPage() {
       joiningDate: v.joiningDate ?? "",
       description: v.description ?? "",
       contactEmail: v.contactEmail ?? p.contactEmail,
+      contactPhone: v.contactPhone ?? p.contactPhone,
       // sourceUrl is set manually and shared by all vacancies from one page.
     }));
   }
@@ -247,6 +248,7 @@ export default function ImportVacancyPage() {
         description:      form.description,
         sourceUrl:        form.sourceUrl,
         contactEmail:     form.contactEmail,
+        contactPhone:     form.contactPhone,
       }),
     });
 
@@ -586,6 +588,20 @@ export default function ImportVacancyPage() {
             />
             <p className="mt-2 text-xs text-mist">
               If set, &quot;Apply&quot; sends the seafarer&apos;s profile (name, rank, experience, certificates, contacts) directly to this email instead of the in-app inbox.
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <label className={labelClass}>Crewing contact phone (optional)</label>
+            <input
+              type="tel"
+              value={form.contactPhone}
+              onChange={set("contactPhone")}
+              placeholder="+380 50 123 45 67"
+              className={inputClass}
+            />
+            <p className="mt-2 text-xs text-mist">
+              If the ad lists a phone/WhatsApp/Viber, it is shown on the vacancy page so seafarers can contact the crewing directly.
             </p>
           </div>
         </div>

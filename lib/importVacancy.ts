@@ -22,6 +22,7 @@ export type ImportVacancyInput = {
   description?: string | null;
   sourceUrl?: string | null;
   contactEmail?: string | null;
+  contactPhone?: string | null;
 };
 
 export type ImportVacancyResult = {
@@ -75,6 +76,7 @@ export async function importVacancy(
     is_imported: true,
     source_url: input.sourceUrl?.trim() || null,
     contact_email: input.contactEmail?.trim() || null,
+    contact_phone: input.contactPhone?.trim() || null,
   };
 
   // Recurring posting (same company + title) → refresh instead of cloning.

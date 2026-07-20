@@ -37,6 +37,7 @@ type Parsed = {
   joiningDate?: string | null;
   description?: string | null;
   contactEmail?: string | null;
+  contactPhone?: string | null;
 };
 
 type Draft = {
@@ -390,6 +391,10 @@ function DraftCard({
         <label>
           <span className="mb-1 block text-xs text-mist">Joining date</span>
           <input type="date" value={p.joiningDate ?? ""} onChange={set("joiningDate")} className={inputCls} />
+        </label>
+        <label className="sm:col-span-2">
+          <span className="mb-1 block text-xs text-mist">Contact phone</span>
+          <input value={p.contactPhone ?? ""} onChange={set("contactPhone")} placeholder="+380 50 123 45 67" className={inputCls} />
         </label>
         <label className="sm:col-span-2">
           <span className="mb-1 block text-xs text-mist">Description</span>

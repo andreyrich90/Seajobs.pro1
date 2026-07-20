@@ -56,7 +56,7 @@ async function fetchVacancy(param: string): Promise<VacancyFull | null> {
   const id = extractId(param) ?? param; // accept "<slug>-<uuid>" or bare id
   const { data } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, contact_phone, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
   return (data as VacancyFull | null);

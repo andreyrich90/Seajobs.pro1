@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -36,6 +36,7 @@ export type VacancyDetail = {
   is_imported?: boolean;
   source_url?: string | null;
   contact_email?: string | null;
+  contact_phone?: string | null;
   companies: {
     id: string;
     name: string | null;
@@ -594,6 +595,16 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 >
                   <Globe size={14} className="shrink-0" />
                   Visit website
+                </a>
+              )}
+
+              {vacancy.contact_phone && (
+                <a
+                  href={`tel:${vacancy.contact_phone.replace(/[^\d+]/g, "")}`}
+                  className="mt-2 flex items-center gap-2 text-sm text-brass2 hover:text-brass transition"
+                >
+                  <Phone size={14} className="shrink-0" />
+                  {vacancy.contact_phone}
                 </a>
               )}
             </div>
