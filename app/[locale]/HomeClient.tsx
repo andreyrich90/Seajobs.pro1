@@ -8,6 +8,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
+import SalaryStatsWidget from "@/components/SalaryStats";
+import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
 import { T } from "@/lib/i18n";
@@ -22,6 +24,7 @@ export type DbVacancy = {
   vessel_type: string | null;
   salary_from: number | null;
   salary_to: number | null;
+  salary_period: string | null;
   currency: string;
   joining_date: string | null;
   companies: { name: string | null; is_verified: boolean } | null;
@@ -58,9 +61,11 @@ const NEWS_TAG_COLORS: Record<string, string> = {
 export default function HomeClient({
   initialVacancies,
   initialNews,
+  salaryStats,
 }: {
   initialVacancies: DbVacancy[];
   initialNews: DbNews[];
+  salaryStats: SalaryStats;
 }) {
   const { lang } = useLang();
   const [query, setQuery] = useState("");
@@ -190,8 +195,12 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* Right column — floating live vacancy cards */}
-          {heroCards.length > 0 && (
+          {/* Right column — live salary comparison across fleets */}
+          {salaryStats.hasData ? (
+            <div className="relative">
+              <SalaryStatsWidget stats={salaryStats} />
+            </div>
+          ) : heroCards.length > 0 && (
             <div className="relative hidden lg:block">
               <div className="flex flex-col gap-4">
                 {heroCards.map((v, i) => (
