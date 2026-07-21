@@ -19,32 +19,68 @@ export const SALARY_VESSELS: VesselCol[] = [
     key: "bulk-carrier",
     // Bulk carriers + general cargo / MPP grouped together (per product decision).
     keywords: [
-      "bulk", "bulker", "handysize", "handymax", "supramax", "panamax", "capesize",
-      "general cargo", "multipurpose", "multi-purpose", "mpp", "coaster", "heavy lift", "cargo ship",
+      "bulk", "bulker", "handysize", "handymax", "supramax", "ultramax", "kamsarmax", "panamax", "capesize", "newcastlemax",
+      "general cargo", "multipurpose", "multi-purpose", "mpp", "coaster", "heavy lift", "heavylift", "project cargo",
+      "cargo ship", "self-unloader", "wood chip", "woodchip", "cement carrier", "log carrier", "obo carrier",
     ],
     names: { en: "Bulk / GC", ru: "Балкер / GC", ua: "Балкер / GC", pl: "Masowiec / GC", ro: "Vrachier / GC" },
   },
   {
     key: "tanker",
-    keywords: ["tanker", "crude", "oil", "product", "chemical", "vlcc", "suezmax", "aframax", "bitumen"],
+    keywords: [
+      "tanker", "crude", "oil tanker", "oil/chem", "oil / chem", "product tanker", "products tanker",
+      "chemical", "chem tanker", "vlcc", "suezmax", "aframax", "panamax tanker", "lr1", "lr2", "mr tanker", "handy tanker",
+      "bitumen", "asphalt", "bunker", "shuttle tanker", "clean petroleum", "cpp",
+    ],
     names: { en: "Tanker", ru: "Танкер", ua: "Танкер", pl: "Zbiornikowiec", ro: "Tanc" },
   },
   {
     key: "gas-carrier",
-    keywords: ["lng", "lpg", "gas carrier", "gas tanker", "ethylene", "vlgc"],
+    keywords: ["lng", "lpg", "lng carrier", "lpg carrier", "gas carrier", "gas tanker", "ethylene", "ethane", "ammonia carrier", "vlgc", "vlec", "co2 carrier"],
     names: { en: "Gas (LNG/LPG)", ru: "Газовоз", ua: "Газовоз", pl: "Gazowiec", ro: "Gaz" },
   },
   {
     key: "container-ship",
-    keywords: ["container", "feeder", "boxship"],
+    keywords: ["container", "containership", "container ship", "feeder", "boxship", "box ship", "teu", "post-panamax container", "ulcs"],
     names: { en: "Container", ru: "Контейнеровоз", ua: "Контейнеровоз", pl: "Kontenerowiec", ro: "Portcontainer" },
   },
   {
     key: "offshore",
-    keywords: ["offshore", "ahts", "psv", "osv", "supply vessel", "dp2", "dp3", "platform", "wind", "ctv", "sov", "rov", "diving", "construction vessel", "jack-up", "drill"],
+    keywords: [
+      "offshore", "ahts", "anchor handling", "psv", "osv", "supply vessel", "supply ship", "dp1", "dp2", "dp3", "dynamic position",
+      "platform", "wind", "windfarm", "wind farm", "ctv", "sov", "csv", "rov", "diving", "dsv", "construction vessel",
+      "jack-up", "jackup", "drill", "drillship", "rig", "fpso", "fso", "flng", "cable lay", "cable-lay", "pipe lay", "pipelay",
+      "seismic", "survey vessel", "accommodation", "walk to work", "w2w", "semi-sub", "semisub", "tug", "asd tug",
+    ],
     names: { en: "Offshore", ru: "Оффшор", ua: "Офшор", pl: "Offshore", ro: "Offshore" },
   },
 ];
+
+// Rank spelling variants seen in vacancy `rank` fields (abbreviations, full
+// forms), so every rank row catches its postings regardless of how they were
+// entered. Matched as case-insensitive substrings, on top of the exact matcher.
+const RANK_SYNONYMS: Record<string, string[]> = {
+  "master": ["master", "captain"],
+  "chief-officer": ["chief officer", "chief mate", "chief off", "ch. officer", "ch off", "1st officer", "first officer", "c/o", "cheif officer"],
+  "2nd-officer": ["2nd officer", "second officer", "2/o", "2nd mate", "second mate", "second oow", "2nd oow"],
+  "chief-engineer": ["chief engineer", "chief eng", "ch. engineer", "ch eng", "c/e"],
+  "2nd-engineer": ["2nd engineer", "second engineer", "2/e", "2nd eng"],
+  "eto": ["eto", "electro-technical", "electro technical", "electrical engineer", "electro-technician", "electrotechnical"],
+  "able-seaman": ["able seaman", "able-bodied", "a/b seaman", "ab seaman"],
+  "bosun": ["bosun", "boatswain", "bos'n", "bos n", "bos'un"],
+  "motorman": ["motorman", "motor man", "wiper"],
+  "fitter": ["fitter", "welder", "turner"],
+  "cook": ["cook", "chief cook", "chef", "galley"],
+  "deck-cadet": ["deck cadet", "deck trainee", "trainee officer deck"],
+  "engine-cadet": ["engine cadet", "engine trainee", "trainee officer engine"],
+};
+
+function rankMatches(vacancyRank: string | null, r: RankLanding): boolean {
+  if (vacancyMatchesRank(vacancyRank, r.rank)) return true;
+  if (!vacancyRank) return false;
+  const s = vacancyRank.toLowerCase();
+  return (RANK_SYNONYMS[r.slug] ?? []).some((k) => s.includes(k));
+}
 
 // Rank rows, split into two tabs. Slugs map to existing /jobs/rank/<slug> pages.
 const OFFICER_SLUGS = ["master", "chief-officer", "2nd-officer", "chief-engineer", "2nd-engineer", "eto"];
@@ -128,7 +164,7 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
       let fromSum = 0, fromN = 0, toSum = 0, toN = 0, count = 0;
       for (const v of vacancies) {
         if (vesselKeyOf(v) !== col.key) continue;
-        if (!vacancyMatchesRank(v.rank, r.rank)) continue;
+        if (!rankMatches(v.rank, r)) continue;
         // Monthly-equivalent, then convert the currency to EUR.
         const fromRaw = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
         const toRaw = v.salary_to != null ? toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency) : null;
