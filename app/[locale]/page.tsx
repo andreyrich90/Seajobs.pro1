@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { computeSalaryStats } from "@/lib/salaryStats";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export default async function Home() {
   // Hide vacancies whose joining date passed more than 2 weeks ago.
   const [{ data: vacancies }, { data: news }] = await Promise.all([
     sb.from("vacancies")
-      .select("id, title, rank, vessel_type, salary_from, salary_to, currency, joining_date, companies(name, is_verified)")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
       .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
       .order("created_at", { ascending: false })
@@ -27,10 +28,13 @@ export default async function Home() {
       .limit(6),
   ]);
 
+  const salaryStats = computeSalaryStats((vacancies ?? []) as DbVacancy[]);
+
   return (
     <HomeClient
       initialVacancies={(vacancies ?? []) as DbVacancy[]}
       initialNews={(news ?? []) as DbNews[]}
+      salaryStats={salaryStats}
     />
   );
 }
