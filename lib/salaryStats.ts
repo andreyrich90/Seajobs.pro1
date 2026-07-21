@@ -106,6 +106,13 @@ function vesselKeyOf(vesselType: string | null): string | null {
 
 const round = (n: number) => Math.round(n / 50) * 50;
 
+// Sane monthly EUR band. Anything outside is a data error (a day rate stored as
+// monthly, an annual/total-contract figure, or a typo like "45000") — dropping
+// it keeps a single bad posting from blowing up a cell's average.
+const MIN_EUR = 500;
+const MAX_EUR = 25000;
+const inBand = (x: number) => x >= MIN_EUR && x <= MAX_EUR;
+
 function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
   return ranks.map((r) => {
     const cells: Record<string, Cell> = {};
@@ -115,9 +122,11 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
         if (vesselKeyOf(v.vessel_type) !== col.key) continue;
         if (!vacancyMatchesRank(v.rank, r.rank)) continue;
         // Monthly-equivalent, then convert the currency to EUR.
-        const from = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
-        const to = v.salary_to != null ? toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency) : null;
-        if (from == null && to == null) continue;
+        const fromRaw = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
+        const toRaw = v.salary_to != null ? toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency) : null;
+        const from = fromRaw != null && inBand(fromRaw) ? fromRaw : null;
+        const to = toRaw != null && inBand(toRaw) ? toRaw : null;
+        if (from == null && to == null) continue; // both out of band / missing
         if (from != null) { fromSum += from; fromN++; }
         if (to != null) { toSum += to; toN++; }
         count++;
