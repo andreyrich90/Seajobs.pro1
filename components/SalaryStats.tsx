@@ -16,11 +16,11 @@ const L: Record<string, Record<string, string>> = {
   ratings: { en: "Ratings", ru: "Рядовые", ua: "Рядовий склад", pl: "Załoga", ro: "Nebrevetați" },
   role: { en: "Rank", ru: "Должность", ua: "Посада", pl: "Stanowisko", ro: "Funcție" },
   note: {
-    en: "Average of current vacancies, USD/month. Tap a figure to see the role guide and open jobs.",
-    ru: "Среднее по актуальным вакансиям, USD/мес. Нажмите на цифру — гайд по должности и вакансии.",
-    ua: "Середнє за актуальними вакансіями, USD/міс. Натисніть на цифру — гайд і вакансії.",
-    pl: "Średnia z aktualnych ofert, USD/mies. Kliknij, aby zobaczyć poradnik i oferty.",
-    ro: "Media joburilor curente, USD/lună. Apasă o cifră pentru ghid și joburi.",
+    en: "Average of current vacancies, EUR/month (other currencies converted). Tap a figure for the role guide and open jobs.",
+    ru: "Среднее по актуальным вакансиям, EUR/мес (другие валюты пересчитаны). Нажмите на цифру — гайд по должности и вакансии.",
+    ua: "Середнє за актуальними вакансіями, EUR/міс (інші валюти перераховано). Натисніть на цифру — гайд і вакансії.",
+    pl: "Średnia z aktualnych ofert, EUR/mies (inne waluty przeliczone). Kliknij, aby zobaczyć poradnik i oferty.",
+    ro: "Media joburilor curente, EUR/lună (alte valute convertite). Apasă o cifră pentru ghid și joburi.",
   },
   all: { en: "All vacancies", ru: "Все вакансии", ua: "Усі вакансії", pl: "Wszystkie oferty", ro: "Toate joburile" },
 };
@@ -100,7 +100,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                           title={`${cell.count}`}
                           className="inline-block rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
                         >
-                          {fmt(cell.from)}–{fmt(cell.to)}
+                          €{fmt(cell.from)}–{fmt(cell.to)}
                         </Link>
                       ) : (
                         <span className="text-mist/40">—</span>
