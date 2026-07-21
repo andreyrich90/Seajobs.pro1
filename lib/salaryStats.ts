@@ -17,8 +17,12 @@ export type VesselCol = {
 export const SALARY_VESSELS: VesselCol[] = [
   {
     key: "bulk-carrier",
-    keywords: ["bulk", "bulker", "handysize", "handymax", "supramax", "panamax", "capesize"],
-    names: { en: "Bulk", ru: "Балкер", ua: "Балкер", pl: "Masowiec", ro: "Vrachier" },
+    // Bulk carriers + general cargo / MPP grouped together (per product decision).
+    keywords: [
+      "bulk", "bulker", "handysize", "handymax", "supramax", "panamax", "capesize",
+      "general cargo", "multipurpose", "multi-purpose", "mpp", "coaster", "heavy lift", "cargo ship",
+    ],
+    names: { en: "Bulk / GC", ru: "Балкер / GC", ua: "Балкер / GC", pl: "Masowiec / GC", ro: "Vrachier / GC" },
   },
   {
     key: "tanker",
@@ -79,6 +83,7 @@ function pickRanks(slugs: string[]): RankLanding[] {
 export type StatVacancy = {
   rank: string | null;
   vessel_type: string | null;
+  title?: string | null;
   salary_from: number | null;
   salary_to: number | null;
   salary_period: string | null;
@@ -95,9 +100,12 @@ export type SalaryStats = {
   hasData: boolean;
 };
 
-function vesselKeyOf(vesselType: string | null): string | null {
-  if (!vesselType) return null;
-  const s = vesselType.toLowerCase();
+// Match against the vessel_type field AND the title — many imported vacancies
+// leave vessel_type blank and only name the ship in the title (e.g. "3rd Eng ||
+// LPG || Yara"), so title is a needed fallback.
+function vesselKeyOf(v: StatVacancy): string | null {
+  const s = `${v.vessel_type ?? ""} ${v.title ?? ""}`.toLowerCase();
+  if (!s.trim()) return null;
   for (const col of SALARY_VESSELS) {
     if (col.keywords.some((k) => s.includes(k))) return col.key;
   }
@@ -119,7 +127,7 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
     for (const col of SALARY_VESSELS) {
       let fromSum = 0, fromN = 0, toSum = 0, toN = 0, count = 0;
       for (const v of vacancies) {
-        if (vesselKeyOf(v.vessel_type) !== col.key) continue;
+        if (vesselKeyOf(v) !== col.key) continue;
         if (!vacancyMatchesRank(v.rank, r.rank)) continue;
         // Monthly-equivalent, then convert the currency to EUR.
         const fromRaw = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
