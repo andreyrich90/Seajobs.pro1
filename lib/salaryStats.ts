@@ -44,7 +44,31 @@ export const SALARY_VESSELS: VesselCol[] = [
 
 // Rank rows, split into two tabs. Slugs map to existing /jobs/rank/<slug> pages.
 const OFFICER_SLUGS = ["master", "chief-officer", "2nd-officer", "chief-engineer", "2nd-engineer", "eto"];
-const RATING_SLUGS = ["able-seaman", "bosun", "motorman", "fitter", "cook"];
+const RATING_SLUGS = ["able-seaman", "bosun", "motorman", "fitter", "cook", "deck-cadet", "engine-cadet"];
+
+// Approximate average FX rates to EUR — salaries are quoted in a mix of
+// currencies; we normalise everything to EUR so the comparison is apples-to-
+// apples. These are rough averages (not live rates); good enough for a salary
+// range. Unknown/blank currencies are treated as USD (the column default).
+const TO_EUR: Record<string, number> = {
+  EUR: 1,
+  USD: 0.92,
+  GBP: 1.17,
+  NOK: 0.086,
+  DKK: 0.134,
+  SEK: 0.088,
+  SGD: 0.68,
+  AUD: 0.60,
+  CAD: 0.67,
+  CHF: 1.04,
+  PLN: 0.23,
+  AED: 0.25,
+};
+
+function toEur(amount: number, currency: string | null): number {
+  const rate = TO_EUR[(currency ?? "USD").toUpperCase()] ?? TO_EUR.USD;
+  return amount * rate;
+}
 
 function pickRanks(slugs: string[]): RankLanding[] {
   return slugs
@@ -90,8 +114,9 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
       for (const v of vacancies) {
         if (vesselKeyOf(v.vessel_type) !== col.key) continue;
         if (!vacancyMatchesRank(v.rank, r.rank)) continue;
-        const from = v.salary_from != null ? monthlyEquivalent(v.salary_from, v.salary_period) : null;
-        const to = v.salary_to != null ? monthlyEquivalent(v.salary_to, v.salary_period) : null;
+        // Monthly-equivalent, then convert the currency to EUR.
+        const from = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
+        const to = v.salary_to != null ? toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency) : null;
         if (from == null && to == null) continue;
         if (from != null) { fromSum += from; fromN++; }
         if (to != null) { toSum += to; toN++; }
@@ -109,17 +134,14 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
   });
 }
 
-/** Average from/to salaries per rank × vessel, from USD-quoted active vacancies. */
+/** Average from/to salaries per rank × vessel, normalised to EUR/month. */
 export function computeSalaryStats(all: StatVacancy[]): SalaryStats {
-  // Only USD figures are comparable across the board (the vast majority of
-  // maritime salaries are quoted in USD); skip other currencies and blanks.
-  const usable = all.filter(
-    (v) => (v.currency ?? "USD").toUpperCase() === "USD" && (v.salary_from != null || v.salary_to != null)
-  );
+  // Any vacancy with a salary counts — every currency is converted to EUR.
+  const usable = all.filter((v) => v.salary_from != null || v.salary_to != null);
   const officers = buildRows(pickRanks(OFFICER_SLUGS), usable);
   const ratings = buildRows(pickRanks(RATING_SLUGS), usable);
   const hasData =
     officers.some((r) => Object.values(r.cells).some(Boolean)) ||
     ratings.some((r) => Object.values(r.cells).some(Boolean));
-  return { vessels: SALARY_VESSELS, officers, ratings, currency: "USD", hasData };
+  return { vessels: SALARY_VESSELS, officers, ratings, currency: "EUR", hasData };
 }
