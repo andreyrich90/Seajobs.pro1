@@ -178,7 +178,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
 
         {/* Filters */}
         <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-card p-3.5">
-          <div className="flex min-w-[200px] flex-1 items-center gap-2.5 rounded-xl border border-white/10 bg-navy2 px-3.5">
+          <div className="flex min-w-[220px] flex-[2] items-center gap-2.5 rounded-xl border border-white/10 bg-navy2 px-3.5">
             <Search size={18} className="text-mist" />
             <input
               value={query}
@@ -187,7 +187,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               className="w-full bg-transparent py-3 text-sm text-white outline-none"
             />
           </div>
-          <select value={rank} onChange={(e) => setRank(e.target.value)} className={selectClass}>
+          <select value={rank} onChange={(e) => setRank(e.target.value)} className={`${selectClass} min-w-[160px] flex-1`}>
             <option value="">{t.jobs_rank_all}</option>
             {RANK_GROUPS.map((g) => (
               <optgroup key={g.label} label={g.label}>
@@ -195,7 +195,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               </optgroup>
             ))}
           </select>
-          <VesselFilter value={vessels} onApply={setVessels} />
+          <VesselFilter value={vessels} onApply={setVessels} className="min-w-[160px] flex-1" />
 
           {/* Fleet quick filter */}
           <div className="flex w-full flex-wrap gap-2 border-t border-white/10 pt-3">

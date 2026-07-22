@@ -13,7 +13,11 @@ export default async function Home() {
   const sb = getServerSupabase();
   // Fetch vacancies + latest news on the server so they're in the initial HTML.
   // Hide vacancies whose joining date passed more than 2 weeks ago.
-  const [{ data: vacancies }, { data: news }] = await Promise.all([
+  // `statRows` is a separate, salary-only query so the comparison widget sees
+  // EVERY salaried vacancy (not just the newest 500 shown on the page) —
+  // otherwise older rank×vessel combos show empty cells even though vacancies
+  // exist on /jobs.
+  const [{ data: vacancies }, { data: news }, { data: statRows }] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
@@ -26,9 +30,15 @@ export default async function Home() {
       .neq("category", "guide")
       .order("published_at", { ascending: false })
       .limit(6),
+    sb.from("vacancies")
+      .select("rank, vessel_type, title, salary_from, salary_to, salary_period, currency")
+      .eq("is_active", true)
+      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+      .or("salary_from.not.is.null,salary_to.not.is.null")
+      .limit(5000),
   ]);
 
-  const salaryStats = computeSalaryStats((vacancies ?? []) as DbVacancy[]);
+  const salaryStats = computeSalaryStats((statRows ?? []) as DbVacancy[]);
 
   return (
     <HomeClient
