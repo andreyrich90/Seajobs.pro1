@@ -12,17 +12,10 @@ import { RANK_GROUPS } from "@/lib/ranks";
 import { searchMatches } from "@/lib/searchSynonyms";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
+import { vesselFilterMatches } from "@/lib/vesselFilter";
+import VesselFilter from "@/components/VesselFilter";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
-
-const VESSEL_TYPE_GROUPS = [
-  { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
-  { label: "Dry Cargo", types: ["Bulk Carrier (Capesize)", "Bulk Carrier (Panamax)", "Bulk Carrier (Handymax)", "Bulk Carrier (Handysize)", "General Cargo", "Container (Feeder)", "Container (Panamax)", "Container (Post-Panamax)", "Reefer", "Heavy Lift / Project Cargo", "Coaster"] },
-  { label: "RoRo / Passenger", types: ["RoRo (Pure Car Carrier)", "RoRo (PCTC)", "RoRo Cargo", "Cruise Ship", "Ferry (Passenger/Vehicle)", "High-Speed Craft", "River Cruise"] },
-  { label: "Offshore", types: ["PSV (Platform Supply Vessel)", "AHTS (Anchor Handling Tug Supply)", "ERRV (Emergency Response)", "Construction Support Vessel", "Diving Support Vessel", "Crane Vessel", "Drill Ship", "Semi-Submersible", "Jack-Up Rig", "FPSO", "FSO", "FLNG", "Offshore Wind Installation Vessel", "CTV (Crew Transfer Vessel)"] },
-  { label: "Specialized", types: ["Cable Layer", "Pipe Layer", "Dredger", "Hopper Dredger", "Research / Survey Vessel", "Icebreaker", "Tug", "Salvage Vessel", "Bunker Vessel", "Livestock Carrier", "Cement Carrier", "Wood Chip Carrier"] },
-  { label: "Other", types: ["Fishing Vessel", "Training Vessel", "Patrol Vessel", "Navy / Military", "Yacht / Superyacht", "Other"] },
-];
 
 export type VacancyWithCompany = {
   id: string;
@@ -71,7 +64,9 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   const t = T[lang];
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [rank, setRank] = useState(searchParams.get("rank") ?? "");
-  const [vessel, setVessel] = useState(searchParams.get("vessel") ?? "");
+  const [vessels, setVessels] = useState<string[]>(
+    (searchParams.get("vessel") ?? "").split(",").map((s) => s.trim()).filter(Boolean)
+  );
   const [fleet, setFleet] = useState(searchParams.get("fleet") ?? "");
   const [userId, setUserId] = useState<string | null>(null);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
@@ -127,7 +122,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
       v.rank === rank ||
       (rank === "AB (Able Seaman)" && (v.rank?.startsWith("AB ") ?? false)) ||
       (rank === "OS (Ordinary Seaman)" && (v.rank?.startsWith("OS ") ?? false));
-    const matchVessel = !vessel || v.vessel_type === vessel;
+    const matchVessel = vesselFilterMatches(vessels, `${v.vessel_type ?? ""} ${v.title}`);
     const matchFleet = !fleet || fleetMatches(fleet, `${v.vessel_type ?? ""} ${v.title}`);
     return matchQuery && matchRank && matchVessel && matchFleet;
   });
@@ -137,7 +132,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   useEffect(() => {
     if (firstRun.current) { firstRun.current = false; return; }
     setPage(1);
-  }, [query, rank, vessel, fleet]);
+  }, [query, rank, vessels, fleet]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -149,12 +144,12 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (rank) params.set("rank", rank);
-    if (vessel) params.set("vessel", vessel);
+    if (vessels.length) params.set("vessel", vessels.join(","));
     if (fleet) params.set("fleet", fleet);
     if (currentPage > 1) params.set("page", String(currentPage));
     const qs = params.toString();
     window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-  }, [query, rank, vessel, fleet, currentPage]);
+  }, [query, rank, vessels, fleet, currentPage]);
 
   function goToPage(p: number) {
     setPage(Math.min(Math.max(1, p), totalPages));
@@ -200,14 +195,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               </optgroup>
             ))}
           </select>
-          <select value={vessel} onChange={(e) => setVessel(e.target.value)} className={selectClass}>
-            <option value="">{t.jobs_vessel_all}</option>
-            {VESSEL_TYPE_GROUPS.map((g) => (
-              <optgroup key={g.label} label={g.label}>
-                {g.types.map((t) => <option key={t} value={t}>{t}</option>)}
-              </optgroup>
-            ))}
-          </select>
+          <VesselFilter value={vessels} onApply={setVessels} />
 
           {/* Fleet quick filter */}
           <div className="flex w-full flex-wrap gap-2 border-t border-white/10 pt-3">

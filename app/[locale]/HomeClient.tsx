@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import SalaryStatsWidget from "@/components/SalaryStats";
+import VesselFilter from "@/components/VesselFilter";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
@@ -179,6 +180,20 @@ export default function HomeClient({
               >
                 {t.hero_cta} <ArrowRight size={17} />
               </Link>
+            </div>
+
+            {/* Vessel-type multi-select filter → jumps to /jobs with the selection */}
+            <div className="mt-3 max-w-xl">
+              <VesselFilter
+                value={[]}
+                onApply={(keys) => {
+                  const params = new URLSearchParams();
+                  if (query.trim()) params.set("q", query.trim());
+                  if (keys.length) params.set("vessel", keys.join(","));
+                  const qs = params.toString();
+                  router.push(qs ? `/jobs?${qs}` : "/jobs");
+                }}
+              />
             </div>
 
             {/* Fleet quick links */}
