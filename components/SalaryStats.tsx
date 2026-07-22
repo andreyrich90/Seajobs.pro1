@@ -56,7 +56,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-card p-4 shadow-xl sm:p-5">
+    <div className="min-w-0 rounded-2xl border border-white/10 bg-card p-4 shadow-xl sm:p-5">
       {/* Header */}
       <div className="mb-3 flex items-center gap-2">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brass/15">
@@ -98,12 +98,13 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
         </div>
       </div>
 
-      {/* Comparison table */}
-      <div className="overflow-x-auto">
+      {/* Comparison table — horizontally scrollable on narrow screens, with the
+          rank column pinned so it stays visible while scrolling the fleets. */}
+      <div className="-mx-1 overflow-x-auto">
         <table className="w-full border-collapse text-xs">
           <thead>
             <tr>
-              <th className="px-1.5 py-2 text-left font-semibold text-mist">{t("role")}</th>
+              <th className="sticky left-0 z-10 bg-card px-1.5 py-2 text-left font-semibold text-mist">{t("role")}</th>
               {stats.vessels.map((col) => (
                 <th key={col.key} className="px-1.5 py-2 text-center font-semibold">
                   <Link href={`/jobs/vessel/${col.key}`} className="text-teal hover:text-white transition">
@@ -119,7 +120,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
           <tbody>
             {rows.map((r) => (
               <tr key={r.slug} className="border-t border-white/5">
-                <td className="whitespace-nowrap px-1.5 py-2">
+                <td className="sticky left-0 z-[1] whitespace-nowrap bg-card px-1.5 py-2">
                   <Link href={`/jobs/rank/${r.slug}`} className="font-semibold text-white hover:text-brass2 transition">
                     {r.names[lang] ?? r.names.en}
                   </Link>
@@ -133,7 +134,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                         <Link
                           href={`/jobs/rank/${r.slug}`}
                           title={`${cell.count}`}
-                          className="inline-block rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
+                          className="inline-block whitespace-nowrap rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
                         >
                           {symbol}{fmt(conv(cell.from, isDay))}–{fmt(conv(cell.to, isDay))}
                         </Link>
