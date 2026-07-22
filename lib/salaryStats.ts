@@ -161,27 +161,29 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
   return ranks.map((r) => {
     const cells: Record<string, Cell> = {};
     for (const col of SALARY_VESSELS) {
-      let fromSum = 0, fromN = 0, toSum = 0, toN = 0, count = 0;
+      // Observed salary RANGE: lowest and highest in-band figure across all
+      // matching vacancies. Using min/max (not an average) means a real
+      // high-paying posting — e.g. a Master on a bulker at 10,044 USD — shows
+      // at the top of the range instead of being averaged away.
+      let lo = Infinity, hi = -Infinity, count = 0;
       for (const v of vacancies) {
         if (vesselKeyOf(v) !== col.key) continue;
         if (!rankMatches(v.rank, r)) continue;
         // Monthly-equivalent, then convert the currency to EUR.
-        const fromRaw = v.salary_from != null ? toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency) : null;
-        const toRaw = v.salary_to != null ? toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency) : null;
-        const from = fromRaw != null && inBand(fromRaw) ? fromRaw : null;
-        const to = toRaw != null && inBand(toRaw) ? toRaw : null;
-        if (from == null && to == null) continue; // both out of band / missing
-        if (from != null) { fromSum += from; fromN++; }
-        if (to != null) { toSum += to; toN++; }
+        const points: number[] = [];
+        if (v.salary_from != null) {
+          const x = toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency);
+          if (inBand(x)) points.push(x);
+        }
+        if (v.salary_to != null) {
+          const x = toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency);
+          if (inBand(x)) points.push(x);
+        }
+        if (points.length === 0) continue; // all out of band / missing
+        for (const x of points) { if (x < lo) lo = x; if (x > hi) hi = x; }
         count++;
       }
-      cells[col.key] = count > 0
-        ? {
-            from: round(fromN ? fromSum / fromN : toSum / toN),
-            to: round(toN ? toSum / toN : fromSum / fromN),
-            count,
-          }
-        : null;
+      cells[col.key] = count > 0 ? { from: round(lo), to: round(hi), count } : null;
     }
     return { slug: r.slug, names: r.names, cells };
   });

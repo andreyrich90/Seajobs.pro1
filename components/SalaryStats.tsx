@@ -8,19 +8,19 @@ import type { SalaryStats } from "@/lib/salaryStats";
 
 const L: Record<string, Record<string, string>> = {
   title: {
-    en: "Average salaries on the portal", ru: "Средние зарплаты на портале",
-    ua: "Середні зарплати на порталі", pl: "Średnie zarobki na portalu", ro: "Salarii medii pe portal",
+    en: "Salary ranges on the portal", ru: "Диапазон зарплат на портале",
+    ua: "Діапазон зарплат на порталі", pl: "Widełki płac na portalu", ro: "Intervale salariale pe portal",
   },
   live: { en: "Live", ru: "Обновляется", ua: "Оновлюється", pl: "Na żywo", ro: "În timp real" },
   officers: { en: "Officers", ru: "Офицеры", ua: "Офіцери", pl: "Oficerowie", ro: "Ofițeri" },
   ratings: { en: "Ratings", ru: "Рядовые", ua: "Рядовий склад", pl: "Załoga", ro: "Nebrevetați" },
   role: { en: "Rank", ru: "Должность", ua: "Посада", pl: "Stanowisko", ro: "Funcție" },
   note: {
-    en: "Average of current vacancies per month (offshore per day); other currencies converted. Tap a figure for the role guide and open jobs.",
-    ru: "Среднее по актуальным вакансиям за месяц (офшор — за день); другие валюты пересчитаны. Нажмите на цифру — гайд по должности и вакансии.",
-    ua: "Середнє за актуальними вакансіями за місяць (офшор — за день); інші валюти перераховано. Натисніть на цифру — гайд і вакансії.",
-    pl: "Średnia z aktualnych ofert na miesiąc (offshore za dzień); inne waluty przeliczone. Kliknij, aby zobaczyć poradnik i oferty.",
-    ro: "Media joburilor curente pe lună (offshore pe zi); alte valute convertite. Apasă o cifră pentru ghid și joburi.",
+    en: "Salary range (min–max) across current vacancies per month (offshore per day); other currencies converted. Tap a figure for the role guide and open jobs.",
+    ru: "Диапазон (мин–макс) по актуальным вакансиям за месяц (офшор — за день); другие валюты пересчитаны. Нажмите на цифру — гайд по должности и вакансии.",
+    ua: "Діапазон (мін–макс) за актуальними вакансіями за місяць (офшор — за день); інші валюти перераховано. Натисніть на цифру — гайд і вакансії.",
+    pl: "Widełki (min–maks) z aktualnych ofert na miesiąc (offshore za dzień); inne waluty przeliczone. Kliknij, aby zobaczyć poradnik i oferty.",
+    ro: "Interval (min–max) din joburile curente pe lună (offshore pe zi); alte valute convertite. Apasă o cifră pentru ghid și joburi.",
   },
   all: { en: "All vacancies", ru: "Все вакансии", ua: "Усі вакансії", pl: "Wszystkie oferty", ro: "Toate joburile" },
   day: { en: "/day", ru: "/день", ua: "/день", pl: "/dzień", ro: "/zi" },
