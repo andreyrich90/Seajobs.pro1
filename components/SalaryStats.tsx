@@ -16,14 +16,19 @@ const L: Record<string, Record<string, string>> = {
   ratings: { en: "Ratings", ru: "Рядовые", ua: "Рядовий склад", pl: "Załoga", ro: "Nebrevetați" },
   role: { en: "Rank", ru: "Должность", ua: "Посада", pl: "Stanowisko", ro: "Funcție" },
   note: {
-    en: "Average of current vacancies, EUR/month (other currencies converted). Tap a figure for the role guide and open jobs.",
-    ru: "Среднее по актуальным вакансиям, EUR/мес (другие валюты пересчитаны). Нажмите на цифру — гайд по должности и вакансии.",
-    ua: "Середнє за актуальними вакансіями, EUR/міс (інші валюти перераховано). Натисніть на цифру — гайд і вакансії.",
-    pl: "Średnia z aktualnych ofert, EUR/mies (inne waluty przeliczone). Kliknij, aby zobaczyć poradnik i oferty.",
-    ro: "Media joburilor curente, EUR/lună (alte valute convertite). Apasă o cifră pentru ghid și joburi.",
+    en: "Average of current vacancies per month (offshore per day); other currencies converted. Tap a figure for the role guide and open jobs.",
+    ru: "Среднее по актуальным вакансиям за месяц (офшор — за день); другие валюты пересчитаны. Нажмите на цифру — гайд по должности и вакансии.",
+    ua: "Середнє за актуальними вакансіями за місяць (офшор — за день); інші валюти перераховано. Натисніть на цифру — гайд і вакансії.",
+    pl: "Średnia z aktualnych ofert na miesiąc (offshore za dzień); inne waluty przeliczone. Kliknij, aby zobaczyć poradnik i oferty.",
+    ro: "Media joburilor curente pe lună (offshore pe zi); alte valute convertite. Apasă o cifră pentru ghid și joburi.",
   },
   all: { en: "All vacancies", ru: "Все вакансии", ua: "Усі вакансії", pl: "Wszystkie oferty", ro: "Toate joburile" },
+  day: { en: "/day", ru: "/день", ua: "/день", pl: "/dzień", ro: "/zi" },
 };
+
+// Aggregation is done in EUR/month (see lib/salaryStats). For the $ view we
+// convert back with the rough inverse of the 0.92 USD→EUR rate used there.
+const EUR_TO_USD = 1.09;
 
 function fmt(n: number): string {
   if (n >= 1000) {
@@ -36,8 +41,19 @@ function fmt(n: number): string {
 export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
   const { lang } = useLang();
   const [tab, setTab] = useState<"officers" | "ratings">("officers");
+  const [cur, setCur] = useState<"EUR" | "USD">("EUR");
   const rows = tab === "officers" ? stats.officers : stats.ratings;
   const t = (k: string) => L[k][lang] ?? L[k].en;
+  const symbol = cur === "EUR" ? "€" : "$";
+
+  // Offshore is quoted per day; everything else per month. `day` divides the
+  // monthly-equivalent average by 30. Then convert EUR→USD when the $ tab is on.
+  const conv = (eur: number, day: boolean) => {
+    let v = day ? eur / 30 : eur;
+    if (cur === "USD") v *= EUR_TO_USD;
+    const step = day ? 5 : 50;
+    return Math.round(v / step) * step;
+  };
 
   return (
     <div className="rounded-2xl border border-white/10 bg-card p-4 shadow-xl sm:p-5">
@@ -52,19 +68,34 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
         </span>
       </div>
 
-      {/* Tabs */}
-      <div className="mb-3 inline-flex rounded-lg border border-white/10 bg-navy/40 p-0.5 text-xs font-semibold">
-        {(["officers", "ratings"] as const).map((k) => (
-          <button
-            key={k}
-            onClick={() => setTab(k)}
-            className={`rounded-md px-3 py-1.5 transition ${
-              tab === k ? "bg-brass text-[#061523]" : "text-mist hover:text-white"
-            }`}
-          >
-            {t(k)}
-          </button>
-        ))}
+      {/* Tabs + currency toggle */}
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="inline-flex rounded-lg border border-white/10 bg-navy/40 p-0.5 text-xs font-semibold">
+          {(["officers", "ratings"] as const).map((k) => (
+            <button
+              key={k}
+              onClick={() => setTab(k)}
+              className={`rounded-md px-3 py-1.5 transition ${
+                tab === k ? "bg-brass text-[#061523]" : "text-mist hover:text-white"
+              }`}
+            >
+              {t(k)}
+            </button>
+          ))}
+        </div>
+        <div className="inline-flex rounded-lg border border-white/10 bg-navy/40 p-0.5 text-xs font-semibold">
+          {(["EUR", "USD"] as const).map((c) => (
+            <button
+              key={c}
+              onClick={() => setCur(c)}
+              className={`rounded-md px-2.5 py-1.5 transition ${
+                cur === c ? "bg-brass text-[#061523]" : "text-mist hover:text-white"
+              }`}
+            >
+              {c === "EUR" ? "€" : "$"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Comparison table */}
@@ -78,6 +109,9 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                   <Link href={`/jobs/vessel/${col.key}`} className="text-teal hover:text-white transition">
                     {col.names[lang] ?? col.names.en}
                   </Link>
+                  {col.key === "offshore" && (
+                    <span className="block text-[9px] font-normal text-mist">{t("day")}</span>
+                  )}
                 </th>
               ))}
             </tr>
@@ -92,6 +126,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                 </td>
                 {stats.vessels.map((col) => {
                   const cell = r.cells[col.key];
+                  const isDay = col.key === "offshore";
                   return (
                     <td key={col.key} className="px-1 py-1.5 text-center">
                       {cell ? (
@@ -100,7 +135,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                           title={`${cell.count}`}
                           className="inline-block rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
                         >
-                          €{fmt(cell.from)}–{fmt(cell.to)}
+                          {symbol}{fmt(conv(cell.from, isDay))}–{fmt(conv(cell.to, isDay))}
                         </Link>
                       ) : (
                         <span className="text-mist/40">—</span>
