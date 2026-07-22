@@ -57,7 +57,7 @@ export default function VesselFilter({
         <>
           {/* click-outside backdrop */}
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl">
+          <div className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl sm:left-auto sm:right-0">
             {/* Category tabs */}
             <div className="mb-3 flex flex-wrap gap-1.5">
               {VESSEL_CATEGORIES.map((c) => (
