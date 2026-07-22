@@ -180,7 +180,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
 
         {/* Filters */}
         <div className="mt-6 flex flex-wrap gap-3 rounded-2xl border border-white/10 bg-card p-3.5">
-          <div className="flex min-w-[220px] flex-[2] items-center gap-2.5 rounded-xl border border-white/10 bg-navy2 px-3.5">
+          <div className="flex w-full items-center gap-2.5 rounded-xl border border-white/10 bg-navy2 px-3.5 sm:w-auto sm:min-w-[220px] sm:flex-[2]">
             <Search size={18} className="text-mist" />
             <input
               value={query}
@@ -189,8 +189,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               className="w-full bg-transparent py-3 text-sm text-white outline-none"
             />
           </div>
-          <RankFilter value={ranks} onApply={setRanks} className="min-w-[160px] flex-1" />
-          <VesselFilter value={vessels} onApply={setVessels} className="min-w-[160px] flex-1" />
+          <RankFilter value={ranks} onApply={setRanks} className="w-full sm:w-auto sm:min-w-[160px] sm:flex-1" />
+          <VesselFilter value={vessels} onApply={setVessels} className="w-full sm:w-auto sm:min-w-[160px] sm:flex-1" />
 
           {/* Fleet quick filter */}
           <div className="flex w-full flex-wrap gap-2 border-t border-white/10 pt-3">
