@@ -18,6 +18,14 @@ const MAX_POSTS_PER_SOURCE = 8;
 const VACANCY_HINT =
   /(vacan|position|rank|master|officer|engineer|cook|bosun|able seaman|ordinary seaman|fitter|electric|cadet|crew|joining|salary|usd|eur|vessel|tanker|bulk|container|offshore|contract|dwt|imo|c\/o|2\/o|3\/o|c\/e|2\/e|3\/e)/i;
 
+// Vacancies quoted in Russian rubles are not published on the site. The parser
+// normalises currency to an ISO code, but be lenient about symbols/spellings.
+function isRubCurrency(currency?: string | null): boolean {
+  if (!currency) return false;
+  const s = currency.trim().toLowerCase();
+  return s === "rub" || s === "rur" || s === "₽" || s.includes("руб") || s.includes("rouble") || s.includes("ruble");
+}
+
 export type CollectReport = {
   ok: boolean;
   sources: number;
@@ -55,6 +63,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       let published = 0;
       let scanned = 0;
       let skipped = 0; // vacancies dropped for having no crewing name
+      let skippedRub = 0; // vacancies dropped for a ruble salary
 
       for (const post of fresh) {
         if (post.id && post.id > maxId) maxId = post.id;
@@ -65,6 +74,8 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
         for (let i = 0; i < parsed.length; i++) {
           const v = parsed[i];
           if (!v.title && !v.rank) continue;
+          // Never publish ruble-denominated vacancies.
+          if (isRubCurrency(v.currency)) { skippedRub++; continue; }
 
           const contactEmail = v.contactEmail || source.default_contact_email || null;
           // Company name: stated in the post, else derived from the crewing
@@ -133,6 +144,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       entry.drafted = drafted;
       entry.published = published;
       entry.skippedNoName = skipped;
+      entry.skippedRub = skippedRub;
       entry.newHwm = maxId;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
