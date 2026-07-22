@@ -128,6 +128,12 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                 {stats.vessels.map((col) => {
                   const cell = r.cells[col.key];
                   const isDay = col.key === "offshore";
+                  // Always show the range low→high: the averaged from/to can end
+                  // up reversed (avg salary_from > avg salary_to), so sort them.
+                  const a = cell ? conv(cell.from, isDay) : 0;
+                  const bb = cell ? conv(cell.to, isDay) : 0;
+                  const lo = Math.min(a, bb);
+                  const hi = Math.max(a, bb);
                   return (
                     <td key={col.key} className="px-1 py-1.5 text-center">
                       {cell ? (
@@ -136,7 +142,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                           title={`${cell.count}`}
                           className="inline-block whitespace-nowrap rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
                         >
-                          {symbol}{fmt(conv(cell.from, isDay))}–{fmt(conv(cell.to, isDay))}
+                          {symbol}{fmt(lo)}{hi !== lo ? `–${fmt(hi)}` : ""}
                         </Link>
                       ) : (
                         <span className="text-mist/40">—</span>
