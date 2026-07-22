@@ -5,8 +5,8 @@ import { collectTelegram } from "@/lib/collectTelegram";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-// Admin "run collection now" — same work as the hourly cron, triggered from the
-// import-queue page instead of waiting for the schedule.
+// Admin "run collection now" — same work as the scheduled cron (every 6h),
+// triggered from the import-queue page instead of waiting for the schedule.
 export async function POST(req: Request) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
