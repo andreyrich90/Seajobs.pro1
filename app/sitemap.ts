@@ -85,6 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/forum", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/guides", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
+    ...localizedEntries("/salaries", { lastModified: now, changeFrequency: "daily", priority: 0.6 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/for-companies", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),

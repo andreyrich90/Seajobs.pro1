@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
@@ -186,11 +186,11 @@ export default function HomeClient({
             {/* Position + vessel filters → jump to /jobs with the selection */}
             <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <RankFilter
-                value=""
-                onApply={(rank) => {
+                value={[]}
+                onApply={(ranks) => {
                   const params = new URLSearchParams();
                   if (query.trim()) params.set("q", query.trim());
-                  if (rank) params.set("rank", rank);
+                  if (ranks.length) params.set("rank", ranks.join(","));
                   const qs = params.toString();
                   router.push(qs ? `/jobs?${qs}` : "/jobs");
                 }}
@@ -219,11 +219,27 @@ export default function HomeClient({
                 </Link>
               ))}
             </div>
+
+            {/* Salary comparison — desktop shows the full widget on the right; on
+                mobile it lives on its own page, linked here. */}
+            {salaryStats.hasData && (
+              <Link
+                href="/salaries"
+                className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20 lg:hidden"
+              >
+                <span className="flex items-center gap-2">
+                  <TrendingUp size={16} /> {t.salaries_title}
+                </span>
+                <ArrowRight size={16} />
+              </Link>
+            )}
           </div>
 
-          {/* Right column — live salary comparison across fleets */}
+          {/* Right column — live salary comparison across fleets.
+              Desktop only: on mobile the comparison lives on its own /salaries
+              page (linked below the search) to keep the hero short. */}
           {salaryStats.hasData ? (
-            <div className="relative min-w-0">
+            <div className="relative hidden min-w-0 lg:block">
               <SalaryStatsWidget stats={salaryStats} />
             </div>
           ) : heroCards.length > 0 && (

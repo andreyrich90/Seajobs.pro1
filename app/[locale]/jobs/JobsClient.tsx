@@ -8,12 +8,12 @@ import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, Ch
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
-import { RANK_GROUPS } from "@/lib/ranks";
 import { searchMatches } from "@/lib/searchSynonyms";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
 import { vesselFilterMatches } from "@/lib/vesselFilter";
 import VesselFilter from "@/components/VesselFilter";
+import RankFilter from "@/components/RankFilter";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
@@ -63,7 +63,9 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   const { lang } = useLang();
   const t = T[lang];
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [rank, setRank] = useState(searchParams.get("rank") ?? "");
+  const [ranks, setRanks] = useState<string[]>(
+    (searchParams.get("rank") ?? "").split(",").map((s) => s.trim()).filter(Boolean)
+  );
   const [vessels, setVessels] = useState<string[]>(
     (searchParams.get("vessel") ?? "").split(",").map((s) => s.trim()).filter(Boolean)
   );
@@ -118,10 +120,12 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     const haystack = `${v.title} ${v.rank ?? ""} ${v.vessel_type ?? ""} ${v.companies?.name ?? ""}`;
     const matchQuery = searchMatches(haystack, query);
     const matchRank =
-      !rank ||
-      v.rank === rank ||
-      (rank === "AB (Able Seaman)" && (v.rank?.startsWith("AB ") ?? false)) ||
-      (rank === "OS (Ordinary Seaman)" && (v.rank?.startsWith("OS ") ?? false));
+      ranks.length === 0 ||
+      ranks.some((rank) =>
+        v.rank === rank ||
+        (rank === "AB (Able Seaman)" && (v.rank?.startsWith("AB ") ?? false)) ||
+        (rank === "OS (Ordinary Seaman)" && (v.rank?.startsWith("OS ") ?? false)),
+      );
     const matchVessel = vesselFilterMatches(vessels, `${v.vessel_type ?? ""} ${v.title}`);
     const matchFleet = !fleet || fleetMatches(fleet, `${v.vessel_type ?? ""} ${v.title}`);
     return matchQuery && matchRank && matchVessel && matchFleet;
@@ -132,7 +136,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   useEffect(() => {
     if (firstRun.current) { firstRun.current = false; return; }
     setPage(1);
-  }, [query, rank, vessels, fleet]);
+  }, [query, ranks, vessels, fleet]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -143,13 +147,13 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   useEffect(() => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
-    if (rank) params.set("rank", rank);
+    if (ranks.length) params.set("rank", ranks.join(","));
     if (vessels.length) params.set("vessel", vessels.join(","));
     if (fleet) params.set("fleet", fleet);
     if (currentPage > 1) params.set("page", String(currentPage));
     const qs = params.toString();
     window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
-  }, [query, rank, vessels, fleet, currentPage]);
+  }, [query, ranks, vessels, fleet, currentPage]);
 
   function goToPage(p: number) {
     setPage(Math.min(Math.max(1, p), totalPages));
@@ -165,8 +169,6 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     out.push(totalPages);
     return out;
   }
-
-  const selectClass = "rounded-xl border border-white/10 bg-navy2 px-3.5 py-3 text-sm font-semibold text-white outline-none focus:border-brass";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -187,14 +189,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
               className="w-full bg-transparent py-3 text-sm text-white outline-none"
             />
           </div>
-          <select value={rank} onChange={(e) => setRank(e.target.value)} className={`${selectClass} min-w-[160px] flex-1`}>
-            <option value="">{t.jobs_rank_all}</option>
-            {RANK_GROUPS.map((g) => (
-              <optgroup key={g.label} label={g.label}>
-                {g.ranks.map((r) => <option key={r} value={r}>{r}</option>)}
-              </optgroup>
-            ))}
-          </select>
+          <RankFilter value={ranks} onApply={setRanks} className="min-w-[160px] flex-1" />
           <VesselFilter value={vessels} onApply={setVessels} className="min-w-[160px] flex-1" />
 
           {/* Fleet quick filter */}

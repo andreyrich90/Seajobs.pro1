@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, ChevronRight, LogIn, Briefcase, MessageSquare,
   Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
-  Ship, Wind, Sailboat, Waves, Fish, BookOpen,
+  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp,
 } from "lucide-react";
 import { LANGS, T } from "@/lib/i18n";
 import { GUIDES_UI } from "@/lib/guidesUi";
@@ -53,6 +53,7 @@ export default function Header() {
   const fleetDesc = (k: FleetKey) => FLEET_DESC[k][lang] ?? FLEET_DESC[k].en;
 
   const nav = [
+    { label: t.nav_salaries, icon: TrendingUp, href: "/salaries" },
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },
     { label: t.nav_news,  icon: Newspaper,     href: "/news" },
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, icon: BookOpen, href: "/guides" },
