@@ -263,7 +263,7 @@ export default function ImportQueuePage() {
         {loading && <p className="text-sm text-mist">Loading…</p>}
         {!loading && drafts.length === 0 && (
           <p className="rounded-xl border border-white/10 bg-card px-4 py-6 text-center text-sm text-mist">
-            No drafts waiting. Run “Collect now” or wait for the hourly job.
+            No drafts waiting. Run “Collect now” or wait for the scheduled job (every 6h).
           </p>
         )}
         {drafts.map((d) => (

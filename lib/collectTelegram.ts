@@ -6,7 +6,7 @@ import { companyFromEmail } from "@/lib/companyName";
 import { importVacancy } from "@/lib/importVacancy";
 
 // Poll every active Telegram source and turn fresh posts into vacancies.
-// Shared by the hourly cron (api/cron/collect-telegram) and the admin "run now"
+// Shared by the scheduled cron (api/cron/collect-telegram, every 6h) and the admin "run now"
 // button (api/admin/collect-now). Per source: auto_publish channels turn a
 // qualifying post (position + crewing name) straight into a live vacancy;
 // otherwise it becomes a pending draft for manual review. Posts with no crewing
