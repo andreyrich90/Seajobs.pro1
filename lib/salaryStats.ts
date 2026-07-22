@@ -45,6 +45,15 @@ export const SALARY_VESSELS: VesselCol[] = [
     names: { en: "Container", ru: "Контейнеровоз", ua: "Контейнеровоз", pl: "Kontenerowiec", ro: "Portcontainer" },
   },
   {
+    // Passenger fleet: cruise ships + ferries/ro-pax. Links to the ferry landing.
+    // Note: keep "ro-ro"/"car carrier" OUT of here — those are cargo, and this
+    // column sits after "tanker" so "chemical tanker and ro-ro" still lands in
+    // the tanker column.
+    key: "ferry",
+    keywords: ["cruise", "ferry", "ro-pax", "ropax", "ro pax", "passenger", "ro-pax ferry", "roro ferry", "ro-ro ferry"],
+    names: { en: "Passenger", ru: "Пассажир.", ua: "Пасажир.", pl: "Pasażerski", ro: "Pasageri" },
+  },
+  {
     key: "offshore",
     keywords: [
       "offshore", "ahts", "anchor handling", "psv", "osv", "supply vessel", "supply ship", "dp1", "dp2", "dp3", "dynamic position",
@@ -152,8 +161,10 @@ const round = (n: number) => Math.round(n / 50) * 50;
 
 // Sane monthly EUR band. Anything outside is a data error (a day rate stored as
 // monthly, an annual/total-contract figure, or a typo like "45000") — dropping
-// it keeps a single bad posting from blowing up a cell's average.
-const MIN_EUR = 500;
+// it keeps a single bad posting from blowing up a cell. The floor is low enough
+// to keep real cadet/rating wages (e.g. a 450 USD ≈ €414 engine-cadet salary),
+// which a €500 floor was wrongly excluding.
+const MIN_EUR = 250;
 const MAX_EUR = 25000;
 const inBand = (x: number) => x >= MIN_EUR && x <= MAX_EUR;
 
