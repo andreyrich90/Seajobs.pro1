@@ -10,6 +10,7 @@ import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import SalaryStatsWidget from "@/components/SalaryStats";
 import VesselFilter from "@/components/VesselFilter";
+import RankFilter from "@/components/RankFilter";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
@@ -182,8 +183,18 @@ export default function HomeClient({
               </Link>
             </div>
 
-            {/* Vessel-type multi-select filter → jumps to /jobs with the selection */}
-            <div className="mt-3 max-w-xl">
+            {/* Position + vessel filters → jump to /jobs with the selection */}
+            <div className="mt-3 grid max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <RankFilter
+                value=""
+                onApply={(rank) => {
+                  const params = new URLSearchParams();
+                  if (query.trim()) params.set("q", query.trim());
+                  if (rank) params.set("rank", rank);
+                  const qs = params.toString();
+                  router.push(qs ? `/jobs?${qs}` : "/jobs");
+                }}
+              />
               <VesselFilter
                 value={[]}
                 onApply={(keys) => {
