@@ -150,7 +150,10 @@ export default function HomeClient({
 
       <main>
       {/* HERO */}
-      <section className="relative overflow-hidden">
+      {/* overflow-x-clip (not overflow-hidden) so the decorative blur is clipped
+          horizontally but the rank/vessel filter popovers can still extend
+          downward past the hero instead of being cut off. */}
+      <section className="relative overflow-x-clip">
         <div className="hero-surface absolute inset-0" />
         <div className="absolute -right-32 top-8 hidden h-96 w-96 rounded-full bg-brass/10 blur-3xl lg:block" />
         <div className="relative mx-auto grid min-w-0 max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">

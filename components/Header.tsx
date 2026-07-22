@@ -110,7 +110,7 @@ export default function Header() {
       <div className="mx-auto max-w-7xl rounded-2xl border border-white/15 bg-deep/70 shadow-2xl backdrop-blur-xl">
 
         {/* Tier 1 — utility strip (desktop only, no counters) */}
-        <div className="hidden items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist md:flex">
+        <div className="hidden items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist lg:flex">
           <span className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-teal shadow-[0_0_0_3px_rgba(45,212,191,0.22)]" />
             {hdr.tagline}
@@ -161,7 +161,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="ml-3 hidden items-center gap-1 md:flex">
+          <nav className="ml-3 hidden items-center gap-1 lg:flex">
             {/* Vacancies + fleet mega menu */}
             <div
               className="relative"
@@ -226,7 +226,7 @@ export default function Header() {
             {dashboardHref && <NotificationBell />}
 
             {/* Language — mobile only (desktop has it in tier 1) */}
-            <div className="relative md:hidden">
+            <div className="relative lg:hidden">
               <button
                 onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
                 aria-label="Change language"
@@ -252,9 +252,9 @@ export default function Header() {
               )}
             </div>
 
-            {/* Admin — md+ */}
+            {/* Admin — lg+ */}
             {isAdmin && (
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <Link
                   href="/admin/dashboard"
                   className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brass2 transition hover:bg-brass/20"
@@ -265,18 +265,18 @@ export default function Header() {
               </div>
             )}
 
-            {/* Auth — md+ */}
-            <div className="hidden md:block">{authButton}</div>
+            {/* Auth — lg+ */}
+            <div className="hidden lg:block">{authButton}</div>
 
             {/* Theme toggle — mobile only (desktop has it in tier 1) */}
-            <div className="md:hidden">{themeBtn}</div>
+            <div className="lg:hidden">{themeBtn}</div>
 
             {/* Mobile burger */}
             <button
               onClick={() => { setMobileOpen((o) => !o); setLangOpen(false); }}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
-              className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 md:hidden"
+              className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 lg:hidden"
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -285,7 +285,7 @@ export default function Header() {
 
         {/* Mobile dropdown menu */}
         {mobileOpen && (
-          <div className="border-t border-white/10 px-4 py-4 md:hidden">
+          <div className="border-t border-white/10 px-4 py-4 lg:hidden">
             <nav className="flex flex-col gap-1">
               <Link href="/jobs"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
