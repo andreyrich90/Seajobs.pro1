@@ -153,18 +153,18 @@ export default function HomeClient({
       <section className="relative overflow-hidden">
         <div className="hero-surface absolute inset-0" />
         <div className="absolute -right-32 top-8 hidden h-96 w-96 rounded-full bg-brass/10 blur-3xl lg:block" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative mx-auto grid min-w-0 max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
           {/* Left column — copy + search */}
-          <div>
+          <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brass2">
               <Compass size={14} /> {t.hero_kicker}
             </div>
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-foam md:text-6xl">
               {t.hero_title}
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
 
-            <div className="mt-8 flex max-w-xl flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
+            <div className="mt-8 flex flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
                 <Search size={20} className="text-[#0a1f33]" />
                 <input
@@ -184,7 +184,7 @@ export default function HomeClient({
             </div>
 
             {/* Position + vessel filters → jump to /jobs with the selection */}
-            <div className="mt-3 grid max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2">
+            <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               <RankFilter
                 value=""
                 onApply={(rank) => {
@@ -208,7 +208,7 @@ export default function HomeClient({
             </div>
 
             {/* Fleet quick links */}
-            <div className="mt-4 flex max-w-xl flex-wrap items-center gap-2">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
               {FLEETS.map((f) => (
                 <Link
                   key={f.key}
@@ -223,7 +223,7 @@ export default function HomeClient({
 
           {/* Right column — live salary comparison across fleets */}
           {salaryStats.hasData ? (
-            <div className="relative">
+            <div className="relative min-w-0">
               <SalaryStatsWidget stats={salaryStats} />
             </div>
           ) : heroCards.length > 0 && (
