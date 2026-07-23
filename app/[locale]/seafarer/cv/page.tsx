@@ -2,7 +2,11 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Download, ZoomIn, ZoomOut, ImageDown, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin } from "lucide-react";
+import {
+  Download, ZoomIn, ZoomOut, ImageDown, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
+  Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
@@ -499,6 +503,54 @@ function CVModern({ data }: { data: CVData }) {
 /* ════════════ Template 4 — Card (shareable infographic, navy + gold) ════════════
    A social-media-style "open to work" card (LinkedIn / Telegram). Dark navy
    background with gold accents, meant to be downloaded as a PNG image. */
+
+// Pick an icon for a certificate from keywords in its name (falls back to Award).
+function certIcon(name: string): LucideIcon {
+  const s = name.toLowerCase();
+  if (/gmdss|radio/.test(s)) return Radio;
+  if (/radar|arpa/.test(s)) return Radar;
+  if (/\bdp\b|dynamic position|ecdis|bridge|navigat|watchkeep/.test(s)) return Navigation;
+  if (/simulator|electronic|computer|automation/.test(s)) return Monitor;
+  if (/fire|fighting/.test(s)) return Flame;
+  if (/medic|first aid|health|elementary/.test(s)) return HeartPulse;
+  if (/survival|craft|lifeboat|proficiency|sea training|psscr/.test(s)) return LifeBuoy;
+  if (/security|isps|sso|vpd|safety|awareness/.test(s)) return ShieldCheck;
+  if (/tanker|oil|chemical|cargo|dangerous|hazmat|imdg/.test(s)) return Droplet;
+  if (/crane|rigging|fitter|welding|maintenance|engine/.test(s)) return Wrench;
+  if (/diploma|coc|competency|endorsement|licen|degree|master|officer|engineer/.test(s)) return GraduationCap;
+  return Award;
+}
+
+// Distinct employers from the sea-service history, most recent first (used as
+// the "Major clients & companies" row — we have no logo data, so text tiles).
+function clientsFromExperience(items: SeaExperience[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const e of items) {
+    const c = e.company?.trim();
+    if (!c) continue;
+    const key = c.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(c);
+  }
+  return out;
+}
+
+// Decorative compass rose (inline SVG so it survives the PNG export).
+function CompassRose({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="50" cy="50" r="46" strokeOpacity="0.5" />
+      <circle cx="50" cy="50" r="34" strokeOpacity="0.3" />
+      <path d="M50 6 L58 50 L50 94 L42 50 Z" fill="currentColor" fillOpacity="0.18" />
+      <path d="M6 50 L50 42 L94 50 L50 58 Z" fill="currentColor" fillOpacity="0.28" />
+      <circle cx="50" cy="50" r="3" fill="currentColor" />
+      <text x="50" y="18" textAnchor="middle" fontSize="9" fill="currentColor" stroke="none" fontWeight="bold">N</text>
+    </svg>
+  );
+}
+
 function CardStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
@@ -525,13 +577,18 @@ function CVCard({ data }: { data: CVData }) {
   const totalMonths = experience.reduce((s, e) => s + monthsBetween(e.from_date, e.to_date), 0);
   const recent = experience.slice(0, 5);
   const comps = (seafarer?.competencies ?? "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 6);
+  const clients = clientsFromExperience(experience).slice(0, 6);
   const profileUrl = seafarer?.id ? `https://seajobs.pro/seafarers/${seafarer.id}` : "https://seajobs.pro";
 
   return (
     <div
-      className="cv-content mx-auto flex flex-col bg-[#0a1f33] font-sans text-white"
+      className="cv-content relative mx-auto overflow-hidden bg-[#0a1f33] font-sans text-white"
       style={{ ...A4, minHeight: "297mm", padding: "13mm", background: "linear-gradient(160deg,#0e2a45 0%,#0a1f33 55%,#061523 100%)" }}
     >
+      {/* Decorative compass watermark (behind the content). */}
+      <CompassRose className="pointer-events-none absolute -right-[8mm] top-[46mm] h-[62mm] w-[62mm] text-[#c9a227] opacity-[0.06]" />
+
+      <div className="relative z-10 flex min-h-[271mm] flex-col">
       {/* Header */}
       <header className="flex items-start justify-between gap-5">
         <div className="min-w-0">
@@ -557,6 +614,20 @@ function CVCard({ data }: { data: CVData }) {
         <CardStat icon={<Globe2 size={15} />} label="Nationality" value={seafarer?.nationality || "—"} />
         <CardStat icon={<CalendarCheck2 size={15} />} label="Availability" value={seafarer?.readiness_date ? formatDate(seafarer.readiness_date, true) : "Immediate"} />
       </div>
+
+      {/* Major clients & companies (distinct employers from sea service) */}
+      {clients.length > 0 && (
+        <>
+          <CardSection>Companies &amp; clients</CardSection>
+          <div className="flex flex-wrap gap-2">
+            {clients.map((c) => (
+              <span key={c} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1.5 text-[10px] font-bold text-white">
+                <Building2 size={12} className="text-[#e3c04a]" /> {c}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Summary */}
       {seafarer?.about && (
@@ -597,17 +668,29 @@ function CVCard({ data }: { data: CVData }) {
         </>
       )}
 
-      {/* Certificates */}
+      {/* Certificates — icon tiles */}
       {certificates.length > 0 && (
         <>
           <CardSection>Certificates &amp; licenses</CardSection>
-          <div className="flex flex-wrap gap-1.5">
-            {certificates.slice(0, 14).map((c) => (
-              <span key={c.id} className="rounded-md border border-white/10 bg-white/[0.05] px-2 py-[3px] text-[8.5px] font-semibold text-[#c7d3dd]">
-                {c.name}
-              </span>
-            ))}
+          <div className="grid grid-cols-4 gap-2">
+            {certificates.slice(0, 12).map((c) => {
+              const Icon = certIcon(c.name);
+              return (
+                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[#c9a227]/15 text-[#e3c04a]"><Icon size={14} /></span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[8.5px] font-bold leading-tight text-white" title={c.name}>{c.name}</span>
+                    {c.expiry_date && (
+                      <span className={`block text-[7.5px] leading-tight ${isExpired(c.expiry_date) ? "font-semibold text-[#e8744f]" : "text-[#8aa0b0]"}`}>
+                        {formatDate(c.expiry_date, true)}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </div>
+          {certificates.length <= 4 && <p className="pt-1 text-center text-[8px] text-[#6b7f8f]">All certificates valid &amp; in compliance with STCW 2010</p>}
         </>
       )}
 
@@ -644,12 +727,21 @@ function CVCard({ data }: { data: CVData }) {
             SeaJobs<span className="text-[#e3c04a]">.pro</span>
           </p>
         </div>
+
+        {/* Signature */}
+        <div className="flex flex-col items-center justify-end self-stretch pb-1">
+          <p className="font-serif text-[17px] italic text-white/90" style={{ transform: "rotate(-3deg)" }}>{name}</p>
+          <span className="mt-1 h-px w-24 bg-white/25" />
+          {seafarer?.rank && <span className="mt-0.5 text-[7.5px] uppercase tracking-wide text-[#8aa0b0]">{seafarer.rank}</span>}
+        </div>
+
         <div className="flex shrink-0 flex-col items-center gap-1">
           <span className="rounded-md bg-white p-1.5">
             <QRCodeSVG value={profileUrl} size={64} level="M" />
           </span>
           <span className="text-[7.5px] font-semibold uppercase tracking-wide text-[#8aa0b0]">Scan for full profile</span>
         </div>
+      </div>
       </div>
     </div>
   );
