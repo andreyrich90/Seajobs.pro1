@@ -537,6 +537,26 @@ function clientsFromExperience(items: SeaExperience[]): string[] {
   return out;
 }
 
+// Split a free-text "languages" value into one entry per language. Handles
+// newline / comma / semicolon separators, and the common run-together form
+// "English — Advanced Ukrainian — Native Russian — Fluent" (split before each
+// "Language — Level" pair). Returns [name, level] tuples (level may be "").
+function splitLanguages(value: string): [string, string][] {
+  const raw = value.trim();
+  if (!raw) return [];
+  let parts: string[];
+  if (/\r?\n/.test(raw)) parts = raw.split(/\r?\n/);
+  else if (/[;,]/.test(raw)) parts = raw.split(/[;,]/);
+  else parts = raw.split(/\s+(?=[A-ZА-ЯЇІЄҐ][\p{L}]+\s*[—–-])/u);
+  return parts
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => {
+      const m = p.split(/\s*[—–-]\s*/);
+      return [m[0].trim(), m.slice(1).join(" ").trim()] as [string, string];
+    });
+}
+
 // Decorative compass rose (inline SVG so it survives the PNG export).
 function CompassRose({ className }: { className?: string }) {
   return (
@@ -551,28 +571,71 @@ function CompassRose({ className }: { className?: string }) {
   );
 }
 
-function CardStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+type CardVariant = "dark" | "light";
+
+// Colour palette for the card, swapped by variant. Every field is a complete
+// Tailwind class string (both variants written literally) so the JIT extracts
+// them; interpolating colour values would not be picked up.
+type CardPalette = {
+  gradient: string; base: string; text: string;
+  badge: string; badgeDot: string; name: string; rank: string; muted: string;
+  photoDash: string; tile: string; iconWrap: string; section: string; body: string;
+  chip: string; accent: string; tableWrap: string; tableHead: string; tableZebra: string;
+  tableName: string; tableCell: string; certName: string; certExpiry: string; expired: string;
+  divider: string; brand: string; sigText: string; sigLine: string; compass: string; qrBox: string;
+};
+
+const CARD_DARK: CardPalette = {
+  gradient: "linear-gradient(160deg,#0e2a45 0%,#0a1f33 55%,#061523 100%)",
+  base: "bg-[#0a1f33]", text: "text-white",
+  badge: "border-[#2dd4bf]/40 bg-[#2dd4bf]/10 text-[#2dd4bf]", badgeDot: "bg-[#2dd4bf]",
+  name: "text-white", rank: "text-[#e3c04a]", muted: "text-[#8aa0b0]",
+  photoDash: "border-white/25 text-white/50", tile: "border-white/10 bg-white/[0.04]",
+  iconWrap: "bg-[#c9a227]/15 text-[#e3c04a]", section: "text-[#e3c04a]", body: "text-[#c7d3dd]",
+  chip: "border-white/10 bg-white/[0.05] text-white", accent: "text-[#e3c04a]",
+  tableWrap: "border-white/10", tableHead: "bg-white/[0.06] text-[#8aa0b0]", tableZebra: "bg-white/[0.02]",
+  tableName: "text-white", tableCell: "text-[#c7d3dd]", certName: "text-white", certExpiry: "text-[#8aa0b0]",
+  expired: "text-[#e8744f]", divider: "border-white/15", brand: "text-white",
+  sigText: "text-white/90", sigLine: "bg-white/25", compass: "text-[#c9a227] opacity-[0.06]", qrBox: "bg-white",
+};
+
+const CARD_LIGHT: CardPalette = {
+  gradient: "linear-gradient(160deg,#ffffff 0%,#eff4f9 60%,#e4ecf4 100%)",
+  base: "bg-white", text: "text-[#1f2933]",
+  badge: "border-[#0d9488]/40 bg-[#2dd4bf]/10 text-[#0d9488]", badgeDot: "bg-[#0d9488]",
+  name: "text-[#15324f]", rank: "text-[#b7791f]", muted: "text-[#6b7885]",
+  photoDash: "border-[#b9c4cf] text-[#9aa7b2]", tile: "border-[#dbe3ec] bg-[#f4f7fb]",
+  iconWrap: "bg-[#c9a227]/15 text-[#b7791f]", section: "text-[#15324f]", body: "text-[#41505e]",
+  chip: "border-[#dbe3ec] bg-[#f4f7fb] text-[#15324f]", accent: "text-[#b7791f]",
+  tableWrap: "border-[#dbe3ec]", tableHead: "bg-[#e7eef5] text-[#52606d]", tableZebra: "bg-[#f2f6fa]",
+  tableName: "text-[#15324f]", tableCell: "text-[#41505e]", certName: "text-[#15324f]", certExpiry: "text-[#6b7885]",
+  expired: "text-[#c0392b]", divider: "border-[#d7e0ea]", brand: "text-[#15324f]",
+  sigText: "text-[#15324f]", sigLine: "bg-[#c3cfdb]", compass: "text-[#c9a227] opacity-[0.10]", qrBox: "bg-white border border-[#dbe3ec]",
+};
+
+function CardStat({ icon, label, value, pal }: { icon: React.ReactNode; label: string; value: string; pal: CardPalette }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#c9a227]/15 text-[#e3c04a]">{icon}</span>
+    <div className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 ${pal.tile}`}>
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-md ${pal.iconWrap}`}>{icon}</span>
       <span className="min-w-0">
-        <span className="block text-[8px] font-bold uppercase tracking-wider text-[#8aa0b0]">{label}</span>
-        <span className="block truncate text-[11px] font-bold text-white">{value}</span>
+        <span className={`block text-[8px] font-bold uppercase tracking-wider ${pal.muted}`}>{label}</span>
+        <span className={`block truncate text-[11px] font-bold ${pal.name}`}>{value}</span>
       </span>
     </div>
   );
 }
 
-function CardSection({ children }: { children: React.ReactNode }) {
+function CardSection({ children, pal }: { children: React.ReactNode; pal: CardPalette }) {
   return (
-    <h2 className="mt-3.5 mb-1.5 flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#e3c04a]">
+    <h2 className={`mt-3.5 mb-1.5 flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] ${pal.section}`}>
       <span className="h-[10px] w-[3px] rounded bg-[#c9a227]" />{children}
     </h2>
   );
 }
 
-function CVCard({ data }: { data: CVData }) {
+function CVCard({ data, variant = "dark" }: { data: CVData; variant?: CardVariant }) {
   const { seafarer, certificates, experience, email } = data;
+  const pal = variant === "light" ? CARD_LIGHT : CARD_DARK;
   const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
   const totalMonths = experience.reduce((s, e) => s + monthsBetween(e.from_date, e.to_date), 0);
   const recent = experience.slice(0, 5);
@@ -582,47 +645,47 @@ function CVCard({ data }: { data: CVData }) {
 
   return (
     <div
-      className="cv-content relative mx-auto overflow-hidden bg-[#0a1f33] font-sans text-white"
-      style={{ ...A4, minHeight: "297mm", padding: "13mm", background: "linear-gradient(160deg,#0e2a45 0%,#0a1f33 55%,#061523 100%)" }}
+      className={`cv-content relative mx-auto overflow-hidden font-sans ${pal.base} ${pal.text}`}
+      style={{ ...A4, minHeight: "297mm", padding: "13mm", background: pal.gradient }}
     >
       {/* Decorative compass watermark (behind the content). */}
-      <CompassRose className="pointer-events-none absolute -right-[8mm] top-[46mm] h-[62mm] w-[62mm] text-[#c9a227] opacity-[0.06]" />
+      <CompassRose className={`pointer-events-none absolute -right-[8mm] top-[46mm] h-[62mm] w-[62mm] ${pal.compass}`} />
 
       <div className="relative z-10 flex min-h-[271mm] flex-col">
       {/* Header */}
       <header className="flex items-start justify-between gap-5">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 px-2.5 py-[3px] text-[8.5px] font-bold uppercase tracking-wider text-[#2dd4bf]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf]" /> Open to work
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-[8.5px] font-bold uppercase tracking-wider ${pal.badge}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${pal.badgeDot}`} /> Open to work
           </span>
-          <h1 className="mt-2 font-serif text-[30px] font-bold uppercase leading-[1.05] tracking-tight text-white">{name}</h1>
-          {seafarer?.rank && <p className="mt-0.5 text-[15px] font-bold uppercase tracking-wide text-[#e3c04a]">{seafarer.rank}</p>}
-          {seafarer?.nationality && <p className="mt-0.5 text-[10.5px] text-[#8aa0b0]">{seafarer.nationality}</p>}
+          <h1 className={`mt-2 font-serif text-[30px] font-bold uppercase leading-[1.05] tracking-tight ${pal.name}`}>{name}</h1>
+          {seafarer?.rank && <p className={`mt-0.5 text-[15px] font-bold uppercase tracking-wide ${pal.rank}`}>{seafarer.rank}</p>}
+          {seafarer?.nationality && <p className={`mt-0.5 text-[10.5px] ${pal.muted}`}>{seafarer.nationality}</p>}
         </div>
         {seafarer?.photo_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={seafarer.photo_url} alt={name} crossOrigin="anonymous" className="h-[38mm] w-[30mm] shrink-0 rounded-lg border-2 border-[#c9a227] object-cover" />
         ) : (
-          <div className="grid h-[38mm] w-[30mm] shrink-0 place-items-center rounded-lg border-2 border-dashed border-white/25 text-center text-[8px] text-white/50">PHOTO</div>
+          <div className={`grid h-[38mm] w-[30mm] shrink-0 place-items-center rounded-lg border-2 border-dashed text-center text-[8px] ${pal.photoDash}`}>PHOTO</div>
         )}
       </header>
 
       {/* Key highlights */}
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <CardStat icon={<Anchor size={15} />} label="Total sea time" value={fmtMonths(totalMonths)} />
-        <CardStat icon={<BadgeCheck size={15} />} label="Rank" value={seafarer?.rank || "—"} />
-        <CardStat icon={<Globe2 size={15} />} label="Nationality" value={seafarer?.nationality || "—"} />
-        <CardStat icon={<CalendarCheck2 size={15} />} label="Availability" value={seafarer?.readiness_date ? formatDate(seafarer.readiness_date, true) : "Immediate"} />
+        <CardStat pal={pal} icon={<Anchor size={15} />} label="Total sea time" value={fmtMonths(totalMonths)} />
+        <CardStat pal={pal} icon={<BadgeCheck size={15} />} label="Rank" value={seafarer?.rank || "—"} />
+        <CardStat pal={pal} icon={<Globe2 size={15} />} label="Nationality" value={seafarer?.nationality || "—"} />
+        <CardStat pal={pal} icon={<CalendarCheck2 size={15} />} label="Availability" value={seafarer?.readiness_date ? formatDate(seafarer.readiness_date, true) : "Immediate"} />
       </div>
 
       {/* Major clients & companies (distinct employers from sea service) */}
       {clients.length > 0 && (
         <>
-          <CardSection>Companies &amp; clients</CardSection>
+          <CardSection pal={pal}>Companies &amp; clients</CardSection>
           <div className="flex flex-wrap gap-2">
             {clients.map((c) => (
-              <span key={c} className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.05] px-3 py-1.5 text-[10px] font-bold text-white">
-                <Building2 size={12} className="text-[#e3c04a]" /> {c}
+              <span key={c} className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[10px] font-bold ${pal.chip}`}>
+                <Building2 size={12} className={pal.accent} /> {c}
               </span>
             ))}
           </div>
@@ -632,19 +695,19 @@ function CVCard({ data }: { data: CVData }) {
       {/* Summary */}
       {seafarer?.about && (
         <>
-          <CardSection>Professional summary</CardSection>
-          <p className="text-[10px] leading-relaxed text-[#c7d3dd]">{seafarer.about}</p>
+          <CardSection pal={pal}>Professional summary</CardSection>
+          <p className={`text-[10px] leading-relaxed ${pal.body}`}>{seafarer.about}</p>
         </>
       )}
 
       {/* Sea experience */}
       {recent.length > 0 && (
         <>
-          <CardSection>Sea experience {experience.length > 5 && <span className="ml-1 font-semibold normal-case tracking-normal text-[#6b7f8f]">— last 5</span>}</CardSection>
-          <div className="overflow-hidden rounded-lg border border-white/10">
+          <CardSection pal={pal}>Sea experience {experience.length > 5 && <span className={`ml-1 font-semibold normal-case tracking-normal ${pal.muted}`}>— last 5</span>}</CardSection>
+          <div className={`overflow-hidden rounded-lg border ${pal.tableWrap}`}>
             <table className="w-full border-collapse text-[9px]">
               <thead>
-                <tr className="bg-white/[0.06] text-left text-[#8aa0b0]">
+                <tr className={`text-left ${pal.tableHead}`}>
                   <th className="px-2 py-[5px] font-bold">Vessel</th>
                   <th className="px-2 py-[5px] font-bold">Type</th>
                   <th className="px-2 py-[5px] font-bold">Rank</th>
@@ -654,12 +717,12 @@ function CVCard({ data }: { data: CVData }) {
               </thead>
               <tbody>
                 {recent.map((e, i) => (
-                  <tr key={e.id} className={i % 2 ? "bg-white/[0.02]" : ""}>
-                    <td className="px-2 py-[4px] font-semibold text-white">{e.vessel_name}</td>
-                    <td className="px-2 py-[4px] text-[#c7d3dd]">{e.vessel_type || "—"}</td>
-                    <td className="px-2 py-[4px] font-semibold text-[#e3c04a]">{e.rank || "—"}</td>
-                    <td className="px-2 py-[4px] text-[#c7d3dd]">{e.company || "—"}</td>
-                    <td className="px-2 py-[4px] whitespace-nowrap text-[#c7d3dd]">{formatDate(e.from_date, true)} – {formatDate(e.to_date, true)}</td>
+                  <tr key={e.id} className={i % 2 ? pal.tableZebra : ""}>
+                    <td className={`px-2 py-[4px] font-semibold ${pal.tableName}`}>{e.vessel_name}</td>
+                    <td className={`px-2 py-[4px] ${pal.tableCell}`}>{e.vessel_type || "—"}</td>
+                    <td className={`px-2 py-[4px] font-semibold ${pal.rank}`}>{e.rank || "—"}</td>
+                    <td className={`px-2 py-[4px] ${pal.tableCell}`}>{e.company || "—"}</td>
+                    <td className={`px-2 py-[4px] whitespace-nowrap ${pal.tableCell}`}>{formatDate(e.from_date, true)} – {formatDate(e.to_date, true)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -671,17 +734,17 @@ function CVCard({ data }: { data: CVData }) {
       {/* Certificates — icon tiles */}
       {certificates.length > 0 && (
         <>
-          <CardSection>Certificates &amp; licenses</CardSection>
+          <CardSection pal={pal}>Certificates &amp; licenses</CardSection>
           <div className="grid grid-cols-4 gap-2">
             {certificates.slice(0, 12).map((c) => {
               const Icon = certIcon(c.name);
               return (
-                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1.5">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[#c9a227]/15 text-[#e3c04a]"><Icon size={14} /></span>
+                <div key={c.id} className={`flex items-center gap-2 rounded-lg border px-2 py-1.5 ${pal.tile}`}>
+                  <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md ${pal.iconWrap}`}><Icon size={14} /></span>
                   <span className="min-w-0">
-                    <span className="block truncate text-[8.5px] font-bold leading-tight text-white" title={c.name}>{c.name}</span>
+                    <span className={`block truncate text-[8.5px] font-bold leading-tight ${pal.certName}`} title={c.name}>{c.name}</span>
                     {c.expiry_date && (
-                      <span className={`block text-[7.5px] leading-tight ${isExpired(c.expiry_date) ? "font-semibold text-[#e8744f]" : "text-[#8aa0b0]"}`}>
+                      <span className={`block text-[7.5px] leading-tight ${isExpired(c.expiry_date) ? `font-semibold ${pal.expired}` : pal.certExpiry}`}>
                         {formatDate(c.expiry_date, true)}
                       </span>
                     )}
@@ -690,7 +753,7 @@ function CVCard({ data }: { data: CVData }) {
               );
             })}
           </div>
-          {certificates.length <= 4 && <p className="pt-1 text-center text-[8px] text-[#6b7f8f]">All certificates valid &amp; in compliance with STCW 2010</p>}
+          {certificates.length <= 4 && <p className={`pt-1 text-center text-[8px] ${pal.muted}`}>All certificates valid &amp; in compliance with STCW 2010</p>}
         </>
       )}
 
@@ -699,47 +762,57 @@ function CVCard({ data }: { data: CVData }) {
         <div className="mt-3.5 grid grid-cols-2 gap-5">
           {comps.length > 0 && (
             <div>
-              <CardSection>Core competencies</CardSection>
-              <div className="text-[9.5px] leading-snug text-[#c7d3dd]">
-                {comps.map((line, i) => <p key={i} className="flex gap-1.5"><span className="text-[#e3c04a]">✓</span>{line}</p>)}
+              <CardSection pal={pal}>Core competencies</CardSection>
+              <div className={`text-[9.5px] leading-snug ${pal.body}`}>
+                {comps.map((line, i) => <p key={i} className="flex gap-1.5"><span className={pal.accent}>✓</span>{line}</p>)}
               </div>
             </div>
           )}
           {seafarer?.languages && (
             <div>
-              <CardSection>Languages</CardSection>
-              <p className="text-[9.5px] leading-snug text-[#c7d3dd]">{seafarer.languages}</p>
+              <CardSection pal={pal}>Languages</CardSection>
+              <div className={`space-y-0.5 text-[9.5px] leading-snug ${pal.body}`}>
+                {splitLanguages(seafarer.languages).map(([lng, lvl], i) => (
+                  <p key={i} className="flex gap-1.5">
+                    <span className={pal.accent}>•</span>
+                    <span>
+                      <span className={`font-semibold ${pal.certName}`}>{lng}</span>
+                      {lvl && <span className={pal.muted}> — {lvl}</span>}
+                    </span>
+                  </p>
+                ))}
+              </div>
             </div>
           )}
         </div>
       )}
 
       {/* Footer: contact + QR */}
-      <div className="mt-auto flex items-end justify-between gap-4 border-t border-white/15 pt-3">
-        <div className="min-w-0 space-y-1 text-[9.5px] text-[#c7d3dd]">
-          {seafarer?.phone && <p className="flex items-center gap-1.5"><Phone size={11} className="text-[#e3c04a]" /> {seafarer.phone}</p>}
-          {email && <p className="flex items-center gap-1.5"><Mail size={11} className="text-[#e3c04a]" /> {email}</p>}
-          {seafarer?.nationality && <p className="flex items-center gap-1.5"><MapPin size={11} className="text-[#e3c04a]" /> {seafarer.nationality}</p>}
-          <p className="flex items-center gap-1.5 pt-1 text-[10px] font-bold text-white">
+      <div className={`mt-auto flex items-end justify-between gap-4 border-t pt-3 ${pal.divider}`}>
+        <div className={`min-w-0 space-y-1 text-[9.5px] ${pal.body}`}>
+          {seafarer?.phone && <p className="flex items-center gap-1.5"><Phone size={11} className={pal.accent} /> {seafarer.phone}</p>}
+          {email && <p className="flex items-center gap-1.5"><Mail size={11} className={pal.accent} /> {email}</p>}
+          {seafarer?.nationality && <p className="flex items-center gap-1.5"><MapPin size={11} className={pal.accent} /> {seafarer.nationality}</p>}
+          <p className={`flex items-center gap-1.5 pt-1 text-[10px] font-bold ${pal.brand}`}>
             <span className="grid h-[15px] w-[15px] place-items-center rounded-[4px] bg-[#c9a227]">
               <Ship size={9} className="text-[#0a1f33]" />
             </span>
-            SeaJobs<span className="text-[#e3c04a]">.pro</span>
+            SeaJobs<span className="text-[#c9a227]">.pro</span>
           </p>
         </div>
 
         {/* Signature */}
         <div className="flex flex-col items-center justify-end self-stretch pb-1">
-          <p className="font-serif text-[17px] italic text-white/90" style={{ transform: "rotate(-3deg)" }}>{name}</p>
-          <span className="mt-1 h-px w-24 bg-white/25" />
-          {seafarer?.rank && <span className="mt-0.5 text-[7.5px] uppercase tracking-wide text-[#8aa0b0]">{seafarer.rank}</span>}
+          <p className={`font-serif text-[17px] italic ${pal.sigText}`} style={{ transform: "rotate(-3deg)" }}>{name}</p>
+          <span className={`mt-1 h-px w-24 ${pal.sigLine}`} />
+          {seafarer?.rank && <span className={`mt-0.5 text-[7.5px] uppercase tracking-wide ${pal.muted}`}>{seafarer.rank}</span>}
         </div>
 
         <div className="flex shrink-0 flex-col items-center gap-1">
-          <span className="rounded-md bg-white p-1.5">
+          <span className={`rounded-md p-1.5 ${pal.qrBox}`}>
             <QRCodeSVG value={profileUrl} size={64} level="M" />
           </span>
-          <span className="text-[7.5px] font-semibold uppercase tracking-wide text-[#8aa0b0]">Scan for full profile</span>
+          <span className={`text-[7.5px] font-semibold uppercase tracking-wide ${pal.muted}`}>Scan for full profile</span>
         </div>
       </div>
       </div>
@@ -747,26 +820,32 @@ function CVCard({ data }: { data: CVData }) {
   );
 }
 
-function CVDocument({ template, data }: { template: Template; data: CVData }) {
+function CVDocument({ template, data, cardVariant = "dark" }: { template: Template; data: CVData; cardVariant?: CardVariant }) {
   if (template === "classic") return <CVClassic data={data} />;
   if (template === "modern") return <CVModern data={data} />;
-  if (template === "card") return <CVCard data={data} />;
+  if (template === "card") return <CVCard data={data} variant={cardVariant} />;
   return <CVMaritime data={data} />;
 }
 
 /* ─── Page ───────────────────────────────────────────────────── */
 const TEMPLATES: { key: Template; label: string }[] = [
   { key: "maritime", label: "Maritime" },
+  { key: "card", label: "Card" },
   { key: "classic", label: "Classic" },
   { key: "modern", label: "Modern" },
-  { key: "card", label: "Card" },
 ];
+
+const VAR_LABEL: Record<CardVariant, Record<string, string>> = {
+  dark: { en: "Dark", ru: "Тёмная", ua: "Темна", pl: "Ciemny", ro: "Închis" },
+  light: { en: "Light", ru: "Светлая", ua: "Світла", pl: "Jasny", ro: "Deschis" },
+};
 
 export default function CVPage() {
   const { lang } = useLang();
   const t = T[lang];
   const [data, setData] = useState<CVData>({ seafarer: null, certificates: [], experience: [], email: "" });
   const [template, setTemplate] = useState<Template>("maritime");
+  const [cardVariant, setCardVariant] = useState<CardVariant>("dark");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -949,6 +1028,24 @@ export default function CVPage() {
               {TPL_LABEL[tpl.key]}
             </button>
           ))}
+
+          {/* Card colour variant — only for the Card template */}
+          {template === "card" && (
+            <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1">
+              {(["dark", "light"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setCardVariant(v)}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
+                    cardVariant === v ? "bg-brass text-[#061523]" : "text-mist hover:text-white"
+                  }`}
+                >
+                  {VAR_LABEL[v][lang] ?? VAR_LABEL[v].en}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="ml-auto flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
             <button
               onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.2).toFixed(2)))}
@@ -978,7 +1075,7 @@ export default function CVPage() {
           >
             <div style={{ width: A4_WIDTH_PX, height: natH ? natH * scale : undefined, overflow: "hidden", transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
               <div style={{ width: A4_WIDTH_PX, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                <CVDocument template={template} data={data} />
+                <CVDocument template={template} data={data} cardVariant={cardVariant} />
               </div>
             </div>
           </div>
@@ -988,7 +1085,7 @@ export default function CVPage() {
             both the print scale above and the preview height. */}
         <div className="pointer-events-none absolute -left-[9999px] top-0" aria-hidden>
           <div ref={measureRef} style={{ width: A4_WIDTH_PX }}>
-            <CVDocument template={template} data={data} />
+            <CVDocument template={template} data={data} cardVariant={cardVariant} />
           </div>
         </div>
       </div>
@@ -998,7 +1095,7 @@ export default function CVPage() {
           <div id="cv-print-root">
             <div style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}>
               <div style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                <CVDocument template={template} data={data} />
+                <CVDocument template={template} data={data} cardVariant={cardVariant} />
               </div>
             </div>
           </div>,
