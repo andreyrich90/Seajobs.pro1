@@ -2,7 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Download, ZoomIn, ZoomOut } from "lucide-react";
+import { Download, ZoomIn, ZoomOut, ImageDown, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { T } from "@/lib/i18n";
@@ -19,7 +20,7 @@ interface CVData {
   email: string;
 }
 
-type Template = "maritime" | "classic" | "modern";
+type Template = "maritime" | "classic" | "modern" | "card";
 
 function formatDate(d: string | null, short?: boolean): string {
   if (!d) return "—";
@@ -495,9 +496,169 @@ function CVModern({ data }: { data: CVData }) {
   );
 }
 
+/* ════════════ Template 4 — Card (shareable infographic, navy + gold) ════════════
+   A social-media-style "open to work" card (LinkedIn / Telegram). Dark navy
+   background with gold accents, meant to be downloaded as a PNG image. */
+function CardStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#c9a227]/15 text-[#e3c04a]">{icon}</span>
+      <span className="min-w-0">
+        <span className="block text-[8px] font-bold uppercase tracking-wider text-[#8aa0b0]">{label}</span>
+        <span className="block truncate text-[11px] font-bold text-white">{value}</span>
+      </span>
+    </div>
+  );
+}
+
+function CardSection({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mt-3.5 mb-1.5 flex items-center gap-2 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[#e3c04a]">
+      <span className="h-[10px] w-[3px] rounded bg-[#c9a227]" />{children}
+    </h2>
+  );
+}
+
+function CVCard({ data }: { data: CVData }) {
+  const { seafarer, certificates, experience, email } = data;
+  const name = [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer";
+  const totalMonths = experience.reduce((s, e) => s + monthsBetween(e.from_date, e.to_date), 0);
+  const recent = experience.slice(0, 5);
+  const comps = (seafarer?.competencies ?? "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean).slice(0, 6);
+  const profileUrl = seafarer?.id ? `https://seajobs.pro/seafarers/${seafarer.id}` : "https://seajobs.pro";
+
+  return (
+    <div
+      className="cv-content mx-auto flex flex-col bg-[#0a1f33] font-sans text-white"
+      style={{ ...A4, minHeight: "297mm", padding: "13mm", background: "linear-gradient(160deg,#0e2a45 0%,#0a1f33 55%,#061523 100%)" }}
+    >
+      {/* Header */}
+      <header className="flex items-start justify-between gap-5">
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#2dd4bf]/40 bg-[#2dd4bf]/10 px-2.5 py-[3px] text-[8.5px] font-bold uppercase tracking-wider text-[#2dd4bf]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#2dd4bf]" /> Open to work
+          </span>
+          <h1 className="mt-2 font-serif text-[30px] font-bold uppercase leading-[1.05] tracking-tight text-white">{name}</h1>
+          {seafarer?.rank && <p className="mt-0.5 text-[15px] font-bold uppercase tracking-wide text-[#e3c04a]">{seafarer.rank}</p>}
+          {seafarer?.nationality && <p className="mt-0.5 text-[10.5px] text-[#8aa0b0]">{seafarer.nationality}</p>}
+        </div>
+        {seafarer?.photo_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={seafarer.photo_url} alt={name} crossOrigin="anonymous" className="h-[38mm] w-[30mm] shrink-0 rounded-lg border-2 border-[#c9a227] object-cover" />
+        ) : (
+          <div className="grid h-[38mm] w-[30mm] shrink-0 place-items-center rounded-lg border-2 border-dashed border-white/25 text-center text-[8px] text-white/50">PHOTO</div>
+        )}
+      </header>
+
+      {/* Key highlights */}
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <CardStat icon={<Anchor size={15} />} label="Total sea time" value={fmtMonths(totalMonths)} />
+        <CardStat icon={<BadgeCheck size={15} />} label="Rank" value={seafarer?.rank || "—"} />
+        <CardStat icon={<Globe2 size={15} />} label="Nationality" value={seafarer?.nationality || "—"} />
+        <CardStat icon={<CalendarCheck2 size={15} />} label="Availability" value={seafarer?.readiness_date ? formatDate(seafarer.readiness_date, true) : "Immediate"} />
+      </div>
+
+      {/* Summary */}
+      {seafarer?.about && (
+        <>
+          <CardSection>Professional summary</CardSection>
+          <p className="text-[10px] leading-relaxed text-[#c7d3dd]">{seafarer.about}</p>
+        </>
+      )}
+
+      {/* Sea experience */}
+      {recent.length > 0 && (
+        <>
+          <CardSection>Sea experience {experience.length > 5 && <span className="ml-1 font-semibold normal-case tracking-normal text-[#6b7f8f]">— last 5</span>}</CardSection>
+          <div className="overflow-hidden rounded-lg border border-white/10">
+            <table className="w-full border-collapse text-[9px]">
+              <thead>
+                <tr className="bg-white/[0.06] text-left text-[#8aa0b0]">
+                  <th className="px-2 py-[5px] font-bold">Vessel</th>
+                  <th className="px-2 py-[5px] font-bold">Type</th>
+                  <th className="px-2 py-[5px] font-bold">Rank</th>
+                  <th className="px-2 py-[5px] font-bold">Company</th>
+                  <th className="px-2 py-[5px] font-bold whitespace-nowrap">Period</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recent.map((e, i) => (
+                  <tr key={e.id} className={i % 2 ? "bg-white/[0.02]" : ""}>
+                    <td className="px-2 py-[4px] font-semibold text-white">{e.vessel_name}</td>
+                    <td className="px-2 py-[4px] text-[#c7d3dd]">{e.vessel_type || "—"}</td>
+                    <td className="px-2 py-[4px] font-semibold text-[#e3c04a]">{e.rank || "—"}</td>
+                    <td className="px-2 py-[4px] text-[#c7d3dd]">{e.company || "—"}</td>
+                    <td className="px-2 py-[4px] whitespace-nowrap text-[#c7d3dd]">{formatDate(e.from_date, true)} – {formatDate(e.to_date, true)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* Certificates */}
+      {certificates.length > 0 && (
+        <>
+          <CardSection>Certificates &amp; licenses</CardSection>
+          <div className="flex flex-wrap gap-1.5">
+            {certificates.slice(0, 14).map((c) => (
+              <span key={c.id} className="rounded-md border border-white/10 bg-white/[0.05] px-2 py-[3px] text-[8.5px] font-semibold text-[#c7d3dd]">
+                {c.name}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Competencies + languages */}
+      {(comps.length > 0 || seafarer?.languages) && (
+        <div className="mt-3.5 grid grid-cols-2 gap-5">
+          {comps.length > 0 && (
+            <div>
+              <CardSection>Core competencies</CardSection>
+              <div className="text-[9.5px] leading-snug text-[#c7d3dd]">
+                {comps.map((line, i) => <p key={i} className="flex gap-1.5"><span className="text-[#e3c04a]">✓</span>{line}</p>)}
+              </div>
+            </div>
+          )}
+          {seafarer?.languages && (
+            <div>
+              <CardSection>Languages</CardSection>
+              <p className="text-[9.5px] leading-snug text-[#c7d3dd]">{seafarer.languages}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Footer: contact + QR */}
+      <div className="mt-auto flex items-end justify-between gap-4 border-t border-white/15 pt-3">
+        <div className="min-w-0 space-y-1 text-[9.5px] text-[#c7d3dd]">
+          {seafarer?.phone && <p className="flex items-center gap-1.5"><Phone size={11} className="text-[#e3c04a]" /> {seafarer.phone}</p>}
+          {email && <p className="flex items-center gap-1.5"><Mail size={11} className="text-[#e3c04a]" /> {email}</p>}
+          {seafarer?.nationality && <p className="flex items-center gap-1.5"><MapPin size={11} className="text-[#e3c04a]" /> {seafarer.nationality}</p>}
+          <p className="flex items-center gap-1.5 pt-1 text-[10px] font-bold text-white">
+            <span className="grid h-[15px] w-[15px] place-items-center rounded-[4px] bg-[#c9a227]">
+              <Ship size={9} className="text-[#0a1f33]" />
+            </span>
+            SeaJobs<span className="text-[#e3c04a]">.pro</span>
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-col items-center gap-1">
+          <span className="rounded-md bg-white p-1.5">
+            <QRCodeSVG value={profileUrl} size={64} level="M" />
+          </span>
+          <span className="text-[7.5px] font-semibold uppercase tracking-wide text-[#8aa0b0]">Scan for full profile</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CVDocument({ template, data }: { template: Template; data: CVData }) {
   if (template === "classic") return <CVClassic data={data} />;
   if (template === "modern") return <CVModern data={data} />;
+  if (template === "card") return <CVCard data={data} />;
   return <CVMaritime data={data} />;
 }
 
@@ -506,6 +667,7 @@ const TEMPLATES: { key: Template; label: string }[] = [
   { key: "maritime", label: "Maritime" },
   { key: "classic", label: "Classic" },
   { key: "modern", label: "Modern" },
+  { key: "card", label: "Card" },
 ];
 
 export default function CVPage() {
@@ -579,17 +741,45 @@ export default function CVPage() {
     loadData();
   }, []);
 
+  const [exporting, setExporting] = useState(false);
+
+  // "First Last - Rank" with filesystem-unsafe characters stripped.
+  function cvFilename(): string {
+    const sf = data.seafarer;
+    const fullName = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ").trim();
+    const rank = sf?.rank?.trim();
+    return ([fullName || "Seafarer", rank].filter(Boolean).join(" - "))
+      .replace(/[\\/:*?"<>|]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Export the CV as a PNG image (for sharing on LinkedIn/Telegram). Captures
+  // the off-screen, natural-size render (measureRef) so it isn't affected by the
+  // preview's scale transform.
+  async function handleDownloadPng() {
+    const target = measureRef.current?.querySelector(".cv-content") as HTMLElement | null;
+    if (!target) return;
+    setExporting(true);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(target, { pixelRatio: 2, cacheBust: true, backgroundColor: "#0a1f33" });
+      const a = document.createElement("a");
+      a.download = `${cvFilename()}.png`;
+      a.href = dataUrl;
+      a.click();
+    } catch {
+      alert("Could not export the image — please try the PDF button instead.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   // The browser uses document.title as the suggested filename when saving the
   // print output as PDF. Swap it to "First Last - Rank" for the download, then
   // restore the page title afterwards so navigation/SEO isn't affected.
   function handleDownload() {
-    const sf = data.seafarer;
-    const fullName = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ").trim();
-    const rank = sf?.rank?.trim();
-    const filename = ([fullName || "Seafarer", rank].filter(Boolean).join(" - "))
-      .replace(/[\\/:*?"<>|]+/g, " ") // strip characters not allowed in filenames
-      .replace(/\s+/g, " ")
-      .trim();
+    const filename = cvFilename();
 
     const original = document.title;
     document.title = filename;
@@ -606,6 +796,7 @@ export default function CVPage() {
     maritime: t.cv_tpl_maritime,
     classic: t.cv_tpl_classic,
     modern: t.cv_tpl_modern,
+    card: t.cv_tpl_card,
   };
 
   if (loading) {
@@ -634,12 +825,21 @@ export default function CVPage() {
             <h1 className="font-display text-2xl font-semibold text-white">{t.cab_cv}</h1>
             <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
           </div>
-          <button
-            onClick={handleDownload}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
-          >
-            <Download size={16} /> {t.cv_download_pdf}
-          </button>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <button
+              onClick={handleDownloadPng}
+              disabled={exporting}
+              className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/20 disabled:opacity-60"
+            >
+              <ImageDown size={16} /> {exporting ? "…" : t.cv_download_png}
+            </button>
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+            >
+              <Download size={16} /> {t.cv_download_pdf}
+            </button>
+          </div>
         </div>
 
         {/* Template picker + zoom controls */}
