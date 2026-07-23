@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
+    "html-to-image": "^1.11.13",
     "lucide-react": "0.469.0",
     "mammoth": "^1.12.0",
     "next": "15.5.18",
     "next-intl": "^4.13.0",
+    "qrcode.react": "^4.2.0",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
