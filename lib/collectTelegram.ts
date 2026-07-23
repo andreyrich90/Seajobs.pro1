@@ -26,6 +26,36 @@ function isRubCurrency(currency?: string | null): boolean {
   return s === "rub" || s === "rur" || s === "₽" || s.includes("руб") || s.includes("rouble") || s.includes("ruble");
 }
 
+// Vacancies from Russian crewing agencies are not published either. Signals:
+// a .ru/.su/.рф contact-email or website domain, a Russian +7/8 phone number
+// (Kazakhstan's +7 6xx / +7 7xx range stays allowed), or an explicitly Russian
+// company location. Ruble salaries are caught separately by isRubCurrency.
+function isRussianCrewing(
+  email: string | null | undefined,
+  website: string | null | undefined,
+  phone: string | null | undefined,
+  location: string | null | undefined,
+): boolean {
+  const emailDomain = (email ?? "").split("@")[1]?.trim().toLowerCase() ?? "";
+  if (/\.(ru|su|рф)$/.test(emailDomain)) return true;
+
+  // Host part of the website (strip protocol/path) ending in a Russian TLD.
+  const host = (website ?? "").toLowerCase().replace(/^https?:\/\//, "").split(/[/?#]/)[0].trim();
+  if (/\.(ru|su|рф)$/.test(host)) return true;
+
+  // Phone: 11 digits starting with 7 (international) or 8 (domestic) is the
+  // Russian numbering plan — except Kazakhstan, which shares +7 but uses the
+  // 6xx/7xx area range (+7 6.., +7 7.., domestic 8 7..).
+  const digits = (phone ?? "").replace(/\D/g, "");
+  if (digits.length === 11 && (digits[0] === "7" || digits[0] === "8")) {
+    const area = digits[1];
+    if (area !== "6" && area !== "7") return true;
+  }
+
+  if (/росси|russia/i.test(location ?? "")) return true;
+  return false;
+}
+
 export type CollectReport = {
   ok: boolean;
   sources: number;
@@ -64,6 +94,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       let scanned = 0;
       let skipped = 0; // vacancies dropped for having no crewing name
       let skippedRub = 0; // vacancies dropped for a ruble salary
+      let skippedRussian = 0; // vacancies dropped as Russian crewing (.ru / +7 / location)
 
       for (const post of fresh) {
         if (post.id && post.id > maxId) maxId = post.id;
@@ -76,6 +107,11 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
           if (!v.title && !v.rank) continue;
           // Never publish ruble-denominated vacancies.
           if (isRubCurrency(v.currency)) { skippedRub++; continue; }
+          // Never publish Russian crewing agencies (.ru domain, +7 phone, RU location).
+          if (isRussianCrewing(v.contactEmail, v.companyWebsite, v.contactPhone, v.companyLocation)) {
+            skippedRussian++;
+            continue;
+          }
 
           const contactEmail = v.contactEmail || source.default_contact_email || null;
           // Company name: stated in the post, else derived from the crewing
@@ -145,6 +181,7 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
       entry.published = published;
       entry.skippedNoName = skipped;
       entry.skippedRub = skippedRub;
+      entry.skippedRussian = skippedRussian;
       entry.newHwm = maxId;
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
