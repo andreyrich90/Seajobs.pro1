@@ -608,13 +608,6 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 </a>
               )}
             </div>
-
-            <div className="rounded-2xl border border-white/10 bg-card p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-mist">Views</span>
-                <span className="text-sm font-semibold text-white">{vacancy.views_count + 1}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
