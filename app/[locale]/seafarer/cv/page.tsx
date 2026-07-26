@@ -93,7 +93,7 @@ function buildDocs(s: Seafarer | null): [string, string][] {
 }
 
 const cell = "px-2 py-[3px] align-top";
-const zebra = (i: number) => (i % 2 === 1 ? "bg-[#f4f6f8]" : "bg-white");
+const zebra = (i: number) => (i % 2 === 1 ? "bg-[#f4f6f8]" : "bg-[#ffffff]");
 
 const A4: React.CSSProperties = {
   width: "210mm",
@@ -110,7 +110,7 @@ function CVBrand({ dark }: { dark?: boolean }) {
           <circle cx="12" cy="5" r="3" /><line x1="12" y1="22" x2="12" y2="8" /><path d="M5 12H2a10 10 0 0 0 20 0h-3" />
         </svg>
       </span>
-      <span className={`text-[10px] font-bold ${dark ? "text-white" : "text-[#16365c]"}`}>
+      <span className={`text-[10px] font-bold ${dark ? "text-[#ffffff]" : "text-[#16365c]"}`}>
         SeaJobs<span className="text-[#c9a227]">.pro</span>
       </span>
       <span className="text-[9px] text-[#9aa7b2]">· Generated on seajobs.pro</span>
@@ -140,7 +140,7 @@ function CertGrid({ items }: { items: Certificate[] }) {
 /* ════════════ Template 1 — Maritime (navy bars) ════════════ */
 function Bar({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mt-3 bg-[#16365c] px-2.5 py-[3px] text-[10.5px] font-bold uppercase tracking-wide text-white">
+    <div className="mt-3 bg-[#16365c] px-2.5 py-[3px] text-[10.5px] font-bold uppercase tracking-wide text-[#ffffff]">
       {children}
     </div>
   );
@@ -156,7 +156,7 @@ function CVMaritime({ data }: { data: CVData }) {
   const docs = buildDocs(seafarer);
 
   return (
-    <div className="cv-content mx-auto bg-white font-sans text-[#1f2933]" style={{ ...A4, padding: "12mm" }}>
+    <div className="cv-content mx-auto bg-[#ffffff] font-sans text-[#1f2933]" style={{ ...A4, padding: "12mm" }}>
       <header className="flex items-start justify-between gap-5">
         <div className="min-w-0">
           <h1 className="text-[22px] font-bold uppercase leading-tight tracking-tight text-[#16365c]">{name}</h1>
@@ -203,7 +203,7 @@ function CVMaritime({ data }: { data: CVData }) {
         <div>
           <Bar>Sea Time Summary</Bar>
           <table className="w-full border-collapse text-[10px]"><tbody>
-            <tr className="bg-white">
+            <tr className="bg-[#ffffff]">
               <td className={`${cell} w-[55%] font-semibold text-[#52606d]`}>Total Sea Time</td>
               <td className={`${cell} font-bold text-[#16365c]`}>{fmtMonths(totalMonths)}</td>
             </tr>
@@ -298,7 +298,7 @@ function CVClassic({ data }: { data: CVData }) {
   const lbl = "w-[34%] shrink-0 font-semibold text-[#52606d]";
 
   return (
-    <div className="cv-content mx-auto bg-white font-serif text-[#23303a]" style={{ ...A4, padding: "13mm" }}>
+    <div className="cv-content mx-auto bg-[#ffffff] font-serif text-[#23303a]" style={{ ...A4, padding: "13mm" }}>
       <header className="flex items-start justify-between gap-6 border-b border-[#cfd8e0] pb-3">
         <div className="min-w-0">
           <h1 className="text-[26px] font-bold uppercase leading-none tracking-tight text-[#15324f]">{name}</h1>
@@ -415,9 +415,9 @@ function CVModern({ data }: { data: CVData }) {
   const docs = buildDocs(seafarer);
 
   return (
-    <div className="cv-content mx-auto flex bg-white font-sans text-[#23303a]" style={{ ...A4, minHeight: "297mm" }}>
+    <div className="cv-content mx-auto flex bg-[#ffffff] font-sans text-[#23303a]" style={{ ...A4, minHeight: "297mm" }}>
       {/* Sidebar */}
-      <aside className="w-[66mm] shrink-0 bg-[#0e2a45] px-5 py-7 text-white">
+      <aside className="w-[66mm] shrink-0 bg-[#0e2a45] px-5 py-7 text-[#ffffff]">
         <div className="flex flex-col items-center text-center">
           {seafarer?.photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -440,7 +440,7 @@ function CVModern({ data }: { data: CVData }) {
 
         <SideHead>Sea Time</SideHead>
         <div className="mt-1 space-y-1 text-[9.5px] leading-snug text-white/85">
-          <p><span className="font-bold text-white">Total:</span> {fmtMonths(totalMonths)}</p>
+          <p><span className="font-bold text-[#ffffff]">Total:</span> {fmtMonths(totalMonths)}</p>
           {byRank.slice(0, 5).map((r) => (<p key={r.rank}>As {r.rank}: {fmtMonths(r.months)}</p>))}
         </div>
 
@@ -450,7 +450,7 @@ function CVModern({ data }: { data: CVData }) {
           <>
             <SideHead>Documents</SideHead>
             <div className="mt-1 space-y-1 text-[9px] leading-snug text-white/85">
-              {docs.map(([k, v]) => (<p key={k}><span className="font-semibold text-white">{k}:</span> {v}</p>))}
+              {docs.map(([k, v]) => (<p key={k}><span className="font-semibold text-[#ffffff]">{k}:</span> {v}</p>))}
             </div>
           </>
         )}
@@ -587,21 +587,21 @@ type CardPalette = {
 
 const CARD_DARK: CardPalette = {
   gradient: "linear-gradient(160deg,#0e2a45 0%,#0a1f33 55%,#061523 100%)",
-  base: "bg-[#0a1f33]", text: "text-white",
+  base: "bg-[#0a1f33]", text: "text-[#ffffff]",
   badge: "border-[#2dd4bf]/40 bg-[#2dd4bf]/10 text-[#2dd4bf]", badgeDot: "bg-[#2dd4bf]",
-  name: "text-white", rank: "text-[#e3c04a]", muted: "text-[#8aa0b0]",
+  name: "text-[#ffffff]", rank: "text-[#e3c04a]", muted: "text-[#8aa0b0]",
   photoDash: "border-white/25 text-white/50", tile: "border-white/10 bg-white/[0.04]",
   iconWrap: "bg-[#c9a227]/15 text-[#e3c04a]", section: "text-[#e3c04a]", body: "text-[#c7d3dd]",
-  chip: "border-white/10 bg-white/[0.05] text-white", accent: "text-[#e3c04a]",
+  chip: "border-white/10 bg-white/[0.05] text-[#ffffff]", accent: "text-[#e3c04a]",
   tableWrap: "border-white/10", tableHead: "bg-white/[0.06] text-[#8aa0b0]", tableZebra: "bg-white/[0.02]",
-  tableName: "text-white", tableCell: "text-[#c7d3dd]", certName: "text-white", certExpiry: "text-[#8aa0b0]",
-  expired: "text-[#e8744f]", divider: "border-white/15", brand: "text-white",
-  sigText: "text-white/90", sigLine: "bg-white/25", compass: "text-[#c9a227] opacity-[0.06]", qrBox: "bg-white",
+  tableName: "text-[#ffffff]", tableCell: "text-[#c7d3dd]", certName: "text-[#ffffff]", certExpiry: "text-[#8aa0b0]",
+  expired: "text-[#e8744f]", divider: "border-white/15", brand: "text-[#ffffff]",
+  sigText: "text-white/90", sigLine: "bg-white/25", compass: "text-[#c9a227] opacity-[0.06]", qrBox: "bg-[#ffffff]",
 };
 
 const CARD_LIGHT: CardPalette = {
   gradient: "linear-gradient(160deg,#ffffff 0%,#eff4f9 60%,#e4ecf4 100%)",
-  base: "bg-white", text: "text-[#1f2933]",
+  base: "bg-[#ffffff]", text: "text-[#1f2933]",
   badge: "border-[#0d9488]/40 bg-[#2dd4bf]/10 text-[#0d9488]", badgeDot: "bg-[#0d9488]",
   name: "text-[#15324f]", rank: "text-[#b7791f]", muted: "text-[#6b7885]",
   photoDash: "border-[#b9c4cf] text-[#9aa7b2]", tile: "border-[#dbe3ec] bg-[#f4f7fb]",
@@ -610,7 +610,7 @@ const CARD_LIGHT: CardPalette = {
   tableWrap: "border-[#dbe3ec]", tableHead: "bg-[#e7eef5] text-[#52606d]", tableZebra: "bg-[#f2f6fa]",
   tableName: "text-[#15324f]", tableCell: "text-[#41505e]", certName: "text-[#15324f]", certExpiry: "text-[#6b7885]",
   expired: "text-[#c0392b]", divider: "border-[#d7e0ea]", brand: "text-[#15324f]",
-  sigText: "text-[#15324f]", sigLine: "bg-[#c3cfdb]", compass: "text-[#c9a227] opacity-[0.10]", qrBox: "bg-white border border-[#dbe3ec]",
+  sigText: "text-[#15324f]", sigLine: "bg-[#c3cfdb]", compass: "text-[#c9a227] opacity-[0.10]", qrBox: "bg-[#ffffff] border border-[#dbe3ec]",
 };
 
 function CardStat({ icon, label, value, pal }: { icon: React.ReactNode; label: string; value: string; pal: CardPalette }) {
@@ -993,7 +993,7 @@ export default function CVPage() {
       <div className="p-5 sm:p-8">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-semibold text-white">{t.cab_cv}</h1>
+            <h1 className="font-display text-2xl font-semibold text-[#ffffff]">{t.cab_cv}</h1>
             <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -1022,7 +1022,7 @@ export default function CVPage() {
               className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
                 template === tpl.key
                   ? "border-brass/40 bg-brass/15 text-brass2"
-                  : "border-white/10 bg-white/5 text-mist hover:text-white"
+                  : "border-white/10 bg-white/5 text-mist hover:text-[#ffffff]"
               }`}
             >
               {TPL_LABEL[tpl.key]}
@@ -1037,7 +1037,7 @@ export default function CVPage() {
                   key={v}
                   onClick={() => setCardVariant(v)}
                   className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${
-                    cardVariant === v ? "bg-brass text-[#061523]" : "text-mist hover:text-white"
+                    cardVariant === v ? "bg-brass text-[#061523]" : "text-mist hover:text-[#ffffff]"
                   }`}
                 >
                   {VAR_LABEL[v][lang] ?? VAR_LABEL[v].en}
@@ -1049,7 +1049,7 @@ export default function CVPage() {
           <div className="ml-auto flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
             <button
               onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.2).toFixed(2)))}
-              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-white"
+              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-[#ffffff]"
               aria-label="Zoom out"
             >
               <ZoomOut size={16} />
@@ -1057,7 +1057,7 @@ export default function CVPage() {
             <span className="w-10 text-center text-xs font-semibold text-mist">{Math.round(fitScale * zoom * 100)}%</span>
             <button
               onClick={() => setZoom((z) => Math.min(2.5, +(z + 0.2).toFixed(2)))}
-              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-white"
+              className="grid h-8 w-8 place-items-center rounded-lg text-mist transition hover:bg-white/10 hover:text-[#ffffff]"
               aria-label="Zoom in"
             >
               <ZoomIn size={16} />
