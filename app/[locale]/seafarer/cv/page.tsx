@@ -849,16 +849,17 @@ export default function CVPage() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Auto-fit to a single A4 page: measure the (visible) preview and scale it
-  // down if it's taller than one page. The same scale is applied to the print
-  // copy, guaranteeing the CV never spills onto a second page.
+  // We render the CV at its true A4 width (210mm) and let a long CV flow onto a
+  // second printed page, rather than uniformly scaling it down to force one page
+  // — a uniform down-scale also shrank the WIDTH, leaving a white strip on the
+  // right of the sheet. `natH` (natural height at full width) is measured only to
+  // size the on-screen preview box.
   const measureRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [natH, setNatH] = useState<number | null>(null);
 
   // Fit the on-screen preview to the container width (so the full A4 page fits
   // a phone screen), with an optional manual zoom on top. The printed PDF is
-  // unaffected — it keeps the height-fit `scale` below.
+  // unaffected — it always renders at full 210mm width.
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const [boxW, setBoxW] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -877,12 +878,9 @@ export default function CVPage() {
   useLayoutEffect(() => {
     const el = measureRef.current;
     if (!el) return;
-    const PAGE_H = (297 * 96) / 25.4 - 8; // one A4 in px (~1114), minus a small safety margin
     const measure = () => {
-      const nh = el.offsetHeight; // natural height, unaffected by the CSS transform
-      if (!nh) return;
-      setNatH(nh);
-      setScale(nh > PAGE_H ? Math.max(0.5, PAGE_H / nh) : 1);
+      const nh = el.offsetHeight; // natural height at full A4 width
+      if (nh) setNatH(nh);
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -949,10 +947,14 @@ export default function CVPage() {
   // The browser uses document.title as the suggested filename when saving the
   // print output as PDF. Swap it to "First Last - Rank" for the download, then
   // restore the page title afterwards so navigation/SEO isn't affected.
-  // Restore on `afterprint`; keep a LONG fallback (not a few seconds) because on
-  // mobile the user stays in the save/share sheet well past a short timeout — a
-  // premature restore is exactly what made the file save as the page title
-  // ("Вакансии для моряков … SeaJobs") instead of the seafarer's name + rank.
+  //
+  // We DO NOT restore on `afterprint`: on Android the event fires as soon as the
+  // print preview opens — well before the user taps "Save as PDF" — so restoring
+  // there reverted the title too early and the file saved as the page title
+  // ("Вакансии для моряков … SeaJobs"). Instead restore on `visibilitychange`:
+  // the page goes hidden while the native print/save sheet is up and becomes
+  // visible again only once the user has finished (and the file is already
+  // named). A long timeout is the last-resort fallback.
   function handleDownload() {
     const filename = cvFilename();
 
@@ -964,11 +966,15 @@ export default function CVPage() {
       if (done) return;
       done = true;
       document.title = original;
-      window.removeEventListener("afterprint", restore);
+      document.removeEventListener("visibilitychange", onVisible);
       clearTimeout(timer);
     };
-    window.addEventListener("afterprint", restore);
-    timer = setTimeout(restore, 120000); // 2 min: safety net if afterprint never fires
+    const onVisible = () => {
+      // Ignore the initial hide; only restore once the user comes back.
+      if (document.visibilityState === "visible") restore();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    timer = setTimeout(restore, 180000); // 3 min safety net
     window.print();
   }
 
@@ -996,6 +1002,10 @@ export default function CVPage() {
           #cv-print-root { display: block !important; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           @page { size: A4; margin: 0; }
+          /* Keep table rows and section headers intact across page breaks. */
+          #cv-print-root tr { break-inside: avoid; }
+          #cv-print-root thead { display: table-header-group; }
+          #cv-print-root h2 { break-after: avoid; }
         }
       `}</style>
 
@@ -1074,24 +1084,22 @@ export default function CVPage() {
           </div>
         </div>
 
-        {/* Preview — the exact printed A4 page, scaled to fit the screen width
-            (zoomable). Inner `scale` is the height-fit used for print; the outer
-            `previewScale` fits that A4 page onto the phone. */}
+        {/* Preview — the exact printed CV at full A4 width, scaled only to fit
+            the screen width (zoomable). A long CV shows its full height here and
+            prints across as many A4 pages as it needs. */}
         <div ref={previewBoxRef} className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-2 shadow-2xl sm:p-4">
           <div
             className="mx-auto shadow-xl"
-            style={{ width: A4_WIDTH_PX * previewScale, height: natH ? natH * scale * previewScale : undefined, overflow: "hidden" }}
+            style={{ width: A4_WIDTH_PX * previewScale, height: natH ? natH * previewScale : undefined, overflow: "hidden" }}
           >
-            <div style={{ width: A4_WIDTH_PX, height: natH ? natH * scale : undefined, overflow: "hidden", transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
-              <div style={{ width: A4_WIDTH_PX, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                <CVDocument template={template} data={data} cardVariant={cardVariant} />
-              </div>
+            <div style={{ width: A4_WIDTH_PX, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+              <CVDocument template={template} data={data} cardVariant={cardVariant} />
             </div>
           </div>
         </div>
 
-        {/* Hidden measurer — natural (unscaled) height of one A4 page, used for
-            both the print scale above and the preview height. */}
+        {/* Hidden measurer — natural (unscaled) height at full A4 width, used to
+            size the preview box; also the source node for the PNG export. */}
         <div className="pointer-events-none absolute -left-[9999px] top-0" aria-hidden>
           <div ref={measureRef} style={{ width: A4_WIDTH_PX }}>
             <CVDocument template={template} data={data} cardVariant={cardVariant} />
@@ -1102,10 +1110,8 @@ export default function CVPage() {
       {mounted &&
         createPortal(
           <div id="cv-print-root">
-            <div style={{ width: "210mm", height: natH ? natH * scale : undefined, overflow: "hidden" }}>
-              <div style={{ width: "210mm", transform: `scale(${scale})`, transformOrigin: "top left" }}>
-                <CVDocument template={template} data={data} cardVariant={cardVariant} />
-              </div>
+            <div style={{ width: "210mm" }}>
+              <CVDocument template={template} data={data} cardVariant={cardVariant} />
             </div>
           </div>,
           document.body
