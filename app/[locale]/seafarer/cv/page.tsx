@@ -156,7 +156,7 @@ function CVMaritime({ data }: { data: CVData }) {
   const docs = buildDocs(seafarer);
 
   return (
-    <div className="cv-content mx-auto bg-[#ffffff] font-sans text-[#1f2933]" style={{ ...A4, padding: "12mm" }}>
+    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-sans text-[#1f2933]" style={{ ...A4, minHeight: "297mm", padding: "12mm" }}>
       <header className="flex items-start justify-between gap-5">
         <div className="min-w-0">
           <h1 className="text-[22px] font-bold uppercase leading-tight tracking-tight text-[#16365c]">{name}</h1>
@@ -277,7 +277,7 @@ function CVMaritime({ data }: { data: CVData }) {
         </>
       )}
 
-      <CVBrand />
+      <div className="mt-auto"><CVBrand /></div>
     </div>
   );
 }
@@ -298,7 +298,7 @@ function CVClassic({ data }: { data: CVData }) {
   const lbl = "w-[34%] shrink-0 font-semibold text-[#52606d]";
 
   return (
-    <div className="cv-content mx-auto bg-[#ffffff] font-serif text-[#23303a]" style={{ ...A4, padding: "13mm" }}>
+    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-serif text-[#23303a]" style={{ ...A4, minHeight: "297mm", padding: "13mm" }}>
       <header className="flex items-start justify-between gap-6 border-b border-[#cfd8e0] pb-3">
         <div className="min-w-0">
           <h1 className="text-[26px] font-bold uppercase leading-none tracking-tight text-[#15324f]">{name}</h1>
@@ -393,7 +393,7 @@ function CVClassic({ data }: { data: CVData }) {
         </>
       )}
 
-      <CVBrand />
+      <div className="mt-auto"><CVBrand /></div>
     </div>
   );
 }
