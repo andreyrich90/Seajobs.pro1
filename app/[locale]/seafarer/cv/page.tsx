@@ -95,8 +95,13 @@ function buildDocs(s: Seafarer | null): [string, string][] {
 const cell = "px-2 py-[3px] align-top";
 const zebra = (i: number) => (i % 2 === 1 ? "bg-[#f4f6f8]" : "bg-[#ffffff]");
 
+// The CV fills the width of whatever fixed-width wrapper renders it (the print
+// canvas, the preview, or the off-screen measurer). That wrapper is normally a
+// full 210mm A4 page, but for a long CV it is a proportionally WIDER canvas that
+// is then scaled back down to one page — so the width must track the wrapper,
+// not be hard-pinned to 210mm.
 const A4: React.CSSProperties = {
-  width: "210mm",
+  width: "100%",
   WebkitPrintColorAdjust: "exact",
   printColorAdjust: "exact",
 };
@@ -156,7 +161,7 @@ function CVMaritime({ data }: { data: CVData }) {
   const docs = buildDocs(seafarer);
 
   return (
-    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-sans text-[#1f2933]" style={{ ...A4, minHeight: "297mm", padding: "12mm" }}>
+    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-sans text-[#1f2933]" style={{ ...A4, minHeight: "296mm", padding: "12mm" }}>
       <header className="flex items-start justify-between gap-5">
         <div className="min-w-0">
           <h1 className="text-[22px] font-bold uppercase leading-tight tracking-tight text-[#16365c]">{name}</h1>
@@ -298,7 +303,7 @@ function CVClassic({ data }: { data: CVData }) {
   const lbl = "w-[34%] shrink-0 font-semibold text-[#52606d]";
 
   return (
-    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-serif text-[#23303a]" style={{ ...A4, minHeight: "297mm", padding: "13mm" }}>
+    <div className="cv-content mx-auto flex flex-col bg-[#ffffff] font-serif text-[#23303a]" style={{ ...A4, minHeight: "296mm", padding: "13mm" }}>
       <header className="flex items-start justify-between gap-6 border-b border-[#cfd8e0] pb-3">
         <div className="min-w-0">
           <h1 className="text-[26px] font-bold uppercase leading-none tracking-tight text-[#15324f]">{name}</h1>
@@ -415,7 +420,7 @@ function CVModern({ data }: { data: CVData }) {
   const docs = buildDocs(seafarer);
 
   return (
-    <div className="cv-content mx-auto flex bg-[#ffffff] font-sans text-[#23303a]" style={{ ...A4, minHeight: "297mm" }}>
+    <div className="cv-content mx-auto flex bg-[#ffffff] font-sans text-[#23303a]" style={{ ...A4, minHeight: "296mm" }}>
       {/* Sidebar */}
       <aside className="w-[66mm] shrink-0 bg-[#0e2a45] px-5 py-7 text-[#ffffff]">
         <div className="flex flex-col items-center text-center">
@@ -646,7 +651,7 @@ function CVCard({ data, variant = "dark" }: { data: CVData; variant?: CardVarian
   return (
     <div
       className={`cv-content relative mx-auto overflow-hidden font-sans ${pal.base} ${pal.text}`}
-      style={{ ...A4, minHeight: "297mm", padding: "13mm", background: pal.gradient }}
+      style={{ ...A4, minHeight: "296mm", padding: "13mm", background: pal.gradient }}
     >
       {/* Decorative compass watermark (behind the content). */}
       <CompassRose className={`pointer-events-none absolute -right-[8mm] top-[46mm] h-[62mm] w-[62mm] ${pal.compass}`} />
@@ -849,11 +854,12 @@ export default function CVPage() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // We render the CV at its true A4 width (210mm) and let a long CV flow onto a
-  // second printed page, rather than uniformly scaling it down to force one page
-  // — a uniform down-scale also shrank the WIDTH, leaving a white strip on the
-  // right of the sheet. `natH` (natural height at full width) is measured only to
-  // size the on-screen preview box.
+  // Auto-fit the CV onto a single A4 page WITHOUT losing the full page width.
+  // A naive "scale down to fit one page" shrinks the width too (white strip on
+  // the right). Instead we measure the natural height at full width (`natH`),
+  // and if it overflows one page we render the CV on a proportionally WIDER
+  // canvas (`renderW`) and scale it back down by `shrink`: after the scale the
+  // width lands back on a full 210mm while the height fits one page.
   const measureRef = useRef<HTMLDivElement>(null);
   const [natH, setNatH] = useState<number | null>(null);
 
@@ -887,6 +893,17 @@ export default function CVPage() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [template, data, loading]);
+
+  // One A4 page in CSS px (297mm @ 96dpi), minus a safety margin so the shrunk
+  // page never rounds onto a second sheet.
+  const ONE_PAGE_PX = (297 * 96) / 25.4;
+  const SAFE_PAGE_PX = ONE_PAGE_PX - 12;
+  // shrink ≤ 1 only when the CV is taller than one page; renderW is the wider
+  // canvas that keeps the width full after the shrink; clipH is the height of
+  // the scaled block (always ≤ one page).
+  const shrink = natH && natH > ONE_PAGE_PX ? SAFE_PAGE_PX / natH : 1;
+  const renderW = A4_WIDTH_PX / shrink;
+  const clipH = natH ? natH * shrink : undefined;
 
   useEffect(() => setMounted(true), []);
 
@@ -1002,10 +1019,6 @@ export default function CVPage() {
           #cv-print-root { display: block !important; }
           html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
           @page { size: A4; margin: 0; }
-          /* Keep table rows and section headers intact across page breaks. */
-          #cv-print-root tr { break-inside: avoid; }
-          #cv-print-root thead { display: table-header-group; }
-          #cv-print-root h2 { break-after: avoid; }
         }
       `}</style>
 
@@ -1084,16 +1097,17 @@ export default function CVPage() {
           </div>
         </div>
 
-        {/* Preview — the exact printed CV at full A4 width, scaled only to fit
-            the screen width (zoomable). A long CV shows its full height here and
-            prints across as many A4 pages as it needs. */}
+        {/* Preview — the exact printed A4 page (auto-fit to one page at full
+            width), scaled only to fit the screen width (zoomable). */}
         <div ref={previewBoxRef} className="overflow-auto rounded-2xl border border-white/10 bg-gray-300 p-2 shadow-2xl sm:p-4">
           <div
             className="mx-auto shadow-xl"
-            style={{ width: A4_WIDTH_PX * previewScale, height: natH ? natH * previewScale : undefined, overflow: "hidden" }}
+            style={{ width: A4_WIDTH_PX * previewScale, height: clipH ? clipH * previewScale : undefined, overflow: "hidden" }}
           >
-            <div style={{ width: A4_WIDTH_PX, transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
-              <CVDocument template={template} data={data} cardVariant={cardVariant} />
+            <div style={{ width: A4_WIDTH_PX, height: clipH, overflow: "hidden", transform: `scale(${previewScale})`, transformOrigin: "top left" }}>
+              <div style={{ width: renderW, transform: `scale(${shrink})`, transformOrigin: "top left" }}>
+                <CVDocument template={template} data={data} cardVariant={cardVariant} />
+              </div>
             </div>
           </div>
         </div>
@@ -1110,8 +1124,10 @@ export default function CVPage() {
       {mounted &&
         createPortal(
           <div id="cv-print-root">
-            <div style={{ width: "210mm" }}>
-              <CVDocument template={template} data={data} cardVariant={cardVariant} />
+            <div style={{ width: A4_WIDTH_PX, height: clipH, overflow: "hidden" }}>
+              <div style={{ width: renderW, transform: `scale(${shrink})`, transformOrigin: "top left" }}>
+                <CVDocument template={template} data={data} cardVariant={cardVariant} />
+              </div>
             </div>
           </div>,
           document.body
