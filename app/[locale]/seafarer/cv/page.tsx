@@ -428,14 +428,14 @@ function CVModern({ data }: { data: CVData }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={seafarer.photo_url} alt={name} className="h-[34mm] w-[34mm] rounded-full border-2 border-[#c9a227] object-cover" />
           ) : (
-            <div className="grid h-[34mm] w-[34mm] place-items-center rounded-full border-2 border-dashed border-white/30 text-[8px] text-white/50">PHOTO</div>
+            <div className="grid h-[34mm] w-[34mm] place-items-center rounded-full border-2 border-dashed border-[#42596f] text-[8px] text-[#8aa0b0]">PHOTO</div>
           )}
           <h1 className="mt-3 text-[17px] font-bold uppercase leading-tight">{name}</h1>
           {seafarer?.rank && <p className="text-[11px] font-semibold uppercase tracking-wide text-[#e3c04a]">{seafarer.rank}</p>}
         </div>
 
         <SideHead>Contact</SideHead>
-        <div className="mt-1 space-y-1 text-[9.5px] leading-snug text-white/85">
+        <div className="mt-1 space-y-1 text-[9.5px] leading-snug text-[#d5e0ea]">
           {seafarer?.phone && <p>☏ {seafarer.phone}</p>}
           {email && <p className="break-all">✉ {email}</p>}
           {seafarer?.nationality && <p>⚑ {seafarer.nationality}</p>}
@@ -444,17 +444,17 @@ function CVModern({ data }: { data: CVData }) {
         </div>
 
         <SideHead>Sea Time</SideHead>
-        <div className="mt-1 space-y-1 text-[9.5px] leading-snug text-white/85">
+        <div className="mt-1 space-y-1 text-[9.5px] leading-snug text-[#d5e0ea]">
           <p><span className="font-bold text-[#ffffff]">Total:</span> {fmtMonths(totalMonths)}</p>
           {byRank.slice(0, 5).map((r) => (<p key={r.rank}>As {r.rank}: {fmtMonths(r.months)}</p>))}
         </div>
 
-        {seafarer?.languages && (<><SideHead>Languages</SideHead><p className="mt-1 text-[9.5px] leading-snug text-white/85">{seafarer.languages}</p></>)}
+        {seafarer?.languages && (<><SideHead>Languages</SideHead><p className="mt-1 text-[9.5px] leading-snug text-[#d5e0ea]">{seafarer.languages}</p></>)}
 
         {docs.length > 0 && (
           <>
             <SideHead>Documents</SideHead>
-            <div className="mt-1 space-y-1 text-[9px] leading-snug text-white/85">
+            <div className="mt-1 space-y-1 text-[9px] leading-snug text-[#d5e0ea]">
               {docs.map(([k, v]) => (<p key={k}><span className="font-semibold text-[#ffffff]">{k}:</span> {v}</p>))}
             </div>
           </>
