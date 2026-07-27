@@ -151,6 +151,12 @@ export type SalaryStats = {
 function vesselKeyOf(v: StatVacancy): string | null {
   const s = `${v.vessel_type ?? ""} ${v.title ?? ""}`.toLowerCase();
   if (!s.trim()) return null;
+  // Gas is the most specific match: an LPG/LNG carrier is often loosely called
+  // a "... tanker", so a generic "tanker" keyword would otherwise swallow it.
+  // Check gas keywords BEFORE the general loop so gas carriers land in the Gas
+  // column, not Tanker.
+  const gas = SALARY_VESSELS.find((c) => c.key === "gas-carrier");
+  if (gas && gas.keywords.some((k) => s.includes(k))) return "gas-carrier";
   for (const col of SALARY_VESSELS) {
     if (col.keywords.some((k) => s.includes(k))) return col.key;
   }
