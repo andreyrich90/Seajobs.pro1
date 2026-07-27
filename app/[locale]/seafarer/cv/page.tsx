@@ -949,18 +949,27 @@ export default function CVPage() {
   // The browser uses document.title as the suggested filename when saving the
   // print output as PDF. Swap it to "First Last - Rank" for the download, then
   // restore the page title afterwards so navigation/SEO isn't affected.
+  // Restore on `afterprint`; keep a LONG fallback (not a few seconds) because on
+  // mobile the user stays in the save/share sheet well past a short timeout — a
+  // premature restore is exactly what made the file save as the page title
+  // ("Вакансии для моряков … SeaJobs") instead of the seafarer's name + rank.
   function handleDownload() {
     const filename = cvFilename();
 
     const original = document.title;
     document.title = filename;
+    let done = false;
+    let timer: ReturnType<typeof setTimeout>;
     const restore = () => {
+      if (done) return;
+      done = true;
       document.title = original;
       window.removeEventListener("afterprint", restore);
+      clearTimeout(timer);
     };
     window.addEventListener("afterprint", restore);
+    timer = setTimeout(restore, 120000); // 2 min: safety net if afterprint never fires
     window.print();
-    setTimeout(restore, 3000); // fallback if afterprint doesn't fire (some mobile browsers)
   }
 
   const TPL_LABEL: Record<Template, string> = {
