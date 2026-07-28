@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import type { Lang } from "@/lib/i18n";
@@ -83,8 +83,10 @@ export async function generateMetadata(
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;
   const description = `${rankPart}position${vesselPart}${locationPart}.${salaryPart} Apply on SeaJobs.pro — the maritime job board for seafarers.`;
   const path = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
-  const languages = hreflangAlternates(path);
-  const canonical = canonicalUrl(path, locale);
+  // Vacancy text is English-only, so pl/ro are duplicates → consolidate them
+  // onto the English canonical and keep the hreflang cluster to en/ru/ua.
+  const languages = contentHreflangAlternates(path);
+  const canonical = contentCanonicalUrl(path, locale);
 
   return {
     title,

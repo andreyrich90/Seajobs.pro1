@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -25,8 +25,9 @@ export async function generateMetadata({
   const description = (data.description ?? "").trim().slice(0, 160)
     || `${data.name} on SeaJobs.pro — open vacancies and company profile for seafarers.`;
 
-  const languages = hreflangAlternates(`/companies/${id}`);
-  const canonical = canonicalUrl(`/companies/${id}`, locale);
+  // Company profiles are English-only → fold pl/ro onto the English canonical.
+  const languages = contentHreflangAlternates(`/companies/${id}`);
+  const canonical = contentCanonicalUrl(`/companies/${id}`, locale);
 
   return {
     title,

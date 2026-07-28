@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import CompanyClient from "./CompanyClient";
 
 export const dynamic = "force-dynamic";
@@ -38,12 +38,15 @@ export async function generateMetadata(
   }
 
   const path = `/companies/${id}`;
-  const canonical = canonicalUrl(path, locale);
+  // Company profiles are stored English-only → fold pl/ro onto the English
+  // canonical and keep the hreflang cluster to en/ru/ua.
+  const canonical = contentCanonicalUrl(path, locale);
+  const languages = contentHreflangAlternates(path);
 
   if (!name) {
     return {
       title: "Crewing company — maritime vacancies | SeaJobs.pro",
-      alternates: { canonical, languages: hreflangAlternates(path) },
+      alternates: { canonical, languages },
     };
   }
 
@@ -63,7 +66,7 @@ export async function generateMetadata(
       alternateLocale: alternateOgLocales(locale),
     },
     twitter: { card: "summary", title, description },
-    alternates: { canonical, languages: hreflangAlternates(path) },
+    alternates: { canonical, languages },
   };
 }
 
