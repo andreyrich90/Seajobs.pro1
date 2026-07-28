@@ -50,3 +50,38 @@ export function alternateOgLocales(current: string): string[] {
 export function canonicalUrl(pathname: string, locale: string): string {
   return `${BASE}${getPathname({ locale, href: pathname })}`;
 }
+
+/**
+ * Locales in which a DB-driven record's *body text* is actually distinct.
+ * Vacancies and company profiles are stored in a single language (English), so
+ * their `/pl/...` and `/ro/...` URLs are duplicates of the English page — only
+ * the UI chrome differs. We keep en/ru/ua (our core audience, and enough
+ * localization to justify an hreflang cluster) as real indexable variants and
+ * fold pl/ro onto the English canonical, which is what Google does anyway — this
+ * just states it explicitly so those pages stop showing up as "duplicate,
+ * no user-selected canonical". News, guides and forum posts ARE translated
+ * per-locale, so they keep all five languages and must NOT use these helpers.
+ */
+export const CONTENT_LOCALES: readonly string[] = ["en", "ru", "ua"];
+
+const isContentLocale = (locale: string) => CONTENT_LOCALES.includes(locale);
+
+/**
+ * Canonical for a single-language DB-detail page: the page itself for en/ru/ua,
+ * but the default-locale (English) URL for pl/ro so Google consolidates the
+ * near-duplicate locale variants instead of flagging them.
+ */
+export function contentCanonicalUrl(pathname: string, locale: string): string {
+  const target = isContentLocale(locale) ? locale : routing.defaultLocale;
+  return `${BASE}${getPathname({ locale: target, href: pathname })}`;
+}
+
+/** hreflang cluster limited to the locales that carry a real indexable variant. */
+export function contentHreflangAlternates(pathname: string): Record<string, string> {
+  const languages: Record<string, string> = {};
+  for (const locale of CONTENT_LOCALES) {
+    languages[HREFLANG[locale] ?? locale] = `${BASE}${getPathname({ locale, href: pathname })}`;
+  }
+  languages["x-default"] = languages[HREFLANG[routing.defaultLocale] ?? routing.defaultLocale];
+  return languages;
+}

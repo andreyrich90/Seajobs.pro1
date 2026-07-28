@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { MetadataRoute } from "next";
 import { NEWS } from "@/lib/data";
-import { hreflangAlternates } from "@/lib/seo";
+import { CONTENT_LOCALES, contentHreflangAlternates, hreflangAlternates } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getPathname } from "@/i18n/navigation";
 import { slugId } from "@/lib/slug";
@@ -34,6 +34,24 @@ function localizedEntries(
   // localized pathname directly to guarantee a valid absolute URL.
   const languages = hreflangAlternates(pathname);
   return routing.locales.map((locale) => ({
+    url: `${BASE}${getPathname({ locale, href: pathname })}`,
+    lastModified: opts.lastModified,
+    changeFrequency: opts.changeFrequency,
+    priority: opts.priority,
+    alternates: { languages },
+  }));
+}
+
+// Same as localizedEntries, but only for the CONTENT_LOCALES (en/ru/ua). Used
+// for single-language DB records (vacancies, companies) whose pl/ro URLs are
+// duplicates of the English page — those variants canonicalize to English, so
+// we don't submit them here.
+function contentLocalizedEntries(
+  pathname: string,
+  opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }
+): MetadataRoute.Sitemap {
+  const languages = contentHreflangAlternates(pathname);
+  return CONTENT_LOCALES.map((locale) => ({
     url: `${BASE}${getPathname({ locale, href: pathname })}`,
     lastModified: opts.lastModified,
     changeFrequency: opts.changeFrequency,
@@ -130,7 +148,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).flatMap((v) =>
-      localizedEntries(`/jobs/${slugId(locTitle(v.title), v.id)}`, {
+      contentLocalizedEntries(`/jobs/${slugId(locTitle(v.title), v.id)}`, {
         lastModified: new Date(v.updated_at ?? v.created_at),
         changeFrequency: "weekly",
         priority: 0.8,
@@ -146,7 +164,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     const companyRoutes: MetadataRoute.Sitemap = (companies ?? []).flatMap((c) =>
-      localizedEntries(`/companies/${c.id}`, {
+      contentLocalizedEntries(`/companies/${c.id}`, {
         lastModified: c.updated_at ? new Date(c.updated_at) : now,
         changeFrequency: "weekly",
         priority: 0.5,
