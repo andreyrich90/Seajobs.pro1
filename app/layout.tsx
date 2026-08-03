@@ -83,12 +83,16 @@ export default async function RootLayout({
   const htmlLang = HREFLANG[locale] ?? locale;
 
   return (
-    <html lang={htmlLang} className={`${fraunces.variable} ${archivo.variable}`}>
+    <html lang={htmlLang} className={`${fraunces.variable} ${archivo.variable}`} suppressHydrationWarning>
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
+            // Apply the saved theme before paint. Prefer localStorage, fall back
+            // to the `theme` cookie (survives in-app browsers that wipe
+            // localStorage). suppressHydrationWarning on <html> keeps React from
+            // stripping the attribute during hydration.
             __html:
-              "try{if(localStorage.getItem('theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}",
+              "try{var t=localStorage.getItem('theme');if(!t){var m=document.cookie.match(/(?:^|;\\s*)theme=(light|dark)/);t=m&&m[1];}if(t==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}",
           }}
         />
         <script

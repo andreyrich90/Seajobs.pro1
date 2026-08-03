@@ -30,8 +30,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const root = document.documentElement;
       if (next === "light") root.setAttribute("data-theme", "light");
       else root.removeAttribute("data-theme");
+      // Persist in BOTH localStorage and a cookie. Some in-app browsers
+      // (Telegram, Instagram, etc.) drop localStorage between page loads but
+      // keep cookies — the cookie makes the choice actually stick on reload.
       try {
         localStorage.setItem("theme", next);
+      } catch {}
+      try {
+        document.cookie = `theme=${next}; path=/; max-age=31536000; SameSite=Lax`;
       } catch {}
       return next;
     });
