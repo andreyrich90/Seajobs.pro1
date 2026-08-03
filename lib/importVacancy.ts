@@ -29,6 +29,10 @@ export type ImportVacancyResult = {
   vacancyId: string;
   companyId: string;
   refreshed: boolean;
+  // True when this screenshot had no crewing email and we reused the one from a
+  // previous posting of the same company (so the admin can see/verify it).
+  contactEmailInherited: boolean;
+  contactEmail: string | null;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -63,6 +67,27 @@ export async function importVacancy(
     companyId = newId;
   }
 
+  // Crewing contact email. When this screenshot didn't carry one, reuse the
+  // email from the same company's most recent posting that had one — otherwise
+  // applications to the new vacancy would have nowhere to forward the CV (and a
+  // re-import of a recurring posting would wipe its existing email).
+  let contactEmail = input.contactEmail?.trim() || null;
+  let contactEmailInherited = false;
+  if (!contactEmail) {
+    const { data: prior } = await admin
+      .from("vacancies")
+      .select("contact_email")
+      .eq("company_id", companyId)
+      .not("contact_email", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (prior?.contact_email) {
+      contactEmail = prior.contact_email;
+      contactEmailInherited = true;
+    }
+  }
+
   const fields = {
     rank: input.rank || null,
     vessel_type: input.vesselType || null,
@@ -75,7 +100,7 @@ export async function importVacancy(
     is_active: true,
     is_imported: true,
     source_url: input.sourceUrl?.trim() || null,
-    contact_email: input.contactEmail?.trim() || null,
+    contact_email: contactEmail,
     contact_phone: input.contactPhone?.trim() || null,
   };
 
@@ -96,7 +121,7 @@ export async function importVacancy(
       .update({ ...fields, created_at: now, updated_at: now })
       .eq("id", duplicate.id);
     if (updErr) throw new Error(updErr.message);
-    return { vacancyId: duplicate.id, companyId, refreshed: true };
+    return { vacancyId: duplicate.id, companyId, refreshed: true, contactEmailInherited, contactEmail };
   }
 
   const { data: vacancy, error: vacErr } = await admin
@@ -105,5 +130,5 @@ export async function importVacancy(
     .select("id")
     .single();
   if (vacErr) throw new Error(vacErr.message);
-  return { vacancyId: vacancy.id, companyId, refreshed: false };
+  return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail };
 }
