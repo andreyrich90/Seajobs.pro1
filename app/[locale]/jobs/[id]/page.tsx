@@ -164,6 +164,8 @@ export default async function VacancyPage(
     },
     "directApply": true,
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
+    // Per-vacancy social card, so the listing carries an indexable image.
+    "image": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}/opengraph-image`,
   };
 
   // Always emit baseSalary — Google flags "missing field baseSalary" otherwise.
