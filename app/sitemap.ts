@@ -27,7 +27,7 @@ export const revalidate = 3600; // regenerate sitemap every hour
 
 function localizedEntries(
   pathname: string,
-  opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }
+  opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number; images?: string[] }
 ): MetadataRoute.Sitemap {
   // hreflang map is keyed by language tag ("uk" for the /ua route), so we can't
   // look up the per-locale URL by routing locale. Build each <loc> from the
@@ -39,6 +39,7 @@ function localizedEntries(
     changeFrequency: opts.changeFrequency,
     priority: opts.priority,
     alternates: { languages },
+    ...(opts.images?.length ? { images: opts.images } : {}),
   }));
 }
 
@@ -48,7 +49,7 @@ function localizedEntries(
 // we don't submit them here.
 function contentLocalizedEntries(
   pathname: string,
-  opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }
+  opts: { lastModified: Date; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number; images?: string[] }
 ): MetadataRoute.Sitemap {
   const languages = contentHreflangAlternates(pathname);
   return CONTENT_LOCALES.map((locale) => ({
@@ -57,6 +58,7 @@ function contentLocalizedEntries(
     changeFrequency: opts.changeFrequency,
     priority: opts.priority,
     alternates: { languages },
+    ...(opts.images?.length ? { images: opts.images } : {}),
   }));
 }
 
@@ -139,11 +141,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .order("created_at", { ascending: false }),
       admin
         .from("companies")
-        .select("id, updated_at")
+        .select("id, updated_at, logo_url")
         .order("updated_at", { ascending: false }),
       admin
         .from("news_articles")
-        .select("id, title, published_at, created_at, category")
+        .select("id, title, published_at, created_at, category, cover_url")
         .eq("is_published", true)
         .order("created_at", { ascending: false }),
     ]);
@@ -169,6 +171,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: c.updated_at ? new Date(c.updated_at) : now,
         changeFrequency: "weekly",
         priority: 0.5,
+        images: c.logo_url ? [c.logo_url] : undefined,
       })
     );
 
@@ -181,6 +184,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: new Date(n.published_at ?? n.created_at),
           changeFrequency: "monthly",
           priority: 0.6,
+          images: n.cover_url ? [n.cover_url] : undefined,
         })
       );
 
@@ -191,6 +195,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           lastModified: new Date(n.published_at ?? n.created_at),
           changeFrequency: "monthly",
           priority: 0.7,
+          images: n.cover_url ? [n.cover_url] : undefined,
         })
       );
 
