@@ -2,8 +2,8 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
-import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2, MessageCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2, MessageCircle, X } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
 
@@ -16,6 +16,7 @@ type UserRow = {
   name: string;
   email?: string;
   is_verified?: boolean;
+  rank?: string | null;
 };
 
 function formatDate(d: string) {
@@ -28,6 +29,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<"all" | "seafarer" | "company" | "blocked">("all");
   const [query, setQuery]     = useState("");
+  const [rankFilter, setRankFilter] = useState<string | null>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [messaging, setMessaging] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ export default function AdminUsersPage() {
       const token = sessionData.session?.access_token;
 
       const [{ data: seafarers }, { data: companies }, emailRes] = await Promise.all([
-        supabase.from("seafarers").select("id, first_name, last_name"),
+        supabase.from("seafarers").select("id, first_name, last_name, rank"),
         supabase.from("companies").select("id, name, is_verified"),
         // Emails live in auth.users — fetched via an admin-only server route.
         token
@@ -59,8 +61,10 @@ export default function AdminUsersPage() {
       ]);
 
       const sfMap: Record<string, string> = {};
+      const rankMap: Record<string, string | null> = {};
       for (const s of seafarers ?? []) {
         sfMap[s.id] = [s.first_name, s.last_name].filter(Boolean).join(" ") || "(no name)";
+        rankMap[s.id] = s.rank ?? null;
       }
       const coMap: Record<string, { name: string; is_verified: boolean }> = {};
       for (const c of companies ?? []) {
@@ -73,6 +77,7 @@ export default function AdminUsersPage() {
         name: p.role === "seafarer" ? (sfMap[p.id] || "(no name)") : (coMap[p.id]?.name || "(no name)"),
         email: emailMap[p.id],
         is_verified: p.role === "company" ? (coMap[p.id]?.is_verified ?? false) : undefined,
+        rank: p.role === "seafarer" ? (rankMap[p.id] ?? null) : undefined,
       })));
       setLoading(false);
     }
@@ -126,13 +131,33 @@ export default function AdminUsersPage() {
     router.push(`/admin/chats?c=${convoId}`);
   }
 
+  // Live count of seafarers per rank (the value comes from a fixed dropdown, so
+  // exact-string counting is accurate). Sorted most-common first.
+  const rankStats = useMemo(() => {
+    const counts = new Map<string, number>();
+    let unspecified = 0;
+    let total = 0;
+    for (const u of users) {
+      if (u.role !== "seafarer") continue;
+      total++;
+      const r = (u.rank ?? "").trim();
+      if (!r) { unspecified++; continue; }
+      counts.set(r, (counts.get(r) ?? 0) + 1);
+    }
+    const list = [...counts.entries()]
+      .map(([rank, count]) => ({ rank, count }))
+      .sort((a, b) => b.count - a.count || a.rank.localeCompare(b.rank));
+    return { list, total, unspecified };
+  }, [users]);
+
   const filtered = users.filter((u) => {
     if (filter === "seafarer" && u.role !== "seafarer") return false;
     if (filter === "company"  && u.role !== "company")  return false;
     if (filter === "blocked"  && !u.is_blocked)          return false;
+    if (rankFilter && (u.role !== "seafarer" || (u.rank ?? "") !== rankFilter)) return false;
     if (query) {
       const q = query.toLowerCase();
-      if (!u.name.toLowerCase().includes(q) && !u.id.includes(query) && !(u.email ?? "").toLowerCase().includes(q)) return false;
+      if (!u.name.toLowerCase().includes(q) && !u.id.includes(query) && !(u.email ?? "").toLowerCase().includes(q) && !(u.rank ?? "").toLowerCase().includes(q)) return false;
     }
     return true;
   });
@@ -143,6 +168,42 @@ export default function AdminUsersPage() {
         <h1 className="font-display text-2xl font-semibold text-white">Users</h1>
         <p className="mt-1 text-sm text-mist">{users.length} total registered users</p>
       </div>
+
+      {/* Seafarers-by-rank statistics */}
+      {!loading && rankStats.total > 0 && (
+        <div className="mb-6 rounded-2xl border border-white/10 bg-card p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-display text-lg font-semibold text-white">Seafarers by rank</h2>
+            <span className="text-sm text-mist">{rankStats.total} seafarers · {rankStats.list.length} ranks</span>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {rankStats.list.map(({ rank, count }) => (
+              <button
+                key={rank}
+                onClick={() => { setFilter("all"); setRankFilter(rankFilter === rank ? null : rank); }}
+                title={`Show ${rank}`}
+                className={`inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm transition ${
+                  rankFilter === rank ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-foam hover:text-white"
+                }`}
+              >
+                <span className="font-semibold">{rank}</span>
+                <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-xs font-bold text-white">{count}</span>
+              </button>
+            ))}
+            {rankStats.unspecified > 0 && (
+              <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-mist">
+                No rank set
+                <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-xs font-bold text-white">{rankStats.unspecified}</span>
+              </span>
+            )}
+          </div>
+          {rankFilter && (
+            <button onClick={() => setRankFilter(null)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brass2 hover:text-brass transition">
+              <X size={12} /> Clear rank filter · {rankFilter}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -173,6 +234,7 @@ export default function AdminUsersPage() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">User</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Email</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden sm:table-cell">Role</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden sm:table-cell">Rank</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Registered</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-mist uppercase">Actions</th>
@@ -181,7 +243,7 @@ export default function AdminUsersPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
+                <tr><td colSpan={8} className="px-4 py-10 text-center text-mist text-sm">No users found.</td></tr>
               ) : filtered.map((u) => (
                 <tr key={u.id} className="bg-card hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
@@ -206,6 +268,10 @@ export default function AdminUsersPage() {
                             <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
                           )}
                         </div>
+                        {/* Rank column is hidden below sm — show it under the name on phones. */}
+                        {u.role === "seafarer" && u.rank && (
+                          <p className="text-xs font-medium text-brass2 sm:hidden">{u.rank}</p>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -224,6 +290,11 @@ export default function AdminUsersPage() {
                       {u.role}
                     </span>
                     {u.is_admin && <span className="ml-1.5 inline-flex rounded-full border border-brass/30 bg-brass/10 px-2 py-0.5 text-xs font-bold text-brass2">admin</span>}
+                  </td>
+                  <td className="px-4 py-3 hidden sm:table-cell text-xs">
+                    {u.role === "seafarer"
+                      ? (u.rank ? <span className="font-medium text-foam">{u.rank}</span> : <span className="text-mist/40">—</span>)
+                      : <span className="text-mist/40">—</span>}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell text-mist text-xs">{formatDate(u.created_at)}</td>
                   <td className="px-4 py-3">
