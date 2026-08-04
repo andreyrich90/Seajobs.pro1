@@ -76,8 +76,8 @@ export default function ContactPage() {
 
           <div className="mt-6 flex items-center gap-2 text-mist">
             <Mail size={18} className="text-brass2" />
-            <a href="mailto:support@seajobs.pro" className="text-brass2 transition hover:text-brass">
-              support@seajobs.pro
+            <a href="mailto:crewing@seajobs.pro" className="text-brass2 transition hover:text-brass">
+              crewing@seajobs.pro
             </a>
           </div>
 
