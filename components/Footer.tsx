@@ -48,9 +48,11 @@ export default function Footer() {
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
   ];
 
+  const contactLabel = ({ en: "Contact", ru: "Контакты", ua: "Контакти", pl: "Kontakt", ro: "Contact" } as Record<string, string>)[lang] ?? "Contact";
   const COMPANY = [
     { label: t.footer_for_companies, href: "/for-companies" },
     { label: t.footer_about, href: "/about" },
+    { label: contactLabel, href: "/contact" },
     { label: t.footer_terms, href: "/terms" },
     { label: t.footer_privacy, href: "/privacy" },
   ];
