@@ -3,8 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 
-// Where contact / partnership messages are forwarded.
-const CONTACT_INBOX = "partners@seajobs.pro";
+// Where messages are forwarded by email. Partnership requests (they carry a
+// company name, e.g. from the /for-companies form) go to partners@; general
+// contact messages go to crewing@. Everything is also saved to the admin inbox.
+const PARTNERS_INBOX = "partners@seajobs.pro";
+const CONTACT_INBOX = "crewing@seajobs.pro";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -78,7 +81,7 @@ export async function POST(req: Request) {
   ${email ? `<li>Email: ${esc(email)}</li>` : ""}
 </ul>
 <p style="white-space:pre-wrap">${esc(content)}</p>`;
-  await sendEmail(CONTACT_INBOX, finalSubject, html, email || undefined);
+  await sendEmail(company ? PARTNERS_INBOX : CONTACT_INBOX, finalSubject, html, email || undefined);
 
   return NextResponse.json({ ok: true });
 }
