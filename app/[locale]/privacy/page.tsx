@@ -8,7 +8,7 @@ import type { Lang } from "@/lib/i18n";
 const TRANSLATIONS = {
   ro: {
     title: "Politica de confidențialitate",
-    updated: "Ultima actualizare: iunie 2026",
+    updated: "Ultima actualizare: august 2026",
     intro: "SeaJobs.pro („noi” sau „al nostru”) se angajează să vă protejeze confidențialitatea. Această politică explică ce informații colectăm, cum le folosim și ce drepturi aveți asupra datelor dumneavoastră.",
     sections: [
       {
@@ -33,11 +33,11 @@ const TRANSLATIONS = {
       },
       {
         title: "6. Cookie-uri și analiză",
-        body: "Folosim cookie-uri de sesiune necesare autentificării. Folosim de asemenea Google Analytics 4 pentru statistici de utilizare anonimizate (pagini vizitate, durata sesiunii, țara). Google Analytics poate seta propriile cookie-uri. Nu folosim cookie-uri de publicitate sau retargeting. Preferința de limbă este stocată în local storage-ul browserului.",
+        body: "Folosim cookie-uri de sesiune necesare autentificării și Google Analytics 4 pentru statistici anonimizate (pagini vizitate, durata sesiunii, țara). Folosim de asemenea Google AdSense pentru afișarea reclamelor. Furnizori terți, inclusiv Google, folosesc cookie-uri pentru a afișa reclame pe baza vizitelor dumneavoastră anterioare pe acest site și pe alte site-uri, iar cookie-urile publicitare Google îi permit acestuia și partenerilor săi să afișeze reclame personalizate. Puteți renunța la reclamele personalizate din setările Google Ads (google.com/settings/ads) sau prin www.aboutads.info. Cookie-urile neesențiale, inclusiv cele publicitare, sunt setate doar după ce le acceptați în bannerul de cookie-uri. Preferința de limbă este stocată în local storage-ul browserului.",
       },
       {
         title: "7. Servicii terțe",
-        body: "Folosim următoarele servicii terțe: Supabase (bază de date și autentificare), Google OAuth (autentificare cu Google), Google Analytics (statistici anonimizate) și Vercel (găzduire). Fiecare dintre aceste servicii are propria politică de confidențialitate. Nu partajăm datele dumneavoastră personale cu alți terți.",
+        body: "Folosim următoarele servicii terțe: Supabase (bază de date și autentificare), Google OAuth (autentificare cu Google), Google Analytics (statistici anonimizate), Google AdSense (publicitate) și Vercel (găzduire). Fiecare dintre aceste servicii are propria politică de confidențialitate. Nu vindem datele dumneavoastră personale și nu le partajăm cu alți terți dincolo de ceea ce este necesar pentru furnizarea acestor servicii.",
       },
       {
         title: "8. Drepturile dumneavoastră (GDPR)",
@@ -63,7 +63,7 @@ const TRANSLATIONS = {
   },
   en: {
     title: "Privacy Policy",
-    updated: "Last updated: June 2026",
+    updated: "Last updated: August 2026",
     intro: "SeaJobs.pro (\"we\", \"our\", or \"us\") is committed to protecting your privacy. This policy explains what information we collect, how we use it, and your rights regarding your data.",
     sections: [
       {
@@ -88,11 +88,11 @@ const TRANSLATIONS = {
       },
       {
         title: "6. Cookies & Analytics",
-        body: "We use session cookies necessary for authentication. We also use Google Analytics 4 to collect anonymized usage statistics (pages visited, session duration, country). Google Analytics may set its own cookies. We do not use advertising or retargeting cookies. Your language preference is stored in your browser's local storage.",
+        body: "We use session cookies necessary for authentication and Google Analytics 4 for anonymized usage statistics (pages visited, session duration, country). We also use Google AdSense to display advertising. Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this and other websites, and Google's advertising cookies enable it and its partners to serve personalized ads to you. You can opt out of personalized advertising through your Google Ads Settings (google.com/settings/ads) or via www.aboutads.info. Non-essential cookies, including advertising cookies, are set only after you accept them in our cookie banner. Your language preference is stored in your browser's local storage.",
       },
       {
         title: "7. Third-Party Services",
-        body: "We use the following third-party services: Supabase (database and authentication), Google OAuth (sign-in with Google), Google Analytics (anonymized site statistics), and Vercel (hosting). Each of these services has its own privacy policy. We do not share your personal data with any other third parties.",
+        body: "We use the following third-party services: Supabase (database and authentication), Google OAuth (sign-in with Google), Google Analytics (anonymized site statistics), Google AdSense (advertising), and Vercel (hosting). Each of these services has its own privacy policy. We do not sell your personal data, and we do not share it with other third parties beyond what is necessary to provide these services.",
       },
       {
         title: "8. Your Rights (GDPR)",
@@ -118,7 +118,7 @@ const TRANSLATIONS = {
   },
   ua: {
     title: "Політика конфіденційності",
-    updated: "Оновлено: червень 2026",
+    updated: "Оновлено: серпень 2026",
     intro: "SeaJobs.pro («ми», «нас» або «наш») прагне захистити вашу конфіденційність. Ця політика пояснює, яку інформацію ми збираємо, як ми її використовуємо та які права ви маєте щодо своїх даних.",
     sections: [
       {
@@ -143,11 +143,11 @@ const TRANSLATIONS = {
       },
       {
         title: "6. Куки та аналітика",
-        body: "Ми використовуємо сесійні куки, необхідні для автентифікації. Також ми використовуємо Google Analytics 4 для збору анонімізованої статистики (сторінки, час сесії, країна). Google Analytics може встановлювати власні куки. Ми не використовуємо рекламні або ретаргетингові куки. Ваші мовні налаштування зберігаються в локальному сховищі браузера.",
+        body: "Ми використовуємо сесійні куки, необхідні для автентифікації, та Google Analytics 4 для анонімізованої статистики (сторінки, час сесії, країна). Також ми використовуємо Google AdSense для показу реклами. Сторонні постачальники, зокрема Google, використовують куки для показу оголошень на основі ваших попередніх відвідувань цього та інших сайтів, а рекламні куки Google дають змогу йому та його партнерам показувати вам персоналізовану рекламу. Ви можете відмовитися від персоналізованої реклами в налаштуваннях Google Ads (google.com/settings/ads) або через www.aboutads.info. Необов'язкові куки, зокрема рекламні, встановлюються лише після вашої згоди в банері cookie. Ваші мовні налаштування зберігаються в локальному сховищі браузера.",
       },
       {
         title: "7. Сторонні сервіси",
-        body: "Ми використовуємо такі сторонні сервіси: Supabase (база даних та автентифікація), Google OAuth (вхід через Google), Google Analytics (анонімізована статистика), Vercel (хостинг). Кожен із цих сервісів має власну політику конфіденційності. Ми не передаємо ваші персональні дані жодним іншим третім особам.",
+        body: "Ми використовуємо такі сторонні сервіси: Supabase (база даних та автентифікація), Google OAuth (вхід через Google), Google Analytics (анонімізована статистика), Google AdSense (реклама), Vercel (хостинг). Кожен із цих сервісів має власну політику конфіденційності. Ми не продаємо ваші персональні дані та не передаємо їх іншим третім особам понад необхідне для роботи цих сервісів.",
       },
       {
         title: "8. Ваші права (GDPR)",
@@ -173,7 +173,7 @@ const TRANSLATIONS = {
   },
   pl: {
     title: "Polityka prywatności",
-    updated: "Ostatnia aktualizacja: czerwiec 2026",
+    updated: "Ostatnia aktualizacja: sierpień 2026",
     intro: "SeaJobs.pro ('my', 'nas' lub 'nasz') zobowiązuje się do ochrony Twojej prywatności. Niniejsza polityka wyjaśnia, jakie informacje zbieramy, jak je wykorzystujemy i jakie masz prawa w odniesieniu do swoich danych.",
     sections: [
       {
@@ -198,11 +198,11 @@ const TRANSLATIONS = {
       },
       {
         title: "6. Pliki cookie i analityka",
-        body: "Używamy sesyjnych plików cookie niezbędnych do uwierzytelniania. Korzystamy również z Google Analytics 4 do zbierania anonimowych statystyk użytkowania (odwiedzane strony, czas sesji, kraj). Google Analytics może ustawiać własne pliki cookie. Nie używamy reklamowych ani retargetingowych plików cookie. Twoje preferencje językowe są przechowywane w lokalnym magazynie przeglądarki.",
+        body: "Używamy sesyjnych plików cookie niezbędnych do uwierzytelniania oraz Google Analytics 4 do anonimowych statystyk (odwiedzane strony, czas sesji, kraj). Korzystamy również z Google AdSense do wyświetlania reklam. Zewnętrzni dostawcy, w tym Google, używają plików cookie do wyświetlania reklam na podstawie Twoich wcześniejszych wizyt na tej i innych stronach, a reklamowe pliki cookie Google umożliwiają jemu i jego partnerom wyświetlanie spersonalizowanych reklam. Możesz zrezygnować ze spersonalizowanych reklam w ustawieniach Google Ads (google.com/settings/ads) lub przez www.aboutads.info. Opcjonalne pliki cookie, w tym reklamowe, są ustawiane dopiero po ich zaakceptowaniu w naszym banerze cookie. Twoje preferencje językowe są przechowywane w lokalnym magazynie przeglądarki.",
       },
       {
         title: "7. Usługi zewnętrzne",
-        body: "Korzystamy z następujących usług zewnętrznych: Supabase (baza danych i uwierzytelnianie), Google OAuth (logowanie przez Google), Google Analytics (anonimowe statystyki), Vercel (hosting). Każda z tych usług ma własną politykę prywatności. Nie udostępniamy Twoich danych osobowych żadnym innym stronom trzecim.",
+        body: "Korzystamy z następujących usług zewnętrznych: Supabase (baza danych i uwierzytelnianie), Google OAuth (logowanie przez Google), Google Analytics (anonimowe statystyki), Google AdSense (reklamy), Vercel (hosting). Każda z tych usług ma własną politykę prywatności. Nie sprzedajemy Twoich danych osobowych i nie udostępniamy ich innym stronom trzecim poza tym, co jest niezbędne do świadczenia tych usług.",
       },
       {
         title: "8. Twoje prawa (RODO)",
@@ -228,7 +228,7 @@ const TRANSLATIONS = {
   },
   ru: {
     title: "Политика конфиденциальности",
-    updated: "Обновлено: июнь 2026",
+    updated: "Обновлено: август 2026",
     intro: "SeaJobs.pro («мы», «нас» или «наш») стремится защищать вашу конфиденциальность. Настоящая политика объясняет, какую информацию мы собираем, как её используем и какие права у вас есть в отношении ваших данных.",
     sections: [
       {
@@ -253,11 +253,11 @@ const TRANSLATIONS = {
       },
       {
         title: "6. Куки и аналитика",
-        body: "Мы используем сессионные куки, необходимые для аутентификации. Также мы используем Google Analytics 4 для сбора анонимизированной статистики (страницы, время сессии, страна). Google Analytics может устанавливать собственные куки. Мы не используем рекламные или ретаргетинговые куки. Ваши языковые настройки хранятся в локальном хранилище браузера.",
+        body: "Мы используем сессионные куки, необходимые для аутентификации, и Google Analytics 4 для анонимизированной статистики (страницы, время сессии, страна). Также мы используем Google AdSense для показа рекламы. Сторонние поставщики, включая Google, используют куки для показа объявлений на основе ваших предыдущих посещений этого и других сайтов, а рекламные куки Google позволяют ему и его партнёрам показывать вам персонализированную рекламу. Вы можете отказаться от персонализированной рекламы в настройках Google Ads (google.com/settings/ads) или через www.aboutads.info. Необязательные куки, включая рекламные, устанавливаются только после вашего согласия в баннере cookie. Ваши языковые настройки хранятся в локальном хранилище браузера.",
       },
       {
         title: "7. Сторонние сервисы",
-        body: "Мы используем следующие сторонние сервисы: Supabase (база данных и аутентификация), Google OAuth (вход через Google), Google Analytics (анонимизированная статистика), Vercel (хостинг). Каждый из этих сервисов имеет собственную политику конфиденциальности. Мы не передаём ваши персональные данные никаким другим третьим лицам.",
+        body: "Мы используем следующие сторонние сервисы: Supabase (база данных и аутентификация), Google OAuth (вход через Google), Google Analytics (анонимизированная статистика), Google AdSense (реклама), Vercel (хостинг). Каждый из этих сервисов имеет собственную политику конфиденциальности. Мы не продаём ваши персональные данные и не передаём их другим третьим лицам сверх необходимого для работы этих сервисов.",
       },
       {
         title: "8. Ваши права (GDPR)",
