@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { computeSalaryStats } from "@/lib/salaryStats";
+import { getSalaryStats } from "@/lib/salaryStatsCached";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
 
 export const dynamic = "force-dynamic";
@@ -13,11 +13,10 @@ export default async function Home() {
   const sb = getServerSupabase();
   // Fetch vacancies + latest news on the server so they're in the initial HTML.
   // Hide vacancies whose joining date passed more than 2 weeks ago.
-  // `statRows` is a separate, salary-only query so the comparison widget sees
-  // EVERY salaried vacancy (not just the newest 500 shown on the page) —
-  // otherwise older rank×vessel combos show empty cells even though vacancies
-  // exist on /jobs.
-  const [{ data: vacancies }, { data: news }, { data: statRows }] = await Promise.all([
+  // The salary comparison is computed by `getSalaryStats`, which caches its
+  // 5,000-row scan for 15 minutes — that scan used to run on every request and
+  // dominated TTFB/LCP here. The lists below stay per-request fresh.
+  const [{ data: vacancies }, { data: news }, salaryStats] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
@@ -30,15 +29,8 @@ export default async function Home() {
       .neq("category", "guide")
       .order("published_at", { ascending: false })
       .limit(6),
-    sb.from("vacancies")
-      .select("rank, vessel_type, title, salary_from, salary_to, salary_period, currency")
-      .eq("is_active", true)
-      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
-      .or("salary_from.not.is.null,salary_to.not.is.null")
-      .limit(5000),
+    getSalaryStats(),
   ]);
-
-  const salaryStats = computeSalaryStats((statRows ?? []) as DbVacancy[]);
 
   return (
     <HomeClient
