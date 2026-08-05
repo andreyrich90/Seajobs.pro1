@@ -10,6 +10,9 @@ import { HREFLANG } from "@/lib/seo";
 import enMessages from "@/messages/en.json";
 
 // Self-hosted fonts (no render-blocking request to Google Fonts).
+// NOTE: neither Fraunces nor Archivo ships a Cyrillic subset on Google Fonts
+// (latin / latin-ext / vietnamese only), so ru/ua text renders in the fallback
+// system font. Changing that needs a different family, not a subset tweak.
 const fraunces = Fraunces({ subsets: ["latin"], display: "swap", variable: "--font-fraunces" });
 const archivo = Archivo({ subsets: ["latin"], display: "swap", variable: "--font-archivo" });
 
@@ -99,9 +102,11 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        {/* Ads and the heatmap tracker are not needed for interactivity — load
+            them during idle time so they stop adding to Total Blocking Time. */}
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9585615049936117"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           crossOrigin="anonymous"
         />
         <Script
@@ -117,7 +122,7 @@ export default async function RootLayout({
           `}
         </Script>
         {/* Plerdy — heatmaps, click maps and behaviour analytics */}
-        <Script id="plerdy" strategy="afterInteractive">
+        <Script id="plerdy" strategy="lazyOnload">
           {`
             var _protocol="https:"==document.location.protocol?"https://":"http://";
             _site_hash_code = "8275a467c76f1af4b73873ff85dd9ca4",_suid=77434, plerdyScript=document.createElement("script");
