@@ -29,6 +29,14 @@ const empty = () => ({
 
 type Form = ReturnType<typeof empty>;
 
+// Screenshot slicing (see fileToImageParts).
+const TILE_MAX_WIDTH = 1500;  // wider screenshots are downscaled to this first
+const TILE_ASPECT = 1.25;     // max height/width of one slice
+const TILE_OVERLAP = 80;      // px shared between neighbouring slices
+const MAX_TILES = 5;          // keeps the request body well under the 4.5 MB limit
+
+type ParseImage = { base64: string; mediaType: string };
+
 // Raw vacancy object as returned by /api/admin/parse-vacancy-image.
 type ParsedVacancy = {
   companyName?: string | null; companyLocation?: string | null; companyWebsite?: string | null;
@@ -114,6 +122,66 @@ export default function ImportVacancyPage() {
     });
   }
 
+  // Anthropic downscales an image's long edge to ~1568px, so a tall phone
+  // screenshot (e.g. 1440x3088) would arrive at half size and its small table
+  // text becomes unreadable — which is why some vacancies silently failed to
+  // parse. Slice tall screenshots into near-square, slightly overlapping
+  // pieces so each one survives that downscale at full detail.
+  async function fileToImageParts(file: File): Promise<ParseImage[]> {
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const fallback: ParseImage[] = [{ base64: dataUrl, mediaType: file.type }];
+
+    let img: HTMLImageElement;
+    try {
+      img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = reject;
+        el.src = dataUrl;
+      });
+    } catch {
+      return fallback;
+    }
+
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    if (!w || !h) return fallback;
+
+    const scale = Math.min(1, TILE_MAX_WIDTH / w);
+    const sw = Math.round(w * scale);
+    const sh = Math.round(h * scale);
+    const maxTileH = Math.round(sw * TILE_ASPECT);
+
+    const count =
+      sh <= maxTileH
+        ? 1
+        : Math.min(MAX_TILES, Math.ceil((sh - TILE_OVERLAP) / (maxTileH - TILE_OVERLAP)));
+    // Grow the tile height when the cap kicks in so the slices still cover the
+    // whole screenshot with the overlap intact.
+    const tileH = count === 1 ? sh : Math.ceil((sh + (count - 1) * TILE_OVERLAP) / count);
+    const stride = count === 1 ? 0 : (sh - tileH) / (count - 1);
+
+    const parts: ParseImage[] = [];
+    for (let i = 0; i < count; i++) {
+      const top = Math.round(i * stride);
+      const height = Math.min(tileH, sh - top);
+      const canvas = document.createElement("canvas");
+      canvas.width = sw;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return fallback;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, top / scale, w, height / scale, 0, 0, sw, height);
+      parts.push({ base64: canvas.toDataURL("image/jpeg", 0.92), mediaType: "image/jpeg" });
+    }
+    return parts;
+  }
+
   async function handleScreenshot(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
     e.target.value = "";
@@ -130,16 +198,14 @@ export default function ImportVacancyPage() {
       // vacancies from every file land in one review queue.
       const all: ParsedVacancy[] = [];
       const failed: string[] = [];
+      // Why each screenshot failed — a wrong API key or an oversized file used
+      // to surface as the same "no vacancy could be read" message.
+      const reasons: string[] = [];
       for (let i = 0; i < files.length; i++) {
         setParseProgress(files.length > 1 ? `${i + 1}/${files.length}` : null);
         const file = files[i];
         try {
-          const fileBase64: string = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
+          const images = await fileToImageParts(file);
 
           const res = await fetch("/api/admin/parse-vacancy-image", {
             method: "POST",
@@ -147,25 +213,35 @@ export default function ImportVacancyPage() {
               "Content-Type": "application/json",
               Authorization: `Bearer ${session.access_token}`,
             },
-            body: JSON.stringify({ fileBase64, mediaType: file.type }),
+            body: JSON.stringify({ images }),
           });
           const data = await res.json();
           const list: ParsedVacancy[] = data.ok
             ? Array.isArray(data.vacancies) ? data.vacancies : data.vacancy ? [data.vacancy] : []
             : [];
-          if (list.length === 0) failed.push(file.name);
-          else all.push(...list);
-        } catch {
+          if (list.length === 0) {
+            failed.push(file.name);
+            reasons.push(data.detail ?? data.error ?? `HTTP ${res.status}`);
+          } else all.push(...list);
+        } catch (err) {
           failed.push(file.name);
+          reasons.push(err instanceof Error ? err.message : String(err));
         }
       }
 
+      const why = Array.from(new Set(reasons)).join("; ");
       if (all.length === 0) {
-        setError("No vacancy could be read from the screenshot" + (files.length > 1 ? "s." : "."));
+        setError(
+          `No vacancy could be read from the screenshot${files.length > 1 ? "s" : ""}.` +
+            (why ? ` (${why})` : "")
+        );
         return;
       }
       if (failed.length > 0) {
-        setError(`Could not read ${failed.length} of ${files.length} screenshots (${failed.join(", ")}) — the rest are loaded.`);
+        setError(
+          `Could not read ${failed.length} of ${files.length} screenshots (${failed.join(", ")}) — the rest are loaded.` +
+            (why ? ` (${why})` : "")
+        );
       }
       loadParsedList(all);
     } catch (err) {

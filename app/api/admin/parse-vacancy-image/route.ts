@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { parseVacancies } from "@/lib/parseVacancy";
+import { parseVacancies, IMAGE_TYPES, type ParseImage } from "@/lib/parseVacancy";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const JPEG_TYPE = "image/jpeg";
-const PNG_TYPE = "image/png";
-const WEBP_TYPE = "image/webp";
+// Anthropic rejects a single image over 5 MB; the serverless request body is
+// capped around 4.5 MB. Fail with a clear message instead of a generic 500.
+const MAX_IMAGE_BYTES = 4_500_000;
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       .from("profiles").select("is_admin").eq("id", user.id).single();
     if (!profile?.is_admin) return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
 
-    let body: { fileBase64?: string; mediaType?: string; text?: string };
+    let body: { fileBase64?: string; mediaType?: string; text?: string; images?: ParseImage[] };
     try {
       body = await req.json();
     } catch {
@@ -42,16 +42,32 @@ export async function POST(req: NextRequest) {
 
     const { fileBase64, mediaType, text } = body;
     const hasText = typeof text === "string" && text.trim().length > 0;
-    const hasImage = !!fileBase64 && (mediaType === JPEG_TYPE || mediaType === PNG_TYPE || mediaType === WEBP_TYPE);
-    if (!hasText && !hasImage) {
+
+    // `images` = vertical slices of one tall screenshot (see lib/parseVacancy);
+    // `fileBase64` is the older single-image shape, still accepted.
+    const images: ParseImage[] = (
+      Array.isArray(body.images) && body.images.length
+        ? body.images
+        : fileBase64 && mediaType
+        ? [{ base64: fileBase64, mediaType }]
+        : []
+    ).filter((im) => im && typeof im.base64 === "string" && IMAGE_TYPES.includes(im.mediaType));
+
+    if (!hasText && images.length === 0) {
       return NextResponse.json({ ok: false, error: "unsupported_input" }, { status: 400 });
+    }
+
+    const tooBig = images.find((im) => im.base64.length * 0.75 > MAX_IMAGE_BYTES);
+    if (tooBig) {
+      return NextResponse.json(
+        { ok: false, error: "image_too_large", detail: "Screenshot is too large — save it as JPEG or crop it and try again." },
+        { status: 413 }
+      );
     }
 
     let vacancies;
     try {
-      vacancies = await parseVacancies(
-        hasImage ? { imageBase64: fileBase64, mediaType } : { text }
-      );
+      vacancies = await parseVacancies(images.length ? { images } : { text });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error("Vacancy parse failed:", msg);
