@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { RECIPIENTS, TEMPLATES, SUBJECTS, FROM, REPLY_TO, pickLang, type OutreachLang } from "@/lib/outreach";
+import { sendEmail as send } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -17,21 +18,11 @@ export const maxDuration = 60;
 // Already-sent addresses are tracked in the `outreach_log` table and skipped
 // on the next run, so you can safely re-open the URL to send the next batch.
 
+// Thin wrapper over the shared sender so outreach volume lands in `email_log`
+// alongside everything else (the daily budget check reads that table).
 async function sendEmail(to: string, subject: string, html: string): Promise<{ ok: boolean; info: string }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { ok: false, info: "no RESEND_API_KEY" };
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: FROM, to, reply_to: REPLY_TO, subject, html }),
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) return { ok: false, info: `${res.status} ${JSON.stringify(body)}` };
-    return { ok: true, info: (body as { id?: string }).id ?? "sent" };
-  } catch (err) {
-    return { ok: false, info: String(err) };
-  }
+  const res = await send({ to, subject, html, kind: "outreach", from: FROM, replyTo: REPLY_TO });
+  return { ok: res.ok, info: res.ok ? res.id ?? "sent" : res.error ?? "failed" };
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

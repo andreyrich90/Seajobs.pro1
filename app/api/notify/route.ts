@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail, sentTodayCount } from "@/lib/email";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -11,15 +12,15 @@ function getAdmin() {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = (v: unknown): v is string => typeof v === "string" && UUID_RE.test(v);
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "SeaJobs.pro <noreply@seajobs.pro>", to, subject, html }),
-  }).catch(() => {});
-}
+// Job alerts are the only fan-out here: one email per subscriber per vacancy.
+// Left uncapped it could exhaust the provider's daily quota in a single
+// Telegram import run (several vacancies × every subscriber for that rank),
+// which would then silently drop the emails that actually matter — a CV on its
+// way to a crewing agency. So alerts get a bounded share of the daily budget;
+// the transactional emails below stay uncapped because they are low volume and
+// must not be lost. Everyone still gets the in-app notification either way.
+const ALERT_DAILY_BUDGET = 50;
+const ALERT_PER_VACANCY_CAP = 25;
 
 // Renders the seafarer's CV as email-safe HTML, mirroring the /seafarer/cv
 // sheet (header with contacts, personal information, identity documents &
@@ -176,7 +177,12 @@ ${cv.html}
 <p style="margin-top:14px;"><a href="https://seajobs.pro/company/applications">Reply in your SeaJobs.pro cabinet →</a></p>`;
 
       for (const to of recipients) {
-        await sendEmail(to, `New candidate for "${vacancy.title}" — ${cv.name}`, html);
+        await sendEmail({
+          to,
+          subject: `New candidate for "${vacancy.title}" — ${cv.name}`,
+          html,
+          kind: "application_received",
+        });
       }
       return NextResponse.json({ ok: true });
     }
@@ -201,11 +207,17 @@ ${cv.html}
       const { data: { user: sfUser } } = await admin.auth.admin.getUserById(seafarerId);
       const cv = await buildCvEmailHtml(admin, seafarerId, sfUser?.email ?? caller.email ?? null, appExists.cover_letter);
 
-      await sendEmail(
-        vacancy.contact_email,
-        `New application for "${vacancy.title}" — ${cv.name}`,
-        `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro. The full CV is below.</p>${cv.html}`,
-      );
+      const sent = await sendEmail({
+        to: vacancy.contact_email,
+        subject: `New application for "${vacancy.title}" — ${cv.name}`,
+        html: `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro. The full CV is below.</p>${cv.html}`,
+        kind: "external_application",
+      });
+      // This one carries the seafarer's CV to the agency — report a failure so
+      // the client can tell them instead of pretending it was delivered.
+      if (!sent.ok) {
+        return NextResponse.json({ ok: false, error: "email_failed" }, { status: 502 });
+      }
 
       return NextResponse.json({ ok: true });
     }
@@ -240,11 +252,12 @@ ${cv.html}
 
       const { data: { user } } = await admin.auth.admin.getUserById(application.seafarer_id);
       if (user?.email) {
-        await sendEmail(
-          user.email,
-          `Application update: "${vacancyTitle}"`,
-          `<p>Hello,</p><p>Your application for "<strong>${vacancyTitle}</strong>" has been <strong>${status}</strong>.</p><p><a href="https://seajobs.pro/seafarer/applications">View applications →</a></p>`,
-        );
+        await sendEmail({
+          to: user.email,
+          subject: `Application update: "${vacancyTitle}"`,
+          html: `<p>Hello,</p><p>Your application for "<strong>${vacancyTitle}</strong>" has been <strong>${status}</strong>.</p><p><a href="https://seajobs.pro/seafarer/applications">View applications →</a></p>`,
+          kind: "status_changed",
+        });
       }
       return NextResponse.json({ ok: true });
     }
@@ -277,24 +290,42 @@ ${cv.html}
       }));
       if (rows.length > 0) await admin.from("notifications").insert(rows);
 
-      // Send email to each subscribed seafarer
-      for (const a of alerts ?? []) {
+      // Email the subscribers, but only within the alert budget. The in-app
+      // notifications above already went to everyone, so anyone skipped here
+      // still sees the alert — they just don't get mail for it.
+      const alreadySent = await sentTodayCount("new_vacancy");
+      const remainingToday =
+        alreadySent === null
+          ? ALERT_PER_VACANCY_CAP // can't read the log → fall back to the per-vacancy cap
+          : Math.max(0, ALERT_DAILY_BUDGET - alreadySent);
+      const quota = Math.min(ALERT_PER_VACANCY_CAP, remainingToday);
+
+      const recipients = (alerts ?? []).slice(0, quota);
+      const skipped = (alerts ?? []).length - recipients.length;
+      if (skipped > 0) {
+        console.warn(
+          `[notify:new_vacancy] emailed ${recipients.length}/${(alerts ?? []).length} subscribers for "${vacancy.title}" — ${skipped} skipped to stay within the daily alert budget (in-app notifications were still sent to all).`,
+        );
+      }
+
+      for (const a of recipients) {
         const { data: { user } } = await admin.auth.admin.getUserById(a.seafarer_id);
         if (user?.email) {
-          await sendEmail(
-            user.email,
-            `New ${vacancy.rank} job: "${vacancy.title}"`,
-            `<p>Hello,</p>
+          await sendEmail({
+            to: user.email,
+            subject: `New ${vacancy.rank} job: "${vacancy.title}"`,
+            kind: "new_vacancy",
+            html: `<p>Hello,</p>
 <p><strong>${companyName}</strong> posted a new <strong>${vacancy.rank}</strong> position:</p>
 <p style="font-size:18px"><strong>${vacancy.title}</strong></p>
 <p><a href="https://seajobs.pro/jobs/${vacancyId}" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View Vacancy →</a></p>
 <hr style="margin:24px 0;border:none;border-top:1px solid #eee"/>
 <p style="color:#999;font-size:12px;">You receive this because you set up a job alert for <strong>${vacancy.rank}</strong> on SeaJobs.pro. <a href="https://seajobs.pro/seafarer/dashboard">Manage alerts →</a></p>`,
-          );
+          });
         }
       }
 
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, emailed: recipients.length, skipped });
     }
 
     // ── A chat message was sent → notify the other participant ───────────────
@@ -354,11 +385,12 @@ ${cv.html}
           .maybeSingle();
         const throttled = !!log?.sent_at && Date.now() - new Date(log.sent_at).getTime() < 15 * 60_000;
         if (!throttled) {
-          await sendEmail(
-            user.email,
-            `New message from ${senderName}`,
-            `<p>Hello,</p><p><strong>${senderName}</strong> sent you a message on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
-          );
+          await sendEmail({
+            to: user.email,
+            subject: `New message from ${senderName}`,
+            html: `<p>Hello,</p><p><strong>${senderName}</strong> sent you a message on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
+            kind: "new_message",
+          });
           await admin.from("chat_email_log").upsert({
             conversation_id: conversationId,
             recipient_id: recipientId,

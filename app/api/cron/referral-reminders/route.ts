@@ -1,18 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-async function sendEmail(to: string, subject: string, html: string) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "SeaJobs.pro <noreply@seajobs.pro>", to, subject, html }),
-  }).catch(() => {});
-}
 
 // Daily Vercel cron: nudge referred users who signed up 7+ days ago but
 // haven't finished their seafarer profile yet — finishing it is what
@@ -78,13 +69,14 @@ export async function GET(req: Request) {
 
     const { data: { user } } = await admin.auth.admin.getUserById(r.referred_id);
     if (user?.email) {
-      await sendEmail(
-        user.email,
-        "Finish your SeaJobs.pro profile",
-        `<p>Hi,</p>
+      await sendEmail({
+        to: user.email,
+        subject: "Finish your SeaJobs.pro profile",
+        kind: "referral_reminder",
+        html: `<p>Hi,</p>
 <p>You signed up to SeaJobs.pro through a friend's invite — finish your profile and your friend gets a visibility boost in company searches.</p>
-<p><a href="https://seajobs.pro/seafarer/profile" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Complete your profile →</a></p>`
-      );
+<p><a href="https://seajobs.pro/seafarer/profile" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Complete your profile →</a></p>`,
+      });
     }
   }
 
