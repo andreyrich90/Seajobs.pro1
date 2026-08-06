@@ -79,32 +79,63 @@ Rules (apply to every vacancy object):
 
 interface AnthropicContentBlock { type: string; text?: string }
 
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-export type ParseInput = { text?: string; imageBase64?: string; mediaType?: string };
+export type ParseImage = { base64: string; mediaType: string };
+
+export type ParseInput = {
+  text?: string;
+  /** Single screenshot (legacy shape, still used by callers that have one image). */
+  imageBase64?: string;
+  mediaType?: string;
+  /**
+   * Consecutive vertical slices of ONE screenshot, top to bottom. Tall
+   * screenshots are sliced client-side because the API downscales an image's
+   * long edge to ~1568px — a 1440x3088 phone screenshot would lose half its
+   * resolution and its small table text becomes unreadable.
+   */
+  images?: ParseImage[];
+};
+
+/** Accepts both a raw base64 string and a `data:image/...;base64,...` URL. */
+function stripDataUrl(data: string): string {
+  const comma = data.indexOf(",");
+  return data.startsWith("data:") && comma >= 0 ? data.slice(comma + 1) : data;
+}
+
+// Text posts (Telegram collector, high volume) stay on Haiku; screenshots are
+// a dense OCR-like task done by hand a few times a day, so accuracy wins.
+const TEXT_MODEL = "claude-haiku-4-5-20251001";
+const IMAGE_MODEL = "claude-sonnet-5";
 
 /** Returns one ParsedVacancy per distinct vacancy found; [] if none / empty input. */
 export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("missing_api_key");
 
-  const hasImage = !!input.imageBase64 && !!input.mediaType && IMAGE_TYPES.includes(input.mediaType);
-  const hasText = typeof input.text === "string" && input.text.trim().length > 0;
-  if (!hasImage && !hasText) return [];
+  const images: ParseImage[] = (
+    input.images?.length
+      ? input.images
+      : input.imageBase64 && input.mediaType
+      ? [{ base64: input.imageBase64, mediaType: input.mediaType }]
+      : []
+  ).filter((im) => im.base64 && IMAGE_TYPES.includes(im.mediaType));
 
-  const userContent = hasImage
+  const hasText = typeof input.text === "string" && input.text.trim().length > 0;
+  if (images.length === 0 && !hasText) return [];
+
+  const sliceNote =
+    images.length > 1
+      ? `The ${images.length} images above are consecutive top-to-bottom slices of ONE screenshot and they overlap slightly. Read them as a single posting: a vacancy that appears in two slices is ONE vacancy, not two.\n`
+      : "";
+
+  const userContent = images.length
     ? [
-        {
+        ...images.map((im) => ({
           type: "image",
-          source: {
-            type: "base64",
-            media_type: input.mediaType,
-            data: input.imageBase64!.includes(",")
-              ? input.imageBase64!.slice(input.imageBase64!.indexOf(",") + 1)
-              : input.imageBase64!,
-          },
-        },
-        { type: "text", text: "Extract every vacancy in this posting into the JSON schema." },
+          source: { type: "base64", media_type: im.mediaType, data: stripDataUrl(im.base64) },
+        })),
+        { type: "text", text: `${sliceNote}Extract every vacancy in this posting into the JSON schema.` },
       ]
     : [{ type: "text", text: `Extract every vacancy in the text below into the JSON schema.\n\n---\n${input.text!.slice(0, 24000)}` }];
 
@@ -116,7 +147,7 @@ export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: images.length ? IMAGE_MODEL : TEXT_MODEL,
       max_tokens: 8192,
       system: SCHEMA_PROMPT,
       messages: [{ role: "user", content: userContent }],
