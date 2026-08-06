@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -16,21 +17,6 @@ function getAdmin() {
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
 
-async function sendEmail(to: string, subject: string, html: string, replyTo?: string) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: "SeaJobs.pro <noreply@seajobs.pro>",
-      to,
-      subject,
-      html,
-      ...(replyTo ? { reply_to: replyTo } : {}),
-    }),
-  }).catch(() => {});
-}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const esc = (s: string) =>
@@ -81,7 +67,13 @@ export async function POST(req: Request) {
   ${email ? `<li>Email: ${esc(email)}</li>` : ""}
 </ul>
 <p style="white-space:pre-wrap">${esc(content)}</p>`;
-  await sendEmail(company ? PARTNERS_INBOX : CONTACT_INBOX, finalSubject, html, email || undefined);
+  await sendEmail({
+    to: company ? PARTNERS_INBOX : CONTACT_INBOX,
+    subject: finalSubject,
+    html,
+    kind: "contact",
+    replyTo: email || undefined,
+  });
 
   return NextResponse.json({ ok: true });
 }

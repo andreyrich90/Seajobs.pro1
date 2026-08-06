@@ -1,18 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail } from "@/lib/email";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
-
-async function sendEmail(to: string, subject: string, html: string) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return;
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "SeaJobs.pro <noreply@seajobs.pro>", to, subject, html }),
-  }).catch(() => {});
-}
 
 // Daily Vercel cron. Companion to the instant-email throttle in /api/notify:
 // a message burst emails only its first message, so this digest sends ONE
@@ -94,11 +85,12 @@ export async function GET(req: Request) {
 
       const link = recipientId === convo.seafarer_id ? "/seafarer/messages" : "/company/messages";
       const count = incoming.length;
-      await sendEmail(
-        user.email,
-        `You have ${count === 1 ? "an unread message" : `${count} unread messages`} from ${senderName}`,
-        `<p>Hello,</p><p>You have <strong>${count === 1 ? "an unread message" : `${count} unread messages`}</strong> from <strong>${senderName}</strong> on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
-      );
+      await sendEmail({
+        to: user.email,
+        subject: `You have ${count === 1 ? "an unread message" : `${count} unread messages`} from ${senderName}`,
+        html: `<p>Hello,</p><p>You have <strong>${count === 1 ? "an unread message" : `${count} unread messages`}</strong> from <strong>${senderName}</strong> on SeaJobs.pro.</p><p><a href="https://seajobs.pro${link}">Open chat →</a></p>`,
+        kind: "unread_digest",
+      });
       await admin.from("chat_email_log").upsert({
         conversation_id: convo.id,
         recipient_id: recipientId,
