@@ -4,8 +4,10 @@ import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
+import { getSalaryStats } from "@/lib/salaryStatsCached";
+import { buildSalaryContext, type SalaryContext, type StatVacancy } from "@/lib/salaryStats";
 import type { Lang } from "@/lib/i18n";
-import VacancyDetailClient, { type VacancyDetail } from "./client";
+import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
 
 type VacancyFull = VacancyDetail & {
   is_imported: boolean;
@@ -112,6 +114,53 @@ export async function generateMetadata(
   };
 }
 
+// Guide tags worth surfacing next to a vacancy, most specific first. The rank
+// and vessel decide which specialised guides come before the evergreen ones, so
+// an engine job on an offshore vessel leads with Engine + Offshore rather than
+// the generic salary explainer.
+function guideTagPriority(rank: string | null, vesselType: string | null, title: string): string[] {
+  const s = `${rank ?? ""} ${vesselType ?? ""} ${title}`.toLowerCase();
+  const tags: string[] = [];
+  if (/engineer|motorman|fitter|oiler|wiper|eto|electr/.test(s)) tags.push("Engine");
+  if (/offshore|ahts|psv|osv|dp\b|rig|drill|supply/.test(s)) tags.push("Offshore");
+  if (/cruise|passenger|ferry|ro-pax/.test(s)) tags.push("Cruise");
+  if (/cadet|trainee/.test(s)) tags.push("Career");
+  if (/tanker|lng|lpg|gas|chemical|oil/.test(s)) tags.push("Fleets");
+  // Evergreen fallbacks — relevant to every posting.
+  tags.push("Salaries", "Contracts", "CV", "Documents", "Safety", "Health");
+  return tags;
+}
+
+async function fetchRelatedGuides(
+  rank: string | null,
+  vesselType: string | null,
+  title: string,
+): Promise<RelatedGuide[]> {
+  const { data } = await getAdminClient()
+    .from("news_articles")
+    .select("id, title, tag, cover_url, cover_gradient")
+    .eq("category", "guide")
+    .eq("is_published", true)
+    .limit(60);
+  if (!data?.length) return [];
+
+  const priority = guideTagPriority(rank, vesselType, title);
+  const rankOf = (tag: string | null) => {
+    const i = priority.indexOf(tag ?? "");
+    return i === -1 ? priority.length : i;
+  };
+  return [...data]
+    .sort((a, b) => rankOf(a.tag) - rankOf(b.tag))
+    .slice(0, 3)
+    .map((g) => ({
+      id: g.id,
+      title: (g.title ?? {}) as Record<string, string>,
+      tag: g.tag,
+      coverUrl: g.cover_url ?? null,
+      coverGradient: g.cover_gradient ?? null,
+    }));
+}
+
 export default async function VacancyPage(
   { params }: { params: Promise<{ id: string; locale: string }> }
 ) {
@@ -123,6 +172,29 @@ export default async function VacancyPage(
   if (!vacancy) redirect(locale === "en" ? "/jobs" : `/${locale}/jobs`);
 
   const company = vacancy.companies;
+
+  // Our own analysis layered on top of the listing: where this offer sits in
+  // the portal-wide range for its rank × fleet, what the rank actually does,
+  // and the guides worth reading before applying. Imported postings otherwise
+  // carry nothing but the agency's own text.
+  const [salaryStats, relatedGuides] = await Promise.all([
+    getSalaryStats(),
+    fetchRelatedGuides(vacancy.rank, vacancy.vessel_type, vacancy.title),
+  ]);
+  const salaryContext: SalaryContext | null = buildSalaryContext(salaryStats, {
+    rank: vacancy.rank,
+    vessel_type: vacancy.vessel_type,
+    title: vacancy.title,
+    salary_from: vacancy.salary_from,
+    salary_to: vacancy.salary_to,
+    salary_period: vacancy.salary_period,
+    currency: vacancy.currency,
+  } as StatVacancy);
+
+  // One-sentence role description, already written per locale in rankLandings.
+  // (Named `rankInfo` — `rankLanding` is taken further down by the breadcrumbs.)
+  const rankInfo = RANK_LANDINGS.find((r) => r.rank === vacancy.rank) ?? null;
+  const rankBlurb = rankInfo?.blurb?.[locale as Lang] ?? rankInfo?.blurb?.en ?? null;
 
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org/",
@@ -228,7 +300,13 @@ export default async function VacancyPage(
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
-      <VacancyDetailClient vacancy={vacancy} />
+      <VacancyDetailClient
+        vacancy={vacancy}
+        salaryContext={salaryContext}
+        rankBlurb={rankBlurb}
+        rankSlug={rankInfo?.slug ?? null}
+        relatedGuides={relatedGuides}
+      />
     </>
   );
 }

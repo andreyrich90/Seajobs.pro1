@@ -119,6 +119,12 @@ function toEur(amount: number, currency: string | null): number {
   return amount * rate;
 }
 
+/** Inverse of `toEur` — render a EUR-normalised figure back in a given currency. */
+export function fromEur(amountEur: number, currency: string | null): number {
+  const rate = TO_EUR[(currency ?? "USD").toUpperCase()] ?? TO_EUR.USD;
+  return amountEur / rate;
+}
+
 function pickRanks(slugs: string[]): RankLanding[] {
   return slugs
     .map((s) => RANK_LANDINGS.find((r) => r.slug === s))
@@ -204,6 +210,78 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
     }
     return { slug: r.slug, names: r.names, cells };
   });
+}
+
+/**
+ * Where a single vacancy sits inside the portal-wide range for its rank ×
+ * vessel type. Used on the vacancy page to add our own analysis on top of the
+ * (often imported) listing: "this rank on this fleet pays X–Y here; this offer
+ * is at Z".
+ *
+ * Figures are EUR/month internally — use `fromEur` to display them in the
+ * vacancy's own currency. Returns null when the rank or vessel can't be
+ * matched, or when we have no comparable postings.
+ */
+export type SalaryContext = {
+  rankSlug: string;
+  rankNames: Record<Lang, string>;
+  vesselKey: string;
+  vesselNames: Record<Lang, string>;
+  /** Portal-wide min/max for this rank × vessel, EUR per month. */
+  range: { from: number; to: number; count: number };
+  /** This vacancy's own figure, EUR per month (midpoint when it's a range). */
+  thisEur: number | null;
+  /** Where `thisEur` falls relative to the portal range. */
+  position: "below" | "low" | "mid" | "high" | "above" | null;
+};
+
+export function buildSalaryContext(stats: SalaryStats, v: StatVacancy): SalaryContext | null {
+  const vesselKey = vesselKeyOf(v);
+  if (!vesselKey) return null;
+
+  const row =
+    [...stats.officers, ...stats.ratings].find((r) => {
+      const landing = RANK_LANDINGS.find((l) => l.slug === r.slug);
+      return landing ? rankMatches(v.rank, landing) : false;
+    }) ?? null;
+  if (!row) return null;
+
+  const cell = row.cells[vesselKey];
+  if (!cell) return null;
+
+  const vessel = SALARY_VESSELS.find((c) => c.key === vesselKey);
+  if (!vessel) return null;
+
+  // This vacancy's own figure, normalised the same way the stats are.
+  const points: number[] = [];
+  for (const raw of [v.salary_from, v.salary_to]) {
+    if (raw == null) continue;
+    const x = toEur(monthlyEquivalent(raw, v.salary_period), v.currency);
+    if (inBand(x)) points.push(x);
+  }
+  const thisEur = points.length ? points.reduce((s, x) => s + x, 0) / points.length : null;
+
+  let position: SalaryContext["position"] = null;
+  if (thisEur != null) {
+    if (thisEur < cell.from) position = "below";
+    else if (thisEur > cell.to) position = "above";
+    else {
+      const span = cell.to - cell.from;
+      // A flat range (single observed figure) can't be split into thirds.
+      const t = span > 0 ? (thisEur - cell.from) / span : 0.5;
+      position = t < 0.34 ? "low" : t < 0.67 ? "mid" : "high";
+    }
+  }
+
+  return {
+    rankSlug: row.slug,
+    rankNames: row.names,
+    vesselKey,
+    vesselNames: vessel.names,
+    range: cell,
+    thisEur,
+    position,
+  };
 }
 
 /** Average from/to salaries per rank × vessel, normalised to EUR/month. */

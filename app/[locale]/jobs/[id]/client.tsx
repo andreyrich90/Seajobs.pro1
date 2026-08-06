@@ -18,6 +18,8 @@ import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
 import { supabase, notify } from "@/lib/supabase/client";
 import { renderMarkdown } from "@/lib/markdown";
+import { fromEur, type SalaryContext } from "@/lib/salaryStats";
+import { slugId } from "@/lib/slug";
 
 export type VacancyDetail = {
   id: string;
@@ -79,7 +81,239 @@ function readAsDataURL(file: File): Promise<string> {
   });
 }
 
-export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetail }) {
+/* ── Original context we add on top of the (often imported) listing ──────────
+   A vacancy on its own is just the agency's own text. These three blocks add
+   something only this site can: where the offer sits in our live salary data,
+   what the rank actually does, and the guides worth reading before applying. */
+
+const CTX: Record<string, Record<string, string>> = {
+  en: {
+    salaryTitle: "How this salary compares",
+    rangeCaption: "Range across live vacancies on SeaJobs.pro",
+    perMonth: "/mo",
+    thisOffer: "This offer",
+    below: "below the range we see",
+    low: "at the lower end of the range",
+    mid: "around the middle of the range",
+    high: "at the upper end of the range",
+    above: "above the range we see",
+    noFigure: "This posting doesn't state a salary — compare it against the range above before you apply.",
+    seeAll: "Full salary comparison",
+    aboutTitle: "About this rank",
+    seeRank: "All vacancies for this rank",
+    guidesTitle: "Worth reading before you apply",
+  },
+  ru: {
+    salaryTitle: "Как эта зарплата выглядит на фоне рынка",
+    rangeCaption: "Диапазон по актуальным вакансиям портала",
+    perMonth: "/мес",
+    thisOffer: "Это предложение",
+    below: "ниже наблюдаемой вилки",
+    low: "в нижней части вилки",
+    mid: "примерно в середине вилки",
+    high: "в верхней части вилки",
+    above: "выше наблюдаемой вилки",
+    noFigure: "В этой вакансии зарплата не указана — сверьтесь с вилкой выше до отклика.",
+    seeAll: "Полное сравнение зарплат",
+    aboutTitle: "Об этой должности",
+    seeRank: "Все вакансии по этой должности",
+    guidesTitle: "Что почитать перед откликом",
+  },
+  ua: {
+    salaryTitle: "Як ця зарплата виглядає на тлі ринку",
+    rangeCaption: "Діапазон за актуальними вакансіями порталу",
+    perMonth: "/міс",
+    thisOffer: "Ця пропозиція",
+    below: "нижче за спостережувану вилку",
+    low: "у нижній частині вилки",
+    mid: "приблизно в середині вилки",
+    high: "у верхній частині вилки",
+    above: "вище за спостережувану вилку",
+    noFigure: "У цій вакансії зарплату не вказано — звіртеся з вилкою вище перед відгуком.",
+    seeAll: "Повне порівняння зарплат",
+    aboutTitle: "Про цю посаду",
+    seeRank: "Усі вакансії за цією посадою",
+    guidesTitle: "Що почитати перед відгуком",
+  },
+  pl: {
+    salaryTitle: "Jak ta stawka wypada na tle rynku",
+    rangeCaption: "Przedział wg aktualnych ofert w serwisie",
+    perMonth: "/mies",
+    thisOffer: "Ta oferta",
+    below: "poniżej obserwowanego przedziału",
+    low: "w dolnej części przedziału",
+    mid: "mniej więcej w środku przedziału",
+    high: "w górnej części przedziału",
+    above: "powyżej obserwowanego przedziału",
+    noFigure: "Ta oferta nie podaje stawki — porównaj ją z przedziałem powyżej przed aplikowaniem.",
+    seeAll: "Pełne porównanie stawek",
+    aboutTitle: "O tym stanowisku",
+    seeRank: "Wszystkie oferty na to stanowisko",
+    guidesTitle: "Warto przeczytać przed aplikowaniem",
+  },
+  ro: {
+    salaryTitle: "Cum se compară acest salariu",
+    rangeCaption: "Interval din anunțurile active de pe portal",
+    perMonth: "/lună",
+    thisOffer: "Această ofertă",
+    below: "sub intervalul observat",
+    low: "în partea de jos a intervalului",
+    mid: "aproximativ la mijlocul intervalului",
+    high: "în partea de sus a intervalului",
+    above: "peste intervalul observat",
+    noFigure: "Acest anunț nu indică salariul — compară-l cu intervalul de mai sus înainte de a aplica.",
+    seeAll: "Comparație completă a salariilor",
+    aboutTitle: "Despre acest rang",
+    seeRank: "Toate posturile pentru acest rang",
+    guidesTitle: "De citit înainte de a aplica",
+  },
+};
+
+const CUR_SYMBOL: Record<string, string> = { EUR: "€", USD: "$", GBP: "£" };
+
+function money(amountEur: number, currency: string): string {
+  const cur = (currency || "USD").toUpperCase();
+  const v = Math.round(fromEur(amountEur, cur) / 50) * 50;
+  const sym = CUR_SYMBOL[cur];
+  const n = v.toLocaleString("en-US");
+  return sym ? `${sym}${n}` : `${n} ${cur}`;
+}
+
+function SalaryContextBlock({
+  ctx, currency, lang, rankSlug,
+}: { ctx: SalaryContext | null; currency: string; lang: string; rankSlug: string | null }) {
+  if (!ctx) return null;
+  const t = CTX[lang] ?? CTX.en;
+  const rank = ctx.rankNames[lang as keyof typeof ctx.rankNames] ?? ctx.rankNames.en;
+  const vessel = ctx.vesselNames[lang as keyof typeof ctx.vesselNames] ?? ctx.vesselNames.en;
+
+  // Where the marker sits along the range bar (clamped so it stays visible).
+  const span = ctx.range.to - ctx.range.from;
+  const pct =
+    ctx.thisEur == null || span <= 0
+      ? null
+      : Math.max(3, Math.min(97, ((ctx.thisEur - ctx.range.from) / span) * 100));
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-card p-6">
+      <h2 className="mb-1 font-display text-lg font-semibold text-white">{t.salaryTitle}</h2>
+      <p className="font-semibold text-foam">{rank} · {vessel}</p>
+      <p className="mt-0.5 text-sm text-mist">{t.rangeCaption}</p>
+
+      <div className="mt-4 flex items-baseline justify-between gap-3">
+        <span className="text-2xl font-bold text-brass2">
+          {money(ctx.range.from, currency)} – {money(ctx.range.to, currency)}
+          <span className="ml-1 text-base font-semibold text-mist">{t.perMonth}</span>
+        </span>
+      </div>
+
+      {/* Range bar with this offer marked on it */}
+      <div className="relative mt-3 h-2 rounded-full bg-white/10">
+        <div className="absolute inset-y-0 left-0 right-0 rounded-full bg-gradient-to-r from-brass/40 to-brass2/70" />
+        {pct !== null && (
+          <span
+            className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card bg-teal shadow"
+            style={{ left: `${pct}%` }}
+          />
+        )}
+      </div>
+
+      {ctx.thisEur != null ? (
+        <p className="mt-3 text-sm text-mist">
+          <span className="font-semibold text-teal">{t.thisOffer}: {money(ctx.thisEur, currency)}</span>
+          {" — "}
+          {t[ctx.position ?? "mid"]}.
+        </p>
+      ) : (
+        <p className="mt-3 text-sm text-mist">{t.noFigure}</p>
+      )}
+
+      <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
+        <Link href="/salaries" className="text-brass2 transition hover:text-brass">{t.seeAll} →</Link>
+        {rankSlug && (
+          <Link href={`/jobs/rank/${rankSlug}`} className="text-mist transition hover:text-white">{t.seeRank} →</Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function RankAboutBlock({
+  blurb, rankName: rank, lang, rankSlug,
+}: { blurb: string | null; rankName: string | null; lang: string; rankSlug: string | null }) {
+  if (!blurb) return null;
+  const t = CTX[lang] ?? CTX.en;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-card p-6">
+      <h2 className="mb-3 font-display text-lg font-semibold text-white">
+        {t.aboutTitle}{rank ? `: ${rank}` : ""}
+      </h2>
+      <p className="leading-relaxed text-mist">{blurb}</p>
+      {rankSlug && (
+        <Link href={`/jobs/rank/${rankSlug}`} className="mt-3 inline-block text-sm font-semibold text-brass2 transition hover:text-brass">
+          {t.seeRank} →
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function RelatedGuidesBlock({ guides, lang }: { guides: RelatedGuide[]; lang: string }) {
+  if (!guides.length) return null;
+  const t = CTX[lang] ?? CTX.en;
+  return (
+    <div className="rounded-2xl border border-white/10 bg-card p-6">
+      <h2 className="mb-4 font-display text-lg font-semibold text-white">{t.guidesTitle}</h2>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {guides.map((g) => {
+          const title = g.title[lang] ?? g.title.en ?? Object.values(g.title)[0] ?? "";
+          return (
+            <Link
+              key={g.id}
+              href={`/guides/${slugId(g.title.en ?? title, g.id)}`}
+              className="group overflow-hidden rounded-xl border border-white/10 bg-white/5 transition hover:border-brass/30"
+            >
+              <div
+                className="h-20 w-full bg-cover bg-center"
+                style={
+                  g.coverUrl
+                    ? { backgroundImage: `url(${g.coverUrl})` }
+                    : { background: g.coverGradient ?? "linear-gradient(135deg,#0e2a45,#155e75)" }
+                }
+              />
+              <div className="p-3">
+                {g.tag && <span className="text-[10px] font-bold uppercase tracking-wide text-brass2">{g.tag}</span>}
+                <p className="mt-1 text-sm font-semibold leading-snug text-foam transition group-hover:text-white">{title}</p>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export type RelatedGuide = {
+  id: string;
+  title: Record<string, string>;
+  tag: string | null;
+  coverUrl: string | null;
+  coverGradient: string | null;
+};
+
+export default function VacancyDetailClient({
+  vacancy,
+  salaryContext = null,
+  rankBlurb = null,
+  rankSlug = null,
+  relatedGuides = [],
+}: {
+  vacancy: VacancyDetail;
+  salaryContext?: SalaryContext | null;
+  rankBlurb?: string | null;
+  rankSlug?: string | null;
+  relatedGuides?: RelatedGuide[];
+}) {
   const { lang } = useLang();
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
@@ -491,6 +725,11 @@ export default function VacancyDetailClient({ vacancy }: { vacancy: VacancyDetai
                 </div>
               </div>
             )}
+
+            {/* Our own analysis of the offer — see CTX below. */}
+            <SalaryContextBlock ctx={salaryContext} currency={vacancy.currency} lang={lang} rankSlug={rankSlug} />
+            <RankAboutBlock blurb={rankBlurb} rankName={vacancy.rank} lang={lang} rankSlug={rankSlug} />
+            <RelatedGuidesBlock guides={relatedGuides} lang={lang} />
 
             {/* Apply section */}
             <div className="rounded-2xl border border-white/10 bg-card p-6">
