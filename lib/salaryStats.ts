@@ -65,6 +65,42 @@ export const SALARY_VESSELS: VesselCol[] = [
   },
 ];
 
+// Fleets that get no column in the homepage table (it is deliberately six
+// headline fleets wide) but must still be recognised for the per-vacancy salary
+// comparison — otherwise a Ro-Ro or reefer posting has nothing to compare
+// against. Appended AFTER the six above, so the existing precedence is intact:
+// a "Ro-Pax ferry" still lands in Passenger, only cargo ro-ro falls through here.
+export const CONTEXT_ONLY_VESSELS: VesselCol[] = [
+  {
+    key: "ro-ro",
+    keywords: ["ro-ro", "roro", "ro/ro", "ro ro", "car carrier", "pctc", "pcc", "vehicle carrier", "con-ro", "conro"],
+    names: { en: "Ro-Ro / Car Carrier", ru: "Ро-Ро / автовоз", ua: "Ро-Ро / автовоз", pl: "Ro-Ro / samochodowiec", ro: "Ro-Ro / transport auto" },
+  },
+  {
+    key: "reefer",
+    keywords: ["reefer", "refrigerated"],
+    names: { en: "Reefer", ru: "Рефрижератор", ua: "Рефрижератор", pl: "Chłodniowiec", ro: "Navă frigorifică" },
+  },
+  {
+    key: "dredger",
+    keywords: ["dredger", "dredging", "hopper"],
+    names: { en: "Dredger", ru: "Земснаряд", ua: "Земснаряд", pl: "Pogłębiarka", ro: "Dragă" },
+  },
+  {
+    key: "fishing",
+    keywords: ["fishing", "trawler", "seiner", "longliner", "factory vessel"],
+    names: { en: "Fishing", ru: "Рыболовное", ua: "Рибальське", pl: "Rybacki", ro: "Pescuit" },
+  },
+  {
+    key: "yacht",
+    keywords: ["yacht", "superyacht", "megayacht", "sailing vessel"],
+    names: { en: "Yacht", ru: "Яхта", ua: "Яхта", pl: "Jacht", ro: "Iaht" },
+  },
+];
+
+/** Every fleet the per-vacancy comparison can recognise (table columns + extras). */
+export const CONTEXT_VESSELS: VesselCol[] = [...SALARY_VESSELS, ...CONTEXT_ONLY_VESSELS];
+
 // Rank spelling variants seen in vacancy `rank` fields (abbreviations, full
 // forms), so every rank row catches its postings regardless of how they were
 // entered. Matched as case-insensitive substrings, on top of the exact matcher.
@@ -74,12 +110,19 @@ const RANK_SYNONYMS: Record<string, string[]> = {
   "2nd-officer": ["2nd officer", "second officer", "2/o", "2nd mate", "second mate", "second oow", "2nd oow"],
   "chief-engineer": ["chief engineer", "chief eng", "ch. engineer", "ch eng", "c/e"],
   "2nd-engineer": ["2nd engineer", "second engineer", "2/e", "2nd eng"],
+  "3rd-officer": ["3rd officer", "third officer", "3/o", "3rd mate", "third mate", "3rd oow", "third oow"],
+  "3rd-engineer": ["3rd engineer", "third engineer", "3/e", "3rd eng"],
+  "4th-engineer": ["4th engineer", "fourth engineer", "4/e", "4th eng"],
   "eto": ["eto", "electro-technical", "electro technical", "electrical engineer", "electro-technician", "electrotechnical"],
+  "electrician": ["electrician", "electro-mechanic", "electro mechanic"],
   "able-seaman": ["able seaman", "able-bodied", "a/b seaman", "ab seaman"],
+  "ordinary-seaman": ["ordinary seaman", "ordinary-seaman", "deck boy", "deck hand", "deckhand"],
   "bosun": ["bosun", "boatswain", "bos'n", "bos n", "bos'un"],
   "motorman": ["motorman", "motor man", "wiper"],
+  "oiler": ["oiler", "greaser"],
   "fitter": ["fitter", "welder", "turner"],
   "cook": ["cook", "chief cook", "chef", "galley"],
+  "messman": ["messman", "mess man", "messboy", "steward", "stewardess", "waiter"],
   "deck-cadet": ["deck cadet", "deck trainee", "trainee officer deck"],
   "engine-cadet": ["engine cadet", "engine trainee", "trainee officer engine"],
 };
@@ -154,16 +197,16 @@ export type SalaryStats = {
 // Match against the vessel_type field AND the title — many imported vacancies
 // leave vessel_type blank and only name the ship in the title (e.g. "3rd Eng ||
 // LPG || Yara"), so title is a needed fallback.
-function vesselKeyOf(v: StatVacancy): string | null {
+function vesselKeyOf(v: StatVacancy, cols: VesselCol[] = SALARY_VESSELS): string | null {
   const s = `${v.vessel_type ?? ""} ${v.title ?? ""}`.toLowerCase();
   if (!s.trim()) return null;
   // Gas is the most specific match: an LPG/LNG carrier is often loosely called
   // a "... tanker", so a generic "tanker" keyword would otherwise swallow it.
   // Check gas keywords BEFORE the general loop so gas carriers land in the Gas
   // column, not Tanker.
-  const gas = SALARY_VESSELS.find((c) => c.key === "gas-carrier");
+  const gas = cols.find((c) => c.key === "gas-carrier");
   if (gas && gas.keywords.some((k) => s.includes(k))) return "gas-carrier";
-  for (const col of SALARY_VESSELS) {
+  for (const col of cols) {
     if (col.keywords.some((k) => s.includes(k))) return col.key;
   }
   return null;
@@ -180,33 +223,45 @@ const MIN_EUR = 250;
 const MAX_EUR = 25000;
 const inBand = (x: number) => x >= MIN_EUR && x <= MAX_EUR;
 
-function buildRows(ranks: RankLanding[], vacancies: StatVacancy[]): StatRow[] {
+// Fewest comparable postings needed before we present a "market range" on a
+// vacancy page (see buildSalaryContext).
+const MIN_CONTEXT_SAMPLE = 2;
+
+function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselCol[] = SALARY_VESSELS): StatRow[] {
+  // Resolve each vacancy's fleet and its in-band EUR figures ONCE. Doing it
+  // inside the rank × fleet loops meant rescanning every posting for every
+  // cell — fine at 6 fleets, wasteful at 11 fleets × 19 ranks.
+  const prepared: { rank: string | null; key: string; points: number[] }[] = [];
+  for (const v of vacancies) {
+    const key = vesselKeyOf(v, cols);
+    if (!key) continue;
+    // Monthly-equivalent, then convert the currency to EUR.
+    const points: number[] = [];
+    for (const raw of [v.salary_from, v.salary_to]) {
+      if (raw == null) continue;
+      const x = toEur(monthlyEquivalent(raw, v.salary_period), v.currency);
+      if (inBand(x)) points.push(x);
+    }
+    if (points.length === 0) continue; // all out of band / missing
+    prepared.push({ rank: v.rank, key, points });
+  }
+
   return ranks.map((r) => {
+    // Observed salary RANGE: lowest and highest in-band figure across all
+    // matching vacancies. Using min/max (not an average) means a real
+    // high-paying posting — e.g. a Master on a bulker at 10,044 USD — shows
+    // at the top of the range instead of being averaged away.
+    const acc: Record<string, { lo: number; hi: number; count: number }> = {};
+    for (const p of prepared) {
+      if (!rankMatches(p.rank, r)) continue;
+      const a = acc[p.key] ?? (acc[p.key] = { lo: Infinity, hi: -Infinity, count: 0 });
+      for (const x of p.points) { if (x < a.lo) a.lo = x; if (x > a.hi) a.hi = x; }
+      a.count++;
+    }
     const cells: Record<string, Cell> = {};
-    for (const col of SALARY_VESSELS) {
-      // Observed salary RANGE: lowest and highest in-band figure across all
-      // matching vacancies. Using min/max (not an average) means a real
-      // high-paying posting — e.g. a Master on a bulker at 10,044 USD — shows
-      // at the top of the range instead of being averaged away.
-      let lo = Infinity, hi = -Infinity, count = 0;
-      for (const v of vacancies) {
-        if (vesselKeyOf(v) !== col.key) continue;
-        if (!rankMatches(v.rank, r)) continue;
-        // Monthly-equivalent, then convert the currency to EUR.
-        const points: number[] = [];
-        if (v.salary_from != null) {
-          const x = toEur(monthlyEquivalent(v.salary_from, v.salary_period), v.currency);
-          if (inBand(x)) points.push(x);
-        }
-        if (v.salary_to != null) {
-          const x = toEur(monthlyEquivalent(v.salary_to, v.salary_period), v.currency);
-          if (inBand(x)) points.push(x);
-        }
-        if (points.length === 0) continue; // all out of band / missing
-        for (const x of points) { if (x < lo) lo = x; if (x > hi) hi = x; }
-        count++;
-      }
-      cells[col.key] = count > 0 ? { from: round(lo), to: round(hi), count } : null;
+    for (const col of cols) {
+      const a = acc[col.key];
+      cells[col.key] = a ? { from: round(a.lo), to: round(a.hi), count: a.count } : null;
     }
     return { slug: r.slug, names: r.names, cells };
   });
@@ -227,7 +282,13 @@ export type SalaryContext = {
   rankNames: Record<Lang, string>;
   vesselKey: string;
   vesselNames: Record<Lang, string>;
-  /** Portal-wide min/max for this rank × vessel, EUR per month. */
+  /**
+   * "fleet" — the range is for this rank on this fleet.
+   * "rank"  — too few postings for that pair, so the range covers the rank
+   *           across all fleets and `vesselNames` must not be shown.
+   */
+  scope: "fleet" | "rank";
+  /** Portal-wide min/max, EUR per month. */
   range: { from: number; to: number; count: number };
   /** This vacancy's own figure, EUR per month (midpoint when it's a range). */
   thisEur: number | null;
@@ -235,22 +296,37 @@ export type SalaryContext = {
   position: "below" | "low" | "mid" | "high" | "above" | null;
 };
 
-export function buildSalaryContext(stats: SalaryStats, v: StatVacancy): SalaryContext | null {
-  const vesselKey = vesselKeyOf(v);
+export function buildSalaryContext(index: SalaryIndex, v: StatVacancy): SalaryContext | null {
+  const vesselKey = vesselKeyOf(v, CONTEXT_VESSELS);
   if (!vesselKey) return null;
 
-  const row =
-    [...stats.officers, ...stats.ratings].find((r) => {
-      const landing = RANK_LANDINGS.find((l) => l.slug === r.slug);
-      return landing ? rankMatches(v.rank, landing) : false;
-    }) ?? null;
+  const row = index.rows.find((r) => {
+    const landing = RANK_LANDINGS.find((l) => l.slug === r.slug);
+    return landing ? rankMatches(v.rank, landing) : false;
+  }) ?? null;
   if (!row) return null;
 
-  const cell = row.cells[vesselKey];
-  if (!cell) return null;
-
-  const vessel = SALARY_VESSELS.find((c) => c.key === vesselKey);
+  const vessel = CONTEXT_VESSELS.find((c) => c.key === vesselKey);
   if (!vessel) return null;
+
+  // A "range" built from one posting is just the vacancy quoting itself back,
+  // so require a real sample. When this rank × fleet is too thin, widen to the
+  // rank across all fleets rather than dropping the comparison entirely.
+  const fleetCell = row.cells[vesselKey];
+  let scope: SalaryContext["scope"] = "fleet";
+  let cell = fleetCell && fleetCell.count >= MIN_CONTEXT_SAMPLE ? fleetCell : null;
+  if (!cell) {
+    let lo = Infinity, hi = -Infinity, count = 0;
+    for (const c of Object.values(row.cells)) {
+      if (!c) continue;
+      if (c.from < lo) lo = c.from;
+      if (c.to > hi) hi = c.to;
+      count += c.count;
+    }
+    if (count < MIN_CONTEXT_SAMPLE) return null;
+    scope = "rank";
+    cell = { from: lo, to: hi, count };
+  }
 
   // This vacancy's own figure, normalised the same way the stats are.
   const points: number[] = [];
@@ -278,10 +354,24 @@ export function buildSalaryContext(stats: SalaryStats, v: StatVacancy): SalaryCo
     rankNames: row.names,
     vesselKey,
     vesselNames: vessel.names,
+    scope,
     range: cell,
     thisEur,
     position,
   };
+}
+
+/**
+ * Every rank × every recognised fleet — the lookup behind the per-vacancy
+ * comparison. Wider than `SalaryStats` on both axes: the homepage table shows a
+ * curated 6 fleets × 13 ranks, but a vacancy page must be able to compare a 3rd
+ * Officer on a Ro-Ro, an Oiler, a Messman, and so on.
+ */
+export type SalaryIndex = { rows: StatRow[] };
+
+export function computeSalaryIndex(all: StatVacancy[]): SalaryIndex {
+  const usable = all.filter((v) => v.salary_from != null || v.salary_to != null);
+  return { rows: buildRows(RANK_LANDINGS, usable, CONTEXT_VESSELS) };
 }
 
 /** Average from/to salaries per rank × vessel, normalised to EUR/month. */
