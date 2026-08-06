@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
-import { getSalaryStats } from "@/lib/salaryStatsCached";
+import { getSalaryIndex } from "@/lib/salaryStatsCached";
 import { buildSalaryContext, type SalaryContext, type StatVacancy } from "@/lib/salaryStats";
 import type { Lang } from "@/lib/i18n";
 import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
@@ -177,11 +177,11 @@ export default async function VacancyPage(
   // the portal-wide range for its rank × fleet, what the rank actually does,
   // and the guides worth reading before applying. Imported postings otherwise
   // carry nothing but the agency's own text.
-  const [salaryStats, relatedGuides] = await Promise.all([
-    getSalaryStats(),
+  const [salaryIndex, relatedGuides] = await Promise.all([
+    getSalaryIndex(),
     fetchRelatedGuides(vacancy.rank, vacancy.vessel_type, vacancy.title),
   ]);
-  const salaryContext: SalaryContext | null = buildSalaryContext(salaryStats, {
+  const salaryContext: SalaryContext | null = buildSalaryContext(salaryIndex, {
     rank: vacancy.rank,
     vessel_type: vacancy.vessel_type,
     title: vacancy.title,

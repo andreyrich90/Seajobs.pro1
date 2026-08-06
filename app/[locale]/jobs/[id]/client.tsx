@@ -90,6 +90,7 @@ const CTX: Record<string, Record<string, string>> = {
   en: {
     salaryTitle: "How this salary compares",
     rangeCaption: "Range across live vacancies on SeaJobs.pro",
+    rangeCaptionRank: "Range across live vacancies on SeaJobs.pro — all fleets",
     perMonth: "/mo",
     thisOffer: "This offer",
     below: "below the range we see",
@@ -106,6 +107,7 @@ const CTX: Record<string, Record<string, string>> = {
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
     rangeCaption: "Диапазон по актуальным вакансиям портала",
+    rangeCaptionRank: "Диапазон по актуальным вакансиям портала — все типы судов",
     perMonth: "/мес",
     thisOffer: "Это предложение",
     below: "ниже наблюдаемой вилки",
@@ -122,6 +124,7 @@ const CTX: Record<string, Record<string, string>> = {
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
     rangeCaption: "Діапазон за актуальними вакансіями порталу",
+    rangeCaptionRank: "Діапазон за актуальними вакансіями порталу — усі типи суден",
     perMonth: "/міс",
     thisOffer: "Ця пропозиція",
     below: "нижче за спостережувану вилку",
@@ -138,6 +141,7 @@ const CTX: Record<string, Record<string, string>> = {
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
     rangeCaption: "Przedział wg aktualnych ofert w serwisie",
+    rangeCaptionRank: "Przedział wg aktualnych ofert w serwisie — wszystkie typy statków",
     perMonth: "/mies",
     thisOffer: "Ta oferta",
     below: "poniżej obserwowanego przedziału",
@@ -154,6 +158,7 @@ const CTX: Record<string, Record<string, string>> = {
   ro: {
     salaryTitle: "Cum se compară acest salariu",
     rangeCaption: "Interval din anunțurile active de pe portal",
+    rangeCaptionRank: "Interval din anunțurile active de pe portal — toate tipurile de nave",
     perMonth: "/lună",
     thisOffer: "Această ofertă",
     below: "sub intervalul observat",
@@ -197,8 +202,12 @@ function SalaryContextBlock({
   return (
     <div className="rounded-2xl border border-white/10 bg-card p-6">
       <h2 className="mb-1 font-display text-lg font-semibold text-white">{t.salaryTitle}</h2>
-      <p className="font-semibold text-foam">{rank} · {vessel}</p>
-      <p className="mt-0.5 text-sm text-mist">{t.rangeCaption}</p>
+      <p className="font-semibold text-foam">
+        {ctx.scope === "fleet" ? `${rank} · ${vessel}` : rank}
+      </p>
+      <p className="mt-0.5 text-sm text-mist">
+        {ctx.scope === "fleet" ? t.rangeCaption : t.rangeCaptionRank}
+      </p>
 
       <div className="mt-4 flex items-baseline justify-between gap-3">
         <span className="text-2xl font-bold text-brass2">
