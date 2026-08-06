@@ -7,7 +7,7 @@ import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   Anchor, LayoutDashboard, Users, Briefcase, MessageSquare, MessageCircle,
-  Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload, Inbox,
+  Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload, Inbox, Send,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -21,6 +21,7 @@ const navItems = [
   { label: "Chats",      href: "/admin/chats",        icon: MessageCircle },
   { label: "Forum",      href: "/admin/forum",       icon: MessageSquare },
   { label: "News",       href: "/admin/news",        icon: Newspaper },
+  { label: "Email log",  href: "/admin/emails",      icon: Send },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
