@@ -735,12 +735,8 @@ export default function VacancyDetailClient({
               </div>
             )}
 
-            {/* Our own analysis of the offer — see CTX below. */}
-            <SalaryContextBlock ctx={salaryContext} currency={vacancy.currency} lang={lang} rankSlug={rankSlug} />
-            <RankAboutBlock blurb={rankBlurb} rankName={vacancy.rank} lang={lang} rankSlug={rankSlug} />
-            <RelatedGuidesBlock guides={relatedGuides} lang={lang} />
-
-            {/* Apply section */}
+            {/* Apply section — kept directly under the description so the button
+                is reachable without scrolling past the analysis blocks below. */}
             <div className="rounded-2xl border border-white/10 bg-card p-6">
               <h2 className="font-display text-lg font-semibold text-white mb-4">Apply for this Position</h2>
 
@@ -803,6 +799,11 @@ export default function VacancyDetailClient({
                 </div>
               )}
             </div>
+
+            {/* Our own analysis of the offer — see CTX below. */}
+            <SalaryContextBlock ctx={salaryContext} currency={vacancy.currency} lang={lang} rankSlug={rankSlug} />
+            <RankAboutBlock blurb={rankBlurb} rankName={vacancy.rank} lang={lang} rankSlug={rankSlug} />
+            <RelatedGuidesBlock guides={relatedGuides} lang={lang} />
           </div>
 
           {/* Sidebar */}
