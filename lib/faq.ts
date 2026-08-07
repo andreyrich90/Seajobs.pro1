@@ -200,3 +200,87 @@ export const FAQ_COMPANIES: FaqItem[] = [
     },
   },
 ];
+
+// ── "How to apply" page ──────────────────────────────────────────────────────
+export const FAQ_APPLY: FaqItem[] = [
+  {
+    q: {
+      en: "Do I have to pay to apply?",
+      ru: "Нужно ли платить, чтобы подать анкету?",
+      ua: "Чи потрібно платити, щоб подати анкету?",
+      pl: "Czy muszę płacić, żeby aplikować?",
+      ro: "Trebuie să plătesc ca să aplic?",
+    },
+    a: {
+      en: "No. Registration, your profile, the CV builder and every application are free for seafarers, and always will be. If anyone asks you for money for a job, a medical, a contract or a visa — that is a scam, and you can report the vacancy to us.",
+      ru: "Нет. Регистрация, профиль, конструктор CV и любые отклики бесплатны для моряков и останутся такими. Если кто-то просит деньги за работу, медкомиссию, контракт или визу — это мошенничество, сообщите нам о такой вакансии.",
+      ua: "Ні. Реєстрація, профіль, конструктор CV та будь-які відгуки безкоштовні для моряків і залишаться такими. Якщо хтось просить гроші за роботу, медкомісію, контракт чи візу — це шахрайство, повідомте нам про таку вакансію.",
+      pl: "Nie. Rejestracja, profil, kreator CV i wszystkie aplikacje są dla marynarzy bezpłatne i takie pozostaną. Jeśli ktoś żąda pieniędzy za pracę, badania, kontrakt lub wizę — to oszustwo, zgłoś nam taką ofertę.",
+      ro: "Nu. Înregistrarea, profilul, generatorul de CV și toate aplicările sunt gratuite pentru marinari și vor rămâne așa. Dacă cineva îți cere bani pentru un post, vizita medicală, contract sau viză — este o înșelătorie, anunță-ne despre acel anunț.",
+    },
+  },
+  {
+    q: {
+      en: "What exactly must be filled in before I can apply?",
+      ru: "Что именно нужно заполнить, чтобы отклик отправился?",
+      ua: "Що саме потрібно заповнити, щоб відгук надіслався?",
+      pl: "Co dokładnie muszę uzupełnić, żeby wysłać aplikację?",
+      ro: "Ce anume trebuie completat ca să pot aplica?",
+    },
+    a: {
+      en: "Two things: a phone number in your profile and at least one sea service record. The crewing manager receives your CV together with the application, so it has to show how to reach you and what you have sailed on. Everything else — certificates, documents, readiness date — is optional but makes your CV much stronger.",
+      ru: "Две вещи: телефон в профиле и минимум одна запись морского стажа. Крюинг-менеджер получает ваше CV вместе с откликом, поэтому в нём должно быть видно, как с вами связаться и на чём вы ходили. Всё остальное — сертификаты, документы, дата готовности — по желанию, но заметно усиливает CV.",
+      ua: "Дві речі: телефон у профілі та щонайменше один запис морського стажу. Крюїнг-менеджер отримує ваше CV разом із відгуком, тож у ньому має бути видно, як з вами зв'язатися і на чому ви ходили. Усе інше — сертифікати, документи, дата готовності — за бажанням, але помітно посилює CV.",
+      pl: "Dwie rzeczy: numer telefonu w profilu i co najmniej jeden wpis stażu morskiego. Menedżer crewingu dostaje Twoje CV razem z aplikacją, więc musi z niego wynikać, jak się z Tobą skontaktować i na czym pływałeś. Reszta — certyfikaty, dokumenty, data gotowości — jest opcjonalna, ale wyraźnie wzmacnia CV.",
+      ro: "Două lucruri: un număr de telefon în profil și cel puțin o înregistrare de stagiu pe mare. Managerul de crewing primește CV-ul tău odată cu aplicarea, deci trebuie să se vadă cum te poate contacta și pe ce nave ai navigat. Restul — certificate, documente, data disponibilității — este opțional, dar îți întărește mult CV-ul.",
+    },
+  },
+  {
+    q: {
+      en: "What happens after I press Apply?",
+      ru: "Что происходит после нажатия «Подать анкету»?",
+      ua: "Що відбувається після натискання «Подати анкету»?",
+      pl: "Co się dzieje po kliknięciu „Aplikuj”?",
+      ro: "Ce se întâmplă după ce apăs „Aplică”?",
+    },
+    a: {
+      en: "Your full CV — contacts, documents and visas, certificates, sea service and your cover letter — is formatted and sent to the crewing agency. If the company has an account on SeaJobs.pro it also lands in their dashboard; if the vacancy came with a crewing e-mail, it goes straight to that address. Either way the application appears in your own list, where you follow its status.",
+      ru: "Ваше полное CV — контакты, документы и визы, сертификаты, морской стаж и сопроводительное письмо — оформляется и отправляется в крюинговое агентство. Если у компании есть аккаунт на SeaJobs.pro, отклик попадает в её кабинет; если у вакансии указан крюинговый email — уходит прямо на этот адрес. В любом случае отклик появляется в вашем списке, где видно его статус.",
+      ua: "Ваше повне CV — контакти, документи та візи, сертифікати, морський стаж і супровідний лист — оформлюється й надсилається до крюїнгового агентства. Якщо в компанії є акаунт на SeaJobs.pro, відгук потрапляє в її кабінет; якщо у вакансії вказано крюїнговий email — іде прямо на цю адресу. У будь-якому разі відгук з'являється у вашому списку, де видно його статус.",
+      pl: "Twoje pełne CV — kontakty, dokumenty i wizy, certyfikaty, staż morski i list motywacyjny — zostaje sformatowane i wysłane do agencji crewingowej. Jeśli firma ma konto na SeaJobs.pro, aplikacja trafia do jej panelu; jeśli przy ofercie podano e-mail crewingu — idzie prosto na ten adres. Tak czy inaczej aplikacja pojawia się na Twojej liście, gdzie widzisz jej status.",
+      ro: "CV-ul tău complet — contacte, documente și vize, certificate, stagiu pe mare și scrisoarea de intenție — este formatat și trimis agenției de crewing. Dacă firma are cont pe SeaJobs.pro, aplicarea ajunge și în panoul ei; dacă anunțul are un e-mail de crewing, ajunge direct la acea adresă. Oricum, aplicarea apare în lista ta, unde îi urmărești statusul.",
+    },
+  },
+  {
+    q: {
+      en: "I don't have a CV file. Can I still apply?",
+      ru: "У меня нет готового CV файлом. Могу я подать анкету?",
+      ua: "У мене немає готового CV файлом. Чи можу я подати анкету?",
+      pl: "Nie mam pliku z CV. Czy mimo to mogę aplikować?",
+      ro: "Nu am un fișier CV. Pot totuși să aplic?",
+    },
+    a: {
+      en: "Yes. Fill your profile in by hand — rank, contacts, sea service, certificates — and the portal builds the CV for you. You can then download it as a PDF in any of four templates and use it outside SeaJobs.pro as well.",
+      ru: "Да. Заполните профиль вручную — должность, контакты, морской стаж, сертификаты — и портал соберёт CV за вас. Потом его можно скачать в PDF в одном из четырёх шаблонов и использовать вне SeaJobs.pro.",
+      ua: "Так. Заповніть профіль вручну — посада, контакти, морський стаж, сертифікати — і портал складе CV за вас. Потім його можна завантажити у PDF в одному з чотирьох шаблонів і використовувати поза SeaJobs.pro.",
+      pl: "Tak. Uzupełnij profil ręcznie — stanowisko, kontakty, staż morski, certyfikaty — a portal zbuduje CV za Ciebie. Potem możesz pobrać je w PDF w jednym z czterech szablonów i używać także poza SeaJobs.pro.",
+      ro: "Da. Completează profilul manual — rangul, contactele, stagiul pe mare, certificatele — iar portalul îți construiește CV-ul. Apoi îl poți descărca în PDF într-unul din patru șabloane și îl poți folosi și în afara SeaJobs.pro.",
+    },
+  },
+  {
+    q: {
+      en: "Do I have to fill everything in again for each vacancy?",
+      ru: "Нужно ли заполнять всё заново для каждой вакансии?",
+      ua: "Чи потрібно заповнювати все заново для кожної вакансії?",
+      pl: "Czy muszę wypełniać wszystko od nowa przy każdej ofercie?",
+      ro: "Trebuie să completez totul din nou pentru fiecare post?",
+    },
+    a: {
+      en: "No. The profile is saved once and reused for every application — the next one takes a single click. Just keep it current: update your certificates when they are renewed and your readiness date when your plans change.",
+      ru: "Нет. Профиль сохраняется один раз и подставляется в каждый следующий отклик — он занимает один клик. Достаточно поддерживать его в актуальном состоянии: обновлять сертификаты после продления и дату готовности при изменении планов.",
+      ua: "Ні. Профіль зберігається один раз і підставляється в кожен наступний відгук — він займає один клік. Достатньо підтримувати його актуальним: оновлювати сертифікати після продовження та дату готовності при зміні планів.",
+      pl: "Nie. Profil zapisuje się raz i jest używany przy każdej kolejnej aplikacji — zajmuje ona jedno kliknięcie. Wystarczy utrzymywać go aktualnym: odświeżać certyfikaty po przedłużeniu i datę gotowości, gdy zmienią się plany.",
+      ro: "Nu. Profilul se salvează o dată și este refolosit la fiecare aplicare — următoarea îți ia un singur clic. Trebuie doar să îl ții actualizat: reînnoiește certificatele după prelungire și data disponibilității când îți schimbi planurile.",
+    },
+  },
+];

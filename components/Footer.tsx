@@ -41,11 +41,20 @@ export default function Footer() {
   const { lang } = useLang();
   const t = T[lang];
 
+  const howToApplyLabel = ({
+    en: "How to apply",
+    ru: "Как подать анкету",
+    ua: "Як подати анкету",
+    pl: "Jak aplikować",
+    ro: "Cum aplici",
+  } as Record<string, string>)[lang] ?? "How to apply";
+
   const PLATFORM = [
     { label: t.footer_vacancies, href: "/jobs" },
     { label: t.footer_forum, href: "/forum" },
     { label: t.footer_news, href: "/news" },
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
+    { label: howToApplyLabel, href: "/how-to-apply" },
   ];
 
   const contactLabel = ({ en: "Contact", ru: "Контакты", ua: "Контакти", pl: "Kontakt", ro: "Contact" } as Record<string, string>)[lang] ?? "Contact";

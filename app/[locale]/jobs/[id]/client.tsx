@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -103,6 +103,7 @@ const CTX: Record<string, Record<string, string>> = {
     aboutTitle: "About this rank",
     seeRank: "All vacancies for this rank",
     guidesTitle: "Worth reading before you apply",
+    howToApply: "How to apply — step by step",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -120,6 +121,7 @@ const CTX: Record<string, Record<string, string>> = {
     aboutTitle: "Об этой должности",
     seeRank: "Все вакансии по этой должности",
     guidesTitle: "Что почитать перед откликом",
+    howToApply: "Как подать анкету — пошаговая инструкция",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -137,6 +139,7 @@ const CTX: Record<string, Record<string, string>> = {
     aboutTitle: "Про цю посаду",
     seeRank: "Усі вакансії за цією посадою",
     guidesTitle: "Що почитати перед відгуком",
+    howToApply: "Як подати анкету — покрокова інструкція",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -154,6 +157,7 @@ const CTX: Record<string, Record<string, string>> = {
     aboutTitle: "O tym stanowisku",
     seeRank: "Wszystkie oferty na to stanowisko",
     guidesTitle: "Warto przeczytać przed aplikowaniem",
+    howToApply: "Jak aplikować — krok po kroku",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -171,6 +175,7 @@ const CTX: Record<string, Record<string, string>> = {
     aboutTitle: "Despre acest rang",
     seeRank: "Toate posturile pentru acest rang",
     guidesTitle: "De citit înainte de a aplica",
+    howToApply: "Cum aplici — pas cu pas",
   },
 };
 
@@ -738,7 +743,15 @@ export default function VacancyDetailClient({
             {/* Apply section — kept directly under the description so the button
                 is reachable without scrolling past the analysis blocks below. */}
             <div className="rounded-2xl border border-white/10 bg-card p-6">
-              <h2 className="font-display text-lg font-semibold text-white mb-4">Apply for this Position</h2>
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <h2 className="font-display text-lg font-semibold text-white">Apply for this Position</h2>
+                <Link
+                  href="/how-to-apply"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brass2 transition hover:text-brass"
+                >
+                  <HelpCircle size={15} /> {(CTX[lang] ?? CTX.en).howToApply}
+                </Link>
+              </div>
 
               <NoPaymentWarning variant="compact" className="mb-4" />
 
@@ -937,6 +950,12 @@ export default function VacancyDetailClient({
                   >
                     Fill in manually
                   </NextLink>
+                  <Link
+                    href="/how-to-apply"
+                    className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-white/5"
+                  >
+                    <HelpCircle size={15} /> {(CTX[lang] ?? CTX.en).howToApply}
+                  </Link>
                   <button
                     onClick={() => { setShowModal(false); setApplyError(null); }}
                     className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
