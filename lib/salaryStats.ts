@@ -123,14 +123,31 @@ const RANK_SYNONYMS: Record<string, string[]> = {
   "fitter": ["fitter", "welder", "turner"],
   "cook": ["cook", "chief cook", "chef", "galley"],
   "messman": ["messman", "mess man", "messboy", "steward", "stewardess", "waiter"],
-  "deck-cadet": ["deck cadet", "deck trainee", "trainee officer deck"],
-  "engine-cadet": ["engine cadet", "engine trainee", "trainee officer engine"],
+  "deck-cadet": [
+    "deck cadet", "cadet deck", "deck trainee", "trainee officer deck", "trainee deck officer",
+    "navigational cadet", "nautical cadet", "deck apprentice",
+  ],
+  "engine-cadet": [
+    "engine cadet", "cadet engine", "engineering cadet", "engineer cadet", "motor cadet",
+    "engine trainee", "trainee officer engine", "trainee engineer", "engine apprentice",
+    // Electrical/ETO cadets have no landing page of their own; they are engine
+    // department trainees, so their pay belongs in this row rather than nowhere.
+    "electrical cadet", "electro-technical cadet", "eto cadet",
+  ],
 };
+
+const CADET_SLUGS = new Set(["deck-cadet", "engine-cadet"]);
+const CADET_WORDS = /cadet|trainee|apprentice|курсант|кадет/;
 
 function rankMatches(vacancyRank: string | null, r: RankLanding): boolean {
   if (vacancyMatchesRank(vacancyRank, r.rank)) return true;
   if (!vacancyRank) return false;
   const s = vacancyRank.toLowerCase();
+  // A cadet posting must never be counted as the qualified rank it trains for.
+  // "ETO Cadet" contains "eto" and "Electro-technical cadet" contains
+  // "electro-technical", so without this guard a trainee allowance would be
+  // pulled into an officer's range and dragged its floor down.
+  if (CADET_WORDS.test(s) && !CADET_SLUGS.has(r.slug)) return false;
   return (RANK_SYNONYMS[r.slug] ?? []).some((k) => s.includes(k));
 }
 
@@ -212,16 +229,32 @@ function vesselKeyOf(v: StatVacancy, cols: VesselCol[] = SALARY_VESSELS): string
   return null;
 }
 
-const round = (n: number) => Math.round(n / 50) * 50;
+// Rounding to the nearest €50 reads well for officer pay but mangles a cadet
+// allowance (€120 would show as €100), so small figures round to €10.
+const round = (n: number) => (n < 500 ? Math.round(n / 10) * 10 : Math.round(n / 50) * 50);
 
 // Sane monthly EUR band. Anything outside is a data error (a day rate stored as
 // monthly, an annual/total-contract figure, or a typo like "45000") — dropping
-// it keeps a single bad posting from blowing up a cell. The floor is low enough
-// to keep real cadet/rating wages (e.g. a 450 USD ≈ €414 engine-cadet salary),
-// which a €500 floor was wrongly excluding.
-const MIN_EUR = 250;
-const MAX_EUR = 25000;
-const inBand = (x: number) => x >= MIN_EUR && x <= MAX_EUR;
+// it keeps a single bad posting from blowing up a cell.
+//
+// The band has to be PER RANK, because what counts as an error depends on the
+// rank: €250/month is obviously wrong for a Master and completely ordinary for
+// a cadet, whose pay is a training allowance and routinely runs $100–300. A
+// single flat floor silently emptied the cadet cells even though the vacancies
+// were there — which is exactly what happened to Deck Cadet on tanker and gas.
+type Band = { min: number; max: number };
+const DEFAULT_BAND: Band = { min: 250, max: 25000 };
+const CADET_BAND: Band = { min: 40, max: 4000 };
+
+function bandFor(slug: string): Band {
+  return CADET_SLUGS.has(slug) ? CADET_BAND : DEFAULT_BAND;
+}
+
+// Widest band any rank can use — figures outside it are dropped up front, so
+// the per-rank band only ever narrows what survives.
+const ABS_MIN_EUR = Math.min(DEFAULT_BAND.min, CADET_BAND.min);
+const ABS_MAX_EUR = Math.max(DEFAULT_BAND.max, CADET_BAND.max);
+const inBand = (x: number) => x >= ABS_MIN_EUR && x <= ABS_MAX_EUR;
 
 // Fewest comparable postings needed before we present a "market range" on a
 // vacancy page (see buildSalaryContext).
@@ -251,11 +284,20 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
     // matching vacancies. Using min/max (not an average) means a real
     // high-paying posting — e.g. a Master on a bulker at 10,044 USD — shows
     // at the top of the range instead of being averaged away.
+    const band = bandFor(r.slug);
     const acc: Record<string, { lo: number; hi: number; count: number }> = {};
     for (const p of prepared) {
       if (!rankMatches(p.rank, r)) continue;
+      let lo = Infinity, hi = -Infinity;
+      for (const x of p.points) {
+        if (x < band.min || x > band.max) continue;
+        if (x < lo) lo = x;
+        if (x > hi) hi = x;
+      }
+      if (lo === Infinity) continue; // every figure out of band for this rank
       const a = acc[p.key] ?? (acc[p.key] = { lo: Infinity, hi: -Infinity, count: 0 });
-      for (const x of p.points) { if (x < a.lo) a.lo = x; if (x > a.hi) a.hi = x; }
+      if (lo < a.lo) a.lo = lo;
+      if (hi > a.hi) a.hi = hi;
       a.count++;
     }
     const cells: Record<string, Cell> = {};
@@ -328,12 +370,15 @@ export function buildSalaryContext(index: SalaryIndex, v: StatVacancy): SalaryCo
     cell = { from: lo, to: hi, count };
   }
 
-  // This vacancy's own figure, normalised the same way the stats are.
+  // This vacancy's own figure, normalised the same way the stats are — using
+  // this rank's band, so a cadet's own allowance isn't filtered out of the
+  // comparison the row was just built from.
+  const band = bandFor(row.slug);
   const points: number[] = [];
   for (const raw of [v.salary_from, v.salary_to]) {
     if (raw == null) continue;
     const x = toEur(monthlyEquivalent(raw, v.salary_period), v.currency);
-    if (inBand(x)) points.push(x);
+    if (x >= band.min && x <= band.max) points.push(x);
   }
   const thisEur = points.length ? points.reduce((s, x) => s + x, 0) / points.length : null;
 
