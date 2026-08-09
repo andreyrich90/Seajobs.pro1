@@ -23,7 +23,7 @@ const CURRENCIES = ["USD", "EUR", "GBP", "NOK", "SGD", "AUD", "CAD"];
 const empty = () => ({
   companyName: "", companyLocation: "", companyWebsite: "",
   title: "", rank: "", vesselType: "",
-  salaryFrom: "", salaryTo: "", currency: "USD",
+  salaryFrom: "", salaryTo: "", salaryPeriod: "month", currency: "USD",
   contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "", contactPhone: "",
 });
 
@@ -41,7 +41,7 @@ type ParseImage = { base64: string; mediaType: string };
 type ParsedVacancy = {
   companyName?: string | null; companyLocation?: string | null; companyWebsite?: string | null;
   title?: string | null; rank?: string | null; vesselType?: string | null;
-  salaryFrom?: number | null; salaryTo?: number | null; currency?: string | null;
+  salaryFrom?: number | null; salaryTo?: number | null; salaryPeriod?: string | null; currency?: string | null;
   contractDuration?: string | null; joiningDate?: string | null;
   description?: string | null; contactEmail?: string | null; contactPhone?: string | null;
 };
@@ -104,6 +104,7 @@ export default function ImportVacancyPage() {
       vesselType: v.vesselType ?? "",
       salaryFrom: v.salaryFrom != null ? String(v.salaryFrom) : "",
       salaryTo: v.salaryTo != null ? String(v.salaryTo) : "",
+      salaryPeriod: v.salaryPeriod === "day" ? "day" : "month",
       currency: v.currency ?? p.currency,
       contractDuration: v.contractDuration ?? "",
       joiningDate: v.joiningDate ?? "",
@@ -318,6 +319,7 @@ export default function ImportVacancyPage() {
         vesselType:       form.vesselType || null,
         salaryFrom:       form.salaryFrom ? Number(form.salaryFrom) : null,
         salaryTo:         form.salaryTo ? Number(form.salaryTo) : null,
+        salaryPeriod:     form.salaryPeriod,
         currency:         form.currency,
         contractDuration: form.contractDuration,
         joiningDate:      form.joiningDate || null,
@@ -352,6 +354,7 @@ export default function ImportVacancyPage() {
         companyLocation: p.companyLocation,
         companyWebsite: p.companyWebsite,
         currency: p.currency,
+        salaryPeriod: p.salaryPeriod,
       }));
     } else {
       setForm(empty());
@@ -601,7 +604,7 @@ export default function ImportVacancyPage() {
             <DollarSign size={16} className="text-brass2" />
             <span className="text-sm font-semibold text-white">Salary & Terms</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-5">
             <div>
               <label className={labelClass}>From</label>
               <input type="number" value={form.salaryFrom} onChange={set("salaryFrom")} placeholder="3000" className={inputClass} />
@@ -609,6 +612,13 @@ export default function ImportVacancyPage() {
             <div>
               <label className={labelClass}>To</label>
               <input type="number" value={form.salaryTo} onChange={set("salaryTo")} placeholder="5000" className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Per</label>
+              <select value={form.salaryPeriod} onChange={set("salaryPeriod")} className={selectClass}>
+                <option value="month">month</option>
+                <option value="day">day</option>
+              </select>
             </div>
             <div>
               <label className={labelClass}>Currency</label>
