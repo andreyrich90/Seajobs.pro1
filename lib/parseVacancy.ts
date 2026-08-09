@@ -15,6 +15,7 @@ export type ParsedVacancy = {
   vesselType?: string | null;
   salaryFrom?: number | null;
   salaryTo?: number | null;
+  salaryPeriod?: "month" | "day" | null;
   currency?: string | null;
   contractDuration?: string | null;
   joiningDate?: string | null;
@@ -50,6 +51,7 @@ Schema:
       "vesselType": string|null,
       "salaryFrom": number|null,
       "salaryTo": number|null,
+      "salaryPeriod": "month"|"day"|null,
       "currency": string|null,
       "contractDuration": string|null,
       "joiningDate": "YYYY-MM-DD"|null,
@@ -64,7 +66,8 @@ Rules (apply to every vacancy object):
 - "rank" must be one of: ${RANK_GROUPS.flatMap((g) => g.ranks).join(", ")}. Pick the closest match, or null if none fits.
 - "title" = a short job title, e.g. "Chief Officer — Oil Tanker".
 - "vesselType": ALWAYS extract when any hint exists — check the dedicated vessel-type field, the job title (e.g. "3rd Eng || LPG || Yara" → "LPG Carrier"), the vessel description or its specs. Normalise to a standard English name: "Bulk Carrier", "Container Ship", "Oil Tanker", "Chemical Tanker", "LPG Carrier", "LNG Carrier", "General Cargo", "Car Carrier (PCTC)", "Ro-Ro", "AHTS", "PSV", "OSV", "Tug", "Dredger", "Cruise Ship", "Ferry (RoPax)", "Fishing Vessel", etc. Use null ONLY when the source gives no clue at all.
-- "salaryFrom"/"salaryTo" = plain numbers (monthly), no currency symbols. If only one figure is given, set both to it.
+- "salaryFrom"/"salaryTo" = plain numbers as quoted in the source, no currency symbols. If only one figure is given, set both to it. Do NOT convert between periods — report the number as written.
+- "salaryPeriod" = "day" when the figure is a DAY RATE ("/day", "per day", "daily rate", "pd", "p/d", "$450 a day" — common on offshore, tug, dredger and yacht postings), otherwise "month". Use null only when no salary is given. Getting this wrong makes a 450/day offshore rate look like a 450/month wage, so read the unit carefully.
 - "currency" = 3-letter ISO code (USD, EUR, GBP...).
 - "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
 - "description" = a UNIQUE, rewritten job description in English Markdown — NOT a verbatim copy of the source text (duplicated text hurts SEO). Rephrase everything in your own words and structure it as:

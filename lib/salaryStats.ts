@@ -1,6 +1,6 @@
 import type { Lang } from "@/lib/i18n";
 import { RANK_LANDINGS, vacancyMatchesRank, type RankLanding } from "@/lib/rankLandings";
-import { monthlyEquivalent } from "@/lib/salary";
+import { DAYS_PER_MONTH, monthlyEquivalent } from "@/lib/salary";
 
 // Live salary comparison shown on the homepage. Averages the from/to salaries of
 // current portal vacancies per rank × vessel type, so seafarers can compare pay
@@ -242,19 +242,41 @@ const round = (n: number) => (n < 500 ? Math.round(n / 10) * 10 : Math.round(n /
 // a cadet, whose pay is a training allowance and routinely runs $100–300. A
 // single flat floor silently emptied the cadet cells even though the vacancies
 // were there — which is exactly what happened to Deck Cadet on tanker and gas.
+// A Master cannot earn €400 a month and a cadet cannot earn €8,000, so the
+// floor and ceiling are tiered by seniority.
 type Band = { min: number; max: number };
-const DEFAULT_BAND: Band = { min: 250, max: 25000 };
-const CADET_BAND: Band = { min: 40, max: 4000 };
+const SENIOR_SLUGS = new Set(["master", "chief-engineer", "chief-officer", "2nd-engineer"]);
+const JUNIOR_SLUGS = new Set(["2nd-officer", "3rd-officer", "3rd-engineer", "4th-engineer", "eto", "electrician"]);
 
 function bandFor(slug: string): Band {
-  return CADET_SLUGS.has(slug) ? CADET_BAND : DEFAULT_BAND;
+  if (CADET_SLUGS.has(slug)) return { min: 40, max: 4000 };
+  if (SENIOR_SLUGS.has(slug)) return { min: 1200, max: 30000 };
+  if (JUNIOR_SLUGS.has(slug)) return { min: 800, max: 20000 };
+  return { min: 350, max: 12000 }; // ratings and catering
 }
 
-// Widest band any rank can use — figures outside it are dropped up front, so
+// Widest ceiling any rank can use — figures above it are dropped up front, so
 // the per-rank band only ever narrows what survives.
-const ABS_MIN_EUR = Math.min(DEFAULT_BAND.min, CADET_BAND.min);
-const ABS_MAX_EUR = Math.max(DEFAULT_BAND.max, CADET_BAND.max);
-const inBand = (x: number) => x >= ABS_MIN_EUR && x <= ABS_MAX_EUR;
+const ABS_MAX_EUR = 30000;
+const inBand = (x: number) => x > 0 && x <= ABS_MAX_EUR;
+
+// Offshore, tug, dredger and yacht postings quote a DAY rate. Until the
+// importer learned to store `salary_period`, every one of them was written as a
+// monthly figure — so a €450/day Master read as a €450/month wage: too low to
+// be a real monthly salary, so it was dropped as a data error and the offshore
+// column came out empty. Where a stored "monthly" figure is below what the rank
+// can possibly earn in a month, but its 30-day equivalent lands inside the
+// band, read it as the day rate it plainly is.
+const DAY_RATE_FLEETS = new Set(["offshore", "dredger", "yacht", "fishing"]);
+
+function fitToBand(x: number, band: Band, period: string | null, fleet: string): number | null {
+  if (x >= band.min && x <= band.max) return x;
+  if (period !== "day" && x < band.min && DAY_RATE_FLEETS.has(fleet)) {
+    const asDay = x * DAYS_PER_MONTH;
+    if (asDay >= band.min && asDay <= band.max) return asDay;
+  }
+  return null;
+}
 
 // Fewest comparable postings needed before we present a "market range" on a
 // vacancy page (see buildSalaryContext).
@@ -264,7 +286,7 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
   // Resolve each vacancy's fleet and its in-band EUR figures ONCE. Doing it
   // inside the rank × fleet loops meant rescanning every posting for every
   // cell — fine at 6 fleets, wasteful at 11 fleets × 19 ranks.
-  const prepared: { rank: string | null; key: string; points: number[] }[] = [];
+  const prepared: { rank: string | null; key: string; period: string | null; points: number[] }[] = [];
   for (const v of vacancies) {
     const key = vesselKeyOf(v, cols);
     if (!key) continue;
@@ -276,7 +298,7 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
       if (inBand(x)) points.push(x);
     }
     if (points.length === 0) continue; // all out of band / missing
-    prepared.push({ rank: v.rank, key, points });
+    prepared.push({ rank: v.rank, key, period: v.salary_period, points });
   }
 
   return ranks.map((r) => {
@@ -289,8 +311,9 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
     for (const p of prepared) {
       if (!rankMatches(p.rank, r)) continue;
       let lo = Infinity, hi = -Infinity;
-      for (const x of p.points) {
-        if (x < band.min || x > band.max) continue;
+      for (const raw of p.points) {
+        const x = fitToBand(raw, band, p.period, p.key);
+        if (x == null) continue;
         if (x < lo) lo = x;
         if (x > hi) hi = x;
       }
@@ -377,8 +400,11 @@ export function buildSalaryContext(index: SalaryIndex, v: StatVacancy): SalaryCo
   const points: number[] = [];
   for (const raw of [v.salary_from, v.salary_to]) {
     if (raw == null) continue;
-    const x = toEur(monthlyEquivalent(raw, v.salary_period), v.currency);
-    if (x >= band.min && x <= band.max) points.push(x);
+    const x = fitToBand(
+      toEur(monthlyEquivalent(raw, v.salary_period), v.currency),
+      band, v.salary_period, vesselKey,
+    );
+    if (x != null) points.push(x);
   }
   const thisEur = points.length ? points.reduce((s, x) => s + x, 0) / points.length : null;
 

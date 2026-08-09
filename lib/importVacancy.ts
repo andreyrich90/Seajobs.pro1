@@ -16,6 +16,7 @@ export type ImportVacancyInput = {
   vesselType?: string | null;
   salaryFrom?: number | string | null;
   salaryTo?: number | string | null;
+  salaryPeriod?: string | null;
   currency?: string | null;
   contractDuration?: string | null;
   joiningDate?: string | null;
@@ -93,6 +94,10 @@ export async function importVacancy(
     vessel_type: input.vesselType || null,
     salary_from: input.salaryFrom ? Number(input.salaryFrom) : null,
     salary_to: input.salaryTo ? Number(input.salaryTo) : null,
+    // Offshore, tug and yacht postings quote a DAY rate. Storing it as monthly
+    // made a 450/day rate read as a 450/month wage, which wrecked the offshore
+    // column of the salary table.
+    salary_period: input.salaryPeriod === "day" ? "day" : "month",
     currency: input.currency || "USD",
     contract_duration: input.contractDuration?.trim() || null,
     joining_date: input.joiningDate || null,
