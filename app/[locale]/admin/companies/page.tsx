@@ -115,7 +115,15 @@ export default function AdminCompaniesPage() {
         };
       });
 
-      built.sort((a, b) => b.active - a.active || b.total - a.total || (a.name ?? "").localeCompare(b.name ?? ""));
+      // Real company accounts first, agencies created by the importer below —
+      // then by how many live vacancies each one has.
+      built.sort(
+        (a, b) =>
+          Number(b.registered) - Number(a.registered) ||
+          b.active - a.active ||
+          b.total - a.total ||
+          (a.name ?? "").localeCompare(b.name ?? "")
+      );
       setRows(built);
       setLoading(false);
     }
@@ -226,10 +234,18 @@ export default function AdminCompaniesPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {filtered.map((r) => {
+          {filtered.map((r, i) => {
             const isOpen = open.has(r.id);
+            // The list is sorted accounts-first, so a flip marks the boundary.
+            const startsGroup = i === 0 || filtered[i - 1].registered !== r.registered;
             return (
-              <div key={r.id} className="overflow-hidden rounded-2xl border border-white/10 bg-card">
+              <div key={r.id}>
+                {startsGroup && (
+                  <p className={`px-1 pb-1.5 text-xs font-semibold uppercase tracking-wider text-mist ${i === 0 ? "" : "pt-4"}`}>
+                    {r.registered ? "Registered accounts" : "Imported agencies"}
+                  </p>
+                )}
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-card">
                 <button
                   onClick={() => toggle(r.id)}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-white/5"
@@ -348,6 +364,7 @@ export default function AdminCompaniesPage() {
                     )}
                   </div>
                 )}
+                </div>
               </div>
             );
           })}
