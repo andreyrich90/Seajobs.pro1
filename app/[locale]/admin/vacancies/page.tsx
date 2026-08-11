@@ -34,7 +34,19 @@ export default function AdminVacanciesPage() {
   }, []);
 
   async function toggleActive(v: VacancyRow) {
-    const { data } = await supabase.from("vacancies").update({ is_active: !v.is_active }).eq("id", v.id).select().single();
+    const { data, error } = await supabase.from("vacancies").update({ is_active: !v.is_active }).eq("id", v.id).select().single();
+    // Publishing is blocked when the company has no name or no contact — say so
+    // instead of leaving the toggle silently not moving.
+    if (error) {
+      alert(
+        error.message.includes("company_contact_required")
+          ? "Cannot publish: this company has no email or phone, and the vacancy carries no crewing contact."
+          : error.message.includes("company_name_required")
+          ? "Cannot publish: this company has no name."
+          : error.message
+      );
+      return;
+    }
     if (data) setVacancies((prev) => prev.map((x) => x.id === v.id ? { ...data, company_name: v.company_name } : x));
   }
 

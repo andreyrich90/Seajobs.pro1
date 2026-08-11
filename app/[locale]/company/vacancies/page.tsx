@@ -3,7 +3,8 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight, ArrowRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { supabase, notify } from "@/lib/supabase/client";
 import type { Vacancy } from "@/lib/supabase/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -65,6 +66,44 @@ function meaningfulDescLength(desc: string): number {
     .length;
 }
 
+// A vacancy is only useful if seafarers can see whose it is and how to reach
+// them, so the company profile must carry a name and at least one contact
+// before anything goes live. Enforced for real by a database trigger
+// (supabase/migrations/20260812000000_require_company_details.sql) — this is
+// the friendly half that says so before the form is even opened.
+const GATE_UI: Record<string, { title: string; needName: string; needContact: string; cta: string }> = {
+  en: {
+    title: "Complete your company profile to publish",
+    needName: "company name",
+    needContact: "an email or phone number",
+    cta: "Go to company profile",
+  },
+  ru: {
+    title: "Заполните профиль компании, чтобы публиковать вакансии",
+    needName: "название компании",
+    needContact: "email или телефон",
+    cta: "Перейти в профиль компании",
+  },
+  ua: {
+    title: "Заповніть профіль компанії, щоб публікувати вакансії",
+    needName: "назву компанії",
+    needContact: "email або телефон",
+    cta: "Перейти до профілю компанії",
+  },
+  pl: {
+    title: "Uzupełnij profil firmy, aby publikować oferty",
+    needName: "nazwę firmy",
+    needContact: "adres e-mail lub telefon",
+    cta: "Przejdź do profilu firmy",
+  },
+  ro: {
+    title: "Completează profilul companiei pentru a publica",
+    needName: "numele companiei",
+    needContact: "un e-mail sau un telefon",
+    cta: "Mergi la profilul companiei",
+  },
+};
+
 const DESC_UI: Record<string, { hint: string; error: string }> = {
   en: {
     hint: "Describe the vessel, requirements and conditions — a fuller description gets more applications and ranks better in search.",
@@ -114,6 +153,16 @@ function formatDate(dateStr: string | null): string {
 export default function VacanciesPage() {
   const { lang } = useLang();
   const t = T[lang];
+  const gate = GATE_UI[lang] ?? GATE_UI.en;
+
+  // The database trigger rejects a publish when the company profile is
+  // incomplete; turn its error code into the same wording as the banner.
+  function gateError(message: string | undefined): string | null {
+    if (!message) return null;
+    if (message.includes("company_name_required")) return `${gate.title}: ${gate.needName}`;
+    if (message.includes("company_contact_required")) return `${gate.title}: ${gate.needContact}`;
+    return null;
+  }
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [appCounts, setAppCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -123,6 +172,8 @@ export default function VacanciesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  // null while unknown; otherwise what the company profile is still missing.
+  const [gaps, setGaps] = useState<{ name: boolean; contact: boolean } | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -130,11 +181,24 @@ export default function VacanciesPage() {
       if (!session) return;
       setUserId(session.user.id);
 
-      const { data } = await supabase
-        .from("vacancies")
-        .select("*")
-        .eq("company_id", session.user.id)
-        .order("created_at", { ascending: false });
+      const [{ data }, { data: company }] = await Promise.all([
+        supabase
+          .from("vacancies")
+          .select("*")
+          .eq("company_id", session.user.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("companies")
+          .select("name, emails, phones")
+          .eq("id", session.user.id)
+          .maybeSingle(),
+      ]);
+
+      const hasOne = (arr: string[] | null | undefined) => (arr ?? []).some((x) => x && x.trim());
+      setGaps({
+        name: !company?.name?.trim(),
+        contact: !hasOne(company?.emails) && !hasOne(company?.phones),
+      });
 
       setVacancies(data ?? []);
 
@@ -239,7 +303,7 @@ export default function VacanciesPage() {
         .single();
 
       if (updateError) {
-        setError(t.va_update_failed + updateError.message);
+        setError(gateError(updateError.message) ?? t.va_update_failed + updateError.message);
       } else if (data) {
         setVacancies((prev) => prev.map((v) => (v.id === editingId ? data : v)));
         closeForm();
@@ -255,7 +319,7 @@ export default function VacanciesPage() {
         .single();
 
       if (insertError) {
-        setError(t.va_post_failed + insertError.message);
+        setError(gateError(insertError.message) ?? t.va_post_failed + insertError.message);
       } else if (data) {
         setVacancies((prev) => [data, ...prev]);
         closeForm();
@@ -273,12 +337,13 @@ export default function VacanciesPage() {
   }
 
   async function toggleActive(v: Vacancy) {
-    const { data } = await supabase
+    const { data, error: toggleError } = await supabase
       .from("vacancies")
       .update({ is_active: !v.is_active })
       .eq("id", v.id)
       .select()
       .single();
+    if (toggleError) { setError(gateError(toggleError.message) ?? toggleError.message); return; }
     if (data) setVacancies((prev) => prev.map((x) => (x.id === v.id ? data : x)));
   }
 
@@ -290,17 +355,38 @@ export default function VacanciesPage() {
     );
   }
 
+  const blocked = !!gaps && (gaps.name || gaps.contact);
+  const missing = [gaps?.name && gate.needName, gaps?.contact && gate.needContact].filter(Boolean).join(" · ");
+
   return (
     <div className="p-8 max-w-5xl">
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-display text-2xl font-semibold text-white">{t.va_title}</h1>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+          disabled={blocked}
+          title={blocked ? gate.title : undefined}
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
         >
           <Plus size={16} /> {t.va_post}
         </button>
       </div>
+
+      {blocked && (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brass/30 bg-brass/10 px-5 py-4">
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-brass2" />
+          <div>
+            <p className="font-semibold text-foam">{gate.title}</p>
+            <p className="mt-1 text-sm text-mist">{missing}</p>
+            <Link
+              href="/company/profile"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brass2 transition hover:text-brass"
+            >
+              {gate.cta} <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       {showForm && (
