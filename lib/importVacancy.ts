@@ -39,6 +39,20 @@ export type ImportVacancyResult = {
   alerts?: AlertResult;
 };
 
+// The `vacancies` trigger blocks a publish when the owning company has no name
+// or no way to be reached (see the 20260812000000 migration). Service-role
+// clients are not exempt, so translate the code into something an admin can act
+// on instead of leaking a Postgres error into the import form.
+function readableDbError(message: string): string {
+  if (message.includes("company_contact_required")) {
+    return "This vacancy has no crewing email or phone, and the company profile has none either — add a contact before importing.";
+  }
+  if (message.includes("company_name_required")) {
+    return "The company has no name — set one before importing.";
+  }
+  return message;
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function importVacancy(
   admin: SupabaseClient<any, any, any>,
@@ -128,7 +142,7 @@ export async function importVacancy(
       .from("vacancies")
       .update({ ...fields, created_at: now, updated_at: now })
       .eq("id", duplicate.id);
-    if (updErr) throw new Error(updErr.message);
+    if (updErr) throw new Error(readableDbError(updErr.message));
     return { vacancyId: duplicate.id, companyId, refreshed: true, contactEmailInherited, contactEmail };
   }
 
@@ -137,7 +151,7 @@ export async function importVacancy(
     .insert({ company_id: companyId, title, ...fields })
     .select("id")
     .single();
-  if (vacErr) throw new Error(vacErr.message);
+  if (vacErr) throw new Error(readableDbError(vacErr.message));
 
   // Fire job alerts here rather than at the call sites: imported postings are
   // most of the board and reach it through three different routes (the admin
