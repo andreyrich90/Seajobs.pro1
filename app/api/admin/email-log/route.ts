@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { ALERT_DAILY_BUDGET } from "@/lib/jobAlerts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,9 +11,6 @@ function getAdmin() {
   if (!url || !key) throw new Error("Missing Supabase env vars");
   return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 }
-
-// Mirrors the alert budget in app/api/notify/route.ts.
-const ALERT_DAILY_BUDGET = 50;
 
 // Admin-only: recent email sends + today's counters for /admin/emails.
 // `email_log` has RLS on with no policies, so it is readable only through the
