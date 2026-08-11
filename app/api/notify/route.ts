@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendEmail, sentTodayCount } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
+import { dispatchJobAlerts } from "@/lib/jobAlerts";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -19,8 +20,6 @@ const isUuid = (v: unknown): v is string => typeof v === "string" && UUID_RE.tes
 // way to a crewing agency. So alerts get a bounded share of the daily budget;
 // the transactional emails below stay uncapped because they are low volume and
 // must not be lost. Everyone still gets the in-app notification either way.
-const ALERT_DAILY_BUDGET = 50;
-const ALERT_PER_VACANCY_CAP = 25;
 
 // Renders the seafarer's CV as email-safe HTML, mirroring the /seafarer/cv
 // sheet (header with contacts, personal information, identity documents &
@@ -268,64 +267,15 @@ ${cv.html}
       if (!isUuid(vacancyId)) return NextResponse.json({ ok: false, error: "Bad input" }, { status: 400 });
 
       const { data: vacancy } = await admin
-        .from("vacancies").select("title, rank, company_id, companies(name)").eq("id", vacancyId).single();
+        .from("vacancies").select("company_id").eq("id", vacancyId).single();
       if (!vacancy) return NextResponse.json({ ok: false }, { status: 404 });
       // The caller must own this vacancy.
       if (caller.id !== vacancy.company_id) {
         return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
       }
-      if (!vacancy.rank) return NextResponse.json({ ok: true });
 
-      const { data: alerts } = await admin
-        .from("job_alerts").select("seafarer_id").eq("rank", vacancy.rank);
-
-      const companyName = (vacancy.companies as unknown as { name: string | null } | null)?.name ?? "A company";
-
-      const rows = (alerts ?? []).map((a) => ({
-        user_id: a.seafarer_id,
-        type: "new_vacancy",
-        title: "New Job Match",
-        body: `${companyName} posted a new ${vacancy.rank} position: "${vacancy.title}"`,
-        link: `/jobs/${vacancyId}`,
-      }));
-      if (rows.length > 0) await admin.from("notifications").insert(rows);
-
-      // Email the subscribers, but only within the alert budget. The in-app
-      // notifications above already went to everyone, so anyone skipped here
-      // still sees the alert — they just don't get mail for it.
-      const alreadySent = await sentTodayCount("new_vacancy");
-      const remainingToday =
-        alreadySent === null
-          ? ALERT_PER_VACANCY_CAP // can't read the log → fall back to the per-vacancy cap
-          : Math.max(0, ALERT_DAILY_BUDGET - alreadySent);
-      const quota = Math.min(ALERT_PER_VACANCY_CAP, remainingToday);
-
-      const recipients = (alerts ?? []).slice(0, quota);
-      const skipped = (alerts ?? []).length - recipients.length;
-      if (skipped > 0) {
-        console.warn(
-          `[notify:new_vacancy] emailed ${recipients.length}/${(alerts ?? []).length} subscribers for "${vacancy.title}" — ${skipped} skipped to stay within the daily alert budget (in-app notifications were still sent to all).`,
-        );
-      }
-
-      for (const a of recipients) {
-        const { data: { user } } = await admin.auth.admin.getUserById(a.seafarer_id);
-        if (user?.email) {
-          await sendEmail({
-            to: user.email,
-            subject: `New ${vacancy.rank} job: "${vacancy.title}"`,
-            kind: "new_vacancy",
-            html: `<p>Hello,</p>
-<p><strong>${companyName}</strong> posted a new <strong>${vacancy.rank}</strong> position:</p>
-<p style="font-size:18px"><strong>${vacancy.title}</strong></p>
-<p><a href="https://seajobs.pro/jobs/${vacancyId}" style="background:#c9a227;color:#000;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">View Vacancy →</a></p>
-<hr style="margin:24px 0;border:none;border-top:1px solid #eee"/>
-<p style="color:#999;font-size:12px;">You receive this because you set up a job alert for <strong>${vacancy.rank}</strong> on SeaJobs.pro. <a href="https://seajobs.pro/seafarer/dashboard">Manage alerts →</a></p>`,
-          });
-        }
-      }
-
-      return NextResponse.json({ ok: true, emailed: recipients.length, skipped });
+      const result = await dispatchJobAlerts(admin, vacancyId);
+      return NextResponse.json({ ok: true, ...result });
     }
 
     // ── A chat message was sent → notify the other participant ───────────────

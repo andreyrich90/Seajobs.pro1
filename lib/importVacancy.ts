@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
+import { dispatchJobAlerts, type AlertResult } from "@/lib/jobAlerts";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
 // scraped draft. Finds/creates the company by name, then either refreshes a
@@ -34,6 +35,8 @@ export type ImportVacancyResult = {
   // previous posting of the same company (so the admin can see/verify it).
   contactEmailInherited: boolean;
   contactEmail: string | null;
+  /** Job-alert fan-out for this posting; all zeros for a refreshed duplicate. */
+  alerts?: AlertResult;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -135,5 +138,14 @@ export async function importVacancy(
     .select("id")
     .single();
   if (vacErr) throw new Error(vacErr.message);
-  return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail };
+
+  // Fire job alerts here rather than at the call sites: imported postings are
+  // most of the board and reach it through three different routes (the admin
+  // form, the drafts queue and the Telegram collector). Alerts used to be sent
+  // only by /api/notify, which none of them calls, so subscribers heard about
+  // vacancies posted by a company through its own dashboard and nothing else.
+  // Refreshing a recurring posting above is not new, so it stays silent.
+  const alerts = await dispatchJobAlerts(admin, vacancy.id);
+
+  return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, alerts };
 }
