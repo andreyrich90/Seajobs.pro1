@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { slugId } from "@/lib/slug";
+import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
 import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
 import type { Lang } from "@/lib/i18n";
@@ -165,23 +166,8 @@ export default async function CountryLandingPage(
 
         <div className="mt-8 flex flex-col gap-3">
           {vacancies.length > 0 ? vacancies.slice(0, 60).map((v) => {
-            const salary = fmtSalary(v);
             return (
-              <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
-                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-semibold leading-snug text-white">{v.title}</p>
-                    {v.companies?.is_verified && <ShieldCheck size={14} className="shrink-0 text-teal" />}
-                  </div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
-                    {v.companies?.name && <span className="flex items-center gap-1"><Building2 size={11} />{v.companies.name}</span>}
-                    {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 font-semibold text-brassInk">{v.rank}</span>}
-                    {v.vessel_type && <span className="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 font-semibold text-teal">{v.vessel_type}</span>}
-                  </div>
-                </div>
-                {salary && <p className="shrink-0 whitespace-nowrap text-sm font-semibold text-white">{salary}</p>}
-              </Link>
+              <VacancyCard key={v.id} vacancy={v} lang={lang} />
             );
           }) : (
             <div className="rounded-2xl border border-white/10 bg-card px-5 py-10 text-center">

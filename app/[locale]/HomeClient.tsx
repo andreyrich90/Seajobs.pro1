@@ -10,6 +10,7 @@ import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import SalaryStatsWidget from "@/components/SalaryStats";
 import VesselFilter from "@/components/VesselFilter";
+import VacancyCard from "@/components/VacancyCard";
 import RankFilter from "@/components/RankFilter";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
@@ -301,26 +302,7 @@ export default function HomeClient({
 
         <div className="mt-6 flex flex-col gap-3">
           {dbVacancies.length > 0 ? pageItems.map((v) => (
-            <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
-              className="flex items-center gap-4 rounded-2xl border border-white/10 bg-card px-5 py-4 transition hover:border-white/20 hover:bg-white/5">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-semibold text-sm text-white leading-snug">{v.title}</p>
-                  {v.companies?.is_verified && <ShieldCheck size={14} className="text-teal shrink-0" />}
-                </div>
-                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
-                  {v.companies?.name && <span className="flex items-center gap-1"><Building2 size={11} />{v.companies.name}</span>}
-                  {v.rank && <span className="rounded-full bg-brass/10 border border-brass/20 px-2 py-0.5 text-brassInk font-semibold">{v.rank}</span>}
-                  {v.vessel_type && <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-teal font-semibold">{v.vessel_type}</span>}
-                </div>
-              </div>
-              {(v.salary_from || v.salary_to) && (
-                <p className="shrink-0 text-sm font-semibold text-white">
-                  {v.salary_from && v.salary_to ? `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()}` : v.salary_from ? `from ${v.salary_from.toLocaleString()}` : `up to ${v.salary_to!.toLocaleString()}`}
-                  {" "}{v.currency}
-                </p>
-              )}
-            </Link>
+            <VacancyCard key={v.id} vacancy={v} lang={lang} />
           )) : (
             <div className="rounded-2xl border border-white/10 bg-card px-5 py-10 text-center">
               <p className="text-sm text-mist">{t.jobs_none}</p>

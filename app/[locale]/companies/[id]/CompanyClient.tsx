@@ -12,6 +12,8 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import type { Vacancy, CrewManager } from "@/lib/supabase/types";
 import { slugId } from "@/lib/slug";
+import VacancyCard from "@/components/VacancyCard";
+import { useLang } from "@/components/LangProvider";
 
 type CompanyDetail = {
   id: string;
@@ -43,6 +45,7 @@ export default function CompanyClient() {
   const params = useParams();
   const id = params?.id as string;
 
+  const { lang } = useLang();
   const [company, setCompany] = useState<CompanyDetail | null>(null);
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [loading, setLoading] = useState(true);
@@ -219,38 +222,9 @@ export default function CompanyClient() {
               </div>
             ) : (
               <div className="flex flex-col gap-4">
-                {vacancies.map((v) => {
-                  const salary = formatSalary(v);
-                  return (
-                    <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
-                      className="group rounded-2xl border border-white/10 bg-card p-5 transition hover:border-white/20">
-                      <h3 className="font-semibold text-white group-hover:text-brassInk transition">{v.title}</h3>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {v.rank && (
-                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
-                            {v.rank}
-                          </span>
-                        )}
-                        {v.vessel_type && (
-                          <span className="rounded-full bg-teal/10 border border-teal/20 px-2.5 py-0.5 text-xs font-semibold text-teal">
-                            {v.vessel_type}
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-4 text-xs text-mist">
-                        {salary && (
-                          <span className="flex items-center gap-1"><DollarSign size={12} />{salary}</span>
-                        )}
-                        {v.contract_duration && (
-                          <span className="flex items-center gap-1"><Clock size={12} />{v.contract_duration}</span>
-                        )}
-                        {v.joining_date && (
-                          <span className="flex items-center gap-1"><Calendar size={12} />{formatDate(v.joining_date)}</span>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
+                {vacancies.map((v) => (
+                  <VacancyCard key={v.id} vacancy={v} lang={lang} />
+                ))}
               </div>
             )}
           </div>
