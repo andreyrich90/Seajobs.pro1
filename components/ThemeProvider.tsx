@@ -13,8 +13,9 @@ export function useTheme() {
   return useContext(ThemeContext);
 }
 
-// The initial <html data-theme> is set by an inline script in layout.tsx before
-// paint (no flash). This provider just mirrors it into React state, persists
+// Light («Глубина») is the CSS default and needs no attribute; dark is opt-in
+// and marked by data-theme="dark", set by an inline script in layout.tsx before
+// paint (no flash). This provider mirrors that into React state, persists
 // changes to localStorage and flips the attribute on toggle.
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Light is the default; the inline script in layout.tsx has already put
@@ -23,14 +24,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const current = document.documentElement.getAttribute("data-theme");
-    setTheme(current === "light" ? "light" : "dark");
+    setTheme(current === "dark" ? "dark" : "light");
   }, []);
 
   const toggle = useCallback(() => {
     setTheme((prev) => {
       const next: Theme = prev === "dark" ? "light" : "dark";
       const root = document.documentElement;
-      if (next === "light") root.setAttribute("data-theme", "light");
+      if (next === "dark") root.setAttribute("data-theme", "dark");
       else root.removeAttribute("data-theme");
       // Persist in BOTH localStorage and a cookie. Some in-app browsers
       // (Telegram, Instagram, etc.) drop localStorage between page loads but

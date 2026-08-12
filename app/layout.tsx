@@ -90,14 +90,14 @@ export default async function RootLayout({
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
-            // Apply the theme before paint. Light is the product default now, so
-            // the attribute goes on unless the visitor explicitly chose dark.
+            // «Глубина» is the CSS default, so nothing has to run for it to
+            // appear — this only marks the opt-in dark theme, before paint.
             // Preference comes from localStorage, falling back to the `theme`
             // cookie (survives in-app browsers that wipe localStorage).
             // suppressHydrationWarning on <html> keeps React from stripping the
             // attribute during hydration.
             __html:
-              "try{var t=localStorage.getItem('theme');if(!t){var m=document.cookie.match(/(?:^|;\\s*)theme=(light|dark)/);t=m&&m[1];}if(t!=='dark')document.documentElement.setAttribute('data-theme','light');}catch(e){document.documentElement.setAttribute('data-theme','light');}",
+              "try{var t=localStorage.getItem('theme');if(!t){var m=document.cookie.match(/(?:^|;\\s*)theme=(light|dark)/);t=m&&m[1];}if(t==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}",
           }}
         />
         <script
