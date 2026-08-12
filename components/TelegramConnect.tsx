@@ -16,6 +16,13 @@ import { T } from "@/lib/i18n";
 
 const CHANNEL = process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL || "seajobspro";
 
+// The card stays hidden until the bot is actually wired up. Offering "Connect
+// Telegram" before the token, the webhook and the channel exist would hand
+// seafarers a button that can only fail. Set NEXT_PUBLIC_TELEGRAM_ENABLED=1 in
+// the same deploy that adds TELEGRAM_BOT_TOKEN — NEXT_PUBLIC_ values are baked
+// in at build time, so it takes effect on the next build, not before.
+export const TELEGRAM_UI_ENABLED = process.env.NEXT_PUBLIC_TELEGRAM_ENABLED === "1";
+
 export default function TelegramConnect({
   seafarerId,
   linked,
@@ -98,6 +105,10 @@ export default function TelegramConnect({
     onChange(false);
     setBusy(false);
   }
+
+  // After the hooks, never before: React requires the same hook order on every
+  // render, so an early return has to come below them.
+  if (!TELEGRAM_UI_ENABLED) return null;
 
   return (
     <div
