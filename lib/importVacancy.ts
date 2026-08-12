@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
+import { normalizeContractDuration } from "@/lib/contract";
 import { dispatchJobAlerts, type AlertResult } from "@/lib/jobAlerts";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
@@ -116,7 +117,9 @@ export async function importVacancy(
     // column of the salary table.
     salary_period: input.salaryPeriod === "day" ? "day" : "month",
     currency: input.currency || "USD",
-    contract_duration: input.contractDuration?.trim() || null,
+    // The parser turns a tolerance like "4 +/- 1 month" into "4+-1 months";
+    // clean it on the way in so the stored value is presentable too.
+    contract_duration: normalizeContractDuration(input.contractDuration),
     joining_date: input.joiningDate || null,
     description: input.description?.trim() || null,
     is_active: true,

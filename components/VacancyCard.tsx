@@ -6,6 +6,7 @@ import {
   Ship, User, Calendar, Clock, Bookmark, BookmarkCheck, ShieldCheck, Sparkles, MapPin,
 } from "lucide-react";
 import { slugId } from "@/lib/slug";
+import { normalizeContractDuration } from "@/lib/contract";
 import type { Lang } from "@/lib/i18n";
 
 // The one vacancy card. It used to be copy-pasted inline into the job board,
@@ -103,7 +104,28 @@ export default function VacancyCard({
   // money, so they get the right half of the footer. A posting with no date is
   // an ASAP one — saying so beats leaving the row half empty.
   const joining = v.joining_date ? `${ui.since} ${formatDate(v.joining_date, lang)}` : ui.asap;
-  const duration = v.contract_duration?.trim() || null;
+  const duration = normalizeContractDuration(v.contract_duration);
+
+  const moneyEl = money ? (
+    <p className="font-display text-[17px] font-bold leading-tight text-white">
+      {money} <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
+    </p>
+  ) : (
+    <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>
+  );
+
+  const termsEl = (
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-mist">
+      {duration && (
+        <span className="inline-flex items-center gap-1.5" title={ui.contract}>
+          <Clock size={12} className="shrink-0" /> {duration}
+        </span>
+      )}
+      <span className="inline-flex items-center gap-1.5">
+        <Calendar size={12} className="shrink-0" /> {joining}
+      </span>
+    </div>
+  );
 
   return (
     <div
@@ -157,6 +179,14 @@ export default function VacancyCard({
           </h3>
         </div>
 
+        {/* Desktop: the money block sits level with the title instead of at the
+            bottom of the card, with the terms under it. Phones keep it in a
+            row of its own below — a narrow card has no room beside the title. */}
+        <div className="hidden shrink-0 flex-col items-end gap-1 md:flex">
+          {moneyEl}
+          {termsEl}
+        </div>
+
         {onToggleSave && (
           <button
             type="button"
@@ -184,30 +214,9 @@ export default function VacancyCard({
         </div>
       )}
 
-      {/* Phone: money left, terms right — the row is narrow, so splitting it
-          uses the width. Desktop: the row is wide and a lone figure on the far
-          left reads as detached, so the whole group sits right with the money
-          last, at the edge where the eye finishes. */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-white/10 pt-2.5 md:justify-end md:gap-x-6">
-        {money ? (
-          <p className="font-display text-[17px] font-bold leading-tight text-white md:order-2">
-            {money}{" "}
-            <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
-          </p>
-        ) : (
-          <p className="text-xs font-semibold text-mist md:order-2">{ui.noSalary}</p>
-        )}
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-mist md:order-1">
-          {duration && (
-            <span className="inline-flex items-center gap-1.5" title={ui.contract}>
-              <Clock size={12} className="shrink-0" /> {duration}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1.5">
-            <Calendar size={12} className="shrink-0" /> {joining}
-          </span>
-        </div>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 md:hidden">
+        {moneyEl}
+        {termsEl}
       </div>
     </div>
   );
