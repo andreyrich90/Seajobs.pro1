@@ -53,12 +53,12 @@ const MONTHS: Record<string, string[]> = {
   ro: ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"],
 };
 
-const UI: Record<string, { from: string; upTo: string; perMonth: string; perDay: string; since: string; save: string; unsave: string; featured: string; noCompany: string; noSalary: string }> = {
-  en: { from: "from", upTo: "up to", perMonth: "USD/mo", perDay: "USD/day", since: "from", save: "Save job", unsave: "Unsave job", featured: "Featured", noCompany: "Company", noSalary: "Salary on request" },
-  ru: { from: "от", upTo: "до", perMonth: "в месяц", perDay: "в сутки", since: "с", save: "Сохранить", unsave: "Убрать из сохранённых", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу" },
-  ua: { from: "від", upTo: "до", perMonth: "на місяць", perDay: "на добу", since: "з", save: "Зберегти", unsave: "Прибрати зі збережених", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом" },
-  pl: { from: "od", upTo: "do", perMonth: "mies.", perDay: "dziennie", since: "od", save: "Zapisz", unsave: "Usuń z zapisanych", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie" },
-  ro: { from: "de la", upTo: "până la", perMonth: "pe lună", perDay: "pe zi", since: "din", save: "Salvează", unsave: "Elimină din salvate", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere" },
+const UI: Record<string, { from: string; upTo: string; perMonth: string; perDay: string; since: string; save: string; unsave: string; featured: string; noCompany: string; noSalary: string; asap: string; contract: string }> = {
+  en: { from: "from", upTo: "up to", perMonth: "USD/mo", perDay: "USD/day", since: "from", save: "Save job", unsave: "Unsave job", featured: "Featured", noCompany: "Company", noSalary: "Salary on request", asap: "ASAP", contract: "contract" },
+  ru: { from: "от", upTo: "до", perMonth: "в месяц", perDay: "в сутки", since: "с", save: "Сохранить", unsave: "Убрать из сохранённых", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу", asap: "ASAP", contract: "контракт" },
+  ua: { from: "від", upTo: "до", perMonth: "на місяць", perDay: "на добу", since: "з", save: "Зберегти", unsave: "Прибрати зі збережених", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом", asap: "ASAP", contract: "контракт" },
+  pl: { from: "od", upTo: "do", perMonth: "mies.", perDay: "dziennie", since: "od", save: "Zapisz", unsave: "Usuń z zapisanych", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie", asap: "ASAP", contract: "kontrakt" },
+  ro: { from: "de la", upTo: "până la", perMonth: "pe lună", perDay: "pe zi", since: "din", save: "Salvează", unsave: "Elimină din salvate", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract" },
 };
 
 function formatDate(iso: string, lang: string): string {
@@ -99,10 +99,11 @@ export default function VacancyCard({
       ? `${ui.upTo} ${v.salary_to.toLocaleString()}`
       : null;
 
-  const when = [
-    v.joining_date ? `${ui.since} ${formatDate(v.joining_date, lang)}` : null,
-    v.contract_duration?.trim() || null,
-  ].filter(Boolean).join(" · ");
+  // Joining date and contract length are what a seafarer checks after the
+  // money, so they get the right half of the footer. A posting with no date is
+  // an ASAP one — saying so beats leaving the row half empty.
+  const joining = v.joining_date ? `${ui.since} ${formatDate(v.joining_date, lang)}` : ui.asap;
+  const duration = v.contract_duration?.trim() || null;
 
   return (
     <div
@@ -183,25 +184,27 @@ export default function VacancyCard({
         </div>
       )}
 
-      {(money || when) && (
-        <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-white/10 pt-2.5">
-          {money ? (
-            <p className="font-display text-[17px] font-bold leading-tight text-white">
-              {money}{" "}
-              <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
-            </p>
-          ) : (
-            <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-white/10 pt-2.5">
+        {money ? (
+          <p className="font-display text-[17px] font-bold leading-tight text-white">
+            {money}{" "}
+            <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
+          </p>
+        ) : (
+          <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>
+        )}
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-mist">
+          {duration && (
+            <span className="inline-flex items-center gap-1.5" title={ui.contract}>
+              <Clock size={12} className="shrink-0" /> {duration}
+            </span>
           )}
-          {when && (
-            <p className="flex items-center gap-1.5 text-xs font-semibold text-mist">
-              {v.joining_date && <Calendar size={12} />}
-              {when}
-              {!v.joining_date && v.contract_duration && <Clock size={12} />}
-            </p>
-          )}
+          <span className="inline-flex items-center gap-1.5">
+            <Calendar size={12} className="shrink-0" /> {joining}
+          </span>
         </div>
-      )}
+      </div>
     </div>
   );
 }
