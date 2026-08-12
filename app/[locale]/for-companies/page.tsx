@@ -83,7 +83,7 @@ export default function ForCompaniesPage() {
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(1000px_600px_at_80%_-20%,#0e2a45,#061523_65%)]" />
+        <div className="hero-surface absolute inset-0" />
         <div className="relative mx-auto max-w-7xl px-5 py-20 md:py-28">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-teal/30 bg-teal/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-teal">
