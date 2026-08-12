@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import {
-  Ship, User, Calendar, Clock, Bookmark, BookmarkCheck, ShieldCheck, Sparkles, MapPin,
+  Ship, User, Calendar, Clock, ShieldCheck, Sparkles, MapPin,
 } from "lucide-react";
 import { slugId } from "@/lib/slug";
 import { normalizeContractDuration } from "@/lib/contract";
@@ -54,12 +54,12 @@ const MONTHS: Record<string, string[]> = {
   ro: ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"],
 };
 
-const UI: Record<string, { from: string; upTo: string; perMonth: string; perDay: string; since: string; save: string; unsave: string; featured: string; noCompany: string; noSalary: string; asap: string; contract: string }> = {
-  en: { from: "from", upTo: "up to", perMonth: "USD/mo", perDay: "USD/day", since: "from", save: "Save job", unsave: "Unsave job", featured: "Featured", noCompany: "Company", noSalary: "Salary on request", asap: "ASAP", contract: "contract" },
-  ru: { from: "от", upTo: "до", perMonth: "в месяц", perDay: "в сутки", since: "с", save: "Сохранить", unsave: "Убрать из сохранённых", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу", asap: "ASAP", contract: "контракт" },
-  ua: { from: "від", upTo: "до", perMonth: "на місяць", perDay: "на добу", since: "з", save: "Зберегти", unsave: "Прибрати зі збережених", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом", asap: "ASAP", contract: "контракт" },
-  pl: { from: "od", upTo: "do", perMonth: "mies.", perDay: "dziennie", since: "od", save: "Zapisz", unsave: "Usuń z zapisanych", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie", asap: "ASAP", contract: "kontrakt" },
-  ro: { from: "de la", upTo: "până la", perMonth: "pe lună", perDay: "pe zi", since: "din", save: "Salvează", unsave: "Elimină din salvate", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract" },
+const UI: Record<string, { from: string; upTo: string; since: string; featured: string; noCompany: string; noSalary: string; asap: string; contract: string }> = {
+  en: { from: "from", upTo: "up to", since: "from", featured: "Featured", noCompany: "Company", noSalary: "Salary on request", asap: "ASAP", contract: "contract" },
+  ru: { from: "от", upTo: "до", since: "с", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу", asap: "ASAP", contract: "контракт" },
+  ua: { from: "від", upTo: "до", since: "з", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом", asap: "ASAP", contract: "контракт" },
+  pl: { from: "od", upTo: "do", since: "od", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie", asap: "ASAP", contract: "kontrakt" },
+  ro: { from: "de la", upTo: "până la", since: "din", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract" },
 };
 
 function formatDate(iso: string, lang: string): string {
@@ -72,24 +72,19 @@ function formatDate(iso: string, lang: string): string {
 export default function VacancyCard({
   vacancy: v,
   lang,
-  saved,
-  onToggleSave,
   className = "",
 }: {
   vacancy: CardVacancy;
   lang: Lang;
-  /** Omit both to hide the bookmark button (listings without a signed-in seafarer). */
-  saved?: boolean;
-  onToggleSave?: (vacancyId: string) => void;
   className?: string;
 }) {
   const ui = UI[lang] ?? UI.en;
   const company = v.companies?.name?.trim() || "";
   const featured = !!v.featured_until && new Date(v.featured_until) > new Date();
 
-  // Day rates must say so: an offshore "450" read as a monthly wage looks like
-  // a joke, and that unit is exactly what the importer used to lose.
-  const perUnit = v.salary_period === "day" ? ui.perDay : ui.perMonth;
+  // The card carries the figure and the currency only — the per-month /
+  // per-day unit is spelled out on the vacancy page, where there is room and
+  // where someone is actually reading rather than scanning.
   const cur = v.currency || "USD";
   const money =
     v.salary_from && v.salary_to && v.salary_from !== v.salary_to
@@ -108,7 +103,7 @@ export default function VacancyCard({
 
   const moneyEl = money ? (
     <p className="font-display text-[17px] font-bold leading-tight text-white">
-      {money} <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
+      {money} <span className="text-[11.5px] font-semibold text-mist">{cur}</span>
     </p>
   ) : (
     <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>
@@ -183,17 +178,6 @@ export default function VacancyCard({
             bottom of the card. Phones keep it in a row of its own below — a
             narrow card has no room beside the title. */}
         <div className="hidden shrink-0 md:block">{moneyEl}</div>
-
-        {onToggleSave && (
-          <button
-            type="button"
-            onClick={() => onToggleSave(v.id)}
-            aria-label={saved ? ui.unsave : ui.save}
-            className="relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-white/10 text-mist transition hover:border-brass/40 hover:text-brassInk"
-          >
-            {saved ? <BookmarkCheck size={15} className="text-brassInk" /> : <Bookmark size={15} />}
-          </button>
-        )}
       </div>
 
       {/* Terms ride the right end of the pill row on desktop: that half was
