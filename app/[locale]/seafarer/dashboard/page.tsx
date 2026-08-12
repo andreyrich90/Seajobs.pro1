@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
-import TelegramConnect from "@/components/TelegramConnect";
+import TelegramConnect, { TELEGRAM_UI_ENABLED } from "@/components/TelegramConnect";
 import { T, type Lang } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
@@ -64,7 +64,12 @@ export default function DashboardPage() {
         supabase.from("sea_experience").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("applications").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("job_alerts").select("seafarer_id").eq("seafarer_id", session.user.id).maybeSingle(),
-        supabase.from("seafarer_telegram").select("chat_id").eq("seafarer_id", session.user.id).maybeSingle(),
+        // Skipped entirely while the bot is off: the table only exists once the
+        // Telegram migration has been run, and querying a missing one would log
+        // an error on every dashboard load for nothing.
+        TELEGRAM_UI_ENABLED
+          ? supabase.from("seafarer_telegram").select("chat_id").eq("seafarer_id", session.user.id).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
 
       setStats({
@@ -316,7 +321,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {stats.seafarer?.id && (
+      {TELEGRAM_UI_ENABLED && stats.seafarer?.id && (
         <TelegramConnect
           seafarerId={stats.seafarer.id}
           linked={stats.telegramLinked}

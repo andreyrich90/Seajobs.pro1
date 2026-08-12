@@ -110,6 +110,8 @@ Copy for both lives in `TG_COPY` in `lib/telegramBot.ts`, not in `lib/i18n.ts`: 
 
 Setup, once: create the bot with @BotFather → set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (mandatory; the webhook rejects every update without it), `TELEGRAM_CHANNEL_ID` → add the bot as a channel admin with "post messages" → open `/api/telegram/setup?secret=<CRON_SECRET>` to register the webhook and verify the wiring.
 
+The dashboard card is hidden behind `NEXT_PUBLIC_TELEGRAM_ENABLED=1` so the site never offers "Connect Telegram" before the bot exists; set it in the same deploy as the token. Server-side, everything already no-ops without `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHANNEL_ID`, so nothing else needs a switch.
+
 ### Styling
 
 Tailwind CSS with a custom maritime palette defined in `tailwind.config.ts`:
