@@ -29,6 +29,7 @@ export type DbVacancy = {
   salary_to: number | null;
   salary_period: string | null;
   currency: string;
+  contract_duration: string | null;
   joining_date: string | null;
   companies: { name: string | null; is_verified: boolean } | null;
 };

@@ -26,6 +26,7 @@ type Vac = {
   salary_to: number | null;
   salary_period: string | null;
   currency: string;
+  contract_duration: string | null;
   country: string | null;
   joining_date: string | null;
   companies: { name: string | null; location: string | null; is_verified: boolean } | null;
@@ -43,7 +44,7 @@ async function fetchCountryVacancies(keywords: string[]): Promise<Vac[]> {
   const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
   const { data } = await getServerSupabase()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, country, joining_date, companies(name, location, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, country, joining_date, companies(name, location, is_verified)")
     .eq("is_active", true)
     .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
     .order("created_at", { ascending: false })

@@ -18,7 +18,7 @@ export default async function Home() {
   // dominated TTFB/LCP here. The lists below stay per-request fresh.
   const [{ data: vacancies }, { data: news }, salaryStats] = await Promise.all([
     sb.from("vacancies")
-      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, joining_date, companies(name, is_verified)")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, is_verified)")
       .eq("is_active", true)
       .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
       .order("created_at", { ascending: false })
