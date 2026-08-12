@@ -237,7 +237,7 @@ export default function AdminNewsPage() {
               <div className="flex gap-1 rounded-xl bg-navy2 p-1 mb-4 w-fit">
                 {LANGS.map((l) => (
                   <button key={l.code} type="button" onClick={() => setActiveLang(l.code)}
-                    className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${activeLang === l.code ? "bg-brass/20 text-brass2" : "text-mist hover:text-white"}`}
+                    className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition ${activeLang === l.code ? "bg-brass/20 text-brassInk" : "text-mist hover:text-white"}`}
                   >{l.label}</button>
                 ))}
               </div>
@@ -266,7 +266,7 @@ export default function AdminNewsPage() {
                     rows={10}
                   />
                   <p className="text-xs text-mist">
-                    Leave a blank line between paragraphs. Start a line with <code className="text-brass2">## </code> for a subheading, wrap text in <code className="text-brass2">**bold**</code> for emphasis.
+                    Leave a blank line between paragraphs. Start a line with <code className="text-brassInk">## </code> for a subheading, wrap text in <code className="text-brassInk">**bold**</code> for emphasis.
                   </p>
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default function AdminNewsPage() {
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   <span className="text-xs text-mist">{formatDate(a.created_at)}</span>
-                  {a.tag && <span className="text-xs font-semibold text-brass2">{a.tag}</span>}
+                  {a.tag && <span className="text-xs font-semibold text-brassInk">{a.tag}</span>}
                   <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${
                     a.is_published ? "border-teal/20 bg-teal/10 text-teal" : "border-white/10 bg-white/5 text-mist"
                   }`}>{a.is_published ? "Published" : "Draft"}</span>

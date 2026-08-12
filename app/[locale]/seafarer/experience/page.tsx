@@ -505,7 +505,7 @@ export default function ExperiencePage() {
                         </span>
                       )}
                       {entry.rank && (
-                        <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                        <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                           {entry.rank}
                         </span>
                       )}

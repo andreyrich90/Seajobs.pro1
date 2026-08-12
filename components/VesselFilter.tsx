@@ -43,7 +43,7 @@ export default function VesselFilter({
         onClick={() => { setDraft(value); setOpen((o) => !o); }}
         className={`flex w-full items-center justify-between gap-2 rounded-xl border px-3.5 py-3 text-sm font-semibold outline-none transition ${
           value.length > 0
-            ? "border-brass/50 bg-brass/10 text-brass2"
+            ? "border-brass/50 bg-brass/10 text-brassInk"
             : "border-white/10 bg-navy2 text-white hover:border-white/20"
         }`}
       >

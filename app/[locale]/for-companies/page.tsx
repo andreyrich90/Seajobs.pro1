@@ -36,11 +36,11 @@ export default function ForCompaniesPage() {
 
   const BENEFITS = [
     { icon: Users,      title: t.fc_b1_t, description: t.fc_b1_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
-    { icon: Bell,       title: t.fc_b2_t, description: t.fc_b2_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+    { icon: Bell,       title: t.fc_b2_t, description: t.fc_b2_d, color: "text-brassInk", bg: "bg-brass/10 border-brass/20" },
     { icon: ShieldCheck,title: t.fc_b3_t, description: t.fc_b3_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
-    { icon: BarChart3,  title: t.fc_b4_t, description: t.fc_b4_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+    { icon: BarChart3,  title: t.fc_b4_t, description: t.fc_b4_d, color: "text-brassInk", bg: "bg-brass/10 border-brass/20" },
     { icon: Globe,      title: t.fc_b5_t, description: t.fc_b5_d, color: "text-teal",  bg: "bg-teal/10 border-teal/20" },
-    { icon: Zap,        title: t.fc_b6_t, description: t.fc_b6_d, color: "text-brass2", bg: "bg-brass/10 border-brass/20" },
+    { icon: Zap,        title: t.fc_b6_t, description: t.fc_b6_d, color: "text-brassInk", bg: "bg-brass/10 border-brass/20" },
   ];
 
   const STEPS = [
@@ -92,7 +92,7 @@ export default function ForCompaniesPage() {
 
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
               {t.fc_hero_title}<br />
-              <span className="text-brass2">{t.fc_hero_title2}</span>
+              <span className="text-brassInk">{t.fc_hero_title2}</span>
             </h1>
 
             <p className="mt-5 text-lg leading-relaxed text-mist">{t.fc_hero_sub}</p>
@@ -135,7 +135,7 @@ export default function ForCompaniesPage() {
               { n: "2 min",      l: t.fc_stat_3 },
             ].map((s, i) => (
               <div key={i} className="min-w-0 text-center">
-                <div className="font-display text-2xl font-bold leading-tight text-brass2 break-words sm:text-3xl">{s.n}</div>
+                <div className="font-display text-2xl font-bold leading-tight text-brassInk break-words sm:text-3xl">{s.n}</div>
                 {s.l && <div className="mt-1 text-xs font-medium text-mist">{s.l}</div>}
               </div>
             ))}
@@ -184,7 +184,7 @@ export default function ForCompaniesPage() {
                   <p className="text-sm text-mist leading-relaxed">{s.description}</p>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight size={22} className="absolute -right-4 top-1/2 -translate-y-1/2 text-brass2/40 hidden md:block" />
+                  <ChevronRight size={22} className="absolute -right-4 top-1/2 -translate-y-1/2 text-brassInk/40 hidden md:block" />
                 )}
               </div>
             ))}
@@ -209,7 +209,7 @@ export default function ForCompaniesPage() {
         <div className="mx-auto max-w-xl px-5 py-16">
           <div className="text-center mb-10">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brass/10 border border-brass/20 mb-4">
-              <Mail size={26} className="text-brass2" />
+              <Mail size={26} className="text-brassInk" />
             </div>
             <h2 className="font-display text-2xl font-semibold text-white">{t.fc_contact_title}</h2>
             <p className="mt-2 text-sm text-mist">{t.fc_contact_sub}</p>
@@ -245,7 +245,7 @@ export default function ForCompaniesPage() {
               </button>
               <p className="text-center text-xs text-mist/60">
                 Or email us:{" "}
-                <a href="mailto:partners@seajobs.pro" className="text-brass2 hover:underline">partners@seajobs.pro</a>
+                <a href="mailto:partners@seajobs.pro" className="text-brassInk hover:underline">partners@seajobs.pro</a>
               </p>
             </form>
           )}

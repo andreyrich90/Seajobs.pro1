@@ -80,7 +80,7 @@ export default function AdminVacanciesPage() {
         </div>
         {(["all","active","inactive"] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition ${filter === f ? "bg-brass/15 text-brass2 border border-brass/20" : "border border-white/10 text-mist hover:text-white"}`}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition ${filter === f ? "bg-brass/15 text-brassInk border border-brass/20" : "border border-white/10 text-mist hover:text-white"}`}
           >{f}</button>
         ))}
       </div>

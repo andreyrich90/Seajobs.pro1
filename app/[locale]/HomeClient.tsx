@@ -55,9 +55,9 @@ function newsReadMins(text: string): number {
 const NEWS_TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
   Market: "bg-coral/10 border-coral/20 text-coral",
-  Industry: "bg-brass/10 border-brass/20 text-brass2",
+  Industry: "bg-brass/10 border-brass/20 text-brassInk",
   Safety: "bg-teal/10 border-teal/20 text-teal",
-  Technology: "bg-brass/10 border-brass/20 text-brass2",
+  Technology: "bg-brass/10 border-brass/20 text-brassInk",
 };
 
 export default function HomeClient({
@@ -159,7 +159,7 @@ export default function HomeClient({
         <div className="relative mx-auto grid min-w-0 max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
           {/* Left column — copy + search */}
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brass2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brassInk">
               <Compass size={14} /> {t.hero_kicker}
             </div>
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-foam md:text-6xl">
@@ -216,7 +216,7 @@ export default function HomeClient({
                 <Link
                   key={f.key}
                   href={{ pathname: "/jobs", query: { fleet: f.key } }}
-                  className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist backdrop-blur transition hover:border-brass/50 hover:text-brass2"
+                  className="rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist backdrop-blur transition hover:border-brass/50 hover:text-brassInk"
                 >
                   {fleetLabel(f.key, lang)}
                 </Link>
@@ -228,7 +228,7 @@ export default function HomeClient({
             {salaryStats.hasData && (
               <Link
                 href="/salaries"
-                className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20 lg:hidden"
+                className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3 text-sm font-bold text-brassInk transition hover:bg-brass/20 lg:hidden"
               >
                 <span className="flex items-center gap-2">
                   <TrendingUp size={16} /> {t.salaries_title}
@@ -268,13 +268,13 @@ export default function HomeClient({
                         )}
                       </div>
                       {(v.salary_from || v.salary_to) && (
-                        <span className="shrink-0 rounded-lg bg-brass/10 px-2 py-1 text-xs font-bold text-brass2">
+                        <span className="shrink-0 rounded-lg bg-brass/10 px-2 py-1 text-xs font-bold text-brassInk">
                           {v.salary_from ? v.salary_from.toLocaleString() : v.salary_to!.toLocaleString()} {v.currency}
                         </span>
                       )}
                     </div>
                     <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                      {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-[11px] font-semibold text-brass2">{v.rank}</span>}
+                      {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-[11px] font-semibold text-brassInk">{v.rank}</span>}
                       {v.vessel_type && <span className="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 text-[11px] font-semibold text-teal">{v.vessel_type}</span>}
                     </div>
                   </Link>
@@ -293,7 +293,7 @@ export default function HomeClient({
           </h2>
           <Link
             href="/jobs"
-            className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2"
+            className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brassInk transition hover:gap-2"
           >
             {t.view_all} <ChevronRight size={17} />
           </Link>
@@ -310,7 +310,7 @@ export default function HomeClient({
                 </div>
                 <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
                   {v.companies?.name && <span className="flex items-center gap-1"><Building2 size={11} />{v.companies.name}</span>}
-                  {v.rank && <span className="rounded-full bg-brass/10 border border-brass/20 px-2 py-0.5 text-brass2 font-semibold">{v.rank}</span>}
+                  {v.rank && <span className="rounded-full bg-brass/10 border border-brass/20 px-2 py-0.5 text-brassInk font-semibold">{v.rank}</span>}
                   {v.vessel_type && <span className="rounded-full bg-teal/10 border border-teal/20 px-2 py-0.5 text-teal font-semibold">{v.vessel_type}</span>}
                 </div>
               </div>
@@ -348,7 +348,7 @@ export default function HomeClient({
                   onClick={() => goToPage(p)}
                   className={`h-9 min-w-9 rounded-lg border px-3 text-sm font-semibold transition ${
                     p === page
-                      ? "border-brass/40 bg-brass/15 text-brass2"
+                      ? "border-brass/40 bg-brass/15 text-brassInk"
                       : "border-white/10 bg-white/5 text-mist hover:text-white"
                   }`}
                 >
@@ -375,7 +375,7 @@ export default function HomeClient({
             <h2 className="font-display text-3xl font-semibold tracking-tight text-white">{t.nav_news}</h2>
             <Link
               href="/news"
-              className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brass2 transition hover:gap-2"
+              className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brassInk transition hover:gap-2"
             >
               {t.view_all} <ChevronRight size={17} />
             </Link>
@@ -392,7 +392,7 @@ export default function HomeClient({
                   <span className={`mb-2 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${NEWS_TAG_COLORS[n.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                     <Tag size={10} /> {n.tag}
                   </span>
-                  <h3 className="font-display text-sm font-semibold leading-snug text-white transition group-hover:text-brass2 line-clamp-2">
+                  <h3 className="font-display text-sm font-semibold leading-snug text-white transition group-hover:text-brassInk line-clamp-2">
                     {n.title}
                   </h3>
                   <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-mist">

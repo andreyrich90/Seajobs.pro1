@@ -53,7 +53,7 @@ type ApplicationStatus = "pending" | "viewed" | "accepted" | "rejected";
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
   pending: "text-mist border-mist/30 bg-mist/10",
-  viewed: "text-brass2 border-brass2/30 bg-brass2/10",
+  viewed: "text-brassInk border-brass2/30 bg-brass2/10",
   accepted: "text-teal border-teal/30 bg-teal/10",
   rejected: "text-coral border-coral/30 bg-coral/10",
 };
@@ -215,7 +215,7 @@ function SalaryContextBlock({
       </p>
 
       <div className="mt-4 flex items-baseline justify-between gap-3">
-        <span className="text-2xl font-bold text-brass2">
+        <span className="text-2xl font-bold text-brassInk">
           {money(ctx.range.from, currency)} – {money(ctx.range.to, currency)}
           <span className="ml-1 text-base font-semibold text-mist">{t.perMonth}</span>
         </span>
@@ -243,7 +243,7 @@ function SalaryContextBlock({
       )}
 
       <div className="mt-4 flex flex-wrap gap-3 text-sm font-semibold">
-        <Link href="/salaries" className="text-brass2 transition hover:text-brass">{t.seeAll} →</Link>
+        <Link href="/salaries" className="text-brassInk transition hover:text-brass">{t.seeAll} →</Link>
         {rankSlug && (
           <Link href={`/jobs/rank/${rankSlug}`} className="text-mist transition hover:text-white">{t.seeRank} →</Link>
         )}
@@ -264,7 +264,7 @@ function RankAboutBlock({
       </h2>
       <p className="leading-relaxed text-mist">{blurb}</p>
       {rankSlug && (
-        <Link href={`/jobs/rank/${rankSlug}`} className="mt-3 inline-block text-sm font-semibold text-brass2 transition hover:text-brass">
+        <Link href={`/jobs/rank/${rankSlug}`} className="mt-3 inline-block text-sm font-semibold text-brassInk transition hover:text-brass">
           {t.seeRank} →
         </Link>
       )}
@@ -296,7 +296,7 @@ function RelatedGuidesBlock({ guides, lang }: { guides: RelatedGuide[]; lang: st
                 }
               />
               <div className="p-3">
-                {g.tag && <span className="text-[10px] font-bold uppercase tracking-wide text-brass2">{g.tag}</span>}
+                {g.tag && <span className="text-[10px] font-bold uppercase tracking-wide text-brassInk">{g.tag}</span>}
                 <p className="mt-1 text-sm font-semibold leading-snug text-foam transition group-hover:text-white">{title}</p>
               </div>
             </Link>
@@ -580,13 +580,13 @@ export default function VacancyDetailClient({
       <div className="mx-auto max-w-5xl px-5 py-10">
         {/* Breadcrumbs */}
         <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-brass2">{crumb.home}</Link>
+          <Link href="/" className="hover:text-brassInk">{crumb.home}</Link>
           <ChevronRight size={12} />
-          <Link href="/jobs" className="hover:text-brass2">{crumb.jobsCrumb}</Link>
+          <Link href="/jobs" className="hover:text-brassInk">{crumb.jobsCrumb}</Link>
           {rankLanding && (
             <>
               <ChevronRight size={12} />
-              <Link href={`/jobs/rank/${rankLanding.slug}`} className="hover:text-brass2">{rankName(rankLanding, lang)}</Link>
+              <Link href={`/jobs/rank/${rankLanding.slug}`} className="hover:text-brassInk">{rankName(rankLanding, lang)}</Link>
             </>
           )}
           <ChevronRight size={12} />
@@ -609,7 +609,7 @@ export default function VacancyDetailClient({
                       </div>
                     )}
                     {company?.id ? (
-                      <Link href={`/companies/${company.id}`} className="text-sm text-mist hover:text-brass2 transition">
+                      <Link href={`/companies/${company.id}`} className="text-sm text-mist hover:text-brassInk transition">
                         {company.name ?? "Unknown company"}
                       </Link>
                     ) : (
@@ -623,7 +623,7 @@ export default function VacancyDetailClient({
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {vacancy.rank && (
-                      <span className="rounded-full bg-brass/10 border border-brass/20 px-3 py-1 text-xs font-semibold text-brass2">
+                      <span className="rounded-full bg-brass/10 border border-brass/20 px-3 py-1 text-xs font-semibold text-brassInk">
                         {vacancy.rank}
                       </span>
                     )}
@@ -641,7 +641,7 @@ export default function VacancyDetailClient({
                     disabled={savingToggle}
                     title={saved ? "Remove from saved" : "Save vacancy"}
                     className={`rounded-xl border p-2.5 transition ${
-                      saved ? "border-brass/30 bg-brass/10 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+                      saved ? "border-brass/30 bg-brass/10 text-brassInk" : "border-white/10 bg-white/5 text-mist hover:text-white"
                     }`}
                   >
                     {saved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
@@ -652,7 +652,7 @@ export default function VacancyDetailClient({
               <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {salary && (
                   <div className="flex items-center gap-2">
-                    <DollarSign size={15} className="text-brass2 shrink-0" />
+                    <DollarSign size={15} className="text-brassInk shrink-0" />
                     <div>
                       <p className="text-xs text-mist">Salary</p>
                       <p className="text-sm font-semibold text-white">{salary}</p>
@@ -747,7 +747,7 @@ export default function VacancyDetailClient({
                 <h2 className="font-display text-lg font-semibold text-white">Apply for this Position</h2>
                 <Link
                   href="/how-to-apply"
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brass2 transition hover:text-brass"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brassInk transition hover:text-brass"
                 >
                   <HelpCircle size={15} /> {(CTX[lang] ?? CTX.en).howToApply}
                 </Link>
@@ -767,7 +767,7 @@ export default function VacancyDetailClient({
                     </NextLink>
                     <NextLink
                       href="/auth/register?role=seafarer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/10"
+                      className="inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/10"
                     >
                       Create account
                     </NextLink>
@@ -799,7 +799,7 @@ export default function VacancyDetailClient({
                     </p>
                   )}
                   {profileGaps && (profileGaps.phone || profileGaps.experience) && (
-                    <p className="mb-3 flex items-center gap-2 text-sm text-brass2">
+                    <p className="mb-3 flex items-center gap-2 text-sm text-brassInk">
                       <Upload size={16} /> Upload your CV (PDF/DOCX) or complete your profile — takes a minute.
                     </p>
                   )}
@@ -853,7 +853,7 @@ export default function VacancyDetailClient({
                   href={company.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-brass2 hover:text-brass transition"
+                  className="flex items-center gap-2 text-sm text-brassInk hover:text-brass transition"
                 >
                   <Globe size={14} className="shrink-0" />
                   Visit website
@@ -863,7 +863,7 @@ export default function VacancyDetailClient({
               {vacancy.contact_phone && (
                 <a
                   href={`tel:${vacancy.contact_phone.replace(/[^\d+]/g, "")}`}
-                  className="mt-2 flex items-center gap-2 text-sm text-brass2 hover:text-brass transition"
+                  className="mt-2 flex items-center gap-2 text-sm text-brassInk hover:text-brass transition"
                 >
                   <Phone size={14} className="shrink-0" />
                   {vacancy.contact_phone}
@@ -905,16 +905,16 @@ export default function VacancyDetailClient({
             {profileGaps && (profileGaps.phone || profileGaps.experience) ? (
               <>
                 <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
-                  <AlertCircle size={16} className="mt-0.5 shrink-0 text-brass2" />
+                  <AlertCircle size={16} className="mt-0.5 shrink-0 text-brassInk" />
                   <div className="text-sm text-foam">
                     <p className="mb-2 font-semibold">Complete your profile to apply</p>
                     <p className="mb-2 text-mist">The crewing agency receives your CV with your application, so it must include your contacts and sea service:</p>
                     <ul className="list-disc pl-5 text-mist">
                       {profileGaps.phone && (
-                        <li>Add your <NextLink href="/seafarer/profile" className="text-brass2 underline hover:text-brass">phone number</NextLink></li>
+                        <li>Add your <NextLink href="/seafarer/profile" className="text-brassInk underline hover:text-brass">phone number</NextLink></li>
                       )}
                       {profileGaps.experience && (
-                        <li>Add at least one <NextLink href="/seafarer/experience" className="text-brass2 underline hover:text-brass">sea service record</NextLink></li>
+                        <li>Add at least one <NextLink href="/seafarer/experience" className="text-brassInk underline hover:text-brass">sea service record</NextLink></li>
                       )}
                     </ul>
                   </div>
@@ -952,7 +952,7 @@ export default function VacancyDetailClient({
                   </NextLink>
                   <Link
                     href="/how-to-apply"
-                    className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-white/5"
+                    className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-brassInk transition hover:bg-white/5"
                   >
                     <HelpCircle size={15} /> {(CTX[lang] ?? CTX.en).howToApply}
                   </Link>
@@ -1014,13 +1014,13 @@ export default function VacancyDetailClient({
           <div className="flex flex-wrap gap-2">
             {rankLanding && (
               <Link href={`/jobs/rank/${rankLanding.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brass2">
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brassInk">
                 {rankName(rankLanding, lang)} <ArrowRight size={13} />
               </Link>
             )}
             {vesselLanding && (
               <Link href={`/jobs/vessel/${vesselLanding.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brass2">
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/40 hover:text-brassInk">
                 {vesselName(vesselLanding, lang)} <ArrowRight size={13} />
               </Link>
             )}

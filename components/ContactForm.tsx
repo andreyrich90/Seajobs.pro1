@@ -64,7 +64,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
         <p className="text-sm text-mist">{t.cf_sent_sub}</p>
         <button
           onClick={() => { setSent(false); setContent(""); setSubject(""); }}
-          className="mt-2 text-xs text-brass2 hover:underline"
+          className="mt-2 text-xs text-brassInk hover:underline"
         >
           {t.cf_send_another}
         </button>
@@ -78,7 +78,7 @@ export default function ContactForm({ userId, userEmail, title, subtitle, compac
         <div className={`${compact ? "mb-4" : "mb-6"}`}>
           {title && (
             <div className="flex items-center gap-2">
-              <MessageCircle size={18} className="text-brass2" />
+              <MessageCircle size={18} className="text-brassInk" />
               <h3 className={`font-display font-semibold text-white ${compact ? "text-base" : "text-xl"}`}>{title}</h3>
             </div>
           )}

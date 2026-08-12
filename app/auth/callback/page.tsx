@@ -225,7 +225,7 @@ export default function AuthCallbackPage() {
               <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
             </div>
             <span className="font-display text-2xl font-bold text-white">
-              SeaJobs<span className="text-brass2">.pro</span>
+              SeaJobs<span className="text-brassInk">.pro</span>
             </span>
           </Link>
         </header>
@@ -267,7 +267,7 @@ export default function AuthCallbackPage() {
                 className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-card p-8 transition hover:border-brass/50 hover:bg-navy2 disabled:opacity-50"
               >
                 <div className="grid h-16 w-16 place-items-center rounded-2xl border border-brass/20 bg-gradient-to-br from-brass/20 to-brass/5">
-                  <Briefcase size={32} className="text-brass2" />
+                  <Briefcase size={32} className="text-brassInk" />
                 </div>
                 <div className="text-center">
                   <h2 className="font-display text-xl font-semibold text-white">Crewing Company</h2>

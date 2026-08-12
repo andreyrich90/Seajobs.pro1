@@ -31,7 +31,7 @@ export default function CookieBanner() {
           We use cookies for authentication,{" "}
           <span className="text-foam">Google Analytics</span> and advertising{" "}
           (<span className="text-foam">Google AdSense</span>) to run and improve the site.{" "}
-          <Link href="/privacy" className="text-brass2 underline underline-offset-2 hover:text-brass transition">
+          <Link href="/privacy" className="text-brassInk underline underline-offset-2 hover:text-brass transition">
             Privacy Policy
           </Link>
         </p>

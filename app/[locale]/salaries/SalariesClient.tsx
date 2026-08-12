@@ -166,7 +166,7 @@ export default function SalariesClient({ stats }: { stats: SalaryStats }) {
       <main className="mx-auto w-full max-w-4xl flex-1 px-5 py-10">
         <div className="mb-6 flex items-start gap-3">
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brass/15">
-            <TrendingUp size={22} className="text-brass2" />
+            <TrendingUp size={22} className="text-brassInk" />
           </div>
           <div>
             <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -195,7 +195,7 @@ export default function SalariesClient({ stats }: { stats: SalaryStats }) {
                 const Icon = FACTOR_ICONS[i] ?? Award;
                 return (
                   <div key={f.t} className="flex gap-3.5 rounded-2xl border border-white/10 bg-card p-5">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15 text-brass2">
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15 text-brassInk">
                       <Icon size={19} />
                     </span>
                     <span>

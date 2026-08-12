@@ -370,7 +370,7 @@ export default function ImportVacancyPage() {
     <div className="p-6 max-w-3xl">
       <div className="mb-6 flex items-center gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-xl bg-brass/10 border border-brass/20">
-          <Upload size={20} className="text-brass2" />
+          <Upload size={20} className="text-brassInk" />
         </div>
         <div>
           <h1 className="font-display text-xl font-semibold text-white">Import Vacancy</h1>
@@ -390,7 +390,7 @@ export default function ImportVacancyPage() {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={parsing}
-          className="ml-auto flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+          className="ml-auto flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brassInk transition hover:bg-brass/20 disabled:opacity-50"
         >
           {parsing ? <RefreshCw size={15} className="animate-spin" /> : <ImagePlus size={15} />}
           {parsing
@@ -429,7 +429,7 @@ export default function ImportVacancyPage() {
             type="button"
             onClick={probeTelegram}
             disabled={tgProbing || !tgHandle.trim()}
-            className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brassInk transition hover:bg-brass/20 disabled:opacity-50"
           >
             {tgProbing ? <RefreshCw size={15} className="animate-spin" /> : <ExternalLink size={15} />}
             {tgProbing ? "Probing..." : "Probe channel"}
@@ -472,7 +472,7 @@ export default function ImportVacancyPage() {
               type="button"
               onClick={handlePasteText}
               disabled={parsing || !pasteText.trim()}
-              className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2 text-sm font-semibold text-brassInk transition hover:bg-brass/20 disabled:opacity-50"
             >
               {parsing ? <RefreshCw size={15} className="animate-spin" /> : <FileText size={15} />}
               {parsing ? "Reading text..." : "Parse text"}
@@ -492,13 +492,13 @@ export default function ImportVacancyPage() {
       {/* Multi-vacancy screenshot/text queue */}
       {queue.length > 0 && (
         <div className="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-brass/30 bg-brass/10 p-4">
-          <p className="text-sm font-semibold text-brass2">
+          <p className="text-sm font-semibold text-brassInk">
             {queue.length} more {queue.length === 1 ? "vacancy" : "vacancies"} from this screenshot in the queue — save the current one and the next loads automatically.
           </p>
           <button
             type="button"
             onClick={loadNextFromQueue}
-            className="ml-auto rounded-lg border border-brass/40 px-3 py-1.5 text-xs font-bold text-brass2 transition hover:bg-brass/20"
+            className="ml-auto rounded-lg border border-brass/40 px-3 py-1.5 text-xs font-bold text-brassInk transition hover:bg-brass/20"
           >
             Skip current — load next
           </button>
@@ -518,7 +518,7 @@ export default function ImportVacancyPage() {
                   href={`/jobs/${v.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-brass2 hover:underline text-xs flex items-center gap-1"
+                  className="text-brassInk hover:underline text-xs flex items-center gap-1"
                 >
                   View <ExternalLink size={11} />
                 </a>
@@ -543,7 +543,7 @@ export default function ImportVacancyPage() {
         {/* Company */}
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 size={16} className="text-brass2" />
+            <Building2 size={16} className="text-brassInk" />
             <span className="text-sm font-semibold text-white">Company</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -565,7 +565,7 @@ export default function ImportVacancyPage() {
         {/* Vacancy */}
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Briefcase size={16} className="text-brass2" />
+            <Briefcase size={16} className="text-brassInk" />
             <span className="text-sm font-semibold text-white">Vacancy</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -601,7 +601,7 @@ export default function ImportVacancyPage() {
         {/* Salary & Terms */}
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <DollarSign size={16} className="text-brass2" />
+            <DollarSign size={16} className="text-brassInk" />
             <span className="text-sm font-semibold text-white">Salary & Terms</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-5">
@@ -640,7 +640,7 @@ export default function ImportVacancyPage() {
         {/* Description */}
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <FileText size={16} className="text-brass2" />
+            <FileText size={16} className="text-brassInk" />
             <span className="text-sm font-semibold text-white">Description</span>
           </div>
           <textarea
@@ -655,7 +655,7 @@ export default function ImportVacancyPage() {
         {/* Source */}
         <div className="rounded-2xl border border-white/10 bg-card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Link2 size={16} className="text-brass2" />
+            <Link2 size={16} className="text-brassInk" />
             <span className="text-sm font-semibold text-white">Source</span>
           </div>
           <label className={labelClass}>Original URL</label>

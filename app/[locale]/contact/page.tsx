@@ -75,8 +75,8 @@ export default function ContactPage() {
           <p className="mt-4 text-mist leading-relaxed">{c.intro}</p>
 
           <div className="mt-6 flex items-center gap-2 text-mist">
-            <Mail size={18} className="text-brass2" />
-            <a href="mailto:crewing@seajobs.pro" className="text-brass2 transition hover:text-brass">
+            <Mail size={18} className="text-brassInk" />
+            <a href="mailto:crewing@seajobs.pro" className="text-brassInk transition hover:text-brass">
               crewing@seajobs.pro
             </a>
           </div>

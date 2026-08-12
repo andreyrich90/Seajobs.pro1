@@ -37,7 +37,7 @@ type StatusKey = "pending" | "viewed" | "accepted" | "rejected";
 
 const STATUS_STYLES: Record<StatusKey, string> = {
   pending: "text-mist border-mist/30 bg-mist/10",
-  viewed: "text-brass2 border-brass2/30 bg-brass2/10",
+  viewed: "text-brassInk border-brass2/30 bg-brass2/10",
   accepted: "text-teal border-teal/30 bg-teal/10",
   rejected: "text-coral border-coral/30 bg-coral/10",
 };
@@ -160,7 +160,7 @@ export default function ApplicationsPage() {
                       {v ? (
                         <Link
                           href={`/jobs/${v.id}`}
-                          className="mt-0.5 block font-semibold text-white hover:text-brass2 transition"
+                          className="mt-0.5 block font-semibold text-white hover:text-brassInk transition"
                         >
                           {v.title}
                         </Link>
@@ -170,7 +170,7 @@ export default function ApplicationsPage() {
 
                       <div className="mt-2 flex flex-wrap gap-2">
                         {v?.rank && (
-                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                             {v.rank}
                           </span>
                         )}

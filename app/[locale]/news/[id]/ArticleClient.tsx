@@ -19,9 +19,9 @@ import PopularJobLinks from "@/components/PopularJobLinks";
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
   Market:     "bg-coral/10 border-coral/20 text-coral",
-  Industry:   "bg-brass/10 border-brass/20 text-brass2",
+  Industry:   "bg-brass/10 border-brass/20 text-brassInk",
   Safety:     "bg-teal/10 border-teal/20 text-teal",
-  Technology: "bg-brass/10 border-brass/20 text-brass2",
+  Technology: "bg-brass/10 border-brass/20 text-brassInk",
 };
 
 type Article = {
@@ -240,7 +240,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
       <Header />
       <div className="mx-auto max-w-3xl px-5 py-20 text-center">
         <p className="text-mist">Article not found.</p>
-        <Link href="/news" className="mt-4 inline-flex items-center gap-1.5 text-sm text-brass2 hover:underline">
+        <Link href="/news" className="mt-4 inline-flex items-center gap-1.5 text-sm text-brassInk hover:underline">
           <ChevronLeft size={14} /> Back to news
         </Link>
       </div>
@@ -254,11 +254,11 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
 
         {/* Breadcrumbs */}
         <nav className="mb-8 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-brass2">
+          <Link href="/" className="hover:text-brassInk">
             {({ en: "Home", ru: "Главная", ua: "Головна", pl: "Strona główna", ro: "Acasă" } as Record<string, string>)[lang] ?? "Home"}
           </Link>
           <ChevronRight size={12} />
-          <Link href="/news" className="hover:text-brass2">
+          <Link href="/news" className="hover:text-brassInk">
             {({ en: "News", ru: "Новости", ua: "Новини", pl: "Aktualności", ro: "Știri" } as Record<string, string>)[lang] ?? "News"}
           </Link>
           <ChevronRight size={12} />
@@ -308,7 +308,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
           ))}
           <button
             onClick={copyLink}
-            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
+            className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk"
           >
             {copied ? <Check size={13} className="text-teal" /> : <Copy size={13} />}
             {copied ? t.news_copied : t.news_copy_link}
@@ -320,7 +320,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
         {/* Comments */}
         <div className="mt-10">
           <h2 className="mb-6 flex items-center gap-2 font-display text-lg font-semibold text-white">
-            <MessageCircle size={20} className="text-brass2" />
+            <MessageCircle size={20} className="text-brassInk" />
             {t.news_comments}
             {comments.length > 0 && (
               <span className="text-sm font-normal text-mist">({comments.length})</span>
@@ -356,7 +356,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
               <button
                 type="submit"
                 disabled={submitting || !commentName.trim() || !commentText.trim()}
-                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#0a1f33] to-[#0e2a45] border border-brass/30 px-5 py-2.5 text-sm font-semibold text-brass2 transition hover:border-brass/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#0a1f33] to-[#0e2a45] border border-brass/30 px-5 py-2.5 text-sm font-semibold text-brassInk transition hover:border-brass/60 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={14} />
                 {submitting ? t.news_posting : t.news_post_comment}
@@ -371,7 +371,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
               {comments.map((c) => (
                 <div key={c.id} className="rounded-2xl border border-white/10 bg-card px-5 py-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brass/20 text-xs font-bold text-brass2 uppercase">
+                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brass/20 text-xs font-bold text-brassInk uppercase">
                       {c.author_name.charAt(0)}
                     </div>
                     <div>
@@ -403,7 +403,7 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
                     <span className={`mb-2 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                       <Tag size={10} /> {item.tag}
                     </span>
-                    <p className="text-sm font-semibold text-white group-hover:text-brass2 transition leading-snug">{item.title}</p>
+                    <p className="text-sm font-semibold text-white group-hover:text-brassInk transition leading-snug">{item.title}</p>
                   </div>
                 </Link>
               ))}

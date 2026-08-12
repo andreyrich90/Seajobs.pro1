@@ -35,9 +35,9 @@ export default function GuideArticle({ guide }: { guide: ResolvedGuide }) {
       <div className="mx-auto max-w-3xl px-5 py-10">
         {/* Breadcrumbs */}
         <nav className="mb-8 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-brass2">{ui.home}</Link>
+          <Link href="/" className="hover:text-brassInk">{ui.home}</Link>
           <ChevronRight size={12} />
-          <Link href="/guides" className="hover:text-brass2">{ui.crumb}</Link>
+          <Link href="/guides" className="hover:text-brassInk">{ui.crumb}</Link>
           <ChevronRight size={12} />
           <span className="truncate text-foam max-w-[60vw] sm:max-w-none">{guide.title}</span>
         </nav>
@@ -53,7 +53,7 @@ export default function GuideArticle({ guide }: { guide: ResolvedGuide }) {
         )}
 
         {guide.tag && (
-          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-brass/20 bg-brass/10 px-3 py-1 text-xs font-semibold text-brass2">
+          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-brass/20 bg-brass/10 px-3 py-1 text-xs font-semibold text-brassInk">
             {guide.tag}
           </span>
         )}

@@ -362,7 +362,7 @@ export default function TopicClient({
           <div className="mb-6 flex items-start justify-between gap-4">
             <div className="flex items-center gap-3 flex-wrap">
               {topic.is_pinned && (
-                <span className="flex items-center gap-1.5 rounded-full bg-brass/15 border border-brass/20 px-3 py-1 text-xs font-semibold text-brass2">
+                <span className="flex items-center gap-1.5 rounded-full bg-brass/15 border border-brass/20 px-3 py-1 text-xs font-semibold text-brassInk">
                   <Pin size={12} /> Pinned
                 </span>
               )}
@@ -389,7 +389,7 @@ export default function TopicClient({
 
         {isAdmin && !editingTopic && initialCategories.length > 0 && (
           <div className="mb-6 flex items-center gap-2 rounded-xl border border-brass/20 bg-brass/5 px-4 py-2.5">
-            <FolderInput size={16} className="shrink-0 text-brass2" />
+            <FolderInput size={16} className="shrink-0 text-brassInk" />
             <span className="text-sm font-semibold text-foam">Section:</span>
             <select
               value={topic.category_id ?? ""}

@@ -151,7 +151,7 @@ export default function RegisterPage() {
             <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-2xl font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </span>
         </Link>
         {/* Language switcher — auth screens have no global Header. */}
@@ -206,7 +206,7 @@ export default function RegisterPage() {
                   className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-card p-8 text-left transition hover:border-brass/50 hover:bg-navy2"
                 >
                   <div className="grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-brass/20 to-brass/5 border border-brass/20">
-                    <Briefcase size={32} className="text-brass2" />
+                    <Briefcase size={32} className="text-brassInk" />
                   </div>
                   <div className="text-center">
                     <h2 className="font-display text-xl font-semibold text-white">{t.card_company}</h2>
@@ -240,7 +240,7 @@ export default function RegisterPage() {
 
               <p className="mt-5 text-center text-sm text-mist">
                 {t.have_account}{" "}
-                <Link href="/auth/login" className="font-semibold text-brass2 hover:underline">
+                <Link href="/auth/login" className="font-semibold text-brassInk hover:underline">
                   {t.signin_link}
                 </Link>
               </p>
@@ -281,11 +281,11 @@ export default function RegisterPage() {
                 <div className="mb-8 text-center">
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brass/10 border border-brass/20 px-4 py-1.5">
                     {role === "seafarer" ? (
-                      <AnchorIcon size={14} className="text-brass2" />
+                      <AnchorIcon size={14} className="text-brassInk" />
                     ) : (
-                      <Briefcase size={14} className="text-brass2" />
+                      <Briefcase size={14} className="text-brassInk" />
                     )}
-                    <span className="text-xs font-semibold text-brass2">{role === "seafarer" ? t.tab_seafarer : t.card_company}</span>
+                    <span className="text-xs font-semibold text-brassInk">{role === "seafarer" ? t.tab_seafarer : t.card_company}</span>
                   </div>
                   <h1 className="font-display text-3xl font-semibold text-white">{t.create_account}</h1>
                   <p className="mt-2 text-sm text-mist">{t.fill_details}</p>
@@ -392,7 +392,7 @@ export default function RegisterPage() {
 
                 <p className="mt-6 text-center text-sm text-mist">
                   {t.have_account}{" "}
-                  <Link href="/auth/login" className="font-semibold text-brass2 hover:underline">
+                  <Link href="/auth/login" className="font-semibold text-brassInk hover:underline">
                     {t.signin_link}
                   </Link>
                 </p>

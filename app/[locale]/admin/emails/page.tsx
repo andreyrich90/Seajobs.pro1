@@ -147,7 +147,7 @@ export default function AdminEmailsPage() {
               ))}
             </select>
             {(failedOnly || kind) && (
-              <button onClick={() => { setFailedOnly(false); setKind(""); }} className="text-sm font-semibold text-brass2 hover:text-brass">
+              <button onClick={() => { setFailedOnly(false); setKind(""); }} className="text-sm font-semibold text-brassInk hover:text-brass">
                 Reset
               </button>
             )}

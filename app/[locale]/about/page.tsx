@@ -290,13 +290,13 @@ export default function AboutPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-white/10">
-          <div className="absolute inset-0 bg-[radial-gradient(800px_400px_at_50%_0%,#0e2a45,#0a1f33_60%)]" />
+          <div className="absolute inset-0 hero-surface-center" />
           <div className="relative mx-auto max-w-4xl px-5 py-20 text-center">
             <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-brass to-brass2 shadow-xl">
               <Anchor size={30} className="text-[#061523]" strokeWidth={2.4} />
             </div>
             <h1 className="font-display text-4xl font-semibold text-white md:text-5xl">
-              About SeaJobs<span className="text-brass2">.pro</span>
+              About SeaJobs<span className="text-brassInk">.pro</span>
             </h1>
             <p className="mt-5 max-w-2xl mx-auto text-lg text-mist leading-relaxed">
               {t.about_hero_sub}
@@ -322,14 +322,14 @@ export default function AboutPage() {
             {/* Seafarers */}
             <div className="rounded-2xl border border-white/10 bg-card p-6 md:p-8">
               <h3 className="mb-5 flex items-center gap-2 font-display text-xl font-semibold text-white">
-                <Users size={20} className="text-brass2" /> {ab.forSeafarers}
+                <Users size={20} className="text-brassInk" /> {ab.forSeafarers}
               </h3>
               <ol className="space-y-4">
                 {ab.seafarerSteps.map((s, i) => {
                   const Icon = SEAFARER_ICONS[i] ?? FileText;
                   return (
                     <li key={i} className="flex gap-3.5">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brass/15 text-brass2">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brass/15 text-brassInk">
                         <Icon size={17} />
                       </span>
                       <span>
@@ -377,7 +377,7 @@ export default function AboutPage() {
               return (
                 <div key={f.t} className="rounded-2xl border border-white/10 bg-card p-5">
                   <div className="mb-3 grid h-10 w-10 place-items-center rounded-xl bg-brass/15">
-                    <Icon size={19} className="text-brass2" />
+                    <Icon size={19} className="text-brassInk" />
                   </div>
                   <h3 className="font-semibold text-white">{f.t}</h3>
                   <p className="mt-1 text-sm text-mist leading-relaxed">{f.d}</p>
@@ -414,7 +414,7 @@ export default function AboutPage() {
               return (
                 <div key={c.t} className="rounded-2xl border border-white/10 bg-card p-6 text-center">
                   <div className="mx-auto mb-4 grid h-11 w-11 place-items-center rounded-xl bg-brass/15">
-                    <Icon size={20} className="text-brass2" />
+                    <Icon size={20} className="text-brassInk" />
                   </div>
                   <h3 className="font-semibold text-white">{c.t}</h3>
                   <p className="mt-1.5 text-sm text-mist leading-relaxed">{c.d}</p>
@@ -432,7 +432,7 @@ export default function AboutPage() {
               const Icon = TRUST_ICONS[i] ?? CheckCircle2;
               return (
                 <div key={tp.t} className="flex gap-4 rounded-2xl border border-white/10 bg-card p-5">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15 text-brass2">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15 text-brassInk">
                     <Icon size={19} />
                   </span>
                   <span>
@@ -452,7 +452,7 @@ export default function AboutPage() {
             {values.map((v) => (
               <div key={v.title} className="rounded-2xl border border-white/10 bg-card p-6">
                 <div className="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-brass/15">
-                  <v.icon size={20} className="text-brass2" />
+                  <v.icon size={20} className="text-brassInk" />
                 </div>
                 <h3 className="font-semibold text-white mb-2">{v.title}</h3>
                 <p className="text-sm text-mist leading-relaxed">{v.text}</p>

@@ -116,8 +116,8 @@ export default function Header() {
             {hdr.tagline}
           </span>
           <div className="ml-auto flex items-center gap-4">
-            <Link href="/for-companies" className="font-semibold transition hover:text-brass2">{t.footer_for_companies}</Link>
-            <Link href="/about" className="font-semibold transition hover:text-brass2">{t.footer_about}</Link>
+            <Link href="/for-companies" className="font-semibold transition hover:text-brassInk">{t.footer_for_companies}</Link>
+            <Link href="/about" className="font-semibold transition hover:text-brassInk">{t.footer_about}</Link>
             <span className="h-3.5 w-px bg-white/15" />
             {/* Language */}
             <div className="relative">
@@ -125,7 +125,7 @@ export default function Header() {
                 onClick={() => { setLangOpen((o) => !o); }}
                 aria-label="Change language"
                 aria-expanded={langOpen}
-                className="flex items-center gap-1.5 font-semibold text-foam transition hover:text-brass2"
+                className="flex items-center gap-1.5 font-semibold text-foam transition hover:text-brassInk"
               >
                 <Globe size={14} /> {current.label} <ChevronDown size={13} />
               </button>
@@ -156,7 +156,7 @@ export default function Header() {
               <Anchor size={20} className="text-[#061523]" strokeWidth={2.4} />
             </div>
             <span className="font-display text-xl font-bold text-white md:text-2xl">
-              SeaJobs<span className="text-brass2">.pro</span>
+              SeaJobs<span className="text-brassInk">.pro</span>
             </span>
           </Link>
 
@@ -172,7 +172,7 @@ export default function Header() {
                 href="/jobs"
                 aria-expanded={fleetOpen}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                  fleetOpen ? "bg-white/5 text-brass2" : "text-foam hover:bg-white/5 hover:text-brass2"
+                  fleetOpen ? "bg-white/5 text-brassInk" : "text-foam hover:bg-white/5 hover:text-brassInk"
                 }`}
               >
                 <Briefcase size={16} className="text-mist" /> {t.nav_jobs}
@@ -192,7 +192,7 @@ export default function Header() {
                             href={{ pathname: "/jobs", query: { fleet: f.key } }}
                             className="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-brass/10"
                           >
-                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brass/10 text-brass2">
+                            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-brass/10 text-brassInk">
                               <Icon size={18} />
                             </span>
                             <span className="min-w-0">
@@ -204,7 +204,7 @@ export default function Header() {
                       })}
                     </div>
                     <div className="mt-1 border-t border-white/10 pt-2">
-                      <Link href="/jobs" className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-brass2 transition hover:bg-white/5">
+                      <Link href="/jobs" className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-brassInk transition hover:bg-white/5">
                         {hdr.allJobs} <ChevronRight size={16} />
                       </Link>
                     </div>
@@ -215,7 +215,7 @@ export default function Header() {
 
             {nav.map((n) => (
               <Link key={n.href} href={n.href}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                 <n.icon size={16} className="text-mist" /> {n.label}
               </Link>
             ))}
@@ -257,7 +257,7 @@ export default function Header() {
               <div className="hidden lg:block">
                 <Link
                   href="/admin/dashboard"
-                  className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+                  className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brassInk transition hover:bg-brass/20"
                 >
                   <ShieldCheck size={15} />
                   <span className="hidden lg:inline">Admin</span>
@@ -288,26 +288,26 @@ export default function Header() {
           <div className="border-t border-white/10 px-4 py-4 lg:hidden">
             <nav className="flex flex-col gap-1">
               <Link href="/jobs"
-                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                 <Briefcase size={18} /> {t.nav_jobs}
               </Link>
               {/* Fleet quick links */}
               <div className="flex flex-wrap gap-1.5 px-3 pb-1">
                 {FLEETS.map((f) => (
                   <Link key={f.key} href={{ pathname: "/jobs", query: { fleet: f.key } }}
-                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/50 hover:text-brass2">
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-mist transition hover:border-brass/50 hover:text-brassInk">
                     {fleetLabel(f.key, lang)}
                   </Link>
                 ))}
               </div>
               {nav.map((n) => (
                 <Link key={n.href} href={n.href}
-                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                   <n.icon size={18} /> {n.label}
                 </Link>
               ))}
               <Link href="/for-companies"
-                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2">
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                 <Briefcase size={18} /> {t.footer_for_companies}
               </Link>
             </nav>
@@ -316,7 +316,7 @@ export default function Header() {
               {isAdmin && (
                 <Link
                   href="/admin/dashboard"
-                  className="flex items-center gap-3 rounded-xl border border-brass/30 bg-brass/10 px-3 py-3 text-sm font-bold text-brass2 transition hover:bg-brass/20"
+                  className="flex items-center gap-3 rounded-xl border border-brass/30 bg-brass/10 px-3 py-3 text-sm font-bold text-brassInk transition hover:bg-brass/20"
                 >
                   <ShieldCheck size={18} /> Admin Panel
                 </Link>
@@ -325,7 +325,7 @@ export default function Header() {
                 <>
                   <Link
                     href={dashboardHref.replace("/dashboard", "/messages")}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brass2"
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk"
                   >
                     <MessageSquare size={18} /> {t.cab_messages}
                   </Link>
@@ -346,7 +346,7 @@ export default function Header() {
                   </NextLink>
                   <NextLink
                     href="/auth/register"
-                    className="flex items-center gap-2 rounded-lg border border-brass/40 px-4 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/10"
+                    className="flex items-center gap-2 rounded-lg border border-brass/40 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/10"
                   >
                     <UserPlus size={16} /> {t.register}
                   </NextLink>

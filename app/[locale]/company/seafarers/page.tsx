@@ -169,7 +169,7 @@ export default function CompanySeafarersPage() {
                 }`}
               >
                 {isBoosted(s.boost_until) && (
-                  <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
+                  <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brassInk">
                     <Sparkles size={11} /> Recommended
                   </div>
                 )}
@@ -177,14 +177,14 @@ export default function CompanySeafarersPage() {
                   {s.photo_url ? (
                     <Image src={s.photo_url} alt={name} width={48} height={48} className="h-12 w-12 rounded-xl object-cover shrink-0" />
                   ) : (
-                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-brass/20 font-bold text-brass2 shrink-0">
+                    <div className="grid h-12 w-12 place-items-center rounded-xl bg-brass/20 font-bold text-brassInk shrink-0">
                       {initials}
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white group-hover:text-brass2 transition truncate">{name}</p>
+                    <p className="font-semibold text-white group-hover:text-brassInk transition truncate">{name}</p>
                     {s.rank && (
-                      <span className="mt-1 inline-block rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                      <span className="mt-1 inline-block rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                         {s.rank}
                       </span>
                     )}
