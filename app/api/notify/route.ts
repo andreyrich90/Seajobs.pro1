@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
 import { dispatchJobAlerts } from "@/lib/jobAlerts";
+import { postVacancyToChannel } from "@/lib/telegramFeed";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -275,7 +276,9 @@ ${cv.html}
       }
 
       const result = await dispatchJobAlerts(admin, vacancyId);
-      return NextResponse.json({ ok: true, ...result });
+      // …and mirror it to the public channel, same as an imported posting.
+      const channel = await postVacancyToChannel(admin, vacancyId);
+      return NextResponse.json({ ok: true, ...result, channel });
     }
 
     // ── A chat message was sent → notify the other participant ───────────────
