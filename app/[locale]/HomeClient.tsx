@@ -156,7 +156,7 @@ export default function HomeClient({
       <section className="relative overflow-x-clip">
         <div className="hero-surface absolute inset-0" />
         <div className="absolute -right-32 top-8 hidden h-96 w-96 rounded-full bg-brass/10 blur-3xl lg:block" />
-        <div className="relative mx-auto grid min-w-0 max-w-7xl items-center gap-12 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative mx-auto grid min-w-0 max-w-7xl items-center gap-10 px-5 pb-10 pt-12 md:gap-12 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
           {/* Left column — copy + search */}
           <div className="min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full border border-brass bg-brass/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brassInk">
@@ -286,7 +286,7 @@ export default function HomeClient({
       </section>
 
       {/* LATEST JOBS */}
-      <section ref={jobsRef} className="mx-auto max-w-7xl px-5 py-12 scroll-mt-20">
+      <section ref={jobsRef} className="mx-auto max-w-7xl px-5 py-8 md:py-12 scroll-mt-20">
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
             {t.jobs_latest}
@@ -370,7 +370,7 @@ export default function HomeClient({
 
       {/* LATEST NEWS */}
       {latestNews.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 py-12">
+        <section className="mx-auto max-w-7xl px-5 py-8 md:py-12">
           <div className="flex items-end justify-between gap-4">
             <h2 className="font-display text-3xl font-semibold tracking-tight text-white">{t.nav_news}</h2>
             <Link
@@ -419,7 +419,7 @@ export default function HomeClient({
       <FaqSection items={FAQ_SEAFARERS} />
 
       {/* Contact / Suggestions */}
-      <section className="mx-auto max-w-7xl px-5 py-12">
+      <section className="mx-auto max-w-7xl px-5 py-8 md:py-12">
         <div className="rounded-2xl border border-white/10 bg-card p-8 sm:p-10">
           <div className="mx-auto max-w-xl">
             <ContactForm
