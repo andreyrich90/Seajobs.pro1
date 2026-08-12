@@ -184,17 +184,21 @@ export default function VacancyCard({
         </div>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-white/10 pt-2.5">
+      {/* Phone: money left, terms right — the row is narrow, so splitting it
+          uses the width. Desktop: the row is wide and a lone figure on the far
+          left reads as detached, so the whole group sits right with the money
+          last, at the edge where the eye finishes. */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 border-t border-white/10 pt-2.5 md:justify-end md:gap-x-6">
         {money ? (
-          <p className="font-display text-[17px] font-bold leading-tight text-white">
+          <p className="font-display text-[17px] font-bold leading-tight text-white md:order-2">
             {money}{" "}
             <span className="text-[11.5px] font-semibold text-mist">{cur} {perUnit}</span>
           </p>
         ) : (
-          <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>
+          <p className="text-xs font-semibold text-mist md:order-2">{ui.noSalary}</p>
         )}
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-mist">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-mist md:order-1">
           {duration && (
             <span className="inline-flex items-center gap-1.5" title={ui.contract}>
               <Clock size={12} className="shrink-0" /> {duration}
