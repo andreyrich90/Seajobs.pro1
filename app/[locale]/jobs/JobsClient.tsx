@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { Search, ShieldCheck, Building2, ArrowRight, Bookmark, BookmarkCheck, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Search, Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import VacancyCard from "@/components/VacancyCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
 import { searchMatches } from "@/lib/searchSynonyms";
-import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
 import { vesselFilterMatches } from "@/lib/vesselFilter";
 import VesselFilter from "@/components/VesselFilter";
@@ -38,22 +37,8 @@ export type VacancyWithCompany = {
   } | null;
 };
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
 
-function isFeatured(featuredUntil: string | null): boolean {
-  return !!featuredUntil && new Date(featuredUntil) > new Date();
-}
 
-function formatSalary(v: VacancyWithCompany, fromLabel: string, upToLabel: string, perDayLabel: string): string {
-  if (!v.salary_from && !v.salary_to) return "";
-  const per = v.salary_period === "day" ? perDayLabel : "";
-  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
-  if (v.salary_from) return `${fromLabel} ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
-  return `${upToLabel} ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
-}
 
 export default function JobsClient({ initialVacancies }: { initialVacancies: VacancyWithCompany[] }) {
   const searchParams = useSearchParams();
@@ -97,9 +82,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     loadSaved();
   }, []);
 
-  async function toggleSave(e: React.MouseEvent, vacancyId: string) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function toggleSave(vacancyId: string) {
     if (!userId) return;
 
     if (savedIds.has(vacancyId)) {
@@ -220,103 +203,15 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
           </div>
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
-            {pageItems.map((v) => {
-              const salary = formatSalary(v, t.jobs_from, t.jobs_up_to, t.jobs_per_day);
-              const featured = isFeatured(v.featured_until);
-              return (
-                <Link
-                  key={v.id}
-                  href={`/jobs/${slugId(v.title, v.id)}`}
-                  className={`group block rounded-2xl border bg-card p-5 transition hover:border-white/20 ${
-                    featured ? "border-brass/40" : "border-white/10"
-                  }`}
-                >
-                  {featured && (
-                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brassInk">
-                      <Sparkles size={11} /> {t.jobs_featured}
-                    </div>
-                  )}
-                  <div className="flex items-start gap-4">
-                    {/* Company logo */}
-                    {v.companies?.logo_url && (
-                      <div className="shrink-0">
-                        <Image
-                          src={v.companies.logo_url}
-                          alt={v.companies.name ?? ""}
-                          width={48}
-                          height={48}
-                          className="h-12 w-12 rounded-xl object-cover"
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-xs text-mist">
-                              {v.companies?.name ?? t.jobs_unknown_company}
-                            </p>
-                            {v.companies?.is_verified && (
-                              <ShieldCheck size={13} className="text-teal" />
-                            )}
-                            {v.companies?.location && (
-                              <span className="text-xs text-mist">· {v.companies.location}</span>
-                            )}
-                          </div>
-                          <h3 className="mt-0.5 font-semibold text-white group-hover:text-brassInk transition line-clamp-2 break-words">
-                            {v.title}
-                          </h3>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {v.rank && (
-                              <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
-                                {v.rank}
-                              </span>
-                            )}
-                            {v.vessel_type && (
-                              <span className="rounded-full bg-teal/10 border border-teal/20 px-2.5 py-0.5 text-xs font-semibold text-teal">
-                                {v.vessel_type}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex shrink-0 items-start gap-2">
-                          <div className="text-right">
-                            {salary && (
-                              <p className="whitespace-nowrap text-sm font-bold text-white">{salary}</p>
-                            )}
-                          </div>
-                          {userId && (
-                            <button
-                              onClick={(e) => toggleSave(e, v.id)}
-                              className="rounded-lg p-1.5 text-mist transition hover:bg-white/10 hover:text-brassInk"
-                              aria-label={savedIds.has(v.id) ? "Unsave job" : "Save job"}
-                            >
-                              {savedIds.has(v.id) ? (
-                                <BookmarkCheck size={18} className="text-brassInk" />
-                              ) : (
-                                <Bookmark size={18} />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-mist">
-                          {v.contract_duration && <span>{v.contract_duration}</span>}
-                          {v.joining_date && <span>{t.jobs_joining}: {formatDate(v.joining_date)}</span>}
-                          <span>{t.jobs_posted}: {formatDate(v.created_at)}</span>
-                        </div>
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brassInk group-hover:gap-2.5 transition-all">
-                          {t.jobs_view_apply} <ArrowRight size={13} />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+            {pageItems.map((v) => (
+              <VacancyCard
+                key={v.id}
+                vacancy={v}
+                lang={lang}
+                saved={savedIds.has(v.id)}
+                onToggleSave={userId ? (id) => toggleSave(id) : undefined}
+              />
+            ))}
 
             {/* Pagination */}
             {totalPages > 1 && (
