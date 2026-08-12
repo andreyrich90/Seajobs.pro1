@@ -7,7 +7,6 @@ import { Search, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import VacancyCard from "@/components/VacancyCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { supabase } from "@/lib/supabase/client";
 import { searchMatches } from "@/lib/searchSynonyms";
 import { FLEETS, fleetLabel, fleetMatches } from "@/lib/fleets";
 import { vesselFilterMatches } from "@/lib/vesselFilter";
@@ -55,8 +54,6 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     (searchParams.get("vessel") ?? "").split(",").map((s) => s.trim()).filter(Boolean)
   );
   const [fleet, setFleet] = useState(searchParams.get("fleet") ?? "");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(() => {
     const p = parseInt(searchParams.get("page") ?? "1", 10);
     return Number.isFinite(p) && p > 0 ? p : 1;
@@ -64,39 +61,6 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   const PAGE_SIZE = 30;
   const resultsRef = useRef<HTMLDivElement>(null);
   const firstRun = useRef(true);
-
-  useEffect(() => {
-    // Saved jobs are user-specific — load them on the client.
-    async function loadSaved() {
-      const { data: { session } } = await supabase.auth.getSession();
-      const uid = session?.user?.id ?? null;
-      setUserId(uid);
-      if (!uid) return;
-
-      const { data } = await supabase
-        .from("saved_vacancies")
-        .select("vacancy_id")
-        .eq("seafarer_id", uid);
-      setSavedIds(new Set((data ?? []).map((r) => r.vacancy_id as string)));
-    }
-    loadSaved();
-  }, []);
-
-  async function toggleSave(vacancyId: string) {
-    if (!userId) return;
-
-    if (savedIds.has(vacancyId)) {
-      await supabase.from("saved_vacancies").delete().eq("vacancy_id", vacancyId).eq("seafarer_id", userId);
-      setSavedIds((prev) => {
-        const next = new Set(prev);
-        next.delete(vacancyId);
-        return next;
-      });
-    } else {
-      await supabase.from("saved_vacancies").insert({ vacancy_id: vacancyId, seafarer_id: userId });
-      setSavedIds((prev) => new Set(prev).add(vacancyId));
-    }
-  }
 
   const filtered = vacancies.filter((v) => {
     // Bilingual search: "капитан" matches "Master" and vice-versa.
@@ -204,13 +168,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
             {pageItems.map((v) => (
-              <VacancyCard
-                key={v.id}
-                vacancy={v}
-                lang={lang}
-                saved={savedIds.has(v.id)}
-                onToggleSave={userId ? (id) => toggleSave(id) : undefined}
-              />
+              <VacancyCard key={v.id} vacancy={v} lang={lang} />
             ))}
 
             {/* Pagination */}

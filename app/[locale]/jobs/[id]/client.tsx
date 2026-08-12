@@ -63,13 +63,16 @@ function formatDate(dateStr: string | null): string {
   return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function formatSalary(v: VacancyDetail): string {
+// The listing card shows only the figure and the currency; this page is where
+// the period is spelled out, in the reader's language.
+function formatSalary(v: VacancyDetail, lang: string): string {
   if (!v.salary_from && !v.salary_to) return "";
-  const per = v.salary_period === "day" ? "/day" : "";
+  const t = CTX[lang] ?? CTX.en;
+  const per = ` ${v.salary_period === "day" ? t.salaryPerDay : t.salaryPerMonth}`;
   if (v.salary_from && v.salary_to)
     return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from) return `${t.salaryFrom} ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
+  return `${t.salaryUpTo} ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
 }
 
 function readAsDataURL(file: File): Promise<string> {
@@ -92,6 +95,10 @@ const CTX: Record<string, Record<string, string>> = {
     rangeCaption: "Range across live vacancies on SeaJobs.pro",
     rangeCaptionRank: "Range across live vacancies on SeaJobs.pro — all fleets",
     perMonth: "/mo",
+    salaryPerMonth: "per month",
+    salaryPerDay: "per day",
+    salaryFrom: "from",
+    salaryUpTo: "up to",
     thisOffer: "This offer",
     below: "below the range we see",
     low: "at the lower end of the range",
@@ -110,6 +117,10 @@ const CTX: Record<string, Record<string, string>> = {
     rangeCaption: "Диапазон по актуальным вакансиям портала",
     rangeCaptionRank: "Диапазон по актуальным вакансиям портала — все типы судов",
     perMonth: "/мес",
+    salaryPerMonth: "в месяц",
+    salaryPerDay: "в сутки",
+    salaryFrom: "от",
+    salaryUpTo: "до",
     thisOffer: "Это предложение",
     below: "ниже наблюдаемой вилки",
     low: "в нижней части вилки",
@@ -128,6 +139,10 @@ const CTX: Record<string, Record<string, string>> = {
     rangeCaption: "Діапазон за актуальними вакансіями порталу",
     rangeCaptionRank: "Діапазон за актуальними вакансіями порталу — усі типи суден",
     perMonth: "/міс",
+    salaryPerMonth: "на місяць",
+    salaryPerDay: "на добу",
+    salaryFrom: "від",
+    salaryUpTo: "до",
     thisOffer: "Ця пропозиція",
     below: "нижче за спостережувану вилку",
     low: "у нижній частині вилки",
@@ -146,6 +161,10 @@ const CTX: Record<string, Record<string, string>> = {
     rangeCaption: "Przedział wg aktualnych ofert w serwisie",
     rangeCaptionRank: "Przedział wg aktualnych ofert w serwisie — wszystkie typy statków",
     perMonth: "/mies",
+    salaryPerMonth: "miesięcznie",
+    salaryPerDay: "dziennie",
+    salaryFrom: "od",
+    salaryUpTo: "do",
     thisOffer: "Ta oferta",
     below: "poniżej obserwowanego przedziału",
     low: "w dolnej części przedziału",
@@ -164,6 +183,10 @@ const CTX: Record<string, Record<string, string>> = {
     rangeCaption: "Interval din anunțurile active de pe portal",
     rangeCaptionRank: "Interval din anunțurile active de pe portal — toate tipurile de nave",
     perMonth: "/lună",
+    salaryPerMonth: "pe lună",
+    salaryPerDay: "pe zi",
+    salaryFrom: "de la",
+    salaryUpTo: "până la",
     thisOffer: "Această ofertă",
     below: "sub intervalul observat",
     low: "în partea de jos a intervalului",
@@ -565,7 +588,7 @@ export default function VacancyDetailClient({
     setSavingToggle(false);
   }
 
-  const salary = formatSalary(vacancy);
+  const salary = formatSalary(vacancy, lang);
   const company = vacancy.companies;
 
   const crumb = RANK_COPY[lang] ?? RANK_COPY.en;
