@@ -179,13 +179,10 @@ export default function VacancyCard({
           </h3>
         </div>
 
-        {/* Desktop: the money block sits level with the title instead of at the
-            bottom of the card, with the terms under it. Phones keep it in a
-            row of its own below — a narrow card has no room beside the title. */}
-        <div className="hidden shrink-0 flex-col items-end gap-1 md:flex">
-          {moneyEl}
-          {termsEl}
-        </div>
+        {/* Desktop: the money sits level with the job title instead of at the
+            bottom of the card. Phones keep it in a row of its own below — a
+            narrow card has no room beside the title. */}
+        <div className="hidden shrink-0 md:block">{moneyEl}</div>
 
         {onToggleSave && (
           <button
@@ -199,8 +196,14 @@ export default function VacancyCard({
         )}
       </div>
 
-      {(v.rank || v.vessel_type) && (
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+      {/* Terms ride the right end of the pill row on desktop: that half was
+          empty, and it puts them on the same line as rank and vessel. */}
+      <div
+        className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 ${
+          v.rank || v.vessel_type ? "mt-2.5" : "md:mt-2.5"
+        }`}
+      >
+        <div className="flex flex-wrap items-center gap-1.5">
           {v.rank && (
             <span className="inline-flex items-center gap-1 rounded-full border border-brass/20 bg-brass/10 px-2.5 py-0.5 text-[11.5px] font-semibold text-brassInk">
               <User size={11} /> {v.rank}
@@ -212,7 +215,8 @@ export default function VacancyCard({
             </span>
           )}
         </div>
-      )}
+        <div className="hidden md:block">{termsEl}</div>
+      </div>
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 md:hidden">
         {moneyEl}
