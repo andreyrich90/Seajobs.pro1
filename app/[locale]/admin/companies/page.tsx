@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import {
   Building2, Search, ChevronDown, ChevronRight, ShieldCheck, MapPin, Globe,
-  ExternalLink, Download, Anchor,
+  ExternalLink, Download, Anchor, Mail,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { slugId } from "@/lib/slug";
@@ -19,6 +19,7 @@ import { slugId } from "@/lib/slug";
 type VacRow = {
   id: string;
   company_id: string;
+  contact_email: string | null;
   title: string;
   rank: string | null;
   vessel_type: string | null;
@@ -33,6 +34,7 @@ type CompanyRow = {
   name: string | null;
   location: string | null;
   website: string | null;
+  emails: string[] | null;
   is_verified: boolean | null;
 };
 
@@ -41,6 +43,9 @@ type Row = CompanyRow & {
   active: number;
   total: number;
   vacancies: VacRow[];
+  /** Every address we hold: the company profile's, plus the crewing e-mail
+      carried by its vacancies (that is where imported agencies keep theirs). */
+  contacts: string[];
 };
 
 const PAGE = 1000;
@@ -69,8 +74,9 @@ export default function AdminCompaniesPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "empty" | "registered">("active");
+  const [filter, setFilter] = useState<"all" | "active" | "empty" | "registered" | "leads">("active");
   const [open, setOpen] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -78,12 +84,12 @@ export default function AdminCompaniesPage() {
       // column subset needs a cast — same pattern the other admin pages use.
       const [companies, vacancies, profiles] = await Promise.all([
         pageThrough<CompanyRow>((a, b) =>
-          supabase.from("companies").select("id, name, location, website, is_verified").range(a, b) as unknown as Page<CompanyRow>
+          supabase.from("companies").select("id, name, location, website, emails, is_verified").range(a, b) as unknown as Page<CompanyRow>
         ),
         pageThrough<VacRow>((a, b) =>
           supabase
             .from("vacancies")
-            .select("id, company_id, title, rank, vessel_type, is_active, is_imported, joining_date, created_at")
+            .select("id, company_id, contact_email, title, rank, vessel_type, is_active, is_imported, joining_date, created_at")
             .range(a, b) as unknown as Page<VacRow>
         ),
         pageThrough<{ id: string; role: string | null }>((a, b) =>
@@ -106,12 +112,20 @@ export default function AdminCompaniesPage() {
           if (a.is_active !== b.is_active) return a.is_active ? -1 : 1;
           return b.created_at.localeCompare(a.created_at);
         });
+        const contacts = Array.from(
+          new Set(
+            [...(c.emails ?? []), ...list.map((v) => v.contact_email)]
+              .map((e) => (e ?? "").trim().toLowerCase())
+              .filter(Boolean)
+          )
+        );
         return {
           ...c,
           registered: registered.has(c.id),
           active: list.filter((v) => v.is_active).length,
           total: list.length,
           vacancies: list,
+          contacts,
         };
       });
 
@@ -136,7 +150,14 @@ export default function AdminCompaniesPage() {
       if (filter === "active" && r.active === 0) return false;
       if (filter === "empty" && r.active > 0) return false;
       if (filter === "registered" && !r.registered) return false;
-      if (q && !(r.name ?? "").toLowerCase().includes(q) && !(r.location ?? "").toLowerCase().includes(q)) return false;
+      // Outreach targets: on the board, nobody can log in, and we hold an address.
+      if (filter === "leads" && (r.registered || r.contacts.length === 0 || r.total === 0)) return false;
+      if (
+        q &&
+        !(r.name ?? "").toLowerCase().includes(q) &&
+        !(r.location ?? "").toLowerCase().includes(q) &&
+        !r.contacts.some((e) => e.includes(q))
+      ) return false;
       return true;
     });
   }, [rows, query, filter]);
@@ -160,9 +181,9 @@ export default function AdminCompaniesPage() {
   }
 
   function exportCsv() {
-    const head = ["Company", "Location", "Registered account", "Active vacancies", "Total vacancies"];
+    const head = ["Company", "E-mail", "Location", "Registered account", "Active vacancies", "Total vacancies"];
     const lines = filtered.map((r) =>
-      [r.name ?? "", r.location ?? "", r.registered ? "yes" : "no", r.active, r.total]
+      [r.name ?? "", r.contacts.join("; "), r.location ?? "", r.registered ? "yes" : "no", r.active, r.total]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(",")
     );
@@ -173,6 +194,22 @@ export default function AdminCompaniesPage() {
     a.download = `companies-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  const mailList = useMemo(
+    () => Array.from(new Set(filtered.flatMap((r) => r.contacts))).sort(),
+    [filtered]
+  );
+
+  async function copyEmails() {
+    const text = mailList.join(", ");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt("Copy the addresses:", text);
+    }
   }
 
   return (
@@ -202,6 +239,7 @@ export default function AdminCompaniesPage() {
           ["all", "All"],
           ["empty", "No active"],
           ["registered", "Registered"],
+          ["leads", "No account · has e-mail"],
         ] as const).map(([f, label]) => (
           <button
             key={f}
@@ -216,9 +254,16 @@ export default function AdminCompaniesPage() {
           </button>
         ))}
         <button
+          onClick={copyEmails}
+          disabled={loading || mailList.length === 0}
+          className="ml-auto inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+        >
+          <Mail size={15} /> {copied ? "Copied" : `Copy ${mailList.length} e-mails`}
+        </button>
+        <button
           onClick={exportCsv}
           disabled={loading || filtered.length === 0}
-          className="ml-auto inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-mist transition hover:text-white disabled:opacity-40"
         >
           <Download size={15} /> CSV
         </button>
@@ -273,11 +318,17 @@ export default function AdminCompaniesPage() {
                         {r.registered ? "account" : "imported"}
                       </span>
                     </div>
-                    {r.location && (
-                      <span className="mt-0.5 flex items-center gap-1 text-xs text-mist">
-                        <MapPin size={11} /> {r.location}
-                      </span>
-                    )}
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-mist">
+                      {r.location && (<span className="flex items-center gap-1"><MapPin size={11} /> {r.location}</span>)}
+                      {r.contacts.length > 0 ? (
+                        <span className="flex items-center gap-1 truncate">
+                          <Mail size={11} /> {r.contacts[0]}
+                          {r.contacts.length > 1 && ` +${r.contacts.length - 1}`}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-coral"><Mail size={11} /> нет адреса</span>
+                      )}
+                    </span>
                   </div>
 
                   <div className="shrink-0 text-right">
@@ -297,6 +348,11 @@ export default function AdminCompaniesPage() {
                       >
                         <ExternalLink size={12} /> Public profile
                       </Link>
+                      {r.contacts.map((e) => (
+                        <a key={e} href={`mailto:${e}`} className="inline-flex items-center gap-1.5 font-semibold text-brassInk transition hover:text-brass">
+                          <Mail size={12} /> {e}
+                        </a>
+                      ))}
                       {r.website && (
                         <a
                           href={r.website}
