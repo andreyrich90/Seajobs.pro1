@@ -67,7 +67,7 @@ export default function CompanyDashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { icon: Briefcase,    bg: "bg-brass/10",  color: "text-brass2", value: totalVacancies,   label: t.co_vacancies },
+          { icon: Briefcase,    bg: "bg-brass/10",  color: "text-brassInk", value: totalVacancies,   label: t.co_vacancies },
           { icon: CheckCircle,  bg: "bg-teal/10",   color: "text-teal",   value: activeVacancies,  label: t.co_active },
           { icon: Users,        bg: "bg-coral/10",  color: "text-coral",  value: applicationsCount, label: t.co_responses },
         ].map((card) => (
@@ -103,8 +103,8 @@ export default function CompanyDashboardPage() {
 
         {totalVacancies === 0 && (
           <div className="mt-5 flex items-start gap-3 rounded-xl border border-brass/20 bg-brass/5 px-4 py-3">
-            <Clock size={16} className="mt-0.5 shrink-0 text-brass2" />
-            <p className="text-sm text-brass2">{t.co_no_vacancies}</p>
+            <Clock size={16} className="mt-0.5 shrink-0 text-brassInk" />
+            <p className="text-sm text-brassInk">{t.co_no_vacancies}</p>
           </div>
         )}
       </div>

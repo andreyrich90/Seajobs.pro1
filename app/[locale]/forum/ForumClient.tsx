@@ -161,14 +161,14 @@ export default function ForumClient({
     >
       <div className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl ${topic.is_pinned ? "bg-brass/15" : "bg-teal/10"}`}>
         {topic.is_pinned
-          ? <Pin size={16} className="text-brass2" />
+          ? <Pin size={16} className="text-brassInk" />
           : <MessageSquare size={16} className="text-teal" />
         }
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           {topic.is_pinned && (
-            <span className="rounded-full bg-brass/15 border border-brass/20 px-2 py-0.5 text-xs font-semibold text-brass2">
+            <span className="rounded-full bg-brass/15 border border-brass/20 px-2 py-0.5 text-xs font-semibold text-brassInk">
               Pinned
             </span>
           )}
@@ -323,7 +323,7 @@ export default function ForumClient({
               <div key={section.key}>
                 <div className="mb-2.5 flex items-baseline justify-between gap-3 border-b border-white/10 pb-1.5">
                   <div>
-                    <h2 className="font-display text-lg font-semibold text-brass2">{sectionLabel(section.name, lang)}</h2>
+                    <h2 className="font-display text-lg font-semibold text-brassInk">{sectionLabel(section.name, lang)}</h2>
                     {sectionDesc(section.name, lang, section.description) && (
                       <p className="mt-0.5 text-xs text-mist">{sectionDesc(section.name, lang, section.description)}</p>
                     )}

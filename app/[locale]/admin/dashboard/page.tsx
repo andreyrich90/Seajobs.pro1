@@ -21,14 +21,14 @@ type Stats = {
 
 const STAT_CARDS = (s: Stats) => [
   { label: "Seafarers",        value: s.seafarers,       icon: Anchor,       color: "text-teal",  bg: "bg-teal/10" },
-  { label: "Companies",        value: s.companies,       icon: Building2,    color: "text-brass2", bg: "bg-brass/10" },
+  { label: "Companies",        value: s.companies,       icon: Building2,    color: "text-brassInk", bg: "bg-brass/10" },
   { label: "Blocked users",    value: s.blocked,         icon: ShieldOff,    color: "text-coral",  bg: "bg-coral/10" },
   { label: "Vacancies",        value: s.vacancies,       icon: Briefcase,    color: "text-foam",   bg: "bg-white/10" },
   { label: "Active vacancies", value: s.activeVacancies, icon: Briefcase,    color: "text-teal",  bg: "bg-teal/10" },
-  { label: "Applications",     value: s.applications,    icon: Send,         color: "text-brass2", bg: "bg-brass/10" },
+  { label: "Applications",     value: s.applications,    icon: Send,         color: "text-brassInk", bg: "bg-brass/10" },
   { label: "Forum topics",     value: s.topics,          icon: MessageSquare,color: "text-foam",   bg: "bg-white/10" },
   { label: "Forum replies",    value: s.posts,           icon: MessageSquare,color: "text-mist",   bg: "bg-white/5"  },
-  { label: "News articles",    value: s.news,            icon: Newspaper,    color: "text-brass2", bg: "bg-brass/10" },
+  { label: "News articles",    value: s.news,            icon: Newspaper,    color: "text-brassInk", bg: "bg-brass/10" },
   { label: "Messages",         value: s.messages,        icon: Mail,         color: "text-teal",   bg: "bg-teal/10"  },
 ];
 

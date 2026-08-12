@@ -14,9 +14,9 @@ import { slugId } from "@/lib/slug";
 const TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
   Market:     "bg-coral/10 border-coral/20 text-coral",
-  Industry:   "bg-brass/10 border-brass/20 text-brass2",
+  Industry:   "bg-brass/10 border-brass/20 text-brassInk",
   Safety:     "bg-teal/10 border-teal/20 text-teal",
-  Technology: "bg-brass/10 border-brass/20 text-brass2",
+  Technology: "bg-brass/10 border-brass/20 text-brassInk",
 };
 
 export type DbArticle = {
@@ -124,7 +124,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
             <button
               onClick={() => setActiveTag("all")}
               className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                activeTag === "all" ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+                activeTag === "all" ? "border-brass/40 bg-brass/15 text-brassInk" : "border-white/10 bg-white/5 text-mist hover:text-white"
               }`}
             >
               {allLabel}
@@ -134,7 +134,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                 key={tg}
                 onClick={() => setActiveTag(tg)}
                 className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                  activeTag === tg ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-mist hover:text-white"
+                  activeTag === tg ? "border-brass/40 bg-brass/15 text-brassInk" : "border-white/10 bg-white/5 text-mist hover:text-white"
                 }`}
               >
                 {tg}
@@ -166,7 +166,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                     <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${TAG_COLORS[filtered[0].tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                       <Tag size={11} /> {filtered[0].tag}
                     </span>
-                    <h2 className="font-display text-xl font-semibold text-white group-hover:text-brass2 transition sm:text-2xl">
+                    <h2 className="font-display text-xl font-semibold text-white group-hover:text-brassInk transition sm:text-2xl">
                       {filtered[0].title}
                     </h2>
                     {filtered[0].excerpt && (
@@ -191,7 +191,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                         <span className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${TAG_COLORS[item.tag] ?? "bg-white/10 border-white/20 text-white"}`}>
                           <Tag size={11} /> {item.tag}
                         </span>
-                        <h3 className="font-display text-base font-semibold leading-snug text-white transition group-hover:text-brass2">
+                        <h3 className="font-display text-base font-semibold leading-snug text-white transition group-hover:text-brassInk">
                           {item.title}
                         </h3>
                         {item.excerpt && (
@@ -220,7 +220,7 @@ export default function NewsClient({ initialDbArticles }: { initialDbArticles: D
                       {item.coverUrl && <Image src={item.coverUrl} alt={item.title} fill sizes="64px" className="object-cover" />}
                     </div>
                     <div className="min-w-0">
-                      <p className="line-clamp-2 text-xs font-semibold leading-snug text-foam transition group-hover:text-brass2">{item.title}</p>
+                      <p className="line-clamp-2 text-xs font-semibold leading-snug text-foam transition group-hover:text-brassInk">{item.title}</p>
                       <p className="mt-1 text-[11px] text-mist">{formatDate(item.date, lang)}</p>
                     </div>
                   </Link>

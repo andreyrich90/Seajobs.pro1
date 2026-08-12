@@ -60,7 +60,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
       {/* Header */}
       <div className="mb-3 flex items-center gap-2">
         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brass/15">
-          <TrendingUp size={16} className="text-brass2" />
+          <TrendingUp size={16} className="text-brassInk" />
         </div>
         <h2 className="flex-1 font-display text-base font-bold text-white">{t("title")}</h2>
         <span className="inline-flex items-center gap-1 rounded-full bg-teal/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-teal">
@@ -121,7 +121,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
             {rows.map((r) => (
               <tr key={r.slug} className="border-t border-white/5">
                 <td className="sticky left-0 z-[1] whitespace-nowrap bg-card px-1.5 py-2">
-                  <Link href={`/jobs/rank/${r.slug}`} className="font-semibold text-white hover:text-brass2 transition">
+                  <Link href={`/jobs/rank/${r.slug}`} className="font-semibold text-white hover:text-brassInk transition">
                     {r.names[lang] ?? r.names.en}
                   </Link>
                 </td>
@@ -140,7 +140,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
                         <Link
                           href={`/jobs/rank/${r.slug}`}
                           title={`${cell.count}`}
-                          className="inline-block whitespace-nowrap rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brass2 tabular-nums transition hover:bg-brass/20"
+                          className="inline-block whitespace-nowrap rounded-md bg-brass/10 px-1.5 py-1 font-bold text-brassInk tabular-nums transition hover:bg-brass/20"
                         >
                           {symbol}{fmt(lo)}{hi !== lo ? `–${fmt(hi)}` : ""}
                         </Link>
@@ -159,7 +159,7 @@ export default function SalaryStatsWidget({ stats }: { stats: SalaryStats }) {
       {/* Footer */}
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
         <p className="text-[11px] leading-snug text-mist">{t("note")}</p>
-        <Link href="/jobs" className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-brass2 hover:gap-1.5 transition-all">
+        <Link href="/jobs" className="flex shrink-0 items-center gap-0.5 text-xs font-bold text-brassInk hover:gap-1.5 transition-all">
           {t("all")} <ChevronRight size={14} />
         </Link>
       </div>

@@ -69,7 +69,7 @@ function LoginContent() {
             <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-2xl font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </span>
         </Link>
         {/* Language switcher — auth screens have no global Header. */}
@@ -108,7 +108,7 @@ function LoginContent() {
               onClick={() => setRole("company")}
               className={`flex items-center justify-center gap-2.5 rounded-2xl border px-4 py-4 text-sm font-bold transition ${
                 role === "company"
-                  ? "border-brass bg-brass/10 text-brass2"
+                  ? "border-brass bg-brass/10 text-brassInk"
                   : "border-white/10 bg-card text-mist hover:border-white/20"
               }`}
             >
@@ -121,7 +121,7 @@ function LoginContent() {
               <h1 className="font-display text-3xl font-semibold text-white">{t.welcome}</h1>
               <p className="mt-1 text-sm text-mist">
                 {t.signin_as}{" "}
-                <span className={role === "seafarer" ? "text-teal font-semibold" : "text-brass2 font-semibold"}>
+                <span className={role === "seafarer" ? "text-teal font-semibold" : "text-brassInk font-semibold"}>
                   {role === "seafarer" ? t.role_seafarer : t.role_company}
                 </span>
               </p>
@@ -199,7 +199,7 @@ function LoginContent() {
 
             <p className="mt-5 text-center text-sm text-mist">
               {t.no_account}{" "}
-              <Link href="/auth/register" className="font-semibold text-brass2 hover:underline">{t.create_one}</Link>
+              <Link href="/auth/register" className="font-semibold text-brassInk hover:underline">{t.create_one}</Link>
             </p>
           </div>
         </div>

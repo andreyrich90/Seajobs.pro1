@@ -141,9 +141,9 @@ export default async function VesselLandingPage(
 
       <main className="mx-auto max-w-7xl px-5 py-8">
         <nav className="flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-brass2">{copy.home}</Link>
+          <Link href="/" className="hover:text-brassInk">{copy.home}</Link>
           <ChevronRight size={12} />
-          <Link href="/jobs" className="hover:text-brass2">{copy.jobsCrumb}</Link>
+          <Link href="/jobs" className="hover:text-brassInk">{copy.jobsCrumb}</Link>
           <ChevronRight size={12} />
           <span className="text-foam">{copy.h1(name)}</span>
         </nav>
@@ -175,7 +175,7 @@ export default async function VesselLandingPage(
                   </div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-mist">
                     {v.companies?.name && <span className="flex items-center gap-1"><Building2 size={11} />{v.companies.name}</span>}
-                    {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 font-semibold text-brass2">{v.rank}</span>}
+                    {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 font-semibold text-brassInk">{v.rank}</span>}
                     {v.vessel_type && <span className="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 font-semibold text-teal">{v.vessel_type}</span>}
                   </div>
                 </div>
@@ -191,7 +191,7 @@ export default async function VesselLandingPage(
 
         {vacancies.length > 0 && (
           <Link href={{ pathname: "/jobs", query: { q: landing.query } }}
-            className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-brass2 transition hover:gap-2.5">
+            className="mt-6 inline-flex items-center gap-1.5 text-sm font-bold text-brassInk transition hover:gap-2.5">
             {copy.allJobs} <ArrowRight size={16} />
           </Link>
         )}
@@ -201,7 +201,7 @@ export default async function VesselLandingPage(
           <div className="flex flex-wrap gap-2">
             {relative.map((v) => (
               <Link key={v.slug} href={`/jobs/vessel/${v.slug}`}
-                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2">
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk">
                 {vesselName(v, lang)}
               </Link>
             ))}

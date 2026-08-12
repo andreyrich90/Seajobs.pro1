@@ -183,7 +183,7 @@ export default function AdminUsersPage() {
                 onClick={() => { setFilter("all"); setRankFilter(rankFilter === rank ? null : rank); }}
                 title={`Show ${rank}`}
                 className={`inline-flex items-center gap-2 rounded-xl border px-3 py-1.5 text-sm transition ${
-                  rankFilter === rank ? "border-brass/40 bg-brass/15 text-brass2" : "border-white/10 bg-white/5 text-foam hover:text-white"
+                  rankFilter === rank ? "border-brass/40 bg-brass/15 text-brassInk" : "border-white/10 bg-white/5 text-foam hover:text-white"
                 }`}
               >
                 <span className="font-semibold">{rank}</span>
@@ -198,7 +198,7 @@ export default function AdminUsersPage() {
             )}
           </div>
           {rankFilter && (
-            <button onClick={() => setRankFilter(null)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brass2 hover:text-brass transition">
+            <button onClick={() => setRankFilter(null)} className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-brassInk hover:text-brass transition">
               <X size={12} /> Clear rank filter · {rankFilter}
             </button>
           )}
@@ -217,7 +217,7 @@ export default function AdminUsersPage() {
         </div>
         {(["all","seafarer","company","blocked"] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition ${filter === f ? "bg-brass/15 text-brass2 border border-brass/20" : "border border-white/10 text-mist hover:text-white"}`}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold capitalize transition ${filter === f ? "bg-brass/15 text-brassInk border border-brass/20" : "border border-white/10 text-mist hover:text-white"}`}
           >
             {f}
           </button>
@@ -263,33 +263,33 @@ export default function AdminUsersPage() {
                         {/* On mobile the Email column is hidden, so show it here instead. */}
                         <div className="md:hidden">
                           {u.email ? (
-                            <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
+                            <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brassInk transition break-all">{u.email}</a>
                           ) : (
                             <p className="text-xs text-mist font-mono">{u.id.slice(0,8)}…</p>
                           )}
                         </div>
                         {/* Rank column is hidden below sm — show it under the name on phones. */}
                         {u.role === "seafarer" && u.rank && (
-                          <p className="text-xs font-medium text-brass2 sm:hidden">{u.rank}</p>
+                          <p className="text-xs font-medium text-brassInk sm:hidden">{u.rank}</p>
                         )}
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
                     {u.email ? (
-                      <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brass2 transition break-all">{u.email}</a>
+                      <a href={`mailto:${u.email}`} className="text-xs text-mist hover:text-brassInk transition break-all">{u.email}</a>
                     ) : (
                       <span className="text-xs text-mist/40 font-mono">{u.id.slice(0,8)}…</span>
                     )}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">
                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                      u.role === "seafarer" ? "border-teal/20 bg-teal/10 text-teal" : "border-brass/20 bg-brass/10 text-brass2"
+                      u.role === "seafarer" ? "border-teal/20 bg-teal/10 text-teal" : "border-brass/20 bg-brass/10 text-brassInk"
                     }`}>
                       {u.role === "seafarer" ? <Anchor size={10} /> : <Building2 size={10} />}
                       {u.role}
                     </span>
-                    {u.is_admin && <span className="ml-1.5 inline-flex rounded-full border border-brass/30 bg-brass/10 px-2 py-0.5 text-xs font-bold text-brass2">admin</span>}
+                    {u.is_admin && <span className="ml-1.5 inline-flex rounded-full border border-brass/30 bg-brass/10 px-2 py-0.5 text-xs font-bold text-brassInk">admin</span>}
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell text-xs">
                     {u.role === "seafarer"
@@ -309,7 +309,7 @@ export default function AdminUsersPage() {
                       {!u.is_admin && (
                         <button onClick={() => messageUser(u)} disabled={messaging === u.id || !adminId}
                           title="Message this user"
-                          className="rounded-lg border border-brass/20 bg-brass/10 p-1.5 text-brass2 hover:bg-brass/20 transition disabled:opacity-30"
+                          className="rounded-lg border border-brass/20 bg-brass/10 p-1.5 text-brassInk hover:bg-brass/20 transition disabled:opacity-30"
                         >
                           <MessageCircle size={14} />
                         </button>

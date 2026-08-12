@@ -184,7 +184,7 @@ export default function NotificationBell({ placement = "down-right" }: { placeme
             {unread > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs font-semibold text-brass2 hover:text-brass transition"
+                className="text-xs font-semibold text-brassInk hover:text-brass transition"
               >
                 {tx("markAll")}
               </button>

@@ -208,7 +208,7 @@ export default function AdminCompaniesPage() {
             onClick={() => setFilter(f)}
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
               filter === f
-                ? "border border-brass/20 bg-brass/15 text-brass2"
+                ? "border border-brass/20 bg-brass/15 text-brassInk"
                 : "border border-white/10 text-mist hover:text-white"
             }`}
           >
@@ -251,7 +251,7 @@ export default function AdminCompaniesPage() {
                   className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-white/5"
                 >
                   {isOpen ? (
-                    <ChevronDown size={16} className="shrink-0 text-brass2" />
+                    <ChevronDown size={16} className="shrink-0 text-brassInk" />
                   ) : (
                     <ChevronRight size={16} className="shrink-0 text-mist" />
                   )}
@@ -281,7 +281,7 @@ export default function AdminCompaniesPage() {
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <p className="font-display text-lg font-bold text-brass2">{r.active}</p>
+                    <p className="font-display text-lg font-bold text-brassInk">{r.active}</p>
                     <p className="text-[11px] uppercase tracking-wide text-mist">
                       active{r.total !== r.active && ` / ${r.total}`}
                     </p>
@@ -293,7 +293,7 @@ export default function AdminCompaniesPage() {
                     <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 text-xs">
                       <Link
                         href={`/companies/${r.id}`}
-                        className="inline-flex items-center gap-1.5 font-semibold text-brass2 transition hover:text-brass"
+                        className="inline-flex items-center gap-1.5 font-semibold text-brassInk transition hover:text-brass"
                       >
                         <ExternalLink size={12} /> Public profile
                       </Link>
@@ -329,7 +329,7 @@ export default function AdminCompaniesPage() {
                                 <td className="px-4 py-2.5">
                                   <Link
                                     href={`/jobs/${slugId(v.title, v.id)}`}
-                                    className="font-medium text-foam transition hover:text-brass2"
+                                    className="font-medium text-foam transition hover:text-brassInk"
                                   >
                                     {v.title}
                                   </Link>

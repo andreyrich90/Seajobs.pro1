@@ -374,13 +374,13 @@ export default function VacanciesPage() {
 
       {blocked && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brass/30 bg-brass/10 px-5 py-4">
-          <AlertCircle size={18} className="mt-0.5 shrink-0 text-brass2" />
+          <AlertCircle size={18} className="mt-0.5 shrink-0 text-brassInk" />
           <div>
             <p className="font-semibold text-foam">{gate.title}</p>
             <p className="mt-1 text-sm text-mist">{missing}</p>
             <Link
               href="/company/profile"
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brass2 transition hover:text-brass"
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brassInk transition hover:text-brass"
             >
               {gate.cta} <ArrowRight size={14} />
             </Link>
@@ -604,7 +604,7 @@ export default function VacanciesPage() {
           {vacancies.map((v) => (
             <div key={v.id} className="rounded-2xl border border-white/10 bg-card p-5 flex items-start gap-4">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/10 mt-0.5">
-                <Briefcase size={18} className="text-brass2" />
+                <Briefcase size={18} className="text-brassInk" />
               </div>
 
               <div className="flex-1 min-w-0">
@@ -613,7 +613,7 @@ export default function VacanciesPage() {
                     <h3 className="font-semibold text-white">{v.title}</h3>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
                       {v.rank && (
-                        <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                        <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                           {v.rank}
                         </span>
                       )}

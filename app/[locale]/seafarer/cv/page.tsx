@@ -1032,7 +1032,7 @@ export default function CVPage() {
             <button
               onClick={handleDownloadPng}
               disabled={exporting}
-              className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brass2 transition hover:bg-brass/20 disabled:opacity-60"
+              className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
             >
               <ImageDown size={16} /> {exporting ? "…" : t.cv_download_png}
             </button>
@@ -1053,7 +1053,7 @@ export default function CVPage() {
               onClick={() => setTemplate(tpl.key)}
               className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
                 template === tpl.key
-                  ? "border-brass/40 bg-brass/15 text-brass2"
+                  ? "border-brass/40 bg-brass/15 text-brassInk"
                   : "border-white/10 bg-white/5 text-mist hover:text-[#ffffff]"
               }`}
             >

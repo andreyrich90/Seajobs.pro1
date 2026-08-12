@@ -127,7 +127,7 @@ export default function PublicSeafarerPage() {
           <Anchor size={40} className="text-mist/30" />
           <p className="text-lg font-semibold text-foam">Profile not found</p>
           <p className="text-sm text-mist">This profile may be private or does not exist.</p>
-          <Link href="/jobs" className="text-sm text-brass2 hover:underline">
+          <Link href="/jobs" className="text-sm text-brassInk hover:underline">
             Browse vacancies
           </Link>
         </div>
@@ -165,7 +165,7 @@ export default function PublicSeafarerPage() {
                   className="h-20 w-20 rounded-2xl object-cover shrink-0"
                 />
               ) : (
-                <div className="grid h-20 w-20 place-items-center shrink-0 rounded-2xl bg-brass/20 font-display text-2xl font-bold text-brass2">
+                <div className="grid h-20 w-20 place-items-center shrink-0 rounded-2xl bg-brass/20 font-display text-2xl font-bold text-brassInk">
                   {initials}
                 </div>
               )}
@@ -174,7 +174,7 @@ export default function PublicSeafarerPage() {
                 <h1 className="font-display text-2xl font-semibold text-white">{fullName}</h1>
 
                 {profile.rank && (
-                  <span className="mt-1.5 inline-block rounded-full bg-brass/10 border border-brass/20 px-3 py-0.5 text-xs font-semibold text-brass2">
+                  <span className="mt-1.5 inline-block rounded-full bg-brass/10 border border-brass/20 px-3 py-0.5 text-xs font-semibold text-brassInk">
                     {profile.rank}
                   </span>
                 )}
@@ -205,7 +205,7 @@ export default function PublicSeafarerPage() {
           {experience.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-card p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Ship size={18} className="text-brass2" />
+                <Ship size={18} className="text-brassInk" />
                 <h2 className="font-display text-lg font-semibold text-white">Sea Experience</h2>
               </div>
 
@@ -217,7 +217,7 @@ export default function PublicSeafarerPage() {
                         <p className="font-semibold text-white">{e.vessel_name}</p>
                         <div className="mt-1 flex flex-wrap gap-2">
                           {e.rank && (
-                            <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                            <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                               {e.rank}
                             </span>
                           )}
@@ -238,7 +238,7 @@ export default function PublicSeafarerPage() {
                         <p className="text-xs text-mist">
                           {formatDate(e.from_date)} — {e.to_date ? formatDate(e.to_date) : "Present"}
                         </p>
-                        <p className="text-xs text-brass2 font-semibold">{calcDuration(e.from_date, e.to_date)}</p>
+                        <p className="text-xs text-brassInk font-semibold">{calcDuration(e.from_date, e.to_date)}</p>
                       </div>
                     </div>
                   </div>
@@ -251,7 +251,7 @@ export default function PublicSeafarerPage() {
           {certificates.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-card p-6">
               <div className="flex items-center gap-2 mb-5">
-                <Award size={18} className="text-brass2" />
+                <Award size={18} className="text-brassInk" />
                 <h2 className="font-display text-lg font-semibold text-white">Certificates</h2>
               </div>
 

@@ -124,7 +124,7 @@ export default function ChatPanel({
                     }`}
                   >
                     <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                    <p className={`mt-1 text-[10px] ${mine ? "text-brass2/70" : "text-mist/60"}`}>{fmtTime(m.created_at)}</p>
+                    <p className={`mt-1 text-[10px] ${mine ? "text-brassInk/70" : "text-mist/60"}`}>{fmtTime(m.created_at)}</p>
                   </div>
                 </div>
               );

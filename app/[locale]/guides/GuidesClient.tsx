@@ -59,7 +59,7 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideCa
     <div className="min-h-screen">
       <Header />
       <main className="mx-auto max-w-7xl px-5 py-10">
-        <div className="flex items-center gap-2 text-brass2">
+        <div className="flex items-center gap-2 text-brassInk">
           <BookOpen size={18} />
           <span className="text-xs font-bold uppercase tracking-wider">{ui.crumb}</span>
         </div>
@@ -81,16 +81,16 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideCa
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   {n.tag && (
-                    <span className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-brass/20 bg-brass/10 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
+                    <span className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-brass/20 bg-brass/10 px-2.5 py-0.5 text-[11px] font-semibold text-brassInk">
                       {n.tag}
                     </span>
                   )}
-                  <h2 className="font-display text-lg font-semibold leading-snug text-white transition group-hover:text-brass2 line-clamp-2">{n.title}</h2>
+                  <h2 className="font-display text-lg font-semibold leading-snug text-white transition group-hover:text-brassInk line-clamp-2">{n.title}</h2>
                   <p className="mt-2 text-sm text-mist line-clamp-2">{n.excerpt}</p>
                   <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-mist">
                     <span className="flex items-center gap-1"><Calendar size={11} /> {fmtDate(n.date)}</span>
                     <span className="flex items-center gap-1"><Clock size={11} /> {n.readMins} {minLabel}</span>
-                    <span className="ml-auto flex items-center gap-1 font-bold text-brass2">{ui.readMore} <ArrowRight size={12} /></span>
+                    <span className="ml-auto flex items-center gap-1 font-bold text-brassInk">{ui.readMore} <ArrowRight size={12} /></span>
                   </div>
                 </div>
               </Link>

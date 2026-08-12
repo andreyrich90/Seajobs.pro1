@@ -44,7 +44,7 @@ function ForgotPasswordContent() {
             <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-2xl font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </span>
         </Link>
         {/* Language switcher — auth screens have no global Header. */}
@@ -69,7 +69,7 @@ function ForgotPasswordContent() {
           <div className="rounded-2xl border border-white/10 bg-card p-8">
             <div className="mb-6 text-center">
               <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-brass/10">
-                <Mail size={26} className="text-brass2" />
+                <Mail size={26} className="text-brassInk" />
               </div>
               <h1 className="font-display text-3xl font-semibold text-white">{t.fp_title}</h1>
               <p className="mt-2 text-sm text-mist">

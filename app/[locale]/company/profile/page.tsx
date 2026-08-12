@@ -384,7 +384,7 @@ export default function CompanyProfilePage() {
                 </div>
               ))}
               <button type="button" onClick={() => addListItem(setPhones, phones)} disabled={saving}
-                className="mt-1 flex items-center gap-1.5 self-start text-xs font-semibold text-brass2 hover:text-brass disabled:opacity-50">
+                className="mt-1 flex items-center gap-1.5 self-start text-xs font-semibold text-brassInk hover:text-brass disabled:opacity-50">
                 <Plus size={14} /> {t.cp_add_phone}
               </button>
             </div>
@@ -411,7 +411,7 @@ export default function CompanyProfilePage() {
                 </div>
               ))}
               <button type="button" onClick={() => addListItem(setEmails, emails)} disabled={saving}
-                className="mt-1 flex items-center gap-1.5 self-start text-xs font-semibold text-brass2 hover:text-brass disabled:opacity-50">
+                className="mt-1 flex items-center gap-1.5 self-start text-xs font-semibold text-brassInk hover:text-brass disabled:opacity-50">
                 <Plus size={14} /> {t.cp_add_email}
               </button>
             </div>
@@ -421,7 +421,7 @@ export default function CompanyProfilePage() {
         {/* Crew managers */}
         <div className="rounded-2xl border border-white/10 bg-card p-6">
           <div className="mb-1 flex items-center gap-2">
-            <Users size={16} className="text-brass2" />
+            <Users size={16} className="text-brassInk" />
             <h2 className="text-sm font-semibold text-mist uppercase tracking-wider">{t.cp_crew}</h2>
           </div>
           <p className="mb-4 text-xs text-mist">{t.cp_crew_hint}</p>

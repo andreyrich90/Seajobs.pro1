@@ -160,7 +160,7 @@ export default function AdminForumPage() {
       {/* Sections / categories */}
       <div className="mb-6 rounded-2xl border border-white/10 bg-card p-5">
         <div className="mb-3 flex items-center gap-2">
-          <FolderPlus size={16} className="text-brass2" />
+          <FolderPlus size={16} className="text-brassInk" />
           <h2 className="text-sm font-semibold text-mist uppercase tracking-wider">Sections</h2>
         </div>
         <form onSubmit={addCategory} className="flex flex-wrap gap-2">
@@ -224,7 +224,7 @@ export default function AdminForumPage() {
                   <MessageSquare size={13} /> {countMap[topic.id] ?? 0}
                 </div>
                 {topic.is_pinned && (
-                  <span className="hidden sm:inline-flex rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-xs font-semibold text-brass2">Pinned</span>
+                  <span className="hidden sm:inline-flex rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-xs font-semibold text-brassInk">Pinned</span>
                 )}
                 <button onClick={() => togglePin(topic)} title={topic.is_pinned ? "Unpin" : "Pin"}
                   className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-mist hover:text-white transition">

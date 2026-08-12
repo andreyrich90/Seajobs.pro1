@@ -76,7 +76,7 @@ function ResetPasswordContent() {
             <Anchor size={22} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-2xl font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </span>
         </Link>
         {/* Language switcher — auth screens have no global Header. */}
@@ -102,7 +102,7 @@ function ResetPasswordContent() {
 
             {phase === "verifying" && (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
-                <Loader2 size={28} className="animate-spin text-brass2" />
+                <Loader2 size={28} className="animate-spin text-brassInk" />
                 <p className="text-sm text-mist">{t.rp_verifying}</p>
               </div>
             )}
@@ -142,7 +142,7 @@ function ResetPasswordContent() {
               <>
                 <div className="mb-6 text-center">
                   <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-brass/10">
-                    <Lock size={24} className="text-brass2" />
+                    <Lock size={24} className="text-brassInk" />
                   </div>
                   <h1 className="font-display text-3xl font-semibold text-white">{t.rp_title}</h1>
                   <p className="mt-2 text-sm text-mist">{t.rp_subtitle}</p>

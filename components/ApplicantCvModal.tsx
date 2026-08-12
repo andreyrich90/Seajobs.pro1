@@ -129,20 +129,20 @@ export default function ApplicantCvModal({
             {s?.photo_url ? (
               <Image src={s.photo_url} alt={fullName} width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
             ) : (
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brass/20 font-display text-lg font-bold text-brass2">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-brass/20 font-display text-lg font-bold text-brassInk">
                 {fullName[0]?.toUpperCase() ?? "?"}
               </div>
             )}
             <div className="min-w-0">
               <p className="truncate font-display text-lg font-semibold text-white">{fullName}</p>
-              {s?.rank && <p className="truncate text-sm text-brass2">{s.rank}</p>}
+              {s?.rank && <p className="truncate text-sm text-brassInk">{s.rank}</p>}
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={startChat}
               disabled={starting || !data}
-              className="flex items-center gap-1.5 rounded-xl border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-semibold text-brass2 transition hover:bg-brass/20 disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-semibold text-brassInk transition hover:bg-brass/20 disabled:opacity-50"
             >
               {starting ? <Loader2 size={15} className="animate-spin" /> : <MessageCircle size={15} />}
               {tx("message")}
@@ -279,7 +279,7 @@ export default function ApplicantCvModal({
 function Info({ icon, value, href }: { icon: React.ReactNode; value: string; href?: string }) {
   const inner = (
     <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-navy2 px-3 py-2 text-sm text-foam">
-      <span className="text-brass2">{icon}</span>
+      <span className="text-brassInk">{icon}</span>
       <span className="truncate">{value}</span>
     </div>
   );

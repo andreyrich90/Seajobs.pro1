@@ -96,7 +96,7 @@ export default function CompanyClient() {
         <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center py-16">
           <Building2 size={40} className="text-mist/30" />
           <p className="text-lg font-semibold text-foam">Company not found</p>
-          <Link href="/jobs" className="text-sm text-brass2 hover:underline">Browse vacancies</Link>
+          <Link href="/jobs" className="text-sm text-brassInk hover:underline">Browse vacancies</Link>
         </div>
         <Footer />
       </div>
@@ -142,7 +142,7 @@ export default function CompanyClient() {
                 )}
                 {company.website && (
                   <a href={company.website} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-brass2 hover:text-brass transition">
+                    className="flex items-center gap-2 text-sm text-brassInk hover:text-brass transition">
                     <Globe size={14} className="shrink-0" />
                     Visit website
                   </a>
@@ -156,7 +156,7 @@ export default function CompanyClient() {
                 ))}
                 {company.emails?.filter(Boolean).map((m) => (
                   <a key={m} href={`mailto:${m}`}
-                    className="flex items-center gap-2 text-sm text-brass2 hover:text-brass transition break-all">
+                    className="flex items-center gap-2 text-sm text-brassInk hover:text-brass transition break-all">
                     <Mail size={14} className="shrink-0 text-mist/60" />
                     {m}
                   </a>
@@ -172,7 +172,7 @@ export default function CompanyClient() {
               {company.crew_managers && company.crew_managers.filter((m) => m.name || m.phone || m.email).length > 0 && (
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <div className="mb-3 flex items-center gap-2">
-                    <Users size={14} className="text-brass2" />
+                    <Users size={14} className="text-brassInk" />
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-mist">Crew managers</h3>
                   </div>
                   <div className="flex flex-col gap-3">
@@ -190,7 +190,7 @@ export default function CompanyClient() {
                           )}
                           {m.email && (
                             <a href={`mailto:${m.email}`}
-                              className="mt-0.5 flex items-center gap-1.5 text-xs text-brass2 hover:text-brass transition break-all">
+                              className="mt-0.5 flex items-center gap-1.5 text-xs text-brassInk hover:text-brass transition break-all">
                               <Mail size={11} className="shrink-0 text-mist/60" />{m.email}
                             </a>
                           )}
@@ -205,7 +205,7 @@ export default function CompanyClient() {
           {/* Vacancies */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Briefcase size={18} className="text-brass2" />
+              <Briefcase size={18} className="text-brassInk" />
               <h2 className="font-display text-xl font-semibold text-white">
                 Open Positions
               </h2>
@@ -224,10 +224,10 @@ export default function CompanyClient() {
                   return (
                     <Link key={v.id} href={`/jobs/${slugId(v.title, v.id)}`}
                       className="group rounded-2xl border border-white/10 bg-card p-5 transition hover:border-white/20">
-                      <h3 className="font-semibold text-white group-hover:text-brass2 transition">{v.title}</h3>
+                      <h3 className="font-semibold text-white group-hover:text-brassInk transition">{v.title}</h3>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {v.rank && (
-                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                             {v.rank}
                           </span>
                         )}

@@ -157,7 +157,7 @@ export default function ImportQueuePage() {
       <header className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="flex flex-1 items-start gap-3 min-w-0">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15">
-            <Inbox className="text-brass2" size={20} />
+            <Inbox className="text-brassInk" size={20} />
           </div>
           <div className="min-w-0">
             <h1 className="font-display text-xl font-bold text-white">Auto-collection queue</h1>
@@ -192,7 +192,7 @@ export default function ImportQueuePage() {
       {/* Sources */}
       <section className="rounded-2xl border border-white/10 bg-card p-4 sm:p-5 space-y-4">
         <h2 className="flex items-center gap-2 font-display text-base font-bold text-white">
-          <Radio size={16} className="text-brass2" /> Telegram sources
+          <Radio size={16} className="text-brassInk" /> Telegram sources
         </h2>
 
         <div className="space-y-2">
@@ -203,7 +203,7 @@ export default function ImportQueuePage() {
                 className={`h-2.5 w-2.5 shrink-0 rounded-full ${s.is_active ? "bg-teal" : "bg-mist/40"}`}
                 title={s.is_active ? "Active — click to pause" : "Paused — click to activate"} />
               <a href={`https://t.me/s/${s.handle}`} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm font-semibold text-white hover:text-brass2">
+                className="flex items-center gap-1 text-sm font-semibold text-white hover:text-brassInk">
                 @{s.handle} <ExternalLink size={12} />
               </a>
               {s.label && <span className="text-xs text-mist">· {s.label}</span>}
@@ -214,7 +214,7 @@ export default function ImportQueuePage() {
                 className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold transition ${
                   s.auto_publish
                     ? "border-teal/30 bg-teal/10 text-teal hover:bg-teal/20"
-                    : "border-brass/30 bg-brass/10 text-brass2 hover:bg-brass/20"
+                    : "border-brass/30 bg-brass/10 text-brassInk hover:bg-brass/20"
                 }`}
               >
                 {s.auto_publish ? "Auto-publish" : "Review first"}
@@ -258,7 +258,7 @@ export default function ImportQueuePage() {
       {/* Drafts */}
       <section className="space-y-3">
         <h2 className="font-display text-base font-bold text-white">
-          Pending drafts {drafts.length > 0 && <span className="text-brass2">({drafts.length})</span>}
+          Pending drafts {drafts.length > 0 && <span className="text-brassInk">({drafts.length})</span>}
         </h2>
         {loading && <p className="text-sm text-mist">Loading…</p>}
         {!loading && drafts.length === 0 && (
@@ -343,7 +343,7 @@ function DraftCard({
       <div className="flex flex-wrap items-center gap-2 text-xs text-mist">
         {draft.source_handle && <span className="rounded-full bg-white/5 px-2 py-0.5">@{draft.source_handle}</span>}
         {draft.source_url && (
-          <a href={draft.source_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-brass2">
+          <a href={draft.source_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-brassInk">
             source <ExternalLink size={11} />
           </a>
         )}

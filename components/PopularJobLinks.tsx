@@ -42,7 +42,7 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
     <Link
       key={r.slug}
       href={`/jobs/rank/${r.slug}`}
-      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
+      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk"
     >
       {rankName(r, lang)}
     </Link>
@@ -51,7 +51,7 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
     <Link
       key={v.slug}
       href={`/jobs/vessel/${v.slug}`}
-      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
+      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk"
     >
       {vesselName(v, lang)}
     </Link>
@@ -60,7 +60,7 @@ export default function PopularJobLinks({ variant = "section" }: { variant?: "se
     <Link
       key={c.slug}
       href={`/jobs/country/${c.slug}`}
-      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brass2"
+      className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk"
     >
       {countryName(c, lang)}
     </Link>

@@ -4,6 +4,9 @@ const config: Config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    // lib/markdown.tsx renders classed markup too; without this its classes are
+    // only in the stylesheet by luck, because app/ happens to use the same ones.
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -17,6 +20,9 @@ const config: Config = {
         card: "rgb(var(--c-card) / <alpha-value>)",
         brass: "rgb(var(--c-brass) / <alpha-value>)",
         brass2: "rgb(var(--c-brass2) / <alpha-value>)",
+        // Brass as TEXT. Fills and text need different golds on a light ground:
+        // the bright accent that makes a button pop is unreadable as a label.
+        brassInk: "rgb(var(--c-brass-ink) / <alpha-value>)",
         foam: "rgb(var(--c-foam) / <alpha-value>)",
         mist: "rgb(var(--c-mist) / <alpha-value>)",
         teal: "rgb(var(--c-teal) / <alpha-value>)",

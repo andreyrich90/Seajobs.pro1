@@ -73,7 +73,7 @@ export default function AdminMessagesPage() {
               onClick={() => setFilter(f)}
               className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                 filter === f
-                  ? "bg-brass/15 text-brass2 border border-brass/20"
+                  ? "bg-brass/15 text-brassInk border border-brass/20"
                   : "border border-white/10 text-mist hover:text-white"
               }`}
             >
@@ -114,15 +114,15 @@ export default function AdminMessagesPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3 min-w-0">
                     <div className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl ${msg.is_read ? "bg-white/5" : "bg-brass/10"}`}>
-                      {msg.is_read ? <MailOpen size={15} className="text-mist" /> : <Mail size={15} className="text-brass2" />}
+                      {msg.is_read ? <MailOpen size={15} className="text-mist" /> : <Mail size={15} className="text-brassInk" />}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-sm font-semibold ${msg.is_read ? "text-white" : "text-brass2"}`}>
+                        <span className={`text-sm font-semibold ${msg.is_read ? "text-white" : "text-brassInk"}`}>
                           {msg.subject || "(no subject)"}
                         </span>
                         {!msg.is_read && (
-                          <span className="rounded-full bg-brass/20 px-2 py-0.5 text-xs font-bold text-brass2">NEW</span>
+                          <span className="rounded-full bg-brass/20 px-2 py-0.5 text-xs font-bold text-brassInk">NEW</span>
                         )}
                       </div>
                       <div className="mt-0.5 flex items-center gap-3 flex-wrap">
@@ -160,7 +160,7 @@ export default function AdminMessagesPage() {
                 <div className="px-5 pb-5 border-t border-white/10 pt-4">
                   {msg.email && (
                     <p className="text-xs text-mist mb-3">
-                      Reply to: <a href={`mailto:${msg.email}`} className="text-brass2 hover:underline">{msg.email}</a>
+                      Reply to: <a href={`mailto:${msg.email}`} className="text-brassInk hover:underline">{msg.email}</a>
                     </p>
                   )}
                   <p className="text-sm text-foam whitespace-pre-wrap leading-relaxed">{msg.content}</p>

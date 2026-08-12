@@ -216,13 +216,13 @@ export default function CompanyApplicationsPage() {
                                 href={`/seafarers/${app.seafarer_id}`}
                                 target="_blank"
                                 title={t.kb_view_profile}
-                                className="shrink-0 text-mist transition hover:text-brass2"
+                                className="shrink-0 text-mist transition hover:text-brassInk"
                               >
                                 <ExternalLink size={13} />
                               </Link>
                             </div>
                             {app.seafarer?.rank && (
-                              <p className="truncate text-xs text-brass2">{app.seafarer.rank}</p>
+                              <p className="truncate text-xs text-brassInk">{app.seafarer.rank}</p>
                             )}
                           </div>
                         </div>
@@ -232,7 +232,7 @@ export default function CompanyApplicationsPage() {
 
                         <button
                           onClick={() => setCvFor({ seafarerId: app.seafarer_id, fullName })}
-                          className="mt-2 flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-2.5 py-1 text-[11px] font-semibold text-brass2 transition hover:bg-brass/20"
+                          className="mt-2 flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-2.5 py-1 text-[11px] font-semibold text-brassInk transition hover:bg-brass/20"
                         >
                           <FileText size={12} /> {t.kb_view_cv}
                         </button>
@@ -241,7 +241,7 @@ export default function CompanyApplicationsPage() {
                           <>
                             <button
                               onClick={() => toggleCover(app.id)}
-                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-brass2 hover:text-brass"
+                              className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-brassInk hover:text-brass"
                             >
                               {coverExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                               {coverExpanded ? t.kb_hide_letter : t.kb_cover_letter}
@@ -278,7 +278,7 @@ export default function CompanyApplicationsPage() {
                                 onClick={() => moveTo(app.id, PIPELINE[idx + 1])}
                                 disabled={busy || idx >= PIPELINE.length - 1}
                                 title={t.kb_advance}
-                                className="grid h-7 w-7 place-items-center rounded-lg border border-brass/30 bg-brass/10 text-brass2 transition hover:bg-brass/20 disabled:opacity-30"
+                                className="grid h-7 w-7 place-items-center rounded-lg border border-brass/30 bg-brass/10 text-brassInk transition hover:bg-brass/20 disabled:opacity-30"
                               >
                                 <ChevronRight size={14} />
                               </button>

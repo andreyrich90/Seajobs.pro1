@@ -201,8 +201,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                 onClick={() => setFleet(fleet === f.key ? "" : f.key)}
                 className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
                   fleet === f.key
-                    ? "border-brass bg-brass/20 text-brass2"
-                    : "border-white/10 bg-white/5 text-mist hover:border-brass/40 hover:text-brass2"
+                    ? "border-brass bg-brass/20 text-brassInk"
+                    : "border-white/10 bg-white/5 text-mist hover:border-brass/40 hover:text-brassInk"
                 }`}
               >
                 {fleetLabel(f.key, lang)}
@@ -232,7 +232,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                   }`}
                 >
                   {featured && (
-                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brass2">
+                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-[11px] font-semibold text-brassInk">
                       <Sparkles size={11} /> {t.jobs_featured}
                     </div>
                   )}
@@ -264,12 +264,12 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                               <span className="text-xs text-mist">· {v.companies.location}</span>
                             )}
                           </div>
-                          <h3 className="mt-0.5 font-semibold text-white group-hover:text-brass2 transition line-clamp-2 break-words">
+                          <h3 className="mt-0.5 font-semibold text-white group-hover:text-brassInk transition line-clamp-2 break-words">
                             {v.title}
                           </h3>
                           <div className="mt-2 flex flex-wrap gap-2">
                             {v.rank && (
-                              <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                              <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                                 {v.rank}
                               </span>
                             )}
@@ -289,11 +289,11 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                           {userId && (
                             <button
                               onClick={(e) => toggleSave(e, v.id)}
-                              className="rounded-lg p-1.5 text-mist transition hover:bg-white/10 hover:text-brass2"
+                              className="rounded-lg p-1.5 text-mist transition hover:bg-white/10 hover:text-brassInk"
                               aria-label={savedIds.has(v.id) ? "Unsave job" : "Save job"}
                             >
                               {savedIds.has(v.id) ? (
-                                <BookmarkCheck size={18} className="text-brass2" />
+                                <BookmarkCheck size={18} className="text-brassInk" />
                               ) : (
                                 <Bookmark size={18} />
                               )}
@@ -308,7 +308,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                           {v.joining_date && <span>{t.jobs_joining}: {formatDate(v.joining_date)}</span>}
                           <span>{t.jobs_posted}: {formatDate(v.created_at)}</span>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brass2 group-hover:gap-2.5 transition-all">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brassInk group-hover:gap-2.5 transition-all">
                           {t.jobs_view_apply} <ArrowRight size={13} />
                         </span>
                       </div>
@@ -338,7 +338,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
                       onClick={() => goToPage(p)}
                       className={`h-9 min-w-9 rounded-lg border px-3 text-sm font-semibold transition ${
                         p === currentPage
-                          ? "border-brass/40 bg-brass/15 text-brass2"
+                          ? "border-brass/40 bg-brass/15 text-brassInk"
                           : "border-white/10 bg-white/5 text-mist hover:text-white"
                       }`}
                     >

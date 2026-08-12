@@ -151,7 +151,7 @@ export default function SavedJobsPage() {
                       {v ? (
                         <Link
                           href={`/jobs/${v.id}`}
-                          className="mt-0.5 block font-semibold text-white hover:text-brass2 transition"
+                          className="mt-0.5 block font-semibold text-white hover:text-brassInk transition"
                         >
                           {v.title}
                         </Link>
@@ -161,7 +161,7 @@ export default function SavedJobsPage() {
 
                       <div className="mt-2 flex flex-wrap gap-2">
                         {v?.rank && (
-                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brass2">
+                          <span className="rounded-full bg-brass/10 border border-brass/20 px-2.5 py-0.5 text-xs font-semibold text-brassInk">
                             {v.rank}
                           </span>
                         )}

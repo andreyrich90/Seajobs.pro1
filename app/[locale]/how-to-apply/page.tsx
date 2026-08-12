@@ -425,9 +425,9 @@ export default function HowToApplyPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden border-b border-white/10">
-          <div className="absolute inset-0 bg-[radial-gradient(800px_400px_at_50%_0%,#0e2a45,#0a1f33_60%)]" />
+          <div className="absolute inset-0 hero-surface-center" />
           <div className="relative mx-auto max-w-4xl px-5 py-16 text-center md:py-20">
-            <span className="inline-flex items-center gap-2 rounded-full border border-brass/30 bg-brass/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brass2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-brass/30 bg-brass/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brassInk">
               <ClipboardList size={13} /> {c.kicker}
             </span>
             <h1 className="mt-5 font-display text-3xl font-semibold text-white md:text-5xl">{c.h1}</h1>
@@ -457,17 +457,17 @@ export default function HowToApplyPage() {
           <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Upload a CV */}
             <div className="rounded-2xl border border-brass/25 bg-card p-6 md:p-8">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/15 px-3 py-1 text-xs font-bold text-brass2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/15 px-3 py-1 text-xs font-bold text-brassInk">
                 <Sparkles size={12} /> {c.cvBadge}
               </span>
               <h3 className="mt-4 flex items-center gap-2 font-display text-xl font-semibold text-white">
-                <Upload size={20} className="text-brass2" /> {c.cvTitle}
+                <Upload size={20} className="text-brassInk" /> {c.cvTitle}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-mist">{c.cvText}</p>
               <ol className="mt-5 space-y-3">
                 {c.cvSteps.map((s, i) => (
                   <li key={i} className="flex gap-3">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-brass/15 text-xs font-bold text-brass2">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-brass/15 text-xs font-bold text-brassInk">
                       {i + 1}
                     </span>
                     <span className="text-sm leading-relaxed text-mist">{s}</span>
@@ -476,7 +476,7 @@ export default function HowToApplyPage() {
               </ol>
               <NextLink
                 href="/seafarer/cv"
-                className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brass2 transition hover:text-brass"
+                className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brassInk transition hover:text-brass"
               >
                 {c.cvLink} <ArrowRight size={15} />
               </NextLink>
@@ -521,7 +521,7 @@ export default function HowToApplyPage() {
               {c.needs.map((n, i) => (
                 <li key={i} className="flex gap-3.5 rounded-2xl border border-white/10 bg-card p-4 md:p-5">
                   {n.required ? (
-                    <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-brass2" />
+                    <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-brassInk" />
                   ) : (
                     <Circle size={20} className="mt-0.5 shrink-0 text-mist" />
                   )}
@@ -530,7 +530,7 @@ export default function HowToApplyPage() {
                       <span className="font-semibold text-white">{n.t}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${
-                          n.required ? "bg-brass/15 text-brass2" : "bg-white/5 text-mist"
+                          n.required ? "bg-brass/15 text-brassInk" : "bg-white/5 text-mist"
                         }`}
                       >
                         {n.required ? c.requiredTag : c.optionalTag}

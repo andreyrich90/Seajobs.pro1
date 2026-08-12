@@ -120,7 +120,7 @@ export default function DashboardPage() {
         <div className="mt-5">
           <div className="mb-1.5 flex items-end justify-between gap-3">
             <p className="text-xs sm:text-sm text-mist">{t.dash_profile_completion}</p>
-            <p className="font-display text-2xl font-bold text-brass2 leading-none shrink-0">{completion}%</p>
+            <p className="font-display text-2xl font-bold text-brassInk leading-none shrink-0">{completion}%</p>
           </div>
           <div className="h-2 w-full rounded-full bg-white/5">
             <div
@@ -131,7 +131,7 @@ export default function DashboardPage() {
           {completion < 100 && (
             <p className="mt-2 text-xs text-mist">
               {t.dash_complete_profile}{" "}
-              <Link href="/seafarer/profile" className="text-brass2 hover:underline">
+              <Link href="/seafarer/profile" className="text-brassInk hover:underline">
                 {t.dash_update_now}
               </Link>
             </p>
@@ -170,7 +170,7 @@ export default function DashboardPage() {
             <p className="text-xs text-mist">{t.dash_browse_jobs_desc}</p>
           </div>
         </div>
-        <ChevronRight size={18} className="text-brass2 shrink-0 transition group-hover:translate-x-0.5" />
+        <ChevronRight size={18} className="text-brassInk shrink-0 transition group-hover:translate-x-0.5" />
       </Link>
 
       {/* Stat cards */}
@@ -179,7 +179,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold text-mist">{t.dash_certificates}</p>
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-brass/10">
-              <Award size={18} className="text-brass2" />
+              <Award size={18} className="text-brassInk" />
             </div>
           </div>
           <p className="font-display text-3xl font-bold text-white">{stats.certCount}</p>
@@ -244,14 +244,14 @@ export default function DashboardPage() {
           >
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/5">
-                <action.icon size={18} className="text-brass2" />
+                <action.icon size={18} className="text-brassInk" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">{action.label}</p>
                 <p className="text-xs text-mist">{action.desc}</p>
               </div>
             </div>
-            <ChevronRight size={16} className="text-mist group-hover:text-brass2 transition" />
+            <ChevronRight size={16} className="text-mist group-hover:text-brassInk transition" />
           </Link>
         ))}
       </div>
@@ -267,14 +267,14 @@ export default function DashboardPage() {
             stats.hasJobAlert ? "bg-brass/20" : "bg-white/5"
           }`}>
             {stats.hasJobAlert
-              ? <Bell size={18} className="text-brass2" />
+              ? <Bell size={18} className="text-brassInk" />
               : <BellOff size={18} className="text-mist" />
             }
           </div>
           <div>
             <p className="font-semibold text-white">{t.dash_job_alerts}</p>
             {stats.hasJobAlert ? (
-              <p className="text-xs text-brass2">
+              <p className="text-xs text-brassInk">
                 {t.dash_alert_active.split("{rank}")[0]}
                 <strong>{stats.seafarer?.rank}</strong>
                 {t.dash_alert_active.split("{rank}")[1]}
@@ -288,7 +288,7 @@ export default function DashboardPage() {
             ) : (
               <p className="text-xs text-mist">
                 {t.dash_alert_set_rank.split("{link}")[0]}
-                <Link href="/seafarer/profile" className="text-brass2 hover:underline">{t.dash_alert_set_rank_link}</Link>
+                <Link href="/seafarer/profile" className="text-brassInk hover:underline">{t.dash_alert_set_rank_link}</Link>
                 {t.dash_alert_set_rank.split("{link}")[1]}
               </p>
             )}

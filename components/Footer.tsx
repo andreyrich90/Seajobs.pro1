@@ -84,7 +84,7 @@ export default function Footer() {
                 <Anchor size={18} className="text-[#061523]" strokeWidth={2.4} />
               </div>
               <span className="font-display text-xl font-bold text-white">
-                SeaJobs<span className="text-brass2">.pro</span>
+                SeaJobs<span className="text-brassInk">.pro</span>
               </span>
             </Link>
             <p className="mt-3 text-sm text-mist leading-relaxed">
@@ -104,7 +104,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={s.label}
-                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-mist transition hover:border-brass/40 hover:text-brass2"
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/10 bg-white/5 text-mist transition hover:border-brass/40 hover:text-brassInk"
                   >
                     {s.icon}
                   </a>
@@ -121,7 +121,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {PLATFORM.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-mist transition hover:text-brass2">
+                  <Link href={l.href} className="text-sm text-mist transition hover:text-brassInk">
                     {l.label}
                   </Link>
                 </li>
@@ -137,7 +137,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {COMPANY.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-mist transition hover:text-brass2">
+                  <Link href={l.href} className="text-sm text-mist transition hover:text-brassInk">
                     {l.label}
                   </Link>
                 </li>
@@ -153,7 +153,7 @@ export default function Footer() {
             <ul className="flex flex-col gap-2.5">
               {ACCOUNT.map((l) => (
                 <li key={l.href}>
-                  <NextLink href={l.href} className="text-sm text-mist transition hover:text-brass2">
+                  <NextLink href={l.href} className="text-sm text-mist transition hover:text-brassInk">
                     {l.label}
                   </NextLink>
                 </li>

@@ -76,7 +76,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
             <Anchor size={18} className="text-[#061523]" strokeWidth={2.4} />
           </div>
           <span className="font-display text-xl font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </span>
         </Link>
       </div>
@@ -90,7 +90,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
               href={item.href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                 isActive
-                  ? "bg-brass/15 text-brass2 border border-brass/20"
+                  ? "bg-brass/15 text-brassInk border border-brass/20"
                   : "text-mist hover:bg-white/5 hover:text-white"
               }`}
             >
@@ -124,7 +124,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
                   key={l.code}
                   onClick={() => { setLang(l.code); setLangOpen(false); }}
                   className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-semibold transition hover:bg-white/5 ${
-                    lang === l.code ? "text-brass2 bg-brass/10" : "text-foam"
+                    lang === l.code ? "text-brassInk bg-brass/10" : "text-foam"
                   }`}
                 >
                   <span className="text-base">{l.flag}</span> {l.label}
@@ -180,7 +180,7 @@ export default function CompanyLayout({ children }: { children: React.ReactNode 
             <Menu size={22} />
           </button>
           <Link href="/" className="font-display text-lg font-bold text-white">
-            SeaJobs<span className="text-brass2">.pro</span>
+            SeaJobs<span className="text-brassInk">.pro</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <NotificationBell />
