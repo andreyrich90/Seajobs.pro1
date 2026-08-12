@@ -325,6 +325,7 @@ export interface Database {
           created_at: string;
           updated_at: string | null;
           featured_until: string | null;
+          telegram_message_id: number | null;
         };
         Insert: {
           id?: string;
@@ -353,6 +354,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string | null;
           featured_until?: string | null;
+          telegram_message_id?: number | null;
         };
         Update: {
           id?: string;
@@ -381,6 +383,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string | null;
           featured_until?: string | null;
+          telegram_message_id?: number | null;
         };
         Relationships: [];
       };
@@ -411,6 +414,54 @@ export interface Database {
           status?: string;
           stage?: string;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      seafarer_telegram: {
+        Row: {
+          seafarer_id: string;
+          chat_id: number;
+          lang: string | null;
+          linked_at: string;
+        };
+        Insert: {
+          seafarer_id: string;
+          chat_id: number;
+          lang?: string | null;
+          linked_at?: string;
+        };
+        Update: {
+          seafarer_id?: string;
+          chat_id?: number;
+          lang?: string | null;
+          linked_at?: string;
+        };
+        Relationships: [];
+      };
+      telegram_link_codes: {
+        Row: {
+          code: string;
+          seafarer_id: string;
+          lang: string | null;
+          created_at: string;
+          expires_at: string;
+          used_at: string | null;
+        };
+        Insert: {
+          code: string;
+          seafarer_id: string;
+          lang?: string | null;
+          created_at?: string;
+          expires_at?: string;
+          used_at?: string | null;
+        };
+        Update: {
+          code?: string;
+          seafarer_id?: string;
+          lang?: string | null;
+          created_at?: string;
+          expires_at?: string;
+          used_at?: string | null;
         };
         Relationships: [];
       };

@@ -15,7 +15,7 @@ npm run outreach  # CLI crewing-agency invite mailer (scripts/outreach/send-invi
 There is no test suite configured.
 
 Local development needs Supabase env vars (see `.env.local.example`):
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, used by API routes), `ANTHROPIC_API_KEY` (CV parsing + forum translation + vacancy-image parsing), `RESEND_API_KEY` (transactional email), `CRON_SECRET` (verifies the Vercel cron requests; also the fallback secret for the outreach route), `OUTREACH_SECRET` (optional — gates `/api/outreach`).
+`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, used by API routes), `ANTHROPIC_API_KEY` (CV parsing + forum translation + vacancy-image parsing), `RESEND_API_KEY` (transactional email), `CRON_SECRET` (verifies the Vercel cron requests; also the fallback secret for the outreach route), `OUTREACH_SECRET` (optional — gates `/api/outreach`), `TELEGRAM_BOT_TOKEN` + `TELEGRAM_WEBHOOK_SECRET` + `TELEGRAM_CHANNEL_ID` (the notification bot and the public vacancy channel — see **Telegram** below).
 
 ## Architecture
 
@@ -32,9 +32,9 @@ There are two data sources, and which one a feature uses depends on when it was 
   - Schema lives in `supabase/*.sql` (one-off setup scripts, run manually in the Supabase SQL editor) and `supabase/migrations/*.sql` (dated, idempotent migrations). There is no migration runner — apply new SQL files manually against the Supabase project.
 - **`lib/data.ts`** is legacy static/seed data still used for the **news** feature (`NEWS: NewsItem[]`, multilingual `Record<Lang, string>` titles/bodies) and the `Job` type. News today is a hybrid: some articles are these hardcoded entries, others live in the `news_articles` Supabase table (see `app/[locale]/news/`). Don't add new vacancies here — vacancies are 100% Supabase (`vacancies` table); `lib/data.ts`'s `JOBS` array is unused dead data kept only for the `Job` type import in `components/JobCard.tsx`.
 
-Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories` (a.k.a. forum "sections"), `forum_topics`, `forum_posts`, `news_articles`, `news_comments`, `referrals` (referral tracking; `seafarers`/`companies` carry a unique `referral_code`), `outreach_log` (which crewing agencies have already been emailed).
+Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories` (a.k.a. forum "sections"), `forum_topics`, `forum_posts`, `news_articles`, `news_comments`, `referrals` (referral tracking; `seafarers`/`companies` carry a unique `referral_code`), `outreach_log` (which crewing agencies have already been emailed), `seafarer_telegram` + `telegram_link_codes` (the Telegram binding and the single-use codes behind the bot's deep link — deliberately separate from `seafarers`, which every signed-in user can read).
 
-Migrations under `supabase/migrations/` are dated + idempotent; `20260608000000_baseline_schema.sql` is the consolidated baseline and later files layer on chat, referrals, forum sections/replies, anonymous forum posting, seafarer documents/diplomas, and the "profile required before applying" rule.
+Migrations under `supabase/migrations/` are dated + idempotent; `20260608000000_baseline_schema.sql` is the consolidated baseline and later files layer on chat, referrals, forum sections/replies, anonymous forum posting, seafarer documents/diplomas, the "profile required before applying" rule, and the Telegram bot's columns.
 
 ### Auth & roles
 
@@ -86,12 +86,29 @@ All route handlers use the Node runtime and a service-role Supabase client (`cre
 - `api/admin/parse-vacancy-image` — admin-only: send a vacancy screenshot (JPEG/PNG/WebP), Claude extracts a JSON posting **per vacancy found** (returns `vacancies: [...]` — a screenshot may contain several distinct positions; the Import form fills with the first and queues the rest) so each can be reviewed before saving. Its prompt makes the model write a **unique, rewritten** Markdown `description` (intro + `## Vessel particulars` / `## Requirements` / `## How to apply`), never a verbatim copy of the screenshot — duplicated descriptions hurt SEO, so keep this constraint if you touch the prompt. Two more invariants (apply equally to hand-written SQL import batches): **`vessel_type` must be extracted whenever any hint exists** (title, specs, dedicated field — normalised to a standard name like "LPG Carrier"), and **`## Requirements` must carry every real requirement from the source** (certs, experience limits, documents, English, permits), reworded but never dropped or replaced with a generic line; uniqueness comes from rephrasing and the intro, never from inventing facts.
 - `api/admin/translate-news`, `api/admin/translate-forum`, `api/forum/translate-topic` — call the Anthropic API (`lib/forumI18n.ts`) to machine-translate admin-authored content into the other languages.
 - `api/cv-parse` — accepts an uploaded PDF/DOCX CV (`mammoth` for DOCX text extraction), asks Claude to extract structured fields matching the `seafarers`/`certificates`/`sea_experience` columns, returns JSON the client writes straight into the profile.
-- `api/cron/*` — three Vercel Crons (see `vercel.json`), each verifying `Authorization: Bearer <CRON_SECRET>` when the env var is set:
+- `api/cron/*` — five Vercel Crons (see `vercel.json`), each verifying `Authorization: Bearer <CRON_SECRET>` when the env var is set:
   - `close-expired-vacancies` (daily 01:00 UTC) — deactivates vacancies whose `joining_date` is >14 days in the past.
   - `referral-reminders` (daily 02:00 UTC) — emails referred users who signed up 7+ days ago but haven't finished their seafarer profile (finishing it is what rewards their referrer).
   - `unread-messages-digest` (daily 07:00 UTC) — companion to the instant-email throttle in `api/notify`: sends one "you have unread messages" follow-up per conversation for still-unread messages that arrived after the last email.
+  - `collect-telegram` (every 6h) — scrapes the public crewing channels in `import_sources` for new postings (`lib/telegram.ts` + `lib/collectTelegram.ts`).
+  - `telegram-channel` (hourly at :30) — mirrors to our own Telegram channel any vacancy that went live but has no `telegram_message_id` yet (see **Telegram** below).
 - `api/outreach` — browser-triggered crewing-agency invite mailer (open a URL, no terminal). Sends one personalised email per agency in its language via Resend, tracking sent addresses in `outreach_log` so repeat runs skip them. Gated by `OUTREACH_SECRET`/`CRON_SECRET`. Shares copy + recipient list with the `npm run outreach` CLI via `lib/outreach.ts` (see `scripts/outreach/README.md`).
 - `api/contact`, `api/company/applicant` — contact form submission and company-side applicant lookup.
+- `api/telegram/*` — the notification bot (see **Telegram** below): `link` mints the one-time deep-link code for the "Connect Telegram" button, `webhook` is the bot's inbox, `setup` registers the webhook and reports whether the wiring is complete.
+
+### Telegram
+
+Two features share one bot (`TELEGRAM_BOT_TOKEN`), and both are best-effort: no Telegram failure may break an import, a publish, or a cron run.
+
+**Job alerts to seafarers.** A seafarer presses "Connect Telegram" on their dashboard (`components/TelegramConnect.tsx`); `api/telegram/link` mints a single-use code into `telegram_link_codes` and returns `t.me/<bot>?start=<code>`; the bot's webhook redeems it and writes a `seafarer_telegram` row. That binding lives in its own table, not on `seafarers`, because `seafarers` is readable by every signed-in user — nobody but the owner should see who connected a Telegram account. `dispatchJobAlerts` then messages every matched seafarer who linked, **and drops them from the email list** — Telegram is unmetered while Resend's free tier is 100 mails a day, so a linked seafarer frees an email slot for someone who isn't. A 403 back from Telegram (bot blocked) drops the binding, which silently falls the seafarer back to email.
+
+**The public vacancy channel.** Every new posting is mirrored to `TELEGRAM_CHANNEL_ID`. Two paths write to it on purpose: `importVacancy`/`api/notify` post immediately, and the hourly `api/cron/telegram-channel` sweeps anything still unposted. `vacancies.telegram_message_id` is the interlock — set on success, so the sweeper skips it and nothing is posted twice. The sweep only looks two days back by default so that switching the channel on doesn't dump the whole archive into it; pass `?days=…&limit=…` to seed the backlog deliberately, a run at a time.
+
+Copy for both lives in `TG_COPY` in `lib/telegramBot.ts`, not in `lib/i18n.ts`: it renders server-side only, and the bot has to answer people who have never had a locale on the site. Channel language is `TELEGRAM_CHANNEL_LANG` (default `ru`); DMs use the locale the seafarer linked from. Links carry the matching locale prefix.
+
+**Do not confuse `lib/telegram.ts` with `lib/telegramBot.ts`.** The first is inbound — it scrapes *other people's* public channels for the vacancy collector and needs no token. The second is outbound — our own bot.
+
+Setup, once: create the bot with @BotFather → set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (mandatory; the webhook rejects every update without it), `TELEGRAM_CHANNEL_ID` → add the bot as a channel admin with "post messages" → open `/api/telegram/setup?secret=<CRON_SECRET>` to register the webhook and verify the wiring.
 
 ### Styling
 

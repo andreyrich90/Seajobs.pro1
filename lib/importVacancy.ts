@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
 import { normalizeContractDuration } from "@/lib/contract";
 import { dispatchJobAlerts, type AlertResult } from "@/lib/jobAlerts";
+import { postVacancyToChannel } from "@/lib/telegramFeed";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
 // scraped draft. Finds/creates the company by name, then either refreshes a
@@ -163,6 +164,10 @@ export async function importVacancy(
   // vacancies posted by a company through its own dashboard and nothing else.
   // Refreshing a recurring posting above is not new, so it stays silent.
   const alerts = await dispatchJobAlerts(admin, vacancy.id);
+
+  // Mirror to the public Telegram channel. Best-effort: if this fails the
+  // hourly sweeper picks the row up, because telegram_message_id stays null.
+  await postVacancyToChannel(admin, vacancy.id);
 
   return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, alerts };
 }

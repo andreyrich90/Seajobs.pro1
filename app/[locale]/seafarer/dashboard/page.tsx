@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
+import TelegramConnect from "@/components/TelegramConnect";
 import { T, type Lang } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
@@ -18,6 +19,7 @@ interface DashboardStats {
   expCount: number;
   applicationCount: number;
   hasJobAlert: boolean;
+  telegramLinked: boolean;
 }
 
 function calcCompletion(seafarer: Seafarer | null): number {
@@ -46,6 +48,7 @@ export default function DashboardPage() {
     expCount: 0,
     applicationCount: 0,
     hasJobAlert: false,
+    telegramLinked: false,
   });
   const [loading, setLoading] = useState(true);
   const [alertToggling, setAlertToggling] = useState(false);
@@ -55,12 +58,13 @@ export default function DashboardPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const [seafarerRes, certsRes, expRes, appRes, alertRes] = await Promise.all([
+      const [seafarerRes, certsRes, expRes, appRes, alertRes, tgRes] = await Promise.all([
         supabase.from("seafarers").select("*").eq("id", session.user.id).single(),
         supabase.from("certificates").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("sea_experience").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("applications").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("job_alerts").select("seafarer_id").eq("seafarer_id", session.user.id).maybeSingle(),
+        supabase.from("seafarer_telegram").select("chat_id").eq("seafarer_id", session.user.id).maybeSingle(),
       ]);
 
       setStats({
@@ -69,6 +73,7 @@ export default function DashboardPage() {
         expCount: expRes.count ?? 0,
         applicationCount: appRes.count ?? 0,
         hasJobAlert: !!alertRes.data,
+        telegramLinked: !!tgRes.data?.chat_id,
       });
       setLoading(false);
     }
@@ -257,7 +262,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Job Alert */}
-      <div className={`mt-6 rounded-2xl border p-6 flex items-center justify-between gap-4 ${
+      {/* Stacked on phones for the same reason as the Telegram card below: on a
+          390px screen the button leaves the copy about four words wide. */}
+      <div className={`mt-6 rounded-2xl border p-6 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center ${
         stats.hasJobAlert
           ? "border-brass/30 bg-brass/5"
           : "border-white/10 bg-card"
@@ -308,6 +315,14 @@ export default function DashboardPage() {
           </button>
         )}
       </div>
+
+      {stats.seafarer?.id && (
+        <TelegramConnect
+          seafarerId={stats.seafarer.id}
+          linked={stats.telegramLinked}
+          onChange={(linked) => setStats((prev) => ({ ...prev, telegramLinked: linked }))}
+        />
+      )}
 
       {/* Contact / Suggestions */}
       <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
