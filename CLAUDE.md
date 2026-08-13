@@ -112,18 +112,26 @@ Setup, once: create the bot with @BotFather → set `TELEGRAM_BOT_TOKEN`, `TELEG
 
 ### Styling
 
-Tailwind CSS with a custom maritime palette defined in `tailwind.config.ts`:
+Tailwind CSS with a custom maritime palette. **`tailwind.config.ts` holds no literal colours** — every token is `rgb(var(--c-*) / <alpha-value>)`, and the channel values live in `app/globals.css`. Changing the theme therefore means editing that one file, never a component.
 
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `navy` / `navy2` | `#0a1f33` / `#0e2a45` | primary backgrounds |
-| `deep` | `#061523` | darkest background |
-| `card` | `#0f2942` | card surfaces |
-| `brass` / `brass2` | `#c9a227` / `#e3c04a` | accent / CTA |
-| `foam` | `#e8f0f2` | primary text |
-| `mist` | `#8aa0b0` | secondary text |
-| `teal` | `#2dd4bf` | vessel-type labels |
-| `coral` | `#e8744f` | "HOT" badge / errors |
+There are two themes. **«Открытый океан»** (dark) is the product theme and sits on bare `:root`, so it is the CSS default and needs no script to appear. **«Глубина»** (light) is the opt-in alternative under `[data-theme="light"]`, set on `<html>` by an inline script in `layout.tsx` before paint. Whichever theme is the default must also be the CSS default: applying it from JavaScript means a blocked or slow script paints the other one first.
+
+| Token | Dark (default) | Light | Usage |
+|-------|----------------|-------|-------|
+| `navy` | `#02141f` | `#c9e0f1` | page background |
+| `navy2` | `#072230` | `#e1eff9` | raised surface |
+| `deep` | `#010c14` | `#a6c9e4` | deepest band: footer, section strips |
+| `card` | `#08222f` | `#ffffff` | card surfaces |
+| `brass` / `brass2` | `#c9a227` / `#e3c04a` | `#d9ae23` / `#b08d1b` | accent fill, CTA gradient |
+| `brassInk` | `#e3c04a` | `#6f5605` | accent as text |
+| `foam` | `#eaf2f5` | `#07263f` | primary text |
+| `mist` | `#8fa6b6` | `#25455c` | secondary text |
+| `teal` | `#2dd4bf` | `#0e6f68` | vessel-type labels |
+| `coral` | `#e8744f` | `#a9491f` | "HOT" badge / errors |
+
+`.hero-surface` / `.hero-surface-center` carry the hero gradient (a dawn sea, `#27506e → #02141f`, inverted for light) and are the only place a literal colour is written outside the token blocks.
+
+`text-white`, `border-white/10` and friends are hardcoded throughout the app and mean "primary text" / "hairline". They are correct as-is on the dark default; the block of `:root[data-theme="light"]` overrides at the bottom of `globals.css` remaps them for light. **Any new hardcoded `white` utility needs an entry there or it will be invisible in light mode.**
 
 Fonts: **Fraunces** (`font-display`) for headings, **Archivo** (`font-body`) for body text — self-hosted via `next/font/google` in `app/layout.tsx` (not loaded from a CDN `<link>`).
 

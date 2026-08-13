@@ -3,16 +3,32 @@
 @tailwind utilities;
 
 /* ── Theme palette (RGB channels for Tailwind's <alpha-value>) ───────────────
-   «Глубина» is the product theme, so it lives on bare :root — no attribute, no
-   script, nothing to go wrong. Dark is the opt-in alternative and is applied by
-   [data-theme="dark"], set on <html> before paint (see layout.tsx).
+   «Открытый океан» is the product theme, so it lives on bare :root — no
+   attribute, no script, nothing to go wrong. The light theme («Глубина») is
+   the opt-in alternative and is applied by [data-theme="light"], set on <html>
+   before paint (see layout.tsx).
 
-   Doing it the other way round meant the CSS default was dark and light only
-   arrived once JavaScript ran, so a blocked or slow script showed the wrong
-   theme. Everything that overrides a Tailwind utility below is therefore scoped
-   with :not([data-theme="dark"]) — it must apply by default and back off only
-   in dark. */
+   The rule is: whichever theme is the default must be the CSS default too.
+   Applying it from JavaScript instead meant a blocked or slow script showed
+   the other theme for a beat. Everything that overrides a Tailwind utility
+   below is therefore scoped to [data-theme="light"] — it must apply only in
+   light, where the literal `text-white` / `border-white/10` utilities scattered
+   through the app would otherwise mean white-on-white. */
 :root {
+  --c-navy: 2 20 31;       /* page background → «Открытый океан» */
+  --c-navy2: 7 34 48;      /* raised surface — one step up from the page */
+  --c-deep: 1 12 20;       /* deepest band: footer, section strips */
+  --c-card: 8 34 47;       /* card surface */
+  --c-brass: 201 162 39;   /* accent FILL, dark end of the button gradient */
+  --c-brass2: 227 192 74;  /* accent FILL, light end of the gradient */
+  --c-brass-ink: 227 192 74; /* accent as TEXT → 10.6:1 on the page ground */
+  --c-foam: 234 242 245;   /* primary text → 16.5:1 */
+  --c-mist: 143 166 182;   /* secondary text → 7.4:1 */
+  --c-teal: 45 212 191;    /* vessel-type label */
+  --c-coral: 232 116 79;   /* hot badge / error */
+}
+
+:root[data-theme="light"] {
   --c-navy: 201 224 241;   /* page background → «Глубина» */
   --c-navy2: 225 239 249;  /* raised surface — one step lighter than the page */
   --c-deep: 166 201 228;   /* deepest band: footer, section strips */
@@ -24,20 +40,6 @@
   --c-mist: 37 69 92;      /* secondary text → 7.4:1 */
   --c-teal: 14 111 104;    /* vessel-type label */
   --c-coral: 169 73 31;    /* hot badge / error */
-}
-
-:root[data-theme="dark"] {
-  --c-navy: 10 31 51;      /* page background */
-  --c-navy2: 14 42 69;     /* raised surface */
-  --c-deep: 6 21 35;       /* darkest background */
-  --c-card: 15 41 66;      /* card surface */
-  --c-brass: 201 162 39;   /* accent */
-  --c-brass2: 227 192 74;  /* accent light — gradient partner */
-  --c-brass-ink: 227 192 74; /* accent as text (same as brass2 on dark) */
-  --c-foam: 232 240 242;   /* primary text */
-  --c-mist: 138 160 176;   /* secondary text */
-  --c-teal: 45 212 191;    /* vessel-type label */
-  --c-coral: 232 116 79;   /* hot badge / error */
 }
 
 body {
@@ -52,59 +54,61 @@ body {
 }
 
 /* ── Hero backdrop (theme-aware) ─────────────────────────────────────────── */
+/* Dawn sea: a lit horizon at the top falling to near-black. The light end is
+   what makes the hero read as a sky rather than as a flat dark panel. */
 .hero-surface {
-  background: radial-gradient(1200px 520px at 72% -10%, #a6c9e4, #c9e0f1 62%);
+  background: radial-gradient(1200px 520px at 72% -10%, #27506e, #02141f 62%);
 }
-:root[data-theme="dark"] .hero-surface {
-  background: radial-gradient(1200px 500px at 72% -10%, #103155, #0a1f33 60%);
+:root[data-theme="light"] .hero-surface {
+  background: radial-gradient(1200px 520px at 72% -10%, #a6c9e4, #c9e0f1 62%);
 }
 
 /* Centred variant, used by /about and /how-to-apply. Both had this gradient
    hardcoded inline, so their hero stayed dark navy in light mode while the rest
    of the page turned blue — dark heading text on a dark ground. */
 .hero-surface-center {
-  background: radial-gradient(800px 400px at 50% 0%, #a6c9e4, #c9e0f1 60%);
+  background: radial-gradient(800px 400px at 50% 0%, #27506e, #02141f 60%);
 }
-:root[data-theme="dark"] .hero-surface-center {
-  background: radial-gradient(800px 400px at 50% 0%, #0e2a45, #0a1f33 60%);
+:root[data-theme="light"] .hero-surface-center {
+  background: radial-gradient(800px 400px at 50% 0%, #a6c9e4, #c9e0f1 60%);
 }
 
 /* ── Light-mode remaps for literal white/ink utilities ───────────────────────
    `text-white`, `border-white/10` and friends are hardcoded across the app and
-   mean "primary text" / "hairline" — which is white only on dark. They apply by
-   default (light) and are switched off under [data-theme="dark"], where the
-   plain Tailwind utility is already correct. The :not() selector outranks the
-   bare utility, so no !important is needed. */
-:root:not([data-theme="dark"]) .text-white { color: #07263f; }
-:root:not([data-theme="dark"]) .text-white\/90 { color: rgba(7, 38, 63, 0.9); }
-:root:not([data-theme="dark"]) .text-white\/85 { color: rgba(7, 38, 63, 0.85); }
-:root:not([data-theme="dark"]) .text-white\/50 { color: rgba(7, 38, 63, 0.55); }
-:root:not([data-theme="dark"]) .text-white\/10 { color: rgba(7, 38, 63, 0.14); }
+   mean "primary text" / "hairline" — which is white only on dark. On the dark
+   default the plain Tailwind utility is already right, so these apply only
+   under [data-theme="light"]. The attribute selector outranks the bare utility,
+   so no !important is needed. */
+:root[data-theme="light"] .text-white { color: #07263f; }
+:root[data-theme="light"] .text-white\/90 { color: rgba(7, 38, 63, 0.9); }
+:root[data-theme="light"] .text-white\/85 { color: rgba(7, 38, 63, 0.85); }
+:root[data-theme="light"] .text-white\/50 { color: rgba(7, 38, 63, 0.55); }
+:root[data-theme="light"] .text-white\/10 { color: rgba(7, 38, 63, 0.14); }
 
 /* Without these two a hover handler literally made the label vanish under the
    cursor: white text on a light ground. */
-:root:not([data-theme="dark"]) .hover\:text-white:hover,
-:root:not([data-theme="dark"]) .group:hover .group-hover\:text-white { color: #07263f; }
+:root[data-theme="light"] .hover\:text-white:hover,
+:root[data-theme="light"] .group:hover .group-hover\:text-white { color: #07263f; }
 
-:root:not([data-theme="dark"]) .border-white\/5,
-:root:not([data-theme="dark"]) .border-white\/10,
-:root:not([data-theme="dark"]) .border-white\/15,
-:root:not([data-theme="dark"]) .border-white\/20,
-:root:not([data-theme="dark"]) .border-white\/25,
-:root:not([data-theme="dark"]) .border-white\/30 { border-color: rgba(7, 38, 63, 0.16); }
+:root[data-theme="light"] .border-white\/5,
+:root[data-theme="light"] .border-white\/10,
+:root[data-theme="light"] .border-white\/15,
+:root[data-theme="light"] .border-white\/20,
+:root[data-theme="light"] .border-white\/25,
+:root[data-theme="light"] .border-white\/30 { border-color: rgba(7, 38, 63, 0.16); }
 
-:root:not([data-theme="dark"]) .hover\:border-white\/20:hover,
-:root:not([data-theme="dark"]) .hover\:border-white\/25:hover,
-:root:not([data-theme="dark"]) .hover\:border-white\/30:hover { border-color: rgba(7, 38, 63, 0.22); }
+:root[data-theme="light"] .hover\:border-white\/20:hover,
+:root[data-theme="light"] .hover\:border-white\/25:hover,
+:root[data-theme="light"] .hover\:border-white\/30:hover { border-color: rgba(7, 38, 63, 0.22); }
 
-:root:not([data-theme="dark"]) .bg-white\/5 { background-color: rgba(7, 38, 63, 0.05); }
-:root:not([data-theme="dark"]) .bg-white\/10 { background-color: rgba(7, 38, 63, 0.08); }
-:root:not([data-theme="dark"]) .bg-white\/15 { background-color: rgba(7, 38, 63, 0.09); }
-:root:not([data-theme="dark"]) .bg-white\/20 { background-color: rgba(7, 38, 63, 0.11); }
-:root:not([data-theme="dark"]) .bg-white\/25 { background-color: rgba(7, 38, 63, 0.13); }
-:root:not([data-theme="dark"]) .hover\:bg-white\/5:hover { background-color: rgba(7, 38, 63, 0.07); }
-:root:not([data-theme="dark"]) .hover\:bg-white\/10:hover { background-color: rgba(7, 38, 63, 0.10); }
-:root:not([data-theme="dark"]) .hover\:bg-white\/15:hover { background-color: rgba(7, 38, 63, 0.11); }
+:root[data-theme="light"] .bg-white\/5 { background-color: rgba(7, 38, 63, 0.05); }
+:root[data-theme="light"] .bg-white\/10 { background-color: rgba(7, 38, 63, 0.08); }
+:root[data-theme="light"] .bg-white\/15 { background-color: rgba(7, 38, 63, 0.09); }
+:root[data-theme="light"] .bg-white\/20 { background-color: rgba(7, 38, 63, 0.11); }
+:root[data-theme="light"] .bg-white\/25 { background-color: rgba(7, 38, 63, 0.13); }
+:root[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(7, 38, 63, 0.07); }
+:root[data-theme="light"] .hover\:bg-white\/10:hover { background-color: rgba(7, 38, 63, 0.10); }
+:root[data-theme="light"] .hover\:bg-white\/15:hover { background-color: rgba(7, 38, 63, 0.11); }
 
-:root:not([data-theme="dark"]) .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
-:root:not([data-theme="dark"]) .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(7, 38, 63, 0.14); }
+:root[data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
+:root[data-theme="light"] .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(7, 38, 63, 0.14); }
