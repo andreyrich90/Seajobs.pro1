@@ -12,3 +12,6 @@ scripts/outreach/sent.log
 # Python
 __pycache__/
 *.pyc
+
+# Screenshots from local verification runs — never part of the app.
+/theme-*.png
