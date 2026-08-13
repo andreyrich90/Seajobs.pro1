@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
 import { normalizeContractDuration } from "@/lib/contract";
 import { dispatchJobAlerts, type AlertResult } from "@/lib/jobAlerts";
-import { postVacancyToChannel } from "@/lib/telegramFeed";
+import { postVacancyToChannel, type ChannelPostResult } from "@/lib/telegramFeed";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
 // scraped draft. Finds/creates the company by name, then either refreshes a
@@ -39,6 +39,8 @@ export type ImportVacancyResult = {
   contactEmail: string | null;
   /** Job-alert fan-out for this posting; all zeros for a refreshed duplicate. */
   alerts?: AlertResult;
+  /** Telegram channel mirror. Absent for a refreshed duplicate. */
+  channel?: ChannelPostResult;
 };
 
 // The `vacancies` trigger blocks a publish when the owning company has no name
@@ -167,7 +169,9 @@ export async function importVacancy(
 
   // Mirror to the public Telegram channel. Best-effort: if this fails the
   // hourly sweeper picks the row up, because telegram_message_id stays null.
-  await postVacancyToChannel(admin, vacancy.id);
+  // The reason travels back to the caller — a post that silently did not happen
+  // is exactly the failure an admin has no other way to notice.
+  const channel = await postVacancyToChannel(admin, vacancy.id);
 
-  return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, alerts };
+  return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, alerts, channel };
 }

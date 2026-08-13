@@ -340,7 +340,14 @@ export default function ImportVacancyPage() {
     setSaved((p) => [{
       id: data.vacancyId,
       title: `${data.refreshed ? `${form.title} — refreshed (duplicate)` : form.title}`
-        + (data.contactEmailInherited ? ` · ✉ email auto-filled from this company: ${data.contactEmail}` : ""),
+        + (data.contactEmailInherited ? ` · ✉ email auto-filled from this company: ${data.contactEmail}` : "")
+        // Whether it reached the Telegram channel. A failure here is recoverable
+        // (the hourly sweeper retries) but invisible unless it is said out loud.
+        + (data.channel
+            ? data.channel.posted
+              ? " · 📣 posted to the Telegram channel"
+              : ` · 📣 not in the channel yet (${data.channel.reason}) — the hourly sweep will retry`
+            : ""),
     }, ...p]);
 
     if (queue.length > 0) {
