@@ -26,8 +26,17 @@ export function telegramConfigured(): boolean {
   return !!token();
 }
 
+// A 429 carries the exact number of seconds to wait. Waiting it out beats
+// failing, but only when it is short: a long cool-down belongs to the hourly
+// sweeper, not to a request an admin is sitting in front of.
+const MAX_RETRY_AFTER_S = 20;
+
 /** Raw Bot API call. Never throws; a missing token is reported, not fatal. */
-export async function tgApi<T = unknown>(method: string, payload: Record<string, unknown> = {}): Promise<TgResult<T>> {
+export async function tgApi<T = unknown>(
+  method: string,
+  payload: Record<string, unknown> = {},
+  attempt = 0,
+): Promise<TgResult<T>> {
   const t = token();
   if (!t) return { ok: false, error: "TELEGRAM_BOT_TOKEN not set" };
 
@@ -42,8 +51,19 @@ export async function tgApi<T = unknown>(method: string, payload: Record<string,
       result?: T;
       description?: string;
       error_code?: number;
+      parameters?: { retry_after?: number };
     };
     if (res.ok && body.ok) return { ok: true, result: body.result as T };
+
+    // Flood control. Posting several vacancies in a row — an import batch, or
+    // a channel backfill — is exactly what trips it, and the message that trips
+    // it is otherwise simply lost.
+    const retryAfter = body.parameters?.retry_after;
+    if (body.error_code === 429 && attempt === 0 && retryAfter && retryAfter <= MAX_RETRY_AFTER_S) {
+      console.warn(`[telegram] ${method} rate-limited, retrying in ${retryAfter}s`);
+      await new Promise((r) => setTimeout(r, (retryAfter + 1) * 1000));
+      return tgApi<T>(method, payload, attempt + 1);
+    }
 
     const error = `HTTP ${res.status}: ${body.description ?? "unknown error"}`;
     // 403 means the user blocked the bot or deleted the chat. That is not a
