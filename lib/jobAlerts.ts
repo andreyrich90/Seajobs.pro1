@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { sendEmail, sentTodayCount } from "@/lib/email";
-import { alertMessage, telegramConfigured, tgLang, tgSend, TG_COPY, vacancyUrl, type TgVacancy } from "@/lib/telegramBot";
+import { alertMessage, botLang, telegramConfigured, tgSend, TG_COPY, vacancyUrl, type TgVacancy } from "@/lib/telegramBot";
 
 // Job-alert fan-out for a newly posted vacancy. Shared by every path that puts
 // a vacancy on the board: the company dashboard (via /api/notify) and the admin
@@ -59,7 +59,7 @@ export function alertMatchesVacancy(
 
 export type AlertResult = { matched: number; emailed: number; telegrammed: number; skipped: number };
 
-type TelegramSubscriber = { seafarer_id: string; chat_id: number; lang: string | null };
+type TelegramSubscriber = { seafarer_id: string; chat_id: number };
 
 /**
  * Sends the alert over Telegram to every matched seafarer who linked their
@@ -80,15 +80,15 @@ async function dispatchTelegram(
 
   const { data } = await admin
     .from("seafarer_telegram")
-    .select("seafarer_id, chat_id, lang")
+    .select("seafarer_id, chat_id")
     .in("seafarer_id", seafarerIds);
 
+  const lang = botLang();
   const subs = (data ?? []) as TelegramSubscriber[];
   for (const [i, s] of subs.entries()) {
     // Telegram allows ~30 messages a second across all chats; pace well under.
     if (i > 0) await new Promise((r) => setTimeout(r, 60));
 
-    const lang = tgLang(s.lang);
     const sent = await tgSend(s.chat_id, alertMessage(vacancy, lang), {
       buttonText: TG_COPY[lang].view,
       buttonUrl: vacancyUrl(vacancy, lang),
