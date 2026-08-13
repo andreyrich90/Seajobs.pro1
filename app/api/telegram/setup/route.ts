@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { botUsername, channelId, channelLang, telegramConfigured, tgApi } from "@/lib/telegramBot";
+import { botLang, botUsername, channelId, telegramConfigured, tgApi } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -72,6 +72,6 @@ export async function GET(req: Request) {
     bot: await botUsername(),
     webhook: { url: webhookUrl, registered, info: info.ok ? info.result : info },
     channel,
-    channelLang: channelLang(),
+    language: botLang(),
   });
 }

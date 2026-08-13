@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { esc, TG_COPY, tgLang, tgSend, type TgLang } from "@/lib/telegramBot";
+import { botLang, esc, TG_COPY, tgSend } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -59,18 +59,18 @@ export async function POST(req: Request) {
   const db = admin();
   if (!db) return NextResponse.json({ ok: true });
 
-  // Language of last resort: what the person's Telegram client is set to. A
-  // successful /start overrides it with the locale they were browsing in.
-  const fallbackLang = tgLang(msg.from?.language_code);
+  // The bot speaks one language, the same one it posts vacancies in — see
+  // botLang(). Nothing here depends on who is writing.
+  const c = TG_COPY[botLang()];
 
   try {
     if (text.startsWith("/start")) {
       const code = text.slice("/start".length).trim().split(/\s+/)[0] ?? "";
-      await handleStart(db, chatId, code, fallbackLang);
+      await handleStart(db, chatId, code, c);
     } else if (text.startsWith("/stop")) {
-      await handleStop(db, chatId, fallbackLang);
+      await handleStop(db, chatId, c);
     } else {
-      await tgSend(chatId, esc(TG_COPY[await langOfChat(db, chatId, fallbackLang)].help));
+      await tgSend(chatId, esc(c.help));
     }
   } catch (e) {
     console.error("[telegram-webhook]", e instanceof Error ? e.message : e);
@@ -82,20 +82,12 @@ export async function POST(req: Request) {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = ReturnType<typeof createClient<any, any, any>>;
 
-/** Answers an already-linked seafarer in the language they linked with. */
-async function langOfChat(db: Db, chatId: number, fallback: TgLang): Promise<TgLang> {
-  const { data } = await db
-    .from("seafarer_telegram")
-    .select("lang")
-    .eq("chat_id", chatId)
-    .maybeSingle();
-  return data?.lang ? tgLang(data.lang as string) : fallback;
-}
+type Copy = (typeof TG_COPY)[keyof typeof TG_COPY];
 
-async function handleStart(db: Db, chatId: number, code: string, fallback: TgLang) {
+async function handleStart(db: Db, chatId: number, code: string, c: Copy) {
   // Bare /start — someone found the bot without a deep link.
   if (!code) {
-    await tgSend(chatId, esc(TG_COPY[await langOfChat(db, chatId, fallback)].help));
+    await tgSend(chatId, esc(c.help));
     return;
   }
 
@@ -107,11 +99,9 @@ async function handleStart(db: Db, chatId: number, code: string, fallback: TgLan
 
   const expired = !row || row.used_at || new Date(row.expires_at as string) < new Date();
   if (expired) {
-    await tgSend(chatId, esc(TG_COPY[await langOfChat(db, chatId, fallback)].badCode));
+    await tgSend(chatId, esc(c.badCode));
     return;
   }
-
-  const lang = row.lang ? tgLang(row.lang as string) : fallback;
 
   // The unique constraint on chat_id is what actually enforces "one Telegram
   // account, one profile". Re-linking the same chat to the same profile is a
@@ -122,39 +112,41 @@ async function handleStart(db: Db, chatId: number, code: string, fallback: TgLan
     .eq("chat_id", chatId)
     .maybeSingle();
   if (owner && owner.seafarer_id !== row.seafarer_id) {
-    await tgSend(chatId, esc(TG_COPY[lang].alreadyLinked));
+    await tgSend(chatId, esc(c.alreadyLinked));
     return;
   }
 
   const { error } = await db.from("seafarer_telegram").upsert(
-    { seafarer_id: row.seafarer_id, chat_id: chatId, lang, linked_at: new Date().toISOString() },
+    // `lang` records the locale they linked from. Messages no longer use it —
+    // the bot writes in one language — but it is the only trace of which site
+    // language a subscriber came from, so it stays.
+    { seafarer_id: row.seafarer_id, chat_id: chatId, lang: row.lang, linked_at: new Date().toISOString() },
     { onConflict: "seafarer_id" },
   );
   if (error) {
     console.error("[telegram-webhook] link failed:", error.message);
-    await tgSend(chatId, esc(TG_COPY[lang].badCode));
+    await tgSend(chatId, esc(c.badCode));
     return;
   }
 
   // Single use: the code is a bearer credential for someone's account.
   await db.from("telegram_link_codes").update({ used_at: new Date().toISOString() }).eq("code", code);
 
-  await tgSend(chatId, `${esc(TG_COPY[lang].linked)}\n\n${esc(TG_COPY[lang].linkedHint)}`);
+  await tgSend(chatId, `${esc(c.linked)}\n\n${esc(c.linkedHint)}`);
 }
 
-async function handleStop(db: Db, chatId: number, fallback: TgLang) {
+async function handleStop(db: Db, chatId: number, c: Copy) {
   const { data } = await db
     .from("seafarer_telegram")
-    .select("seafarer_id, lang")
+    .select("seafarer_id")
     .eq("chat_id", chatId)
     .maybeSingle();
 
   if (!data) {
-    await tgSend(chatId, esc(TG_COPY[fallback].notLinked));
+    await tgSend(chatId, esc(c.notLinked));
     return;
   }
 
-  const lang = data.lang ? tgLang(data.lang as string) : fallback;
   await db.from("seafarer_telegram").delete().eq("seafarer_id", data.seafarer_id);
-  await tgSend(chatId, esc(TG_COPY[lang].unlinked));
+  await tgSend(chatId, esc(c.unlinked));
 }

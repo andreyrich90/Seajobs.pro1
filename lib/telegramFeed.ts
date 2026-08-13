@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { channelId, channelLang, channelMessage, telegramConfigured, tgSend, TG_COPY, vacancyUrl, type TgVacancy } from "@/lib/telegramBot";
+import { botLang, channelId, channelMessage, telegramConfigured, tgSend, TG_COPY, vacancyUrl, type TgVacancy } from "@/lib/telegramBot";
 
 // The public vacancy channel: every posting that goes live on the site is
 // mirrored to Telegram.
@@ -33,7 +33,7 @@ export async function postVacancyToChannel(admin: Admin, vacancyId: string): Pro
     if (v.telegram_message_id) return { posted: false, reason: "already posted" };
     if (!v.is_active) return { posted: false, reason: "vacancy is not active" };
 
-    const lang = channelLang();
+    const lang = botLang();
     const vacancy = v as unknown as TgVacancy;
     const sent = await tgSend(chat, channelMessage(vacancy, lang), {
       buttonText: TG_COPY[lang].view,

@@ -307,9 +307,20 @@ export function channelMessage(v: TgVacancy, lang: TgLang): string {
     .join("\n");
 }
 
-/** Which language the public channel is written in. One env var to change it. */
-export function channelLang(): TgLang {
-  return tgLang(process.env.TELEGRAM_CHANNEL_LANG || "ru");
+/**
+ * The one language the bot writes in — channel posts, job-alert DMs and the
+ * replies to /start and /stop alike.
+ *
+ * English by default, and deliberately not per-seafarer. A vacancy's own
+ * content (rank, vessel type, contract) is English wherever it came from, so a
+ * localised wrapper around it read as a mix rather than as a translation; and
+ * English is the working language at sea, which is why the site can afford to
+ * speak it here even though the website itself is in five.
+ *
+ * `TELEGRAM_LANG` overrides it (en | ru | ua | pl | ro) for everything at once.
+ */
+export function botLang(): TgLang {
+  return tgLang(process.env.TELEGRAM_LANG || "en");
 }
 
 export function channelId(): string | null {
