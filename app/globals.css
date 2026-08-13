@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ── Theme palette (RGB channels for Tailwind's <alpha-value>) ───────────────
-   «Открытый океан» is the product theme, so it lives on bare :root — no
+   «Штурманская» is the product theme, so it lives on bare :root — no
    attribute, no script, nothing to go wrong. The light theme («Глубина») is
    the opt-in alternative and is applied by [data-theme="light"], set on <html>
    before paint (see layout.tsx).
@@ -13,19 +13,26 @@
    the other theme for a beat. Everything that overrides a Tailwind utility
    below is therefore scoped to [data-theme="light"] — it must apply only in
    light, where the literal `text-white` / `border-white/10` utilities scattered
-   through the app would otherwise mean white-on-white. */
+   through the app would otherwise mean white-on-white.
+
+   Two things are deliberate in the dark values. The page is not near-black and
+   the text is not near-white: pairing the two pushed heading contrast to 16.5:1,
+   which is past the point where light type on a very dark ground starts to
+   smear. 14.1:1 is still far above AA and easier to sit in front of. And the
+   card is a full 1.24× the page rather than the 1.13× it used to be, so the
+   layout reads as layers instead of one flat field. */
 :root {
-  --c-navy: 2 20 31;       /* page background → «Открытый океан» */
-  --c-navy2: 7 34 48;      /* raised surface — one step up from the page */
-  --c-deep: 1 12 20;       /* deepest band: footer, section strips */
-  --c-card: 8 34 47;       /* card surface */
+  --c-navy: 10 31 51;      /* page background → «Штурманская», L* 11.2 */
+  --c-navy2: 16 42 66;     /* raised surface — one step up from the page */
+  --c-deep: 6 20 31;       /* deepest band: footer, section strips */
+  --c-card: 18 48 76;      /* card surface → 1.24× the page, so cards read as a layer */
   --c-brass: 201 162 39;   /* accent FILL, dark end of the button gradient */
   --c-brass2: 227 192 74;  /* accent FILL, light end of the gradient */
-  --c-brass-ink: 227 192 74; /* accent as TEXT → 10.6:1 on the page ground */
-  --c-foam: 234 242 245;   /* primary text → 16.5:1 */
-  --c-mist: 143 166 182;   /* secondary text → 7.4:1 */
-  --c-teal: 45 212 191;    /* vessel-type label */
-  --c-coral: 232 116 79;   /* hot badge / error */
+  --c-brass-ink: 227 192 74; /* accent as TEXT → 7.7:1 on a card */
+  --c-foam: 228 237 241;   /* primary text → 14.1:1 on the page, 11.4:1 on a card */
+  --c-mist: 153 174 190;   /* secondary text → 5.9:1 on a card */
+  --c-teal: 45 212 191;    /* vessel-type label → 7.3:1 on a card */
+  --c-coral: 237 130 98;   /* hot badge / error → 5.1:1 on a card */
 }
 
 :root[data-theme="light"] {
@@ -57,7 +64,7 @@ body {
 /* Dawn sea: a lit horizon at the top falling to near-black. The light end is
    what makes the hero read as a sky rather than as a flat dark panel. */
 .hero-surface {
-  background: radial-gradient(1200px 520px at 72% -10%, #27506e, #02141f 62%);
+  background: radial-gradient(1200px 520px at 72% -10%, #2c5578, #0a1f33 62%);
 }
 :root[data-theme="light"] .hero-surface {
   background: radial-gradient(1200px 520px at 72% -10%, #a6c9e4, #c9e0f1 62%);
@@ -67,7 +74,7 @@ body {
    hardcoded inline, so their hero stayed dark navy in light mode while the rest
    of the page turned blue — dark heading text on a dark ground. */
 .hero-surface-center {
-  background: radial-gradient(800px 400px at 50% 0%, #27506e, #02141f 60%);
+  background: radial-gradient(800px 400px at 50% 0%, #2c5578, #0a1f33 60%);
 }
 :root[data-theme="light"] .hero-surface-center {
   background: radial-gradient(800px 400px at 50% 0%, #a6c9e4, #c9e0f1 60%);
