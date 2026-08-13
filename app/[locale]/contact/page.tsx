@@ -89,7 +89,7 @@ export default function ContactPage() {
             <p className="text-sm font-semibold text-white">{c.also}</p>
             <div className="mt-3 flex flex-wrap gap-3">
               <a
-                href="https://t.me/seajobspro"
+                href="https://t.me/seajobs_pro"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist transition hover:text-white"
