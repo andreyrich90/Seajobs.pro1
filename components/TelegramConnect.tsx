@@ -14,7 +14,10 @@ import { T } from "@/lib/i18n";
 // poll our own row until the binding appears — which is also what makes the
 // card update when they press Start on their phone rather than here.
 
-const CHANNEL = process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL || "seajobspro";
+// The public channel's @handle, used only for the "open the channel" link.
+// Kept separate from TELEGRAM_CHANNEL_ID (which the bot posts to and may be a
+// numeric id): this one has to be something a browser can open.
+const CHANNEL = process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL || "seajobs_pro";
 
 export default function TelegramConnect({
   seafarerId,
