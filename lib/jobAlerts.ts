@@ -13,6 +13,22 @@ import { alertMessage, botLang, telegramConfigured, tgSend, TG_COPY, vacancyUrl,
 export const ALERT_DAILY_BUDGET = 50;
 export const ALERT_PER_VACANCY_CAP = 25;
 
+/**
+ * Job-alert emails, paused.
+ *
+ * They are the one high-volume mail the site sends, and they compete for the
+ * same daily quota as the mail that actually matters — a seafarer's CV on its
+ * way to a crewing agency. Telegram now covers the same job instantly and for
+ * free, so alerts go there and nowhere else for the time being.
+ *
+ * Nothing else changes: everyone who matches still gets the in-app
+ * notification, and every other kind of email (applications, CVs, status
+ * changes, messages, digests) is untouched.
+ *
+ * Flip this back to `true` to resume — it is the only switch.
+ */
+export const ALERT_EMAIL_ENABLED = false;
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Admin = SupabaseClient<any, any, any>;
 
@@ -63,12 +79,12 @@ type TelegramSubscriber = { seafarer_id: string; chat_id: number };
 
 /**
  * Sends the alert over Telegram to every matched seafarer who linked their
- * account. Returns the set of ids that were reached, so the caller can spend
- * the (much scarcer) email budget on the people Telegram could not reach.
+ * account. Returns the set of ids that were reached, so the caller knows who
+ * still needs another channel.
  *
  * A 403 means the seafarer blocked the bot or deleted the chat. The binding is
  * dropped rather than retried forever — from our side that is a silent
- * unsubscribe, and they fall back to email on the next alert.
+ * unsubscribe, and the next alert reaches them in-app only.
  */
 async function dispatchTelegram(
   admin: Admin,
@@ -168,6 +184,19 @@ export async function dispatchJobAlerts(admin: Admin, vacancyId: string): Promis
       matched.map((a) => a.seafarer_id),
     );
 
+    // Everyone Telegram could not reach. While ALERT_EMAIL_ENABLED is off they
+    // get the in-app notification and nothing else.
+    const byEmail = matched.filter((a) => !reached.has(a.seafarer_id));
+
+    if (!ALERT_EMAIL_ENABLED) {
+      if (byEmail.length > 0) {
+        console.info(
+          `[job-alerts] "${vacancy.title}": ${reached.size}/${matched.length} reached on Telegram; ${byEmail.length} have no Telegram and job-alert email is paused (in-app notifications went to all).`,
+        );
+      }
+      return { matched: matched.length, emailed: 0, telegrammed: reached.size, skipped: byEmail.length };
+    }
+
     // Email only within the daily budget, and only to those Telegram missed.
     const alreadySent = await sentTodayCount("new_vacancy");
     const remainingToday =
@@ -176,7 +205,6 @@ export async function dispatchJobAlerts(admin: Admin, vacancyId: string): Promis
         : Math.max(0, ALERT_DAILY_BUDGET - alreadySent);
     const quota = Math.min(ALERT_PER_VACANCY_CAP, remainingToday);
 
-    const byEmail = matched.filter((a) => !reached.has(a.seafarer_id));
     const recipients = byEmail.slice(0, quota);
     const skipped = byEmail.length - recipients.length;
     if (skipped > 0) {
