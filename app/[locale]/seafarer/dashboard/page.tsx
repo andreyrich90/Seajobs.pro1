@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { Award, Ship, Calendar, User, FileText, ChevronRight, Send, Bell, BellOff, Search, Sparkles } from "lucide-react";
+import { Award, Ship, Calendar, User, FileText, ChevronRight, Search, Send, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
-import TelegramConnect from "@/components/TelegramConnect";
+import JobAlertsCard from "@/components/JobAlertsCard";
 import { T, type Lang } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 
@@ -18,8 +18,6 @@ interface DashboardStats {
   certCount: number;
   expCount: number;
   applicationCount: number;
-  hasJobAlert: boolean;
-  telegramLinked: boolean;
 }
 
 function calcCompletion(seafarer: Seafarer | null): number {
@@ -47,24 +45,19 @@ export default function DashboardPage() {
     certCount: 0,
     expCount: 0,
     applicationCount: 0,
-    hasJobAlert: false,
-    telegramLinked: false,
   });
   const [loading, setLoading] = useState(true);
-  const [alertToggling, setAlertToggling] = useState(false);
 
   useEffect(() => {
     async function loadData() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const [seafarerRes, certsRes, expRes, appRes, alertRes, tgRes] = await Promise.all([
+      const [seafarerRes, certsRes, expRes, appRes] = await Promise.all([
         supabase.from("seafarers").select("*").eq("id", session.user.id).single(),
         supabase.from("certificates").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("sea_experience").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
         supabase.from("applications").select("id", { count: "exact" }).eq("seafarer_id", session.user.id),
-        supabase.from("job_alerts").select("seafarer_id").eq("seafarer_id", session.user.id).maybeSingle(),
-        supabase.from("seafarer_telegram").select("chat_id").eq("seafarer_id", session.user.id).maybeSingle(),
       ]);
 
       setStats({
@@ -72,8 +65,6 @@ export default function DashboardPage() {
         certCount: certsRes.count ?? 0,
         expCount: expRes.count ?? 0,
         applicationCount: appRes.count ?? 0,
-        hasJobAlert: !!alertRes.data,
-        telegramLinked: !!tgRes.data?.chat_id,
       });
       setLoading(false);
     }
@@ -83,21 +74,6 @@ export default function DashboardPage() {
 
   const completion = calcCompletion(stats.seafarer);
   const fullName = [stats.seafarer?.first_name, stats.seafarer?.last_name].filter(Boolean).join(" ") || t.dash_seafarer_default;
-
-  async function toggleJobAlert() {
-    if (!stats.seafarer?.id || alertToggling) return;
-    const rank = stats.seafarer.rank;
-    if (!rank && !stats.hasJobAlert) return;
-    setAlertToggling(true);
-    if (stats.hasJobAlert) {
-      await supabase.from("job_alerts").delete().eq("seafarer_id", stats.seafarer.id);
-      setStats((prev) => ({ ...prev, hasJobAlert: false }));
-    } else {
-      await supabase.from("job_alerts").upsert({ seafarer_id: stats.seafarer.id, rank: rank! });
-      setStats((prev) => ({ ...prev, hasJobAlert: true }));
-    }
-    setAlertToggling(false);
-  }
 
   if (loading) {
     return (
@@ -143,6 +119,13 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Job alerts — deliberately the first block after the welcome card.
+          Buried at the bottom it was the least-used thing on the page, and it
+          is the one setting that keeps a seafarer coming back. */}
+      {stats.seafarer?.id && (
+        <JobAlertsCard seafarerId={stats.seafarer.id} profileRank={stats.seafarer.rank} />
+      )}
 
       {/* Auto-fill from CV CTA — upload a CV to fill the profile automatically */}
       <Link
@@ -260,69 +243,6 @@ export default function DashboardPage() {
           </Link>
         ))}
       </div>
-
-      {/* Job Alert */}
-      {/* Stacked on phones for the same reason as the Telegram card below: on a
-          390px screen the button leaves the copy about four words wide. */}
-      <div className={`mt-6 rounded-2xl border p-6 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center ${
-        stats.hasJobAlert
-          ? "border-brass/30 bg-brass/5"
-          : "border-white/10 bg-card"
-      }`}>
-        <div className="flex items-center gap-3">
-          <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${
-            stats.hasJobAlert ? "bg-brass/20" : "bg-white/5"
-          }`}>
-            {stats.hasJobAlert
-              ? <Bell size={18} className="text-brassInk" />
-              : <BellOff size={18} className="text-mist" />
-            }
-          </div>
-          <div>
-            <p className="font-semibold text-white">{t.dash_job_alerts}</p>
-            {stats.hasJobAlert ? (
-              <p className="text-xs text-brassInk">
-                {t.dash_alert_active.split("{rank}")[0]}
-                <strong>{stats.seafarer?.rank}</strong>
-                {t.dash_alert_active.split("{rank}")[1]}
-              </p>
-            ) : stats.seafarer?.rank ? (
-              <p className="text-xs text-mist">
-                {t.dash_alert_get_notified.split("{rank}")[0]}
-                <strong className="text-foam">{stats.seafarer.rank}</strong>
-                {t.dash_alert_get_notified.split("{rank}")[1]}
-              </p>
-            ) : (
-              <p className="text-xs text-mist">
-                {t.dash_alert_set_rank.split("{link}")[0]}
-                <Link href="/seafarer/profile" className="text-brassInk hover:underline">{t.dash_alert_set_rank_link}</Link>
-                {t.dash_alert_set_rank.split("{link}")[1]}
-              </p>
-            )}
-          </div>
-        </div>
-        {stats.seafarer?.rank && (
-          <button
-            onClick={toggleJobAlert}
-            disabled={alertToggling}
-            className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
-              stats.hasJobAlert
-                ? "border border-coral/30 bg-coral/10 text-coral hover:bg-coral/20"
-                : "bg-gradient-to-br from-brass to-brass2 text-[#061523] hover:-translate-y-0.5"
-            }`}
-          >
-            {alertToggling ? "…" : stats.hasJobAlert ? t.dash_disable : t.dash_enable}
-          </button>
-        )}
-      </div>
-
-      {stats.seafarer?.id && (
-        <TelegramConnect
-          seafarerId={stats.seafarer.id}
-          linked={stats.telegramLinked}
-          onChange={(linked) => setStats((prev) => ({ ...prev, telegramLinked: linked }))}
-        />
-      )}
 
       {/* Contact / Suggestions */}
       <div className="mt-6 rounded-2xl border border-white/10 bg-card p-6">
