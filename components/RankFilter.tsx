@@ -36,10 +36,15 @@ export default function RankFilter({
   value,
   onApply,
   className = "",
+  label: labelOverride,
 }: {
   value: string[];
   onApply: (ranks: string[]) => void;
   className?: string;
+  /** Replaces the "Position: N" filter label. The dashboard uses the picker to
+      *add* a subscription, where a count reads as noise beside the chips that
+      already list every rank. */
+  label?: string;
 }) {
   const { lang } = useLang();
   const u = (k: string) => UI[k][lang] ?? UI[k].en;
@@ -54,7 +59,7 @@ export default function RankFilter({
   const toggle = (r: string) =>
     setDraft((d) => (d.includes(r) ? d.filter((x) => x !== r) : [...d, r]));
 
-  const label = value.length === 0 ? u("all") : `${u("sel")}: ${value.length}`;
+  const label = labelOverride ?? (value.length === 0 ? u("all") : `${u("sel")}: ${value.length}`);
 
   return (
     <div className={`relative ${className}`}>

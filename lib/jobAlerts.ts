@@ -130,9 +130,18 @@ export async function dispatchJobAlerts(admin: Admin, vacancyId: string): Promis
       if (rows.length < 1000) break;
     }
 
-    const matched = alerts.filter((a) =>
-      alertMatchesVacancy(a.rank, vacancy.rank, vacancy.title),
-    );
+    // One seafarer can follow several ranks, and a posting can satisfy more
+    // than one of them — a "Master" vacancy matching both their Master and
+    // their Master (Captain) alert. Without collapsing to one row per person
+    // they would get the same vacancy twice: two in-app notifications, two
+    // Telegram messages, two emails off a budget of fifty a day.
+    const seen = new Set<string>();
+    const matched = alerts.filter((a) => {
+      if (seen.has(a.seafarer_id)) return false;
+      if (!alertMatchesVacancy(a.rank, vacancy.rank, vacancy.title)) return false;
+      seen.add(a.seafarer_id);
+      return true;
+    });
     if (matched.length === 0) return empty;
 
     const companyName =
