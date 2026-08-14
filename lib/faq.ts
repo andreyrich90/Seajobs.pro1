@@ -92,11 +92,11 @@ export const FAQ_SEAFARERS: FaqItem[] = [
       ro: "Cum aflu despre posturi noi pentru funcția mea?",
     },
     a: {
-      en: "Set up a job alert in your dashboard — you'll get an email when a matching vacancy appears. You can also browse jobs by rank, vessel type or country from the links in the footer.",
-      ru: "Настройте оповещение в личном кабинете — при появлении подходящей вакансии придёт письмо. Также можно смотреть вакансии по должности, типу судна или стране — ссылки внизу страницы.",
-      ua: "Налаштуйте сповіщення в особистому кабінеті — коли з'явиться підходяща вакансія, прийде лист. Також можна дивитися вакансії за посадою, типом судна чи країною — посилання внизу сторінки.",
-      pl: "Ustaw powiadomienie w panelu — gdy pojawi się pasująca oferta, dostaniesz e-mail. Możesz też przeglądać oferty według stanowiska, typu statku lub kraju — linki na dole strony.",
-      ro: "Setează o alertă în contul tău — primești un e-mail când apare un post potrivit. Poți răsfoi și posturile după funcție, tipul navei sau țară — linkurile din subsolul paginii.",
+      en: "Set up a job alert in your dashboard and connect Telegram — we message you the moment a matching vacancy appears. You can follow several positions at once. You can also browse jobs by rank, vessel type or country from the links in the footer.",
+      ru: "Настройте оповещение в личном кабинете и подключите Telegram — как только появится подходящая вакансия, пришлём сообщение. Должностей можно выбрать несколько. Также можно смотреть вакансии по должности, типу судна или стране — ссылки внизу страницы.",
+      ua: "Налаштуйте сповіщення в особистому кабінеті та підключіть Telegram — щойно з'явиться підходяща вакансія, надішлемо повідомлення. Посад можна обрати кілька. Також можна дивитися вакансії за посадою, типом судна чи країною — посилання внизу сторінки.",
+      pl: "Ustaw powiadomienie w panelu i połącz Telegram — napiszemy, gdy tylko pojawi się pasująca oferta. Możesz obserwować kilka stanowisk naraz. Możesz też przeglądać oferty według stanowiska, typu statku lub kraju — linki na dole strony.",
+      ro: "Setează o alertă în contul tău și conectează Telegram — îți scriem imediat ce apare un post potrivit. Poți urmări mai multe funcții deodată. Poți răsfoi și posturile după funcție, tipul navei sau țară — linkurile din subsolul paginii.",
     },
   },
   {
