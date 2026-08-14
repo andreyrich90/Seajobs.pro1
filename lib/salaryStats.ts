@@ -56,9 +56,15 @@ export const SALARY_VESSELS: VesselCol[] = [
   {
     key: "offshore",
     keywords: [
-      "offshore", "ahts", "anchor handling", "psv", "osv", "supply vessel", "supply ship", "dp1", "dp2", "dp3", "dynamic position",
+      "offshore", "ahts", "aht", "anchor handling", "psv", "osv", "mpsv", "ocv", "supply vessel", "supply ship",
+      "dp1", "dp2", "dp3", "dynamic position",
       "platform", "wind", "windfarm", "wind farm", "ctv", "sov", "csv", "rov", "diving", "dsv", "construction vessel",
-      "jack-up", "jackup", "drill", "drillship", "rig", "fpso", "fso", "flng", "cable lay", "cable-lay", "pipe lay", "pipelay",
+      // "jack up" without the hyphen is how crewing agencies actually write it,
+      // and it was the spelling that fell through — a Jack Up Barge posting only
+      // reached this column when the title happened to mention DP2.
+      "jack-up", "jackup", "jack up", "liftboat", "lift boat", "crane barge", "flat top barge",
+      "drill", "drillship", "rig", "fpso", "fso", "flng", "cable lay", "cable-lay", "pipe lay", "pipelay",
+      "subsea", "well intervention", "errv", "standby vessel", "emergency response",
       "seismic", "survey vessel", "accommodation", "walk to work", "w2w", "semi-sub", "semisub", "tug", "asd tug",
     ],
     names: { en: "Offshore", ru: "Оффшор", ua: "Офшор", pl: "Offshore", ro: "Offshore" },
@@ -257,8 +263,21 @@ function bandFor(slug: string): Band {
 
 // Widest ceiling any rank can use — figures above it are dropped up front, so
 // the per-rank band only ever narrows what survives.
+//
+// Day rates need their own, much higher ceiling. A monthly wage of €30,000 is
+// a typo; a day rate of $1,430 on a DP2 jack-up barge is an ordinary offshore
+// contract, and its 30-day equivalent (€39,500) sailed straight past the
+// monthly ceiling and was thrown away as a data error. That is not an edge
+// case — everything above roughly $1,090/day was being discarded, which is a
+// large part of what the offshore column is supposed to show.
+//
+// The comparison is still apples to apples: both figures are pay *while
+// onboard*. Offshore day rates are high precisely because the rotation is
+// equal-time and the leave is unpaid.
 const ABS_MAX_EUR = 30000;
-const inBand = (x: number) => x > 0 && x <= ABS_MAX_EUR;
+const DAY_RATE_MAX_EUR = 60000; // ≈ $2,170/day — beyond that it is a contract total, not a rate
+const maxFor = (isDayRate: boolean) => (isDayRate ? DAY_RATE_MAX_EUR : ABS_MAX_EUR);
+const inBand = (x: number, isDayRate = false) => x > 0 && x <= maxFor(isDayRate);
 
 // Offshore, tug, dredger and yacht postings quote a DAY rate. Until the
 // importer learned to store `salary_period`, every one of them was written as a
@@ -270,10 +289,16 @@ const inBand = (x: number) => x > 0 && x <= ABS_MAX_EUR;
 const DAY_RATE_FLEETS = new Set(["offshore", "dredger", "yacht", "fishing"]);
 
 function fitToBand(x: number, band: Band, period: string | null, fleet: string): number | null {
-  if (x >= band.min && x <= band.max) return x;
+  // A figure that is already an explicit day rate keeps the day-rate ceiling —
+  // the per-rank monthly max would throw away every senior offshore contract.
+  const isDayRate = period === "day" && DAY_RATE_FLEETS.has(fleet);
+  const max = isDayRate ? Math.max(band.max, DAY_RATE_MAX_EUR) : band.max;
+  if (x >= band.min && x <= max) return x;
   if (period !== "day" && x < band.min && DAY_RATE_FLEETS.has(fleet)) {
+    // Stored as monthly but plainly a day rate (see DAY_RATE_FLEETS above).
+    // Recovered figures get the day-rate ceiling for the same reason.
     const asDay = x * DAYS_PER_MONTH;
-    if (asDay >= band.min && asDay <= band.max) return asDay;
+    if (asDay >= band.min && asDay <= Math.max(band.max, DAY_RATE_MAX_EUR)) return asDay;
   }
   return null;
 }
@@ -290,12 +315,15 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
   for (const v of vacancies) {
     const key = vesselKeyOf(v, cols);
     if (!key) continue;
-    // Monthly-equivalent, then convert the currency to EUR.
+    // Monthly-equivalent, then convert the currency to EUR. The pre-filter has
+    // to know it is looking at a day rate too, otherwise it drops the posting
+    // at the monthly ceiling before fitToBand ever sees it.
+    const isDayRate = v.salary_period === "day" && DAY_RATE_FLEETS.has(key);
     const points: number[] = [];
     for (const raw of [v.salary_from, v.salary_to]) {
       if (raw == null) continue;
       const x = toEur(monthlyEquivalent(raw, v.salary_period), v.currency);
-      if (inBand(x)) points.push(x);
+      if (inBand(x, isDayRate)) points.push(x);
     }
     if (points.length === 0) continue; // all out of band / missing
     prepared.push({ rank: v.rank, key, period: v.salary_period, points });
