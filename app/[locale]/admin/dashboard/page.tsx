@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Users, Anchor, Briefcase, MessageSquare, Newspaper, Building2, ShieldOff, Send, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -32,9 +32,56 @@ const STAT_CARDS = (s: Stats) => [
   { label: "Messages",         value: s.messages,        icon: Mail,         color: "text-teal",   bg: "bg-teal/10"  },
 ];
 
+type TgStats = {
+  seafarers: number;
+  linked: number;
+  subscriptions: number;
+  subscribers: number;
+  subscribedButUnlinked: number;
+  announced: number;
+};
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tg, setTg] = useState<TgStats | null>(null);
+  const [announcing, setAnnouncing] = useState(false);
+  const [announceResult, setAnnounceResult] = useState<string | null>(null);
+
+  // Telegram figures come from a server route, not from here: seafarer_telegram
+  // is readable only by its owner, so counting it in the browser returns zero.
+  async function authHeader() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return { Authorization: `Bearer ${session?.access_token ?? ""}` };
+  }
+
+  const loadTg = useCallback(async () => {
+    const res = await fetch("/api/admin/telegram", { headers: await authHeader() });
+    const json = await res.json();
+    if (json.ok) setTg(json as TgStats);
+  }, []);
+
+  useEffect(() => { loadTg(); }, [loadTg]);
+
+  async function announce() {
+    if (announcing) return;
+    setAnnouncing(true);
+    setAnnounceResult(null);
+    try {
+      const res = await fetch("/api/admin/telegram", { method: "POST", headers: await authHeader() });
+      const json = await res.json();
+      setAnnounceResult(
+        json.ok
+          ? `Sent to ${json.inserted} seafarers. Skipped ${json.skippedLinked} already connected and ${json.skippedAlreadyAnnounced} already notified.`
+          : `Failed: ${json.error}`,
+      );
+      await loadTg();
+    } catch (e) {
+      setAnnounceResult(`Failed: ${e instanceof Error ? e.message : "network error"}`);
+    } finally {
+      setAnnouncing(false);
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -104,6 +151,57 @@ export default function AdminDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Telegram adoption. Job-alert email is paused, so "subscribed but not
+          connected" is the number that matters: those seafarers currently have
+          no way to hear about a matching vacancy except by visiting the site. */}
+      <div className="mt-8 rounded-2xl border border-white/10 bg-card p-6">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-mist">Telegram</h2>
+
+        {tg ? (
+          <>
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+              <div>
+                <p className="font-display text-3xl font-bold text-teal">{tg.linked}</p>
+                <p className="mt-1 text-xs text-mist">
+                  connected
+                  {tg.seafarers > 0 && ` · ${Math.round((tg.linked / tg.seafarers) * 100)}% of seafarers`}
+                </p>
+              </div>
+              <div>
+                <p className="font-display text-3xl font-bold text-white">{tg.subscribers}</p>
+                <p className="mt-1 text-xs text-mist">subscribed to a rank · {tg.subscriptions} subscriptions</p>
+              </div>
+              <div>
+                <p className="font-display text-3xl font-bold text-coral">{tg.subscribedButUnlinked}</p>
+                <p className="mt-1 text-xs text-mist">subscribed but not connected — currently unreachable</p>
+              </div>
+              <div>
+                <p className="font-display text-3xl font-bold text-mist">{tg.announced}</p>
+                <p className="mt-1 text-xs text-mist">already asked to connect</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col items-start gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center">
+              <button
+                onClick={announce}
+                disabled={announcing}
+                className="cursor-pointer rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50"
+              >
+                {announcing ? "Sending…" : "Send the connect-Telegram notice"}
+              </button>
+              <p className="text-xs leading-relaxed text-mist">
+                Writes an in-app notification for every seafarer who has not connected Telegram and has not
+                been asked before. Safe to press twice — nobody receives it twice.
+              </p>
+            </div>
+
+            {announceResult && <p className="mt-3 text-sm text-foam">{announceResult}</p>}
+          </>
+        ) : (
+          <p className="text-sm text-mist">Loading…</p>
+        )}
       </div>
 
       <div className="mt-8 rounded-2xl border border-white/10 bg-card p-6">
