@@ -438,6 +438,45 @@ export interface Database {
         };
         Relationships: [];
       };
+      cv_share_tokens: {
+        Row: {
+          token: string;
+          seafarer_id: string;
+          application_id: string | null;
+          vacancy_id: string | null;
+          sent_to: string | null;
+          created_at: string;
+          expires_at: string;
+          revoked_at: string | null;
+          opened_at: string | null;
+          opened_count: number;
+        };
+        Insert: {
+          token: string;
+          seafarer_id: string;
+          application_id?: string | null;
+          vacancy_id?: string | null;
+          sent_to?: string | null;
+          created_at?: string;
+          expires_at?: string;
+          revoked_at?: string | null;
+          opened_at?: string | null;
+          opened_count?: number;
+        };
+        Update: {
+          token?: string;
+          seafarer_id?: string;
+          application_id?: string | null;
+          vacancy_id?: string | null;
+          sent_to?: string | null;
+          created_at?: string;
+          expires_at?: string;
+          revoked_at?: string | null;
+          opened_at?: string | null;
+          opened_count?: number;
+        };
+        Relationships: [];
+      };
       telegram_link_codes: {
         Row: {
           code: string;

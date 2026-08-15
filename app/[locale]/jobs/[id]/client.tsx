@@ -360,6 +360,11 @@ export default function VacancyDetailClient({
   const [coverLetter, setCoverLetter] = useState("");
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
+  // Second way to apply: the seafarer writes to the agency from their own
+  // mailbox. Costs us no email quota, arrives as a personal letter rather than
+  // bulk mail, and the agency lands on our CV page instead of reading a
+  // signature line — see handleApplyByMail.
+  const [mailing, setMailing] = useState(false);
   // Applying requires a phone number and at least one sea-service record, so
   // the crewing agency always receives contacts + a real CV. null = not loaded.
   const [profileGaps, setProfileGaps] = useState<{ phone: boolean; experience: boolean } | null>(null);
@@ -449,6 +454,87 @@ export default function VacancyDetailClient({
     setShowModal(false);
     setCoverLetter("");
     setApplying(false);
+  }
+
+  /**
+   * Apply by writing from your own mailbox.
+   *
+   * A mail client cannot attach a file from a link, so the CV goes as a URL to
+   * a page on our domain — one token per application, dead after 30 days.
+   * We record the application first so it shows up in the seafarer's list and
+   * the profile rule still applies; what we cannot know is whether the letter
+   * was actually sent, so the status says "prepared", not "delivered".
+   */
+  async function handleApplyByMail() {
+    if (!userId || !vacancy.contact_email) return;
+    setMailing(true);
+    setApplyError(null);
+
+    // Open the tab before awaiting: a window opened after an await has lost the
+    // user-gesture context and is blocked on Safari and on mobile.
+    const tab = window.open("", "_blank");
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/cv-share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? ""}`,
+        },
+        body: JSON.stringify({ vacancyId: vacancy.id, sentTo: vacancy.contact_email }),
+      });
+      const json = (await res.json()) as { ok?: boolean; url?: string; error?: string };
+      if (!json.ok || !json.url) {
+        tab?.close();
+        setApplyError(
+          json.error === "PROFILE_INCOMPLETE"
+            ? "Add your phone number and at least one sea service record — the CV page is built from your profile."
+            : "Could not prepare the CV link. Please try again.",
+        );
+        setMailing(false);
+        return;
+      }
+
+      // Record it, so it appears among their applications like any other.
+      await supabase.from("applications").insert({
+        vacancy_id: vacancy.id,
+        seafarer_id: userId,
+        cover_letter: coverLetter.trim() || null,
+        status: "pending",
+      });
+
+      const subject = `${vacancy.rank || vacancy.title} — application`;
+      const body = [
+        "Dear Sir or Madam,",
+        "",
+        `I would like to apply for the position of ${vacancy.rank || vacancy.title}` +
+          (vacancy.vessel_type ? ` on your ${vacancy.vessel_type}.` : "."),
+        "",
+        "My full CV, certificates and sea service record:",
+        json.url,
+        "",
+        coverLetter.trim(),
+        "",
+        "Kind regards,",
+        "",
+        "Sent via SeaJobs.pro",
+      ]
+        .filter((l, i, all) => !(l === "" && all[i - 1] === ""))
+        .join("\n");
+
+      const href = `mailto:${encodeURIComponent(vacancy.contact_email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      if (tab) tab.location.href = href;
+      else window.location.href = href;
+
+      setApplicationStatus("pending");
+      setShowModal(false);
+      setCoverLetter("");
+    } catch {
+      tab?.close();
+      setApplyError("Could not open your mail app. Please try again.");
+    } finally {
+      setMailing(false);
+    }
   }
 
   // Parse an uploaded CV (PDF/DOCX) and write the extracted data straight into
@@ -1008,15 +1094,37 @@ export default function VacancyDetailClient({
                   />
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3">
                   <button
                     onClick={handleApply}
-                    disabled={applying}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:opacity-50 disabled:translate-y-0"
+                    disabled={applying || mailing}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
                   >
                     <Send size={15} />
-                    {applying ? "Submitting..." : "Submit Application"}
+                    {applying ? "Submitting..." : "Send from SeaJobs.pro"}
                   </button>
+
+                  {/* Second route, offered only where there is an address to
+                      write to. The letter arrives personally from the seafarer
+                      and carries a link to their CV on our domain, so the
+                      crewing manager ends up on the site. */}
+                  {vacancy.contact_email && (
+                    <>
+                      <button
+                        onClick={handleApplyByMail}
+                        disabled={applying || mailing}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-5 py-3 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-50"
+                      >
+                        <Mail size={15} />
+                        {mailing ? "Preparing..." : "Write from my own email"}
+                      </button>
+                      <p className="-mt-1 text-xs leading-relaxed text-mist">
+                        Opens your mail app with the letter ready. Your CV travels as a link that works for 30 days
+                        and can be withdrawn from your dashboard.
+                      </p>
+                    </>
+                  )}
+
                   <button
                     onClick={() => { setShowModal(false); setApplyError(null); }}
                     className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"

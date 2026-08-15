@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
+import CvLinksPanel from "@/components/CvLinksPanel";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Building2, Send, Trash2, ShieldCheck } from "lucide-react";
@@ -68,10 +69,12 @@ export default function ApplicationsPage() {
   const t = T[lang];
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id ?? null);
       if (!session) return;
 
       const { data } = await supabase
@@ -206,6 +209,11 @@ export default function ApplicationsPage() {
           })}
         </div>
       )}
+
+      {/* The CV links handed out by the "write from my own email" route. Kept
+          here rather than on the dashboard because they belong to applications:
+          one link per agency written to. */}
+      {userId && <CvLinksPanel seafarerId={userId} />}
     </div>
   );
 }

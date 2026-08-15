@@ -93,9 +93,22 @@ All route handlers use the Node runtime and a service-role Supabase client (`cre
   - `collect-telegram` (every 6h) — scrapes the public crewing channels in `import_sources` for new postings (`lib/telegram.ts` + `lib/collectTelegram.ts`).
   - `telegram-channel` (hourly at :30) — mirrors to our own Telegram channel any vacancy that went live but has no `telegram_message_id` yet (see **Telegram** below).
 - `api/outreach` — browser-triggered crewing-agency invite mailer (open a URL, no terminal). Sends one personalised email per agency in its language via Resend, tracking sent addresses in `outreach_log` so repeat runs skip them. Gated by `OUTREACH_SECRET`/`CRON_SECRET`. Shares copy + recipient list with the `npm run outreach` CLI via `lib/outreach.ts` (see `scripts/outreach/README.md`).
+- `api/cv-share` — mints the tokenised CV link for the "write from my own email" route (see **Applying** below). Server-side because the token is a bearer credential for a document holding a passport number and visas.
 - `api/contact`, `api/company/applicant` — contact form submission and company-side applicant lookup.
 - `api/admin/telegram` — admin-only: `GET` reports Telegram adoption (connected, distinct rank subscribers, and the one that matters — subscribed but *not* connected, i.e. unreachable while alert email is paused); `POST` writes a one-off in-app announcement asking the unconnected to link. It has to be a server route: `seafarer_telegram` is readable only by its owner, so counting it from the browser returns zero, not a count. Both the stats and the broadcast page every sweep — PostgREST caps a response at 1000 rows. The broadcast skips anyone already connected or already asked, so pressing the button twice is harmless.
 - `api/telegram/*` — the notification bot (see **Telegram** below): `link` mints the one-time deep-link code for the "Connect Telegram" button, `webhook` is the bot's inbox, `setup` registers the webhook and reports whether the wiring is complete.
+
+### Applying
+
+Two routes, both from the vacancy page's apply modal.
+
+**From the portal** (the original): an `applications` row, then `/api/notify` emails the crewing agency with the CV rendered by `lib/cvHtml.ts`. Costs a Resend send.
+
+**From the seafarer's own mailbox**: `/api/cv-share` mints a token into `cv_share_tokens`, and the button opens `mailto:` with the letter written — the agency address, the subject, and a link to `/cv/<token>`. Costs us nothing, arrives as a personal letter rather than bulk mail, and puts the crewing manager on our domain instead of in a signature line.
+
+The CV cannot be the public profile: `seafarers` exposes only a thin whitelist to anonymous visitors, and a CV carries a passport number, visas and a date of birth. Hence a token per application — one link per agency, dead after 30 days, revocable from the applications page (`components/CvLinksPanel.tsx`), and traceable to the agency it was given to if it leaks. `/cv/[token]` sits outside `[locale]` (the reader arrived from an email, and the CV is English) and is `noindex`. Expired, revoked and never-existed all return the same page — telling a stranger which tokens once existed helps nobody.
+
+`lib/cvHtml.ts` renders the CV for both the email and that page, so they cannot drift apart. What the mailto route cannot know is whether the letter was actually sent; `cv_share_tokens.opened_at` is the only feedback it can give back.
 
 ### Telegram
 
