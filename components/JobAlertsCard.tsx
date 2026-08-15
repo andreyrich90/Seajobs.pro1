@@ -141,7 +141,11 @@ export default function JobAlertsCard({
   const canSuggest = !!suggestion && !ranks.includes(suggestion);
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-brass/30 bg-gradient-to-br from-brass/10 to-transparent">
+    // No overflow-hidden here, deliberately: RankFilter's picker is an absolutely
+    // positioned panel, and clipping the card cut it off mid-list so a rank could
+    // be seen but not reached. The rounded corners survive without it — the only
+    // inner edge is the divider, and it sits mid-card, nowhere near a corner.
+    <div className="mb-6 rounded-2xl border border-brass/30 bg-gradient-to-br from-brass/10 to-transparent">
       {/* ── Telegram: the headline, not a footnote ─────────────────────────── */}
       <div className="flex flex-col items-stretch gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex items-start gap-3">
