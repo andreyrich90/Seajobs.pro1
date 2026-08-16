@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { supabase, notify } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 import ApplicantCvModal from "@/components/ApplicantCvModal";
 
 type ApplicationRow = {
@@ -61,7 +61,7 @@ function formatDate(dateStr: string): string {
 
 export default function CompanyApplicationsPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCover, setExpandedCover] = useState<Set<string>>(new Set());

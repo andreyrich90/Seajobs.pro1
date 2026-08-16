@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Send, CheckCircle, AlertCircle, MessageCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 
 type Props = {
   userId?: string | null;
@@ -16,7 +16,7 @@ type Props = {
 
 export default function ContactForm({ userId, userEmail, title, subtitle, compact }: Props) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState(userEmail ?? "");
   const [subject, setSubject] = useState("");

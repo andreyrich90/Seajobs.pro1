@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link2, Eye, Ban } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 
 // The CV links a seafarer handed out when they wrote to an agency from their own
 // mailbox.
@@ -27,7 +27,7 @@ type CvLink = {
 
 export default function CvLinksPanel({ seafarerId }: { seafarerId: string }) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [links, setLinks] = useState<CvLink[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
 

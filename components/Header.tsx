@@ -9,9 +9,10 @@ import {
   Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
   Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp,
 } from "lucide-react";
-import { LANGS, T } from "@/lib/i18n";
+import { LANGS } from "@/lib/langs";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import { useLang } from "@/components/LangProvider";
+import { useT } from "@/components/DictProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import { FLEETS, fleetLabel, type FleetKey } from "@/lib/fleets";
 import { supabase } from "@/lib/supabase/client";
@@ -47,7 +48,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dashboardHref, setDashboardHref] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const t = T[lang];
+  const t = useT();
   const hdr = HDR[lang] ?? HDR.en;
   const current = LANGS.find((l) => l.code === lang)!;
   const fleetDesc = (k: FleetKey) => FLEET_DESC[k][lang] ?? FLEET_DESC[k].en;

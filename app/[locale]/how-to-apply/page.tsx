@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import FaqSection from "@/components/FaqSection";
 import { FAQ_APPLY } from "@/lib/faq";
 import { useLang } from "@/components/LangProvider";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // Step-by-step instructions for seafarers, linked from the Apply button on every
 // vacancy page. Copy is kept inline and localized (same approach as /about):

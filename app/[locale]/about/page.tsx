@@ -1,12 +1,13 @@
 "use client";
 
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import {
   Anchor, Ship, Users, Globe, FileText, Search, Send, MessageSquare,
   ShieldCheck, ShieldAlert, BadgeCheck, Wallet, Lock, Languages, Compass, CheckCircle2,
 } from "lucide-react";
-import { T, type Lang } from "@/lib/i18n";
+import { type Lang } from "@/lib/langs";
 import { useLang } from "@/components/LangProvider";
 
 // Rich, original About content (kept inline, localised) — expands the page well
@@ -274,7 +275,7 @@ const COVERAGE_ICONS = [Globe, Languages, Anchor];
 
 export default function AboutPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const ab = AB[lang] ?? AB.en;
 
   const values = [

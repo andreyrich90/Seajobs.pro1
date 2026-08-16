@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { LANGS, T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
+import { LANGS } from "@/lib/langs";
 import NotificationBell from "@/components/NotificationBell";
 
 const NAV_KEYS = [
@@ -29,7 +30,7 @@ export default function SeafarerLayout({ children }: { children: React.ReactNode
   const nextRouter = useNextRouter();
   const pathname = usePathname();
   const { lang, setLang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [checking, setChecking] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);

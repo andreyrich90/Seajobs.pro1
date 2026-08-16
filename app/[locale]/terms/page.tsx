@@ -3,7 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLang } from "@/components/LangProvider";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 const TRANSLATIONS = {
   ro: {

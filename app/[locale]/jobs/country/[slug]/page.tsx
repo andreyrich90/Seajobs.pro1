@@ -10,7 +10,7 @@ import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
 import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 import { money } from "@/lib/format";
 import {
   COUNTRY_LANDINGS, COUNTRY_COPY, countryLandingBySlug, countryName, vacancyMatchesCountry,

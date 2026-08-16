@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // Categorised vessel-type filter (tabs → checkboxes) used on /jobs and the
 // homepage. Multi-select: a vacancy matches if any selected item's keywords

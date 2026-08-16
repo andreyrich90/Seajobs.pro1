@@ -10,8 +10,8 @@ import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
-import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
+import { useT } from "@/components/DictProvider";
 
 // A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
 // on-screen preview so a full A4 page fits the phone's viewport width.
@@ -847,7 +847,7 @@ const VAR_LABEL: Record<CardVariant, Record<string, string>> = {
 
 export default function CVPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [data, setData] = useState<CVData>({ seafarer: null, certificates: [], experience: [], email: "" });
   const [template, setTemplate] = useState<Template>("maritime");
   const [cardVariant, setCardVariant] = useState<CardVariant>("dark");

@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 import { RANK_LANDINGS, vacancyMatchesRank, type RankLanding } from "@/lib/rankLandings";
 import { DAYS_PER_MONTH, monthlyEquivalent } from "@/lib/salary";
 

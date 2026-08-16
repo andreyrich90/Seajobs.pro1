@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // SEO landing pages for the most-searched vessel types, at /jobs/vessel/<slug>.
 // Unlike ranks (exact match), vessel_type values are free-form strings from many

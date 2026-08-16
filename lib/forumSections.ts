@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // Forum section names/descriptions are stored in English in forum_categories
 // (plain text). These maps localise the built-in sections for display; custom

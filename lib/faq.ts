@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // Localized FAQ content rendered by components/FaqSection.tsx as a visible
 // accordion + FAQPage structured data (rich results / AI-search citations).

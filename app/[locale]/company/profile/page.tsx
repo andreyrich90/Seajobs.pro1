@@ -8,7 +8,7 @@ import { CheckCircle, AlertCircle, Upload, Building2, Plus, Trash2, Phone, Mail,
 import { supabase } from "@/lib/supabase/client";
 import type { CrewManager } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 
 type ProfileForm = {
   name: string;
@@ -30,7 +30,7 @@ const EMPTY_MANAGER: CrewManager = { name: "", department: "", phone: "", email:
 
 export default function CompanyProfilePage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [form, setForm] = useState<ProfileForm>(EMPTY_FORM);
   const [phones, setPhones] = useState<string[]>([]);
   const [emails, setEmails] = useState<string[]>([]);

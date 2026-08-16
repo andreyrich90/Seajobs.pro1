@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp } from "lucide-react";
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
@@ -15,7 +16,6 @@ import RankFilter from "@/components/RankFilter";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
-import { T } from "@/lib/i18n";
 import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel } from "@/lib/fleets";
@@ -76,7 +76,7 @@ export default function HomeClient({
   const { lang } = useLang();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
-  const t = T[lang];
+  const t = useT();
   const router = useRouter();
 
   function runSearch() {

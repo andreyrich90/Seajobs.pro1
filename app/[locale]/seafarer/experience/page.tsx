@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Ship } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 import type { SeaExperience } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 
@@ -139,7 +139,7 @@ function formatDate(dateStr: string | null): string {
 
 export default function ExperiencePage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [entries, setEntries] = useState<SeaExperience[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

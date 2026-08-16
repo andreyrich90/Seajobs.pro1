@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { Search, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import VacancyCard from "@/components/VacancyCard";
+import { useT } from "@/components/DictProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { searchMatches } from "@/lib/searchSynonyms";
@@ -13,7 +14,6 @@ import { vesselFilterMatches } from "@/lib/vesselFilter";
 import VesselFilter from "@/components/VesselFilter";
 import RankFilter from "@/components/RankFilter";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 
 export type VacancyWithCompany = {
   id: string;
@@ -45,7 +45,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
   // Initialise filters from the URL so they survive a back-navigation from a
   // vacancy detail page (state alone would reset on remount).
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [ranks, setRanks] = useState<string[]>(
     (searchParams.get("rank") ?? "").split(",").map((s) => s.trim()).filter(Boolean)

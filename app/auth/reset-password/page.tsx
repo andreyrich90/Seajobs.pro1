@@ -7,7 +7,8 @@ import Link from "next/link";
 import { Anchor, Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { AUTH_T, LANGS } from "@/lib/i18n";
+import { AUTH_T } from "@/lib/authI18n";
+import { LANGS } from "@/lib/langs";
 
 function ResetPasswordContent() {
   const { lang, setLang } = useLang();

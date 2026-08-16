@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Bell } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 type Notification = {
   id: string;
