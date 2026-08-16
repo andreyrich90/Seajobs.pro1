@@ -12,6 +12,8 @@ import { useLang } from "@/components/LangProvider";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { T } from "@/lib/i18n";
 
+import { money } from "@/lib/format";
+
 type ApplicationRow = {
   id: string;
   status: string;
@@ -51,7 +53,7 @@ const STATUS_LABEL: Record<StatusKey, string> = {
 };
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 function formatSalary(v: ApplicationRow["vacancies"]): string {
@@ -59,9 +61,9 @@ function formatSalary(v: ApplicationRow["vacancies"]): string {
   if (!v.salary_from && !v.salary_to) return "";
   const per = v.salary_period === "day" ? "/day" : "";
   if (v.salary_from && v.salary_to)
-    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
+    return `${money(v.salary_from)}–${money(v.salary_to)} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${money(v.salary_from)} ${v.currency}${per}`;
+  return `up to ${money(v.salary_to!)} ${v.currency}${per}`;
 }
 
 export default function ApplicationsPage() {

@@ -21,6 +21,8 @@ import { renderMarkdown } from "@/lib/markdown";
 import { fromEur, type SalaryContext } from "@/lib/salaryStats";
 import { slugId } from "@/lib/slug";
 
+import { money } from "@/lib/format";
+
 export type VacancyDetail = {
   id: string;
   title: string;
@@ -60,7 +62,7 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 // The listing card shows only the figure and the currency; this page is where
@@ -70,9 +72,9 @@ function formatSalary(v: VacancyDetail, lang: string): string {
   const t = CTX[lang] ?? CTX.en;
   const per = ` ${v.salary_period === "day" ? t.salaryPerDay : t.salaryPerMonth}`;
   if (v.salary_from && v.salary_to)
-    return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
-  if (v.salary_from) return `${t.salaryFrom} ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
-  return `${t.salaryUpTo} ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
+    return `${money(v.salary_from)}–${money(v.salary_to)} ${v.currency}${per}`;
+  if (v.salary_from) return `${t.salaryFrom} ${money(v.salary_from)} ${v.currency}${per}`;
+  return `${t.salaryUpTo} ${money(v.salary_to!)} ${v.currency}${per}`;
 }
 
 function readAsDataURL(file: File): Promise<string> {
@@ -204,11 +206,15 @@ const CTX: Record<string, Record<string, string>> = {
 
 const CUR_SYMBOL: Record<string, string> = { EUR: "€", USD: "$", GBP: "£" };
 
-function money(amountEur: number, currency: string): string {
+// The salary-band figures, which are held in EUR and shown in the vacancy's own
+// currency, rounded to the nearest 50 — a band is an estimate and should not
+// pretend to be exact. Grouping comes from `money` so the band reads the same as
+// the salary above it.
+function bandFigure(amountEur: number, currency: string): string {
   const cur = (currency || "USD").toUpperCase();
   const v = Math.round(fromEur(amountEur, cur) / 50) * 50;
   const sym = CUR_SYMBOL[cur];
-  const n = v.toLocaleString("en-US");
+  const n = money(v);
   return sym ? `${sym}${n}` : `${n} ${cur}`;
 }
 
@@ -239,7 +245,7 @@ function SalaryContextBlock({
 
       <div className="mt-4 flex items-baseline justify-between gap-3">
         <span className="text-2xl font-bold text-brassInk">
-          {money(ctx.range.from, currency)} – {money(ctx.range.to, currency)}
+          {bandFigure(ctx.range.from, currency)} – {bandFigure(ctx.range.to, currency)}
           <span className="ml-1 text-base font-semibold text-mist">{t.perMonth}</span>
         </span>
       </div>
@@ -257,7 +263,7 @@ function SalaryContextBlock({
 
       {ctx.thisEur != null ? (
         <p className="mt-3 text-sm text-mist">
-          <span className="font-semibold text-teal">{t.thisOffer}: {money(ctx.thisEur, currency)}</span>
+          <span className="font-semibold text-teal">{t.thisOffer}: {bandFigure(ctx.thisEur, currency)}</span>
           {" — "}
           {t[ctx.position ?? "mid"]}.
         </p>

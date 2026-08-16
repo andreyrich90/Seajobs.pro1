@@ -23,7 +23,7 @@ function fmtDate(d: string, lang: string): string {
   try {
     return new Date(d).toLocaleDateString(
       lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
-      { day: "numeric", month: "long", year: "numeric" },
+      { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" },
     );
   } catch {
     return "";

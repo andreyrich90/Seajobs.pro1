@@ -205,7 +205,7 @@ export default function DashboardPage() {
           </div>
           <p className="font-display text-lg font-bold text-white">
             {stats.seafarer?.readiness_date
-              ? new Date(stats.seafarer.readiness_date).toLocaleDateString(DATE_LOCALES[lang], {
+              ? new Date(stats.seafarer.readiness_date).toLocaleDateString(DATE_LOCALES[lang], { timeZone: "UTC",
                   day: "numeric",
                   month: "short",
                   year: "numeric",

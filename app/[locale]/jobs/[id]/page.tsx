@@ -9,6 +9,8 @@ import { buildSalaryContext, type SalaryContext, type StatVacancy } from "@/lib/
 import type { Lang } from "@/lib/i18n";
 import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
 
+import { money } from "@/lib/format";
+
 type VacancyFull = VacancyDetail & {
   is_imported: boolean;
   source_url: string | null;
@@ -77,9 +79,9 @@ export async function generateMetadata(
   const locationPart = company?.location ? ` · ${company.location}` : "";
   const salaryPart =
     vacancy.salary_from && vacancy.salary_to
-      ? ` Salary: ${vacancy.salary_from.toLocaleString()}–${vacancy.salary_to.toLocaleString()} ${vacancy.currency}.`
+      ? ` Salary: ${money(vacancy.salary_from)}–${money(vacancy.salary_to)} ${vacancy.currency}.`
       : vacancy.salary_from
-      ? ` Salary from ${vacancy.salary_from.toLocaleString()} ${vacancy.currency}.`
+      ? ` Salary from ${money(vacancy.salary_from)} ${vacancy.currency}.`
       : "";
 
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;

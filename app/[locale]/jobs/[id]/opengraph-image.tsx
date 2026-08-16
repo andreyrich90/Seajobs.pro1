@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { extractId } from "@/lib/slug";
 
+import { money } from "@/lib/format";
+
 export const alt = "Maritime job vacancy on SeaJobs.pro";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -12,9 +14,9 @@ function salaryText(v: {
   currency: string | null;
 }): string {
   const cur = v.currency ?? "USD";
-  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${cur}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${cur}`;
-  if (v.salary_to) return `up to ${v.salary_to.toLocaleString()} ${cur}`;
+  if (v.salary_from && v.salary_to) return `${money(v.salary_from)}–${money(v.salary_to)} ${cur}`;
+  if (v.salary_from) return `from ${money(v.salary_from)} ${cur}`;
+  if (v.salary_to) return `up to ${money(v.salary_to)} ${cur}`;
   return "";
 }
 

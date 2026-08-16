@@ -29,7 +29,7 @@ const ALL_RANKS = RANK_GROUPS.flatMap((g) => g.ranks);
 
 function formatDate(d: string | null): string {
   if (!d) return "Not set";
-  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function CompanySeafarersPage() {

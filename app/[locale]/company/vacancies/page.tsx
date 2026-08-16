@@ -12,6 +12,8 @@ import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 import { T } from "@/lib/i18n";
 
+import { money } from "@/lib/format";
+
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
   { label: "Dry Cargo", types: ["Bulk Carrier (Capesize)", "Bulk Carrier (Panamax)", "Bulk Carrier (Handymax)", "Bulk Carrier (Handysize)", "General Cargo", "Container (Feeder)", "Container (Panamax)", "Container (Post-Panamax)", "Reefer", "Heavy Lift / Project Cargo", "Coaster"] },
@@ -147,7 +149,7 @@ const EMPTY_FORM: VacancyForm = {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function VacanciesPage() {
@@ -634,7 +636,7 @@ export default function VacanciesPage() {
                   <div className="shrink-0 text-right">
                     {v.salary_from && (
                       <p className="text-sm font-semibold text-white">
-                        {v.salary_from.toLocaleString()} {v.currency}
+                        {money(v.salary_from)} {v.currency}
                       </p>
                     )}
                     {v.joining_date && (

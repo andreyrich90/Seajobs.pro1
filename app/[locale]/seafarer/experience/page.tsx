@@ -134,7 +134,7 @@ function calcDuration(from: string | null, to: string | null): string {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "Present";
-  return new Date(dateStr).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", month: "short", year: "numeric" });
 }
 
 export default function ExperiencePage() {
