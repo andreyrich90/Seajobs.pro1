@@ -55,7 +55,7 @@ function isExpired(expiry_date: string | null): boolean {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", {
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC",
     day: "2-digit",
     month: "short",
     year: "numeric",

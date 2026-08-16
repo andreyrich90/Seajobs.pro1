@@ -52,7 +52,7 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideCa
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString(
       lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : lang === "ro" ? "ro-RO" : "en-GB",
-      { day: "numeric", month: "long", year: "numeric" },
+      { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" },
     );
 
   return (

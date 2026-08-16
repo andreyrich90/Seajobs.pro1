@@ -41,7 +41,7 @@ type Certificate = {
 
 function formatDate(dateStr: string | null): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", month: "short", year: "numeric" });
 }
 
 function calcDuration(from: string | null, to: string | null): string {

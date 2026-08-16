@@ -15,6 +15,8 @@ import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { useLang } from "@/components/LangProvider";
 
+import { money } from "@/lib/format";
+
 type CompanyDetail = {
   id: string;
   name: string | null;
@@ -30,15 +32,15 @@ type CompanyDetail = {
 
 function formatDate(d: string | null): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 function formatSalary(v: Vacancy): string {
   if (!v.salary_from && !v.salary_to) return "";
   const per = v.salary_period === "day" ? "/day" : "";
-  if (v.salary_from && v.salary_to) return `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()} ${v.currency}${per}`;
-  if (v.salary_from) return `from ${v.salary_from.toLocaleString()} ${v.currency}${per}`;
-  return `up to ${v.salary_to!.toLocaleString()} ${v.currency}${per}`;
+  if (v.salary_from && v.salary_to) return `${money(v.salary_from)}–${money(v.salary_to)} ${v.currency}${per}`;
+  if (v.salary_from) return `from ${money(v.salary_from)} ${v.currency}${per}`;
+  return `up to ${money(v.salary_to!)} ${v.currency}${per}`;
 }
 
 export default function CompanyClient() {

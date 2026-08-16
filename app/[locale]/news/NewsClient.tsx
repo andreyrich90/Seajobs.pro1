@@ -44,7 +44,7 @@ type DisplayItem = {
 function formatDate(dateStr: string, lang: string): string {
   return new Date(dateStr).toLocaleDateString(
     lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
-    { day: "numeric", month: "long", year: "numeric" }
+    { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" }
   );
 }
 

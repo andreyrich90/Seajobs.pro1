@@ -5,10 +5,12 @@ import { Ship, TrendingUp, ArrowRight } from "lucide-react";
 import { T, type Lang } from "@/lib/i18n";
 import type { Job } from "@/lib/data";
 
+import { money } from "@/lib/format";
+
 export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
   const t = T[lang];
 
-  const joinDate = new Date(job.joining).toLocaleDateString("en-GB", {
+  const joinDate = new Date(job.joining).toLocaleDateString("en-GB", { timeZone: "UTC",
     day: "2-digit",
     month: "short",
   });
@@ -16,7 +18,7 @@ export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
   const symbol = job.currency === "EUR" ? "€" : "$";
 
   const stats = [
-    { label: t.salary, value: `${symbol}${job.salary.toLocaleString()}` },
+    { label: t.salary, value: `${symbol}${money(job.salary)}` },
     { label: t.duration, value: `${job.duration} mo` },
     { label: t.joining, value: joinDate },
   ];

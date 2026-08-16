@@ -59,7 +59,7 @@ export default function CvLinksPanel({ seafarerId }: { seafarerId: string }) {
   if (links.length === 0) return null;
 
   const fmt = (iso: string) =>
-    new Date(iso).toLocaleDateString(lang === "en" ? "en-GB" : lang === "ua" ? "uk-UA" : `${lang}-${lang.toUpperCase()}`, {
+    new Date(iso).toLocaleDateString(lang === "en" ? "en-GB" : lang === "ua" ? "uk-UA" : `${lang}-${lang.toUpperCase()}`, { timeZone: "UTC",
       day: "numeric", month: "short",
     });
 

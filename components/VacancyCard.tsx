@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { slugId } from "@/lib/slug";
 import { normalizeContractDuration } from "@/lib/contract";
+import { money } from "@/lib/format";
 import type { Lang } from "@/lib/i18n";
 
 // The one vacancy card. It used to be copy-pasted inline into the job board,
@@ -62,11 +63,15 @@ const UI: Record<string, { from: string; upTo: string; since: string; featured: 
   ro: { from: "de la", upTo: "până la", since: "din", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract" },
 };
 
+// Read in UTC, like every other date on the board. A joining date is a calendar
+// date, not an instant: the server runs in UTC and the reader does not, so
+// `getDate()` would render "3 Sep" on one side and "2 Sep" on the other for
+// anyone west of Greenwich — a hydration mismatch on top of a wrong date.
 function formatDate(iso: string, lang: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  const m = (MONTHS[lang] ?? MONTHS.en)[d.getMonth()];
-  return `${d.getDate()} ${m}`;
+  const m = (MONTHS[lang] ?? MONTHS.en)[d.getUTCMonth()];
+  return `${d.getUTCDate()} ${m}`;
 }
 
 export default function VacancyCard({
@@ -86,13 +91,13 @@ export default function VacancyCard({
   // per-day unit is spelled out on the vacancy page, where there is room and
   // where someone is actually reading rather than scanning.
   const cur = v.currency || "USD";
-  const money =
+  const figure =
     v.salary_from && v.salary_to && v.salary_from !== v.salary_to
-      ? `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()}`
+      ? `${money(v.salary_from)}–${money(v.salary_to)}`
       : v.salary_from
-      ? `${ui.from} ${v.salary_from.toLocaleString()}`
+      ? `${ui.from} ${money(v.salary_from)}`
       : v.salary_to
-      ? `${ui.upTo} ${v.salary_to.toLocaleString()}`
+      ? `${ui.upTo} ${money(v.salary_to)}`
       : null;
 
   // Joining date and contract length are what a seafarer checks after the
@@ -101,9 +106,9 @@ export default function VacancyCard({
   const joining = v.joining_date ? `${ui.since} ${formatDate(v.joining_date, lang)}` : ui.asap;
   const duration = normalizeContractDuration(v.contract_duration);
 
-  const moneyEl = money ? (
+  const moneyEl = figure ? (
     <p className="font-display text-[17px] font-bold leading-tight text-white">
-      {money} <span className="text-[11.5px] font-semibold text-mist">{cur}</span>
+      {figure} <span className="text-[11.5px] font-semibold text-mist">{cur}</span>
     </p>
   ) : (
     <p className="text-xs font-semibold text-mist">{ui.noSalary}</p>

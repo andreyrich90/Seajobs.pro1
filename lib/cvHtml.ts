@@ -30,9 +30,9 @@ export async function buildCvHtml(
 
   const name = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ") || "Seafarer";
   const fmt = (d?: string | null) =>
-    d ? new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : null;
+    d ? new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", month: "short", year: "numeric" }) : null;
   const availability = sf?.readiness_date
-    ? new Date(sf.readiness_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    ? new Date(sf.readiness_date).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" })
     : "Immediate";
 
   const th = "background:#16324f;color:#ffffff;text-align:left;padding:8px 12px;font-size:13px;letter-spacing:0.4px;";
@@ -77,7 +77,7 @@ export async function buildCvHtml(
   ${sf?.about ? `<p style="font-size:13px;color:#374151;">${sf.about}</p>` : ""}
   <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin-top:12px;">
     ${section("PERSONAL INFORMATION")}
-    ${row("Date of birth", sf?.date_of_birth ? new Date(sf.date_of_birth).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : null)}
+    ${row("Date of birth", sf?.date_of_birth ? new Date(sf.date_of_birth).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" }) : null)}
     ${row("Citizenship", sf?.nationality)}
     ${row("Availability", availability)}
     ${row("Rank / Position", sf?.rank)}

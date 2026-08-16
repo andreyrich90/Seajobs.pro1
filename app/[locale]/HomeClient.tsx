@@ -20,6 +20,8 @@ import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel } from "@/lib/fleets";
 
+import { money } from "@/lib/format";
+
 export type DbVacancy = {
   id: string;
   title: string;
@@ -143,7 +145,7 @@ export default function HomeClient({
   const newsDate = (d: string) =>
     new Date(d).toLocaleDateString(
       lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
-      { day: "numeric", month: "long", year: "numeric" },
+      { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" },
     );
 
   return (
@@ -271,7 +273,7 @@ export default function HomeClient({
                       </div>
                       {(v.salary_from || v.salary_to) && (
                         <span className="shrink-0 rounded-lg bg-brass/10 px-2 py-1 text-xs font-bold text-brassInk">
-                          {v.salary_from ? v.salary_from.toLocaleString() : v.salary_to!.toLocaleString()} {v.currency}
+                          {v.salary_from ? money(v.salary_from) : money(v.salary_to!)} {v.currency}
                         </span>
                       )}
                     </div>

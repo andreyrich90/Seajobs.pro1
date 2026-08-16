@@ -102,14 +102,14 @@ const SHARE_PLATFORMS = [
 function formatDate(d: string, lang: string) {
   return new Date(d).toLocaleDateString(
     lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
-    { day: "numeric", month: "long", year: "numeric" }
+    { timeZone: "UTC", day: "numeric", month: "long", year: "numeric" }
   );
 }
 
 function formatCommentDate(d: string, lang: string) {
   return new Date(d).toLocaleDateString(
     lang === "ua" ? "uk-UA" : lang === "pl" ? "pl-PL" : lang === "ru" ? "ru-RU" : "en-GB",
-    { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
+    { timeZone: "UTC", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
   );
 }
 

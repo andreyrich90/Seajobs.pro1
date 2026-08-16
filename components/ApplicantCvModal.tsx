@@ -35,7 +35,7 @@ const L: Record<string, Record<string, string>> = {
 
 function fmt(d: string | null, short = true): string {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-GB", { day: short ? undefined : "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: short ? undefined : "numeric", month: "short", year: "numeric" });
 }
 
 export default function ApplicantCvModal({

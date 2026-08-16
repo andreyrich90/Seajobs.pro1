@@ -11,6 +11,7 @@ import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
 import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
 import type { Lang } from "@/lib/i18n";
+import { money } from "@/lib/format";
 import {
   COUNTRY_LANDINGS, COUNTRY_COPY, countryLandingBySlug, countryName, vacancyMatchesCountry,
 } from "@/lib/countryLandings";
@@ -118,10 +119,10 @@ export default async function CountryLandingPage(
     const day = v.salary_period === "day" ? sal.day : "";
     const num =
       v.salary_from && v.salary_to
-        ? `${v.salary_from.toLocaleString()}–${v.salary_to.toLocaleString()}`
+        ? `${money(v.salary_from)}–${money(v.salary_to)}`
         : v.salary_from
-        ? `${sal.from} ${v.salary_from.toLocaleString()}`
-        : `${sal.upTo} ${v.salary_to!.toLocaleString()}`;
+        ? `${sal.from} ${money(v.salary_from)}`
+        : `${sal.upTo} ${money(v.salary_to!)}`;
     return `${num} ${v.currency}${day}`;
   };
 
@@ -159,7 +160,7 @@ export default async function CountryLandingPage(
           <p>{copy.countLine(vacancies.length, name)}</p>
           {landing.blurb[lang] && <p>{landing.blurb[lang]}</p>}
           {salaryMin > 0 && salaryMax > 0 && (
-            <p>{copy.salaryLine(salaryMin.toLocaleString(), salaryMax.toLocaleString(), curr)}</p>
+            <p>{copy.salaryLine(money(salaryMin), money(salaryMax), curr)}</p>
           )}
           {topAgencies.length > 0 && <p>{copy.agencyLine(topAgencies.join(", "))}</p>}
           <p>{copy.requirements}</p>

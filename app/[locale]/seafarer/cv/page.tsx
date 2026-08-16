@@ -31,7 +31,7 @@ function formatDate(d: string | null, short?: boolean): string {
   return new Date(d).toLocaleDateString("en-GB", {
     month: short ? "short" : "long",
     year: "numeric",
-    ...(short ? {} : { day: "numeric" }),
+    ...(short ? {} : { timeZone: "UTC", day: "numeric" }),
   });
 }
 

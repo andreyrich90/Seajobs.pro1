@@ -67,7 +67,7 @@ async function pageThrough<T>(run: (from: number, to: number) => Page<T>): Promi
 
 function formatDate(d: string | null) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function AdminCompaniesPage() {

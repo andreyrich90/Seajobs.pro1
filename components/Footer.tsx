@@ -167,7 +167,10 @@ export default function Footer() {
         <PopularJobLinks variant="footer" />
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row">
-          <p className="text-xs text-mist">© {new Date().getFullYear()} SeaJobs.pro. {t.footer_rights}</p>
+          {/* UTC, like every other date here: on New Year's Eve `getFullYear()`
+              gives the server one year and a reader west of Greenwich another,
+              and the footer is on every page. */}
+          <p className="text-xs text-mist">© {new Date().getUTCFullYear()} SeaJobs.pro. {t.footer_rights}</p>
           <p className="text-xs text-mist">{t.footer_built}</p>
         </div>
       </div>

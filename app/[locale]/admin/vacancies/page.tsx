@@ -10,7 +10,7 @@ import type { Vacancy } from "@/lib/supabase/types";
 type VacancyRow = Vacancy & { company_name: string };
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 export default function AdminVacanciesPage() {
