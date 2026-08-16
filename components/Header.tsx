@@ -94,7 +94,7 @@ export default function Header() {
       className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
       <LayoutDashboard size={16} />
-      <span className="hidden xl:inline">Cabinet</span>
+      <span className="hidden 2xl:inline">Cabinet</span>
     </Link>
   ) : (
     <NextLink
@@ -102,7 +102,7 @@ export default function Header() {
       className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-brass to-brass2 px-3 py-2 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 md:px-4 md:py-2.5"
     >
       <LogIn size={16} />
-      <span className="hidden xl:inline">{t.login}</span>
+      <span className="hidden 2xl:inline">{t.login}</span>
     </NextLink>
   );
 
@@ -111,19 +111,12 @@ export default function Header() {
       <div className="mx-auto max-w-7xl rounded-2xl border border-white/15 bg-deep/70 shadow-2xl backdrop-blur-xl">
 
         {/* Tier 1 — utility strip (desktop only, no counters) */}
-        <div className="hidden items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist lg:flex">
+        <div className="hidden items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist xl:flex">
           <span className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-teal shadow-[0_0_0_3px_rgba(45,212,191,0.22)]" />
             {hdr.tagline}
           </span>
           <div className="ml-auto flex items-center gap-4">
-            {/* Employers, not seafarers — which is what this strip is for. The
-                row below is the product menu and stays that; "About" lives in
-                the footer only. */}
-            <Link href="/for-companies" className="font-semibold transition hover:text-brassInk">
-              {t.footer_for_companies}
-            </Link>
-            <span className="h-3.5 w-px bg-white/15" />
             {/* Language */}
             <div className="relative">
               <button
@@ -166,7 +159,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="ml-3 hidden items-center gap-1 lg:flex">
+          <nav className="ml-3 hidden items-center gap-1 xl:flex">
             {/* Vacancies + fleet mega menu */}
             <div
               className="relative"
@@ -224,6 +217,18 @@ export default function Header() {
                 <n.icon size={16} className="text-mist" /> {n.label}
               </Link>
             ))}
+
+            {/* Same line as the rest of the menu, but not the same weight: the
+                five links to the left are the product, this one addresses
+                employers. Hence no icon and the muted colour, with a divider
+                marking the change of audience. Dropping the icon is also what
+                keeps the row within its 1216px at 1280 — see the width note on
+                the login label below. "About" is in the footer only. */}
+            <span className="mx-1 h-4 w-px shrink-0 bg-white/15" />
+            <Link href="/for-companies"
+              className="whitespace-nowrap rounded-lg px-2.5 py-2 text-sm font-semibold text-mist transition hover:bg-white/5 hover:text-brassInk">
+              {t.footer_for_companies}
+            </Link>
           </nav>
 
           {/* Right side */}
@@ -231,7 +236,7 @@ export default function Header() {
             {dashboardHref && <NotificationBell />}
 
             {/* Language — mobile only (desktop has it in tier 1) */}
-            <div className="relative lg:hidden">
+            <div className="relative xl:hidden">
               <button
                 onClick={() => { setLangOpen((o) => !o); setMobileOpen(false); }}
                 aria-label="Change language"
@@ -259,29 +264,29 @@ export default function Header() {
 
             {/* Admin — lg+ */}
             {isAdmin && (
-              <div className="hidden lg:block">
+              <div className="hidden xl:block">
                 <Link
                   href="/admin/dashboard"
                   className="flex items-center gap-1.5 rounded-lg border border-brass/30 bg-brass/10 px-3 py-2 text-sm font-bold text-brassInk transition hover:bg-brass/20"
                 >
                   <ShieldCheck size={15} />
-                  <span className="hidden xl:inline">Admin</span>
+                  <span className="hidden 2xl:inline">Admin</span>
                 </Link>
               </div>
             )}
 
             {/* Auth — lg+ */}
-            <div className="hidden lg:block">{authButton}</div>
+            <div className="hidden xl:block">{authButton}</div>
 
             {/* Theme toggle — mobile only (desktop has it in tier 1) */}
-            <div className="lg:hidden">{themeBtn}</div>
+            <div className="xl:hidden">{themeBtn}</div>
 
             {/* Mobile burger */}
             <button
               onClick={() => { setMobileOpen((o) => !o); setLangOpen(false); }}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
-              className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 lg:hidden"
+              className="rounded-lg bg-white/5 p-2 text-white transition hover:bg-white/10 xl:hidden"
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -290,7 +295,7 @@ export default function Header() {
 
         {/* Mobile dropdown menu */}
         {mobileOpen && (
-          <div className="border-t border-white/10 px-4 py-4 lg:hidden">
+          <div className="border-t border-white/10 px-4 py-4 xl:hidden">
             <nav className="flex flex-col gap-1">
               <Link href="/jobs"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
