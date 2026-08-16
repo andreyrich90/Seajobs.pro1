@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 import type { Certificate } from "@/lib/supabase/types";
 
 const CERT_SUGGESTIONS = [
@@ -64,7 +64,7 @@ function formatDate(dateStr: string | null): string {
 
 export default function CertificatesPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [certs, setCerts] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

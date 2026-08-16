@@ -6,7 +6,7 @@ import { slugId, extractId } from "@/lib/slug";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { getSalaryIndex } from "@/lib/salaryStatsCached";
 import { buildSalaryContext, type SalaryContext, type StatVacancy } from "@/lib/salaryStats";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
 
 import { money } from "@/lib/format";

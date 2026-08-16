@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { Building2, Bookmark, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 
 import { money } from "@/lib/format";
 
@@ -52,7 +52,7 @@ function formatSalary(v: SavedRow["vacancies"]): string {
 
 export default function SavedJobsPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [saved, setSaved] = useState<SavedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);

@@ -4,13 +4,13 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from "react";
 import CvLinksPanel from "@/components/CvLinksPanel";
+import { useT } from "@/components/DictProvider";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Building2, Send, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
-import { T } from "@/lib/i18n";
 
 import { money } from "@/lib/format";
 
@@ -68,7 +68,7 @@ function formatSalary(v: ApplicationRow["vacancies"]): string {
 
 export default function ApplicationsPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);

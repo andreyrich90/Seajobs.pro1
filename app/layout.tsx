@@ -7,7 +7,6 @@ import { LangProvider } from "@/components/LangProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import CookieBanner from "@/components/CookieBanner";
 import { HREFLANG } from "@/lib/seo";
-import enMessages from "@/messages/en.json";
 
 // Self-hosted fonts (no render-blocking request to Google Fonts).
 // NOTE: neither Fraunces nor Archivo ships a Cyrillic subset on Google Fonts
@@ -137,7 +136,11 @@ export default async function RootLayout({
             try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
           `}
         </Script>
-        <NextIntlClientProvider locale="en" messages={enMessages}>
+        {/* No `messages`: nothing calls useTranslations, so serialising a
+            dictionary here only added ~23 KB to every page. The provider
+            stays because `@/i18n/navigation` reads its locale. The [locale]
+            layout nests its own with the real locale. */}
+        <NextIntlClientProvider locale="en">
           <ThemeProvider>
             <LangProvider>{children}</LangProvider>
             <CookieBanner />

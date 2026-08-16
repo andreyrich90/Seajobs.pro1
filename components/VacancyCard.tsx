@@ -8,7 +8,7 @@ import {
 import { slugId } from "@/lib/slug";
 import { normalizeContractDuration } from "@/lib/contract";
 import { money } from "@/lib/format";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // The one vacancy card. It used to be copy-pasted inline into the job board,
 // the homepage, the rank/vessel/country landing pages and the company profile —

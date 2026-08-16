@@ -6,9 +6,10 @@ import { Award, Ship, Calendar, User, FileText, ChevronRight, Search, Send, Spar
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer } from "@/lib/supabase/types";
 import ContactForm from "@/components/ContactForm";
+import { useT } from "@/components/DictProvider";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
 import JobAlertsCard from "@/components/JobAlertsCard";
-import { T, type Lang } from "@/lib/i18n";
+import { type Lang } from "@/lib/langs";
 import { useLang } from "@/components/LangProvider";
 
 const DATE_LOCALES: Record<Lang, string> = { ua: "uk-UA", pl: "pl-PL", ru: "ru-RU", en: "en-GB", ro: "ro-RO" };
@@ -39,7 +40,7 @@ function calcCompletion(seafarer: Seafarer | null): number {
 
 export default function DashboardPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [stats, setStats] = useState<DashboardStats>({
     seafarer: null,
     certCount: 0,

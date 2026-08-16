@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // SEO landing pages for the most-searched ranks, served at /jobs/rank/<slug>.
 // Each page is server-rendered with a localized <title>/<h1>/intro plus the

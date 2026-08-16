@@ -8,7 +8,8 @@ import { Anchor, Ship, Briefcase, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { recordReferral } from "@/lib/referral";
-import { localePath, type Lang } from "@/lib/i18n";
+import { localePath } from "@/lib/authI18n";
+import type { Lang } from "@/lib/langs";
 
 type Role = "seafarer" | "company";
 

@@ -2,13 +2,14 @@
 
 import { Link } from "@/i18n/navigation";
 import { Ship, TrendingUp, ArrowRight } from "lucide-react";
-import { T, type Lang } from "@/lib/i18n";
+import { type Lang } from "@/lib/langs";
 import type { Job } from "@/lib/data";
 
 import { money } from "@/lib/format";
+import { useT } from "@/components/DictProvider";
 
 export default function JobCard({ job, lang }: { job: Job; lang: Lang }) {
-  const t = T[lang];
+  const t = useT();
 
   const joinDate = new Date(job.joining).toLocaleDateString("en-GB", { timeZone: "UTC",
     day: "2-digit",

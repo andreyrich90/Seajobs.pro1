@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // Localized chrome for the /guides section (blog). Guide articles themselves
 // live in the news_articles table with category = 'guide'; their title/body are

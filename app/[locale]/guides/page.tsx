@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { GUIDES_UI } from "@/lib/guidesUi";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 import GuidesClient, { type GuideCard } from "./GuidesClient";
 
 export const dynamic = "force-dynamic";

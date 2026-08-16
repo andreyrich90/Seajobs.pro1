@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Bell, Check, Plus, Radio, Send, X } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
+import { useT } from "@/components/DictProvider";
 import RankFilter from "@/components/RankFilter";
-import { T } from "@/lib/i18n";
 
 // Job alerts on the seafarer dashboard: which positions they follow, and where
 // the alert is delivered.
@@ -27,7 +27,7 @@ export default function JobAlertsCard({
   profileRank?: string | null;
 }) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
 
   const [ranks, setRanks] = useState<string[]>([]);
   const [linked, setLinked] = useState(false);

@@ -1,4 +1,4 @@
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 // SEO landing pages for the countries whose crewing agencies post on the board,
 // at /jobs/country/<slug>. A vacancy belongs to a country when its agency

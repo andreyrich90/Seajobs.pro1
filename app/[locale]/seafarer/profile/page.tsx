@@ -7,7 +7,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 
 type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas" | "referral_code" | "boost_until">;
 
@@ -53,7 +53,7 @@ const EMPTY_FORM: ProfileForm = {
 
 export default function ProfilePage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [form, setForm] = useState<ProfileForm>(EMPTY_FORM);
   const [diplomas, setDiplomas] = useState<Diploma[]>([]);
   const [loading, setLoading] = useState(true);

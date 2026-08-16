@@ -5,11 +5,11 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ChevronLeft, ChevronRight, Calendar, Tag, Share2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 import { extractId } from "@/lib/slug";
@@ -115,7 +115,7 @@ function formatCommentDate(d: string, lang: string) {
 
 export default function ArticleClient({ id, initialArticle }: { id: string; initialArticle?: Article | null }) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [article, setArticle] = useState<Article | null>(initialArticle ?? null);
   const [others, setOthers] = useState<Article[]>([]);
   const [loading, setLoading] = useState(!initialArticle);

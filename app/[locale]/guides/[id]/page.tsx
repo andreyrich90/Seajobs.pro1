@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { extractId, slugId } from "@/lib/slug";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { GUIDES_UI } from "@/lib/guidesUi";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 import GuideArticle, { type ResolvedGuide } from "./GuideArticle";
 
 export const dynamic = "force-dynamic";

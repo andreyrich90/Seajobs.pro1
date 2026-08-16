@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import NextLink from "next/link";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
+import { useT } from "@/components/DictProvider";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import PopularJobLinks from "@/components/PopularJobLinks";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
@@ -39,7 +39,7 @@ const SOCIAL = [
 
 export default function Footer() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
 
   const howToApplyLabel = ({
     en: "How to apply",

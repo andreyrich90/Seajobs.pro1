@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { useParams, usePathname } from "next/navigation";
-import type { Lang } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
 
 const VALID_LANGS: Lang[] = ["en", "ua", "pl", "ru", "ro"];
 const DEFAULT_LANG: Lang = "en";

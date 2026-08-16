@@ -8,11 +8,11 @@ import {
   Building2, ChevronRight, AlertCircle, Mail,
 } from "lucide-react";
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import FaqSection from "@/components/FaqSection";
 import { FAQ_COMPANIES } from "@/lib/faq";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 
 const FC_STATS: Record<string, { thousands: string; visitors: string }> = {
   en: { thousands: "Thousands", visitors: "Visit the portal daily" },
@@ -24,7 +24,7 @@ const FC_STATS: Record<string, { thousands: string; visitors: string }> = {
 
 export default function ForCompaniesPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const fc = FC_STATS[lang] ?? FC_STATS.en;
 
   const [name, setName] = useState("");

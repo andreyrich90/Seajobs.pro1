@@ -5,10 +5,10 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { Newspaper, Calendar, Tag, Clock } from "lucide-react";
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 import { slugId } from "@/lib/slug";
 
 const TAG_COLORS: Record<string, string> = {
@@ -60,7 +60,7 @@ function makeExcerpt(text: string, max = 150): string {
 
 export default function NewsClient({ initialDbArticles }: { initialDbArticles: DbArticle[] }) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [activeTag, setActiveTag] = useState<string>("all");
 
   const ukKey = lang === "ua" ? "uk" : lang;

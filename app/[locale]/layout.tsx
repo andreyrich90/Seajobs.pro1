@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale, getMessages } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
+// The one place in the app that may import the full dictionary map on the
+// client side of the tree: this is a Server Component, so only the single
+// dictionary it selects below is serialised into the page.
+import { T } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
+import { DictProvider } from "@/components/DictProvider";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -81,11 +87,19 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
 
   setRequestLocale(locale);
-  const messages = await getMessages();
 
+  // The whole point of doing this here: this is a Server Component, so picking
+  // one dictionary out of `T` costs the browser nothing for the other four.
+  // Everything below reads it through `useT()`.
+  //
+  // No `messages` on the next-intl provider on purpose. Nothing in the app
+  // calls `useTranslations`/`useMessages` — next-intl owns the URL structure and
+  // the metadata, not the copy — so passing them serialised another 23-34 KB of
+  // strings into every page for nobody to read. The provider itself stays:
+  // `Link`/`useRouter` from `@/i18n/navigation` need its locale.
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
+    <NextIntlClientProvider locale={locale}>
+      <DictProvider dict={T[locale as Lang]}>{children}</DictProvider>
     </NextIntlClientProvider>
   );
 }

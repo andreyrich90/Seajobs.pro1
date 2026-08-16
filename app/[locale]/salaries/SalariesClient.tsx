@@ -3,10 +3,11 @@
 import { TrendingUp, Award, Ship, GraduationCap, Building2 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
+import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import SalaryStatsWidget from "@/components/SalaryStats";
 import { useLang } from "@/components/LangProvider";
-import { T, type Lang } from "@/lib/i18n";
+import { type Lang } from "@/lib/langs";
 import type { SalaryStats } from "@/lib/salaryStats";
 
 const EMPTY: Record<string, string> = {
@@ -156,7 +157,7 @@ const FACTOR_ICONS = [Award, Ship, GraduationCap, Building2];
 
 export default function SalariesClient({ stats }: { stats: SalaryStats }) {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const c = SAL[lang] ?? SAL.en;
 
   return (

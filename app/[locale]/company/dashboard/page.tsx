@@ -7,12 +7,12 @@ import { Link } from "@/i18n/navigation";
 import { Building2, Briefcase, Plus, CheckCircle, Clock, Users } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import ContactForm from "@/components/ContactForm";
+import { useT } from "@/components/DictProvider";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 
 export default function CompanyDashboardPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const [companyName, setCompanyName] = useState<string | null>(null);
   const [totalVacancies, setTotalVacancies] = useState(0);
   const [activeVacancies, setActiveVacancies] = useState(0);

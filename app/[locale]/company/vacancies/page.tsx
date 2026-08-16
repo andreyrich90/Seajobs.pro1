@@ -8,9 +8,9 @@ import { Link } from "@/i18n/navigation";
 import { supabase, notify } from "@/lib/supabase/client";
 import type { Vacancy } from "@/lib/supabase/types";
 import MarkdownEditor from "@/components/MarkdownEditor";
+import { useT } from "@/components/DictProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
-import { T } from "@/lib/i18n";
 
 import { money } from "@/lib/format";
 
@@ -154,7 +154,7 @@ function formatDate(dateStr: string | null): string {
 
 export default function VacanciesPage() {
   const { lang } = useLang();
-  const t = T[lang];
+  const t = useT();
   const gate = GATE_UI[lang] ?? GATE_UI.en;
 
   // The database trigger rejects a publish when the company profile is

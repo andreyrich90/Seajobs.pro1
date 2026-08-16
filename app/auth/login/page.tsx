@@ -8,7 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Anchor, Ship, Briefcase, Eye, EyeOff, AlertCircle, ShieldOff } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { AUTH_T, LANGS, localePath } from "@/lib/i18n";
+import { AUTH_T, localePath } from "@/lib/authI18n";
+import { LANGS } from "@/lib/langs";
 
 type Role = "seafarer" | "company";
 
