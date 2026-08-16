@@ -105,8 +105,8 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
-        {/* Ads and the heatmap tracker are not needed for interactivity — load
-            them during idle time so they stop adding to Total Blocking Time. */}
+        {/* Ads and analytics are not needed for interactivity — load them
+            during idle time so they stop adding to Total Blocking Time. */}
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9585615049936117"
           strategy="lazyOnload"
@@ -122,18 +122,6 @@ export default async function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'G-1H5KRW7TS9');
-          `}
-        </Script>
-        {/* Plerdy — heatmaps, click maps and behaviour analytics */}
-        <Script id="plerdy" strategy="lazyOnload">
-          {`
-            var _protocol="https:"==document.location.protocol?"https://":"http://";
-            _site_hash_code = "8275a467c76f1af4b73873ff85dd9ca4",_suid=77434, plerdyScript=document.createElement("script");
-            plerdyScript.setAttribute("defer",""),plerdyScript.dataset.plerdymainscript="plerdymainscript",
-            plerdyScript.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
-            var plerdymainscript=document.querySelector("[data-plerdymainscript='plerdymainscript']");
-            plerdymainscript&&plerdymainscript.parentNode.removeChild(plerdymainscript);
-            try{document.head.appendChild(plerdyScript)}catch(t){console.log(t,"unable add script tag")}
           `}
         </Script>
         {/* No `messages`: nothing calls useTranslations, so serialising a
