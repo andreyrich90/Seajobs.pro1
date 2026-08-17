@@ -24,7 +24,8 @@ export type EmailKind =
   | "unread_digest"
   | "referral_reminder"
   | "contact"
-  | "outreach";
+  | "outreach"
+  | "logo_reminder";
 
 export type SendResult = { ok: boolean; id?: string; error?: string };
 
