@@ -16,6 +16,7 @@ type UserRow = {
   name: string;
   email?: string;
   is_verified?: boolean;
+  logo_url?: string | null;
   rank?: string | null;
 };
 
@@ -51,7 +52,7 @@ export default function AdminUsersPage() {
 
       const [{ data: seafarers }, { data: companies }, emailRes] = await Promise.all([
         supabase.from("seafarers").select("id, first_name, last_name, rank"),
-        supabase.from("companies").select("id, name, is_verified"),
+        supabase.from("companies").select("id, name, is_verified, logo_url"),
         // Emails live in auth.users — fetched via an admin-only server route.
         token
           ? fetch("/api/admin/user-emails", { headers: { Authorization: `Bearer ${token}` } })
@@ -66,9 +67,13 @@ export default function AdminUsersPage() {
         sfMap[s.id] = [s.first_name, s.last_name].filter(Boolean).join(" ") || "(no name)";
         rankMap[s.id] = s.rank ?? null;
       }
-      const coMap: Record<string, { name: string; is_verified: boolean }> = {};
+      const coMap: Record<string, { name: string; is_verified: boolean; logo_url: string | null }> = {};
       for (const c of companies ?? []) {
-        coMap[c.id] = { name: c.name ?? "(no name)", is_verified: c.is_verified ?? false };
+        coMap[c.id] = {
+          name: c.name ?? "(no name)",
+          is_verified: c.is_verified ?? false,
+          logo_url: c.logo_url ?? null,
+        };
       }
       const emailMap: Record<string, string> = emailRes?.emails ?? {};
 
@@ -77,6 +82,7 @@ export default function AdminUsersPage() {
         name: p.role === "seafarer" ? (sfMap[p.id] || "(no name)") : (coMap[p.id]?.name || "(no name)"),
         email: emailMap[p.id],
         is_verified: p.role === "company" ? (coMap[p.id]?.is_verified ?? false) : undefined,
+        logo_url: p.role === "company" ? (coMap[p.id]?.logo_url ?? null) : undefined,
         rank: p.role === "seafarer" ? (rankMap[p.id] ?? null) : undefined,
       })));
       setLoading(false);
@@ -224,6 +230,22 @@ export default function AdminUsersPage() {
         ))}
       </div>
 
+      {/* How many companies still have no logo. The per-row chip answers "does
+          this one have a logo"; this answers "how many are left", which is what
+          decides whether sending the reminder is worth a batch. */}
+      {!loading && filter === "company" && (() => {
+        const companies = users.filter((u) => u.role === "company");
+        const missing = companies.filter((u) => !u.logo_url).length;
+        return (
+          <p className="mb-4 text-xs text-mist">
+            {companies.length} companies ·{" "}
+            <span className={missing > 0 ? "font-semibold text-coral" : "font-semibold text-teal"}>
+              {missing} without a logo
+            </span>
+          </p>
+        );
+      })()}
+
       {loading ? (
         <div className="flex items-center justify-center h-48"><p className="text-mist text-sm">Loading...</p></div>
       ) : (
@@ -248,15 +270,37 @@ export default function AdminUsersPage() {
                 <tr key={u.id} className="bg-card hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/10 text-sm font-bold text-white">
-                        {u.name[0]?.toUpperCase() ?? "?"}
-                      </div>
+                      {/* The company's actual logo when it has one — the point
+                          being to see at a glance who still hasn't uploaded
+                          anything. A letter block means "no logo", and for
+                          companies the "no logo" chip beside the name says so
+                          in words, since a letter block on its own looks
+                          deliberate. */}
+                      {u.logo_url ? (
+                        <img
+                          src={u.logo_url}
+                          alt=""
+                          className="h-8 w-8 shrink-0 rounded-xl bg-white/10 object-cover"
+                        />
+                      ) : (
+                        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/10 text-sm font-bold text-white">
+                          {u.name[0]?.toUpperCase() ?? "?"}
+                        </div>
+                      )}
                       <div>
                         <div className="flex items-center gap-1.5">
                           <p className="font-semibold text-white">{u.name}</p>
                           {u.role === "company" && u.is_verified && (
                             <span title="Verified company" className="inline-flex">
                               <ShieldCheck size={13} className="text-teal" />
+                            </span>
+                          )}
+                          {u.role === "company" && !u.logo_url && (
+                            <span
+                              title="This company has not uploaded a logo — its vacancy cards show a letter block"
+                              className="shrink-0 rounded-full border border-coral/30 bg-coral/10 px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-coral"
+                            >
+                              no logo
                             </span>
                           )}
                         </div>
