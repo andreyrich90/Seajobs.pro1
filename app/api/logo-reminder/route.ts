@@ -44,14 +44,15 @@ type Target = { id: string; company: string; email: string };
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
+  // One answer for "no secret configured" and "wrong secret", because a
+  // stranger has no business learning which of the two it is. The owner needs
+  // to know, so the misconfiguration goes to the server log instead — readable
+  // in the Vercel dashboard, not over HTTP.
   const secret = process.env.OUTREACH_SECRET || process.env.CRON_SECRET;
   if (!secret) {
-    return NextResponse.json(
-      { ok: false, error: "Set OUTREACH_SECRET (or CRON_SECRET) in the environment first." },
-      { status: 500 },
-    );
+    console.error("[logo-reminder] refused: set OUTREACH_SECRET (or CRON_SECRET) in the environment");
   }
-  if (searchParams.get("secret") !== secret) {
+  if (!secret || searchParams.get("secret") !== secret) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
