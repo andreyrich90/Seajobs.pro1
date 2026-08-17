@@ -29,7 +29,7 @@ type Vac = {
   currency: string;
   contract_duration: string | null;
   joining_date: string | null;
-  companies: { name: string | null; is_verified: boolean } | null;
+  companies: { name: string | null; logo_url: string | null; is_verified: boolean } | null;
 };
 
 const SAL: Record<Lang, { from: string; upTo: string; day: string }> = {
@@ -44,7 +44,7 @@ async function fetchRankVacancies(rank: string): Promise<Vac[]> {
   const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
   const { data } = await getServerSupabase()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
     .eq("is_active", true)
     .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
     .order("created_at", { ascending: false })
