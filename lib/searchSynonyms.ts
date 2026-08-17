@@ -16,6 +16,10 @@ const SYNONYM_GROUPS: string[][] = [
   ["deck cadet", "палубный кадет", "палубный курсант", "курсант палубный"],
   // ── Engine officers ──
   ["chief engineer", "c/e", "стармех", "старший механик", "старший механік", "ст. механик"],
+  // Kept apart from both Chief and 2nd on purpose: on passenger and cruise
+  // vessels 1st Engineer is its own rank between them, and folding the terms
+  // together would make a search for one return the others.
+  ["1st engineer", "first engineer", "1/e", "первый механик", "перший механік"],
   ["2nd engineer", "second engineer", "2/e", "второй механик", "другий механік"],
   ["3rd engineer", "third engineer", "3/e", "третий механик", "третій механік"],
   ["4th engineer", "fourth engineer", "4/e", "четвертый механик"],

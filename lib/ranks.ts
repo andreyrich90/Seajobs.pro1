@@ -1,3 +1,11 @@
+// The canonical rank taxonomy. This is the single source of truth: the seafarer
+// profile and sea-service forms, the company vacancy form, the seafarer search,
+// both admin import forms, the job-alert rank picker and the vacancy-parsing
+// prompt in lib/parseVacancy.ts all read it. Adding a rank here makes it
+// selectable and matchable everywhere; nothing else needs touching.
+//
+// Ranks are listed in order of seniority within a group, because that is the
+// order the pickers render them in.
 export const RANK_GROUPS = [
   {
     label: "Deck Officers",
@@ -5,7 +13,12 @@ export const RANK_GROUPS = [
   },
   {
     label: "Engine Officers",
-    ranks: ["Chief Engineer", "2nd Engineer", "3rd Engineer", "4th Engineer", "Gas Engineer / Reefer Engineer", "Junior Engineer", "Engine Cadet", "Electrical Cadet"],
+    // "1st Engineer" is a distinct rank, not a synonym for Chief or 2nd. On
+    // cargo ships the engine room runs Chief → 2nd → 3rd → 4th, but passenger
+    // and cruise vessels insert a 1st Engineer between Chief and 2nd, and the
+    // cruise operators advertise under exactly that title. Without it here, a
+    // cruise posting had to be filed as the nearest cargo rank.
+    ranks: ["Chief Engineer", "1st Engineer", "2nd Engineer", "3rd Engineer", "4th Engineer", "Gas Engineer / Reefer Engineer", "Junior Engineer", "Engine Cadet", "Electrical Cadet"],
   },
   {
     label: "Electro-Technical / Specialized",
