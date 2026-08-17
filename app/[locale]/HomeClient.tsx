@@ -33,7 +33,7 @@ export type DbVacancy = {
   currency: string;
   contract_duration: string | null;
   joining_date: string | null;
-  companies: { name: string | null; is_verified: boolean } | null;
+  companies: { name: string | null; logo_url: string | null; is_verified: boolean } | null;
 };
 
 export type DbNews = {
