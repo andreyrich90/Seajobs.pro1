@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useCallback, useEffect, useState } from "react";
 import {
   Inbox, RefreshCw, Play, Plus, Trash2, CheckCircle, XCircle, AlertCircle,
-  ExternalLink, Radio, Building2, Briefcase, Mail, ChevronDown, ChevronUp,
+  ExternalLink, Radio, Building2, Briefcase, Mail, ChevronDown, ChevronUp, BarChart3,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -189,6 +189,8 @@ export default function ImportQueuePage() {
         </div>
       )}
 
+      <SourceStats />
+
       {/* Sources */}
       <section className="rounded-2xl border border-white/10 bg-card p-4 sm:p-5 space-y-4">
         <h2 className="flex items-center gap-2 font-display text-base font-bold text-white">
@@ -277,6 +279,163 @@ export default function ImportQueuePage() {
 }
 
 const CURRENCIES = ["USD", "EUR", "GBP", "NOK", "SGD", "AUD", "CAD"];
+
+/* ── Per-channel yield ──────────────────────────────────────────────────────
+   Which sources are worth keeping. The column that decides it is `published_pct`
+   — a channel with many posts and few publications spends moderation time and
+   Claude calls on spam, and a stale `last post` means the collector is walking
+   to it every 6 hours for nothing. */
+
+type StatRow = {
+  id: string; handle: string; label: string | null;
+  isActive: boolean; autoPublish: boolean;
+  lastCheckedAt: string | null; lastError: string | null;
+  posts: number; published: number; live: number; rejected: number; pending: number;
+  posts30d: number; published30d: number; lastPostAt: string | null;
+};
+type StatTotals = { posts: number; published: number; pending: number; orphaned: number };
+
+function pct(part: number, whole: number): string {
+  if (!whole) return "—";
+  return `${Math.round((part / whole) * 1000) / 10}%`;
+}
+
+// UTC, like every other date on the site: the server runs in UTC and the reader
+// does not, so a local reading would disagree by a day near midnight.
+function statDate(iso: string | null): string {
+  if (!iso) return "never";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
+  const stamp = d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" });
+  if (days <= 0) return `${stamp} (today)`;
+  return `${stamp} (${days}d ago)`;
+}
+
+function SourceStats() {
+  const [rows, setRows] = useState<StatRow[] | null>(null);
+  const [totals, setTotals] = useState<StatTotals | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setBusy(true);
+    setErr(null);
+    try {
+      const res = await authFetch("/api/admin/import-stats");
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error ?? "failed");
+      setRows(json.sources as StatRow[]);
+      setTotals(json.totals as StatTotals);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "failed");
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-card p-4 sm:p-5 space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="flex items-center gap-2 font-display text-base font-bold text-white">
+          <BarChart3 size={16} className="text-brassInk" /> Yield per channel
+        </h2>
+        <button onClick={load} disabled={busy}
+          className="ml-auto flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-mist transition hover:border-white/20 hover:text-white disabled:opacity-60">
+          <RefreshCw size={13} className={busy ? "animate-spin" : ""} /> Refresh
+        </button>
+      </div>
+
+      {err && (
+        <p className="flex items-center gap-2 rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">
+          <AlertCircle size={15} /> {err}
+        </p>
+      )}
+
+      {!rows && !err && <p className="text-sm text-mist">Loading…</p>}
+
+      {rows && rows.length === 0 && <p className="text-sm text-mist">No Telegram sources yet.</p>}
+
+      {rows && rows.length > 0 && (
+        <>
+          <div className="-mx-4 overflow-x-auto sm:mx-0">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-wider text-mist">
+                  <th className="px-3 py-2 font-semibold">Channel</th>
+                  <th className="px-3 py-2 text-right font-semibold">Posts</th>
+                  <th className="px-3 py-2 text-right font-semibold">Published</th>
+                  <th className="px-3 py-2 text-right font-semibold" title="Share of parsed posts that became a vacancy">Rate</th>
+                  <th className="px-3 py-2 text-right font-semibold" title="Still active on the board">Live</th>
+                  <th className="px-3 py-2 text-right font-semibold">Pending</th>
+                  <th className="px-3 py-2 text-right font-semibold" title="Parsed / published in the last 30 days">30 days</th>
+                  <th className="px-3 py-2 font-semibold">Last post</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {rows.map((r) => {
+                  const rate = r.posts ? r.published / r.posts : 0;
+                  // Below a third, the channel costs more to filter than it gives.
+                  const weak = r.posts >= 10 && rate < 0.34;
+                  return (
+                    <tr key={r.id} className="hover:bg-white/[0.02]">
+                      <td className="px-3 py-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <a href={`https://t.me/s/${r.handle}`} target="_blank" rel="noopener noreferrer"
+                            className="font-semibold text-white transition hover:text-brassInk">
+                            @{r.handle}
+                          </a>
+                          {!r.isActive && (
+                            <span className="rounded-full border border-white/15 px-1.5 py-px text-[10px] font-bold uppercase text-mist">off</span>
+                          )}
+                          {r.lastError && (
+                            <span title={r.lastError} className="inline-flex text-coral"><AlertCircle size={12} /></span>
+                          )}
+                        </div>
+                        {r.label && <p className="text-xs text-mist">{r.label}</p>}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular-nums text-mist">{r.posts}</td>
+                      <td className="px-3 py-2.5 text-right tabular-nums font-semibold text-white">{r.published}</td>
+                      {/* Neutral when there is nothing to rate: a teal dash on a
+                          channel with no posts reads as a good score. */}
+                      <td className={`px-3 py-2.5 text-right tabular-nums font-semibold ${
+                        r.posts === 0 ? "text-mist" : weak ? "text-coral" : "text-teal"
+                      }`}>
+                        {pct(r.published, r.posts)}
+                      </td>
+                      <td className="px-3 py-2.5 text-right tabular-nums text-mist">{r.live}</td>
+                      <td className="px-3 py-2.5 text-right tabular-nums text-mist">{r.pending || "—"}</td>
+                      <td className="px-3 py-2.5 text-right tabular-nums text-mist">
+                        {r.posts30d === 0 ? "—" : `${r.published30d}/${r.posts30d}`}
+                      </td>
+                      <td className="px-3 py-2.5 text-xs text-mist whitespace-nowrap">{statDate(r.lastPostAt)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {totals && (
+            <p className="text-xs leading-relaxed text-mist">
+              {totals.posts} posts parsed in total · {totals.published} became vacancies (
+              {pct(totals.published, totals.posts)}) · {totals.pending} awaiting review
+              {totals.orphaned > 0 && ` · ${totals.orphaned} from channels since deleted`}
+              <br />
+              <span className="text-mist/70">
+                “Rate” is the share of a channel’s posts that reached the board — a low one means the
+                collector is spending Claude calls on posts you reject. A “Last post” far in the past
+                means the channel has gone quiet and can be switched off.
+              </span>
+            </p>
+          )}
+        </>
+      )}
+    </section>
+  );
+}
 
 function DraftCard({
   draft, onRemove, onError, onNotice,
