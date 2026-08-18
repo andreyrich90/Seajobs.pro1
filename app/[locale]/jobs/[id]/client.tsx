@@ -113,6 +113,7 @@ const CTX: Record<string, Record<string, string>> = {
     seeRank: "All vacancies for this rank",
     guidesTitle: "Worth reading before you apply",
     howToApply: "How to apply — step by step",
+    share: "Share",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -135,6 +136,7 @@ const CTX: Record<string, Record<string, string>> = {
     seeRank: "Все вакансии по этой должности",
     guidesTitle: "Что почитать перед откликом",
     howToApply: "Как подать анкету — пошаговая инструкция",
+    share: "Поделиться",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -157,6 +159,7 @@ const CTX: Record<string, Record<string, string>> = {
     seeRank: "Усі вакансії за цією посадою",
     guidesTitle: "Що почитати перед відгуком",
     howToApply: "Як подати анкету — покрокова інструкція",
+    share: "Поділитись",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -179,6 +182,7 @@ const CTX: Record<string, Record<string, string>> = {
     seeRank: "Wszystkie oferty na to stanowisko",
     guidesTitle: "Warto przeczytać przed aplikowaniem",
     howToApply: "Jak aplikować — krok po kroku",
+    share: "Udostępnij",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -201,6 +205,7 @@ const CTX: Record<string, Record<string, string>> = {
     seeRank: "Toate posturile pentru acest rang",
     guidesTitle: "De citit înainte de a aplica",
     howToApply: "Cum aplici — pas cu pas",
+    share: "Distribuie",
   },
 };
 
@@ -804,7 +809,7 @@ export default function VacancyDetailClient({
               {/* Share */}
               <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
                 <span className="mr-1 flex items-center gap-1.5 text-xs font-semibold text-mist">
-                  <Share2 size={14} /> Share
+                  <Share2 size={14} /> {(CTX[lang] ?? CTX.en).share}
                 </span>
                 <button
                   onClick={copyLink}
