@@ -214,17 +214,22 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
     setSubmitting(false);
   }
 
+  // The URL handed to the share buttons has to carry the locale prefix. Without
+  // it every share pointed at the English article, so a reader on /ru/news/...
+  // posted a link that Facebook then scraped in English — the card, the title
+  // and the generated cover image all came back in the wrong language, whatever
+  // the reader had selected. English is the default locale and carries no
+  // prefix, which is why the bug was invisible from an English page.
+  const shareUrl = `https://seajobs.pro${lang === "en" ? "" : `/${lang}`}/news/${id}`;
+  const shareTitle = article?.title ?? "SeaJobs.pro";
+
   async function copyLink() {
-    const url = `https://seajobs.pro/news/${id}`;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {}
   }
-
-  const shareUrl = `https://seajobs.pro/news/${id}`;
-  const shareTitle = article?.title ?? "SeaJobs.pro";
 
   if (loading) return (
     <div className="min-h-screen bg-navy">
