@@ -8,20 +8,32 @@ export const alt = "Maritime job vacancy on SeaJobs.pro";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// The two words that wrap the figure on the share image. `locale` is a real
+// segment of this route ([locale]/jobs/[id]), so the image can follow the URL
+// the same way the meta description now does.
+const SAL: Record<string, { from: string; upTo: string }> = {
+  en: { from: "from", upTo: "up to" },
+  ru: { from: "от", upTo: "до" },
+  ua: { from: "від", upTo: "до" },
+  pl: { from: "od", upTo: "do" },
+  ro: { from: "de la", upTo: "până la" },
+};
+
 function salaryText(v: {
   salary_from: number | null;
   salary_to: number | null;
   currency: string | null;
-}): string {
+}, locale: string): string {
   const cur = v.currency ?? "USD";
+  const s = SAL[locale] ?? SAL.en;
   if (v.salary_from && v.salary_to) return `${money(v.salary_from)}–${money(v.salary_to)} ${cur}`;
-  if (v.salary_from) return `from ${money(v.salary_from)} ${cur}`;
-  if (v.salary_to) return `up to ${money(v.salary_to)} ${cur}`;
+  if (v.salary_from) return `${s.from} ${money(v.salary_from)} ${cur}`;
+  if (v.salary_to) return `${s.upTo} ${money(v.salary_to)} ${cur}`;
   return "";
 }
 
-export default async function Image({ params }: { params: Promise<{ id: string }> }) {
-  const { id: param } = await params;
+export default async function Image({ params }: { params: Promise<{ id: string; locale: string }> }) {
+  const { id: param, locale } = await params;
   const id = extractId(param) ?? param;
 
   let title = "Maritime Vacancy";
@@ -39,7 +51,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
       title = (data.title ?? title).slice(0, 70);
       rank = data.rank;
       vessel = data.vessel_type;
-      salary = salaryText(data);
+      salary = salaryText(data, locale);
       const co = data.companies as { name: string | null } | null;
       company = co?.name ?? "";
     }

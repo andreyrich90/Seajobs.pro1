@@ -66,6 +66,36 @@ async function fetchVacancy(param: string): Promise<VacancyFull | null> {
   return (data as VacancyFull | null);
 }
 
+// Wrapper words for the share card and the search-result snippet, kept here
+// beside the only thing that uses them — the same shape as SITE_META in the
+// locale layout. Romanian and Polish are included even though those locales
+// consolidate onto the English canonical for indexing: a person can still be
+// reading /pl/jobs/... and pressing Share.
+const META_COPY: Record<string, {
+  position: string; on: string; salary: string; salaryFrom: string; tagline: string;
+}> = {
+  en: {
+    position: "position", on: "on", salary: "Salary", salaryFrom: "Salary from",
+    tagline: "Apply on SeaJobs.pro — the maritime job board for seafarers.",
+  },
+  ru: {
+    position: "вакансия", on: "на", salary: "Зарплата", salaryFrom: "Зарплата от",
+    tagline: "Отклик на SeaJobs.pro — портал морских вакансий для моряков.",
+  },
+  ua: {
+    position: "вакансія", on: "на", salary: "Зарплата", salaryFrom: "Зарплата від",
+    tagline: "Відгук на SeaJobs.pro — портал морських вакансій для моряків.",
+  },
+  pl: {
+    position: "stanowisko", on: "na", salary: "Stawka", salaryFrom: "Stawka od",
+    tagline: "Aplikuj na SeaJobs.pro — portal pracy na morzu dla marynarzy.",
+  },
+  ro: {
+    position: "post", on: "pe", salary: "Salariu", salaryFrom: "Salariu de la",
+    tagline: "Aplică pe SeaJobs.pro — portalul de joburi maritime pentru marinari.",
+  },
+};
+
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string; locale: string }> }
 ): Promise<Metadata> {
@@ -74,18 +104,25 @@ export async function generateMetadata(
   if (!vacancy) return { title: "Vacancy not found — SeaJobs.pro" };
 
   const company = vacancy.companies;
+  // This is the text a social network shows in the share card — it reads the
+  // metadata, not the page — so it has to follow the locale in the URL.
+  // Sharing /ru/jobs/... used to produce an English card.
+  //
+  // Only the wrapper words are translated. The vacancy's own data (title, rank,
+  // vessel type, company, location) is stored in English and stays as it is.
+  const m = META_COPY[locale] ?? META_COPY.en;
   const rankPart = vacancy.rank ? `${vacancy.rank} ` : "";
-  const vesselPart = vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : "";
+  const vesselPart = vacancy.vessel_type ? ` ${m.on} ${vacancy.vessel_type}` : "";
   const locationPart = company?.location ? ` · ${company.location}` : "";
   const salaryPart =
     vacancy.salary_from && vacancy.salary_to
-      ? ` Salary: ${money(vacancy.salary_from)}–${money(vacancy.salary_to)} ${vacancy.currency}.`
+      ? ` ${m.salary}: ${money(vacancy.salary_from)}–${money(vacancy.salary_to)} ${vacancy.currency}.`
       : vacancy.salary_from
-      ? ` Salary from ${money(vacancy.salary_from)} ${vacancy.currency}.`
+      ? ` ${m.salaryFrom} ${money(vacancy.salary_from)} ${vacancy.currency}.`
       : "";
 
   const title = `${vacancy.title}${company?.name ? ` — ${company.name}` : ""} | SeaJobs.pro`;
-  const description = `${rankPart}position${vesselPart}${locationPart}.${salaryPart} Apply on SeaJobs.pro — the maritime job board for seafarers.`;
+  const description = `${rankPart}${m.position}${vesselPart}${locationPart}.${salaryPart} ${m.tagline}`;
   const path = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
   // Vacancy text is English-only, so pl/ro are duplicates → consolidate them
   // onto the English canonical and keep the hreflang cluster to en/ru/ua.
