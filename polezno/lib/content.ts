@@ -6,13 +6,19 @@ import type { Lifehack, Recipe } from "./types";
 // tables; otherwise it serves the built-in seed content so the site works with
 // zero setup. Row shape mirrors lib/types.ts (see supabase/migrations).
 
+// Placeholder cover shown until a photo is attached (e.g. a SQL insert with a
+// NULL image, before an image is added from the admin panel).
+function coverFor(category: string, image?: string | null): string {
+  return image && image.trim() ? image : `/img/recipes/${category}.svg`;
+}
+
 function mapRecipe(row: any): Recipe {
   return {
     id: row.id,
     slug: row.slug,
     category: row.category,
     isPp: row.is_pp,
-    image: row.image,
+    image: coverFor(row.category, row.image),
     minutes: row.minutes,
     calories: row.calories,
     servings: row.servings,
