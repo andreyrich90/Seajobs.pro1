@@ -2,9 +2,9 @@ import type { Lifehack, Recipe } from "./types";
 
 // Built-in seed content. This is what renders when Supabase is not configured,
 // and it doubles as the reference shape for the `recipes` / `lifehacks` tables
-// (see supabase/migrations). Recipe images are Unsplash photos; lifehack
-// thumbnails are local SVG covers (scripts/generate-images.mjs). next.config.js
-// allows any https image host.
+// (see supabase/migrations). Images are local SVG covers under public/img
+// (scripts/generate-images.mjs) in the "Свежо" palette — the site needs no
+// external image host. Swap `image` for a photo URL any time.
 
 export const SEED_RECIPES: Recipe[] = [
   {
@@ -12,7 +12,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "ovsyanka-s-yagodami",
     category: "breakfast",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/breakfast.svg",
     minutes: 10,
     calories: 320,
     servings: 1,
@@ -62,7 +62,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "tost-s-avokado-i-yaycom",
     category: "breakfast",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/breakfast.svg",
     minutes: 12,
     calories: 380,
     servings: 1,
@@ -110,7 +110,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "pyshnye-blinchiki",
     category: "breakfast",
     isPp: false,
-    image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/breakfast.svg",
     minutes: 25,
     calories: 540,
     servings: 3,
@@ -162,7 +162,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "grecheskiy-salat",
     category: "salad",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/salad.svg",
     minutes: 15,
     calories: 290,
     servings: 2,
@@ -212,7 +212,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "tomatnyy-krem-sup",
     category: "soup",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/soup.svg",
     minutes: 35,
     calories: 220,
     servings: 4,
@@ -262,7 +262,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "kurica-s-kinoa-bowl",
     category: "main",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/main.svg",
     minutes: 30,
     calories: 470,
     servings: 2,
@@ -312,7 +312,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "pasta-s-tomatami-i-bazilikom",
     category: "main",
     isPp: false,
-    image: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/main.svg",
     minutes: 20,
     calories: 610,
     servings: 2,
@@ -360,7 +360,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "zelenyy-smuzi",
     category: "drink",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/drink.svg",
     minutes: 5,
     calories: 180,
     servings: 1,
@@ -408,7 +408,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "shokoladnyy-brauni",
     category: "dessert",
     isPp: false,
-    image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/dessert.svg",
     minutes: 40,
     calories: 480,
     servings: 8,
@@ -458,7 +458,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "syrniki-iz-tvoroga",
     category: "breakfast",
     isPp: true,
-    image: "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=1000&q=70",
+    image: "/img/recipes/breakfast.svg",
     minutes: 20,
     calories: 260,
     servings: 2,

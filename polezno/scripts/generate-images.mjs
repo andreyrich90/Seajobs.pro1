@@ -11,22 +11,23 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = resolve(root, "public/img");
 
-// [from, to] gradient stops per category, matched to the kitchen palette.
+// [from, to] gradient stops per category, in the "Свежо" palette (forest /
+// terracotta / mustard / leaf). Mid-to-dark tones so the white glyph reads.
 const recipeThemes = {
-  breakfast: ["#f6c453", "#e8963e"],
-  soup: ["#e0774f", "#c1452f"],
-  main: ["#5b9e6f", "#3f6f4c"],
-  salad: ["#7bc47f", "#4a7c59"],
-  dessert: ["#e58aa8", "#c65c86"],
-  drink: ["#6fbfd6", "#3f8fb0"],
-  baking: ["#d9a441", "#b5761f"],
-  snack: ["#c9a86a", "#9a7b3f"],
+  breakfast: ["#e0b34a", "#c1552e"],
+  soup: ["#c1552e", "#a8431f"],
+  main: ["#3f5231", "#2f3d26"],
+  salad: ["#8caa66", "#3f5231"],
+  dessert: ["#cf8a5f", "#a8431f"],
+  drink: ["#6fae9a", "#33564a"],
+  baking: ["#d9a441", "#a8431f"],
+  snack: ["#b9975f", "#6f5a34"],
 };
 const lifehackThemes = {
-  storage: ["#6fbfd6", "#3f8fb0"],
-  cooking: ["#e0774f", "#c1452f"],
-  cleaning: ["#7bc47f", "#4a7c59"],
-  saving: ["#f6c453", "#d9a441"],
+  storage: ["#6fae9a", "#33564a"],
+  cooking: ["#c1552e", "#a8431f"],
+  cleaning: ["#8caa66", "#3f5231"],
+  saving: ["#d9a441", "#a8431f"],
 };
 
 // Simple centred white line glyphs (viewBox 0 0 100 100, drawn at centre).
