@@ -832,6 +832,72 @@ export const SEED_RECIPES: Recipe[] = [
     },
     createdAt: "2026-08-15T08:00:00Z",
   },
+  {
+    id: "r-chicken-zucchini-patties",
+    slug: "kurinye-oladi-s-kabachkom",
+    category: "main",
+    isPp: true,
+    image: "/img/recipes/main.svg",
+    minutes: 40,
+    calories: 190,
+    servings: 4,
+    difficulty: "easy",
+    title: {
+      ru: "Сочные куриные оладьи с кабачком и сыром",
+      en: "Juicy chicken & zucchini patties",
+    },
+    description: {
+      ru: "Нежные ПП-оладьи из куриного фарша и кабачка, запечённые в духовке без капли масла. Сочные внутри, румяные сверху — идеальный лёгкий ужин.",
+      en: "Tender healthy patties of chicken mince and zucchini, oven-baked without a drop of oil. Juicy inside, golden on top — the perfect light dinner.",
+    },
+    ingredients: {
+      ru: [
+        "Куриный фарш — 500 г",
+        "Кабачок — 1 средний (~250–300 г)",
+        "Яйцо — 1 шт",
+        "Твёрдый сыр — 80–100 г",
+        "Мука — 2 ст. л.",
+        "Паприка — 1 ч. л.",
+        "Соль — по вкусу",
+        "Чёрный молотый перец — по вкусу",
+        "Для подачи: огурец — 1 шт, помидоры — 2 шт, укроп — небольшой пучок",
+      ],
+      en: [
+        "Chicken mince — 500 g",
+        "Zucchini — 1 medium (~250–300 g)",
+        "Egg — 1",
+        "Hard cheese — 80–100 g",
+        "Flour — 2 tbsp",
+        "Paprika — 1 tsp",
+        "Salt — to taste",
+        "Black pepper — to taste",
+        "To serve: cucumber — 1, tomatoes — 2, dill — a small bunch",
+      ],
+    },
+    steps: {
+      ru: [
+        "Кабачок натрите на крупной тёрке и слегка отожмите лишнюю влагу.",
+        "Смешайте куриный фарш, кабачок, яйцо, тёртый сыр, муку, паприку, соль и перец.",
+        "Хорошо перемешайте до однородного вязкого фарша.",
+        "Выкладывайте ложкой на противень с пергаментом, формируя оладьи.",
+        "Запекайте 20–25 минут при 180 °C до румяной корочки.",
+        "Подавайте горячими с салатом из огурца, помидоров и укропа.",
+      ],
+      en: [
+        "Grate the zucchini coarsely and squeeze out the excess moisture.",
+        "Combine the chicken mince, zucchini, egg, grated cheese, flour, paprika, salt and pepper.",
+        "Mix well into a smooth, sticky mixture.",
+        "Spoon onto a parchment-lined tray, shaping patties.",
+        "Bake for 20–25 minutes at 180 °C until golden.",
+        "Serve hot with a cucumber, tomato and dill salad.",
+      ],
+    },
+    tags: {
+      ru: ["ПП", "ужин", "курица", "кабачок"],
+      en: ["healthy", "dinner", "chicken", "zucchini"],
+    },
+    createdAt: "2026-08-16T08:00:00Z",
+  },
 ];
 
 export const SEED_LIFEHACKS: Lifehack[] = [
