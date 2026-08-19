@@ -2,12 +2,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import RecipeCard from "@/components/RecipeCard";
 import CategoryChips from "@/components/CategoryChips";
+import CollectionCard from "@/components/CollectionCard";
 import LifehacksStrip from "@/components/LifehacksStrip";
 import MealPlanBanner from "@/components/MealPlanBanner";
 import Newsletter from "@/components/Newsletter";
 import { getDict } from "@/lib/i18n";
 import { isLang, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
+import { COLLECTIONS } from "@/lib/collections";
 import { getLifehacks, getPpRecipes, getRecipes } from "@/lib/content";
 
 // Re-read from the database in the background at most every 30s (ISR),
@@ -31,6 +33,12 @@ export default async function HomePage({
 
   const featured = recipes.slice(0, 6);
   const heroImgs = featured.slice(0, 2);
+
+  const bySlug = new Map(recipes.map((r) => [r.slug, r]));
+  const collectionCards = COLLECTIONS.map((c) => {
+    const items = c.recipeSlugs.map((s) => bySlug.get(s)).filter(Boolean);
+    return { c, cover: (items[0] as any)?.image || "/img/recipes/snack.svg", count: items.length };
+  });
 
   return (
     <>
@@ -115,6 +123,31 @@ export default async function HomePage({
           ))}
         </div>
       </section>
+
+      {/* Collections */}
+      {collectionCards.length > 0 && (
+        <section className="mx-auto max-w-content px-5 pb-4 sm:px-8">
+          <SectionHead
+            title={t["home.collections.title"]}
+            subtitle={t["home.collections.subtitle"]}
+            ctaLabel={t["home.collections.cta"]}
+            ctaHref={href(lang, "/collections")}
+          />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {collectionCards.map(({ c, cover, count }) => (
+              <CollectionCard
+                key={c.slug}
+                slug={c.slug}
+                emoji={c.emoji}
+                title={c.title}
+                description={c.description}
+                cover={cover}
+                count={count}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Lifehacks band */}
       <LifehacksStrip items={lifehacks.slice(0, 6)} />

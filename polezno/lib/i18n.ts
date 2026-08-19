@@ -11,9 +11,19 @@ const ru: Dict = {
 
   "nav.recipes": "Рецепты",
   "nav.pp": "ПП",
+  "nav.collections": "Подборки",
   "nav.lifehacks": "Лайфхаки",
   "nav.about": "О проекте",
   "header.profile": "Мой профиль",
+
+  "collections.title": "Подборки",
+  "collections.subtitle": "Готовые наборы рецептов под случай — выбирайте и готовьте.",
+  "collections.back": "Все подборки",
+  "collections.count": "рецептов",
+  "collections.open": "Открыть подборку",
+  "home.collections.title": "Подборки",
+  "home.collections.subtitle": "Наборы рецептов под настроение и повод",
+  "home.collections.cta": "Все подборки",
 
   "home.eyebrow": "Проверенные рецепты · ПП · лайфхаки",
   "home.hero.line1": "Готовим просто.",
@@ -126,9 +136,19 @@ const en: Dict = {
 
   "nav.recipes": "Recipes",
   "nav.pp": "Healthy",
+  "nav.collections": "Collections",
   "nav.lifehacks": "Lifehacks",
   "nav.about": "About",
   "header.profile": "My profile",
+
+  "collections.title": "Collections",
+  "collections.subtitle": "Ready recipe sets for the occasion — pick one and cook.",
+  "collections.back": "All collections",
+  "collections.count": "recipes",
+  "collections.open": "Open collection",
+  "home.collections.title": "Collections",
+  "home.collections.subtitle": "Recipe sets for the mood and the occasion",
+  "home.collections.cta": "All collections",
 
   "home.eyebrow": "Tested recipes · healthy · lifehacks",
   "home.hero.line1": "Cook simple.",

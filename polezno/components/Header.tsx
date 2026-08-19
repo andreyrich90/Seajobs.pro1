@@ -18,6 +18,7 @@ export default function Header() {
   const nav = [
     { path: "/recipes", label: t("nav.recipes") },
     { path: "/pp", label: t("nav.pp") },
+    { path: "/collections", label: t("nav.collections") },
     { path: "/lifehacks", label: t("nav.lifehacks") },
     { path: "/about", label: t("nav.about") },
   ];

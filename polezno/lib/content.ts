@@ -68,6 +68,14 @@ export async function getPpRecipes(): Promise<Recipe[]> {
   return (await getRecipes()).filter((r) => r.isPp);
 }
 
+// Resolve a collection's recipe slugs to live Recipe objects, in the curated
+// order, skipping any slug that no longer exists.
+export async function getCollectionRecipes(slugs: string[]): Promise<Recipe[]> {
+  const all = await getRecipes();
+  const bySlug = new Map(all.map((r) => [r.slug, r]));
+  return slugs.map((s) => bySlug.get(s)).filter((r): r is Recipe => Boolean(r));
+}
+
 export async function getLifehacks(): Promise<Lifehack[]> {
   if (!isSupabaseConfigured()) return SEED_LIFEHACKS;
   try {
