@@ -43,6 +43,26 @@ export const COLLECTIONS: Collection[] = [
       "tomatnyy-krem-sup",
     ],
   },
+  {
+    slug: "9-vidov-kotlet",
+    emoji: "🍖",
+    title: { ru: "9 видов котлет", en: "9 kinds of cutlets" },
+    description: {
+      ru: "Шпаргалка на любой вкус: от классических мясных до постных гречневых и капустных с тянущимся сыром. Выбирайте любой рецепт.",
+      en: "A cheat-sheet for every taste: from classic meat to lean buckwheat and cheesy cabbage. Pick any recipe.",
+    },
+    recipeSlugs: [
+      "domashnie-myasnye-kotlety",
+      "pozharskie-kotlety",
+      "kurinye-kotlety-s-syrom",
+      "kotlety-iz-indeyki-s-kabachkom",
+      "rybnye-kotlety-iz-mintaya",
+      "pechenochnye-kotlety-s-risom",
+      "kartofelnye-kotlety-s-gribami",
+      "grechnevye-kotlety-s-gribami",
+      "kapustnye-kotlety-s-syrom",
+    ],
+  },
 ];
 
 export function findCollection(slug: string): Collection | undefined {
