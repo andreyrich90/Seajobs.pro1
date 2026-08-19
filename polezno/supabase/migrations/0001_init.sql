@@ -23,6 +23,7 @@ create table if not exists public.recipes (
   ingredients jsonb not null default '{}'::jsonb,
   steps       jsonb not null default '{}'::jsonb,
   tags        jsonb not null default '{}'::jsonb,
+  gallery     jsonb not null default '[]'::jsonb,  -- step photos, in step order
   created_at  timestamptz not null default now()
 );
 

@@ -28,6 +28,21 @@ export const COLLECTIONS: Collection[] = [
       "rzhanye-grenki-s-chesnokom-i-syrnym-dipom",
     ],
   },
+  {
+    slug: "pp-uzhiny",
+    emoji: "🍽️",
+    title: { ru: "ПП-ужины", en: "Healthy dinners" },
+    description: {
+      ru: "Лёгкие ужины без готовки часами — белок, овощи и ничего лишнего. Выбирайте любой.",
+      en: "Light dinners that don't take hours — protein, veg and nothing extra. Pick any.",
+    },
+    recipeSlugs: [
+      "kurinye-oladi-s-kabachkom",
+      "kurica-s-kinoa-bowl",
+      "grecheskiy-salat",
+      "tomatnyy-krem-sup",
+    ],
+  },
 ];
 
 export function findCollection(slug: string): Collection | undefined {

@@ -19,7 +19,8 @@ export interface Recipe {
   slug: string;
   category: RecipeCategory;
   isPp: boolean; // правильное питание / healthy
-  image: string;
+  image: string; // main/cover photo
+  gallery?: string[]; // step photos, in step order (locale-independent)
   minutes: number;
   calories: number; // per serving
   servings: number;

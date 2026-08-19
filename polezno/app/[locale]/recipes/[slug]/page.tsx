@@ -126,15 +126,29 @@ export default async function RecipePage({
         {/* Steps */}
         <section>
           <h2 className="font-display text-2xl font-bold text-ink">{t["recipe.steps"]}</h2>
-          <ol className="mt-4 space-y-4">
-            {pick(recipe.steps, lang).map((step, i) => (
-              <li key={i} className="flex gap-4">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-basil font-display font-bold text-white">
-                  {i + 1}
-                </span>
-                <p className="pt-1 leading-relaxed text-ink">{step}</p>
-              </li>
-            ))}
+          <ol className="mt-4 space-y-5">
+            {pick(recipe.steps, lang).map((step, i) => {
+              const photo = recipe.gallery?.[i];
+              return (
+                <li key={i} className="flex gap-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-basil font-display font-bold text-white">
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="pt-1 leading-relaxed text-ink">{step}</p>
+                    {photo && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={photo}
+                        alt=""
+                        loading="lazy"
+                        className="mt-3 w-full max-w-md rounded-xl border border-line object-cover"
+                      />
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </section>
       </div>

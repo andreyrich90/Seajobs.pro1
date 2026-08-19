@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   }
   const { data, error } = await getServerSupabase()
     .from("recipes")
-    .select("id, slug, category, is_pp, image, title")
+    .select("id, slug, category, is_pp, image, title, gallery")
     .order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ recipes: data ?? [] });

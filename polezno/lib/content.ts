@@ -19,6 +19,7 @@ function mapRecipe(row: any): Recipe {
     category: row.category,
     isPp: row.is_pp,
     image: coverFor(row.category, row.image),
+    gallery: Array.isArray(row.gallery) ? row.gallery : [],
     minutes: row.minutes,
     calories: row.calories,
     servings: row.servings,

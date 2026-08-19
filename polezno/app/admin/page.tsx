@@ -9,6 +9,7 @@ interface RecipeRow {
   is_pp: boolean;
   image: string | null;
   title: { ru?: string; en?: string };
+  gallery?: string[];
 }
 
 const CATEGORIES = ["breakfast", "soup", "main", "salad", "dessert", "drink", "baking", "snack"];
@@ -150,8 +151,58 @@ function RecipeItem({
   const [msg, setMsg] = useState("");
   const [showUrl, setShowUrl] = useState(false);
   const [url, setUrl] = useState("");
+  const [showGallery, setShowGallery] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const cover = recipe.image || `/img/recipes/${recipe.category}.svg`;
+  const gallery = recipe.gallery || [];
+
+  async function uploadGallery(files: FileList) {
+    setBusy(true);
+    setMsg("");
+    try {
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("slug", recipe.slug);
+        const res = await authFetch("/api/admin/gallery", { method: "POST", body: fd });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          setMsg(j.hint || j.error || "Ошибка загрузки");
+          break;
+        }
+      }
+      setMsg("Фото шагов обновлены ✓");
+      onUpdated();
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function removeGalleryAt(i: number) {
+    setBusy(true);
+    setMsg("");
+    try {
+      const next = gallery.filter((_, idx) => idx !== i);
+      const res = await authFetch("/api/admin/gallery-set", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: recipe.slug, gallery: next }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setMsg(j.error || "Ошибка");
+      } else {
+        onUpdated();
+      }
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function saveUrl() {
     setBusy(true);
@@ -242,8 +293,59 @@ function RecipeItem({
           >
             🔗 вставить ссылку
           </button>
+          <button
+            onClick={() => setShowGallery((v) => !v)}
+            className="text-xs font-semibold text-muted hover:text-ink"
+          >
+            🖼 фото шагов ({gallery.length})
+          </button>
         </div>
       </div>
+
+      {showGallery && (
+        <div className="mt-3 border-t border-line pt-3">
+          <div className="mb-2 text-xs font-semibold text-muted">
+            Порядок фото = порядок шагов. Первое фото — под шагом 1, второе — под шагом 2 и т.д.
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {gallery.map((g, i) => (
+              <div key={i} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={g} alt="" className="h-20 w-20 rounded-lg object-cover" />
+                <span className="absolute left-1 top-1 rounded bg-ink/70 px-1 text-[10px] font-bold text-cream">
+                  {i + 1}
+                </span>
+                <button
+                  onClick={() => removeGalleryAt(i)}
+                  disabled={busy}
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-clay text-xs font-bold text-white"
+                  aria-label="remove"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <input
+              ref={galleryRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files?.length) uploadGallery(e.target.files);
+                e.target.value = "";
+              }}
+            />
+            <button
+              onClick={() => galleryRef.current?.click()}
+              disabled={busy}
+              className="flex h-20 w-20 items-center justify-center rounded-lg border-2 border-dashed border-line text-2xl text-muted transition hover:border-basil hover:text-basil disabled:opacity-60"
+            >
+              ＋
+            </button>
+          </div>
+        </div>
+      )}
 
       {showUrl && (
         <div className="mt-3 flex gap-2">
