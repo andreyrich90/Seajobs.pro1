@@ -20,19 +20,23 @@ export async function GET() {
   if (isSupabaseConfigured()) {
     query = { attempted: true };
     try {
-      const { count, error } = await getServerSupabase()
+      // Mirror what the app actually does: fetch rows, not just a count.
+      const { data, error } = await getServerSupabase()
         .from("recipes")
-        .select("*", { count: "exact", head: true });
+        .select("slug, minutes")
+        .order("created_at", { ascending: false })
+        .limit(5);
       query.ok = !error;
-      query.count = count ?? null;
       query.error = error ? error.message : null;
+      query.returned = data?.length ?? 0;
+      query.sample = (data ?? []).map((r: any) => `${r.slug} (${r.minutes}m)`);
     } catch (e: any) {
       query.ok = false;
       query.error = String(e?.message || e);
     }
   }
 
-  const reading = query.ok && (query.count ?? 0) > 0 ? "supabase" : "seed-fallback";
+  const reading = query.ok && (query.returned ?? 0) > 0 ? "supabase" : "seed-fallback";
 
   return NextResponse.json({ env, query, reading }, { status: 200 });
 }
