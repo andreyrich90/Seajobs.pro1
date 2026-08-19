@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Colour channels (space-separated RGB). Tailwind tokens in tailwind.config.ts
+  reference these as rgb(var(--c-*) / <alpha-value>). Light is the default and
+  lives on bare :root; dark is opt-in under [data-theme="dark"]. Changing the
+  theme means editing only this block.
+*/
+:root {
+  --c-cream: 250 246 238;   /* #faf6ee page background */
+  --c-surface: 255 255 255; /* #ffffff raised surface */
+  --c-card: 255 255 255;    /* card */
+  --c-ink: 31 42 36;        /* #1f2a24 primary text */
+  --c-muted: 106 116 110;   /* #6a746e secondary text */
+  --c-line: 227 220 208;    /* hairline */
+  --c-basil: 74 124 89;     /* #4a7c59 primary accent */
+  --c-basil2: 91 158 111;   /* brighter basil for gradients */
+  --c-basil-ink: 47 92 62;  /* basil readable as text */
+  --c-clay: 224 122 95;     /* #e07a5f terracotta / hot */
+  --c-honey: 226 168 60;    /* #e2a83c honey / healthy */
+}
+
+[data-theme="dark"] {
+  --c-cream: 18 24 21;      /* deep herb-green night */
+  --c-surface: 26 34 30;
+  --c-card: 30 40 35;
+  --c-ink: 235 240 234;
+  --c-muted: 156 170 160;
+  --c-line: 48 60 52;
+  --c-basil: 122 190 140;
+  --c-basil2: 91 158 111;
+  --c-basil-ink: 150 208 166;
+  --c-clay: 233 145 118;
+  --c-honey: 233 183 92;
+}
+
+* {
+  border-color: rgb(var(--c-line));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(var(--c-cream));
+  color: rgb(var(--c-ink));
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Warm dawn-kitchen hero wash. The only literal colours outside the token blocks. */
+.hero-surface {
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(226, 168, 60, 0.28), transparent 60%),
+    radial-gradient(900px 500px at 0% 0%, rgba(91, 158, 111, 0.22), transparent 55%),
+    rgb(var(--c-cream));
+}
+[data-theme="dark"] .hero-surface {
+  background:
+    radial-gradient(1200px 500px at 80% -10%, rgba(226, 168, 60, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 0% 0%, rgba(91, 158, 111, 0.16), transparent 55%),
+    rgb(var(--c-cream));
+}
+
+.prose-recipe p {
+  margin-bottom: 0.85rem;
+  line-height: 1.7;
+}
+
+/* Line-clamp helpers */
+.clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

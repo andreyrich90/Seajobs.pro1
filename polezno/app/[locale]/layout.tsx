@@ -1,0 +1,91 @@
+import type { Metadata } from "next";
+import { Nunito, Playfair_Display } from "next/font/google";
+import { notFound } from "next/navigation";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { DictProvider } from "@/components/DictProvider";
+import { getDict } from "@/lib/i18n";
+import { isLang, LOCALES, type Lang } from "@/lib/langs";
+
+const display = Playfair_Display({
+  subsets: ["latin", "cyrillic"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const body = Nunito({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const lang: Lang = isLang(locale) ? locale : "ru";
+  const dict = getDict(lang);
+  return {
+    title: {
+      default: `${dict["brand"]} — ${dict["brand.tagline"]}`,
+      template: `%s · ${dict["brand"]}`,
+    },
+    description: dict["brand.tagline"],
+    metadataBase: new URL("https://polezno.example"),
+    alternates: {
+      languages: { ru: "/ru", en: "/en" },
+    },
+    openGraph: {
+      title: dict["brand"],
+      description: dict["brand.tagline"],
+      type: "website",
+    },
+  };
+}
+
+// Applies the saved theme before paint so a light-default page never flashes
+// dark (or vice versa).
+const themeScript = `
+(function(){try{
+  var t=localStorage.getItem('polezno-theme');
+  if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+}catch(e){}})();
+`;
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!isLang(locale)) notFound();
+  const lang: Lang = locale;
+  const dict = getDict(lang);
+
+  return (
+    <html lang={lang} className={`${display.variable} ${body.variable}`}>
+      <body className="min-h-screen bg-cream text-ink font-body antialiased">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <DictProvider lang={lang} dict={dict}>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </DictProvider>
+      </body>
+    </html>
+  );
+}
