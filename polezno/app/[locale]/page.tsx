@@ -10,6 +10,10 @@ import { isLang, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
 import { getLifehacks, getPpRecipes, getRecipes } from "@/lib/content";
 
+// Re-read from the database in the background at most every 30s (ISR),
+// so new recipes added via SQL appear without a redeploy.
+export const revalidate = 30;
+
 export default async function HomePage({
   params,
 }: {

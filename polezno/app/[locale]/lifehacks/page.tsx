@@ -4,6 +4,10 @@ import { getDict } from "@/lib/i18n";
 import { isLang } from "@/lib/langs";
 import { getLifehacks } from "@/lib/content";
 
+// Re-read from the database in the background at most every 30s (ISR),
+// so new recipes added via SQL appear without a redeploy.
+export const revalidate = 30;
+
 export async function generateMetadata({
   params,
 }: {
