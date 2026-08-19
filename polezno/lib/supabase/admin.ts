@@ -13,9 +13,20 @@ export function isSupabaseConfigured(): boolean {
   );
 }
 
+// Normalise the project URL to a bare origin. A trailing slash or a pasted
+// path (…supabase.co/, …/rest/v1) makes PostgREST return
+// "Invalid path specified in request URL", so we strip everything but the origin.
+function cleanUrl(raw: string): string {
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/+$/, "");
+  }
+}
+
 export function getServerSupabase(): SupabaseClient {
   if (cached) return cached;
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const url = cleanUrl(process.env.NEXT_PUBLIC_SUPABASE_URL!);
   const key =
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

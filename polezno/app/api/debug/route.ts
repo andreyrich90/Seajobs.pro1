@@ -7,9 +7,14 @@ export const dynamic = "force-dynamic";
 // Temporary diagnostics: reports whether Supabase env vars are present and
 // whether a live query works — WITHOUT exposing any key value. Delete after.
 export async function GET() {
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  let urlClean: string | null = null;
+  try { urlClean = new URL(rawUrl).origin; } catch { urlClean = null; }
   const env = {
     hasUrl: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
-    urlHost: (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/^https?:\/\//, "").split(".")[0] || null,
+    urlRaw: rawUrl,
+    urlClean,
+    urlHost: rawUrl.replace(/^https?:\/\//, "").split(".")[0] || null,
     hasAnon: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
     hasServiceRole: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
     hasAdminPassword: Boolean(process.env.ADMIN_PASSWORD),
