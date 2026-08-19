@@ -77,6 +77,27 @@ export async function getCollectionRecipes(slugs: string[]): Promise<Recipe[]> {
   return slugs.map((s) => bySlug.get(s)).filter((r): r is Recipe => Boolean(r));
 }
 
+// Admin-uploaded cover images per collection slug (empty when unset/no DB).
+export async function getCollectionCovers(): Promise<Record<string, string>> {
+  if (!isSupabaseConfigured()) return {};
+  try {
+    const { data, error } = await getServerSupabase()
+      .from("collection_covers")
+      .select("slug, image");
+    if (error || !data) return {};
+    const map: Record<string, string> = {};
+    for (const r of data as any[]) if (r.slug && r.image) map[r.slug] = r.image;
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+export async function getCollectionCover(slug: string): Promise<string | null> {
+  const all = await getCollectionCovers();
+  return all[slug] ?? null;
+}
+
 export async function getLifehacks(): Promise<Lifehack[]> {
   if (!isSupabaseConfigured()) return SEED_LIFEHACKS;
   try {

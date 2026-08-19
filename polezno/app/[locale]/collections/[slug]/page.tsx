@@ -7,7 +7,7 @@ import { getDict } from "@/lib/i18n";
 import { isLang, pick, LOCALES, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
 import { COLLECTIONS, findCollection } from "@/lib/collections";
-import { getCollectionRecipes } from "@/lib/content";
+import { getCollectionCover, getCollectionRecipes } from "@/lib/content";
 
 export const revalidate = 30;
 export const dynamicParams = false;
@@ -39,7 +39,10 @@ export default async function CollectionPage({
   const collection = findCollection(slug);
   if (!collection) notFound();
 
-  const recipes = await getCollectionRecipes(collection.recipeSlugs);
+  const [recipes, cover] = await Promise.all([
+    getCollectionRecipes(collection.recipeSlugs),
+    getCollectionCover(collection.slug),
+  ]);
 
   return (
     <div className="mx-auto max-w-content px-5 py-12 sm:px-8">
@@ -60,6 +63,17 @@ export default async function CollectionPage({
           {recipes.length} {t["collections.count"]}
         </p>
       </header>
+
+      {cover && (
+        <div className="mt-6 overflow-hidden rounded-xl2 border border-line bg-cream2 shadow-soft">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={cover}
+            alt={pick(collection.title, lang)}
+            className="mx-auto max-h-[520px] w-full object-contain"
+          />
+        </div>
+      )}
 
       <div className="mt-9 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {recipes.map((r) => (

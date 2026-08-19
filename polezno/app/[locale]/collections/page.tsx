@@ -3,7 +3,7 @@ import CollectionCard from "@/components/CollectionCard";
 import { getDict } from "@/lib/i18n";
 import { isLang } from "@/lib/langs";
 import { COLLECTIONS } from "@/lib/collections";
-import { getRecipes } from "@/lib/content";
+import { getCollectionCovers, getRecipes } from "@/lib/content";
 
 export const revalidate = 30;
 
@@ -25,13 +25,13 @@ export default async function CollectionsPage({
   const { locale } = await params;
   const t = getDict(isLang(locale) ? locale : "ru");
 
-  const all = await getRecipes();
+  const [all, covers] = await Promise.all([getRecipes(), getCollectionCovers()]);
   const bySlug = new Map(all.map((r) => [r.slug, r]));
 
   const cards = COLLECTIONS.map((c) => {
     const recipes = c.recipeSlugs.map((s) => bySlug.get(s)).filter(Boolean);
     const cover =
-      (recipes[0] as any)?.image || "/img/recipes/snack.svg";
+      covers[c.slug] || (recipes[0] as any)?.image || "/img/recipes/snack.svg";
     return { c, cover, count: recipes.length };
   });
 

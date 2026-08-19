@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { COLLECTIONS } from "@/lib/collections";
 
 interface RecipeRow {
   id: string;
@@ -121,6 +122,8 @@ export default function AdminPage() {
           Выйти
         </button>
       </div>
+
+      <CollectionCovers authFetch={authFetch} />
 
       <AddRecipe authFetch={authFetch} onAdded={() => load()} />
 
@@ -515,6 +518,139 @@ function AddRecipe({
           </div>
         </form>
       )}
+    </div>
+  );
+}
+
+function CollectionCovers({
+  authFetch,
+}: {
+  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [covers, setCovers] = useState<Record<string, string>>({});
+
+  const load = useCallback(async () => {
+    try {
+      const res = await authFetch("/api/admin/collection-cover");
+      if (res.ok) {
+        const j = await res.json();
+        setCovers(j.covers || {});
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [authFetch]);
+
+  useEffect(() => {
+    if (open) load();
+  }, [open, load]);
+
+  return (
+    <div className="mb-6 rounded-xl2 border border-line bg-cream2 p-4">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between font-bold text-basil"
+      >
+        <span>🖼 Обложки подборок</span>
+        <span className="text-muted">{open ? "свернуть" : ""}</span>
+      </button>
+      {open && (
+        <div className="mt-4 flex flex-col gap-3">
+          {COLLECTIONS.map((c) => (
+            <CoverRow
+              key={c.slug}
+              slug={c.slug}
+              emoji={c.emoji}
+              title={c.title.ru}
+              cover={covers[c.slug]}
+              authFetch={authFetch}
+              onUpdated={load}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CoverRow({
+  slug,
+  emoji,
+  title,
+  cover,
+  authFetch,
+  onUpdated,
+}: {
+  slug: string;
+  emoji: string;
+  title: string;
+  cover?: string;
+  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
+  onUpdated: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function upload(file: File) {
+    setBusy(true);
+    setMsg("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("slug", slug);
+      const res = await authFetch("/api/admin/collection-cover", { method: "POST", body: fd });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) setMsg(j.hint || j.error || "Ошибка");
+      else {
+        setMsg("Обложка обновлена ✓");
+        onUpdated();
+      }
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-4 rounded-xl border border-line bg-surface p-3">
+      <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-cream2">
+        {cover ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={cover} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl">{emoji}</div>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-semibold text-ink">
+          {emoji} {title}
+        </div>
+        <div className={`text-xs ${cover ? "text-leaf" : "text-clay"}`}>
+          {cover ? "обложка своя" : "обложка по 1-му рецепту"}
+        </div>
+        {msg && <div className="mt-0.5 text-xs font-semibold text-basil2">{msg}</div>}
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/avif"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) upload(f);
+          e.target.value = "";
+        }}
+      />
+      <button
+        onClick={() => fileRef.current?.click()}
+        disabled={busy}
+        className="shrink-0 rounded-full bg-basil px-4 py-2 text-sm font-bold text-cream transition hover:bg-basil2 disabled:opacity-60"
+      >
+        {busy ? "…" : "Загрузить обложку"}
+      </button>
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { getDict } from "@/lib/i18n";
 import { isLang, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
 import { COLLECTIONS } from "@/lib/collections";
-import { getLifehacks, getPpRecipes, getRecipes } from "@/lib/content";
+import { getCollectionCovers, getLifehacks, getPpRecipes, getRecipes } from "@/lib/content";
 
 // Re-read from the database in the background at most every 30s (ISR),
 // so new recipes added via SQL appear without a redeploy.
@@ -25,10 +25,11 @@ export default async function HomePage({
   const lang: Lang = isLang(locale) ? locale : "ru";
   const t = getDict(lang);
 
-  const [recipes, pp, lifehacks] = await Promise.all([
+  const [recipes, pp, lifehacks, covers] = await Promise.all([
     getRecipes(),
     getPpRecipes(),
     getLifehacks(),
+    getCollectionCovers(),
   ]);
 
   const featured = recipes.slice(0, 6);
@@ -37,7 +38,11 @@ export default async function HomePage({
   const bySlug = new Map(recipes.map((r) => [r.slug, r]));
   const collectionCards = COLLECTIONS.map((c) => {
     const items = c.recipeSlugs.map((s) => bySlug.get(s)).filter(Boolean);
-    return { c, cover: (items[0] as any)?.image || "/img/recipes/snack.svg", count: items.length };
+    return {
+      c,
+      cover: covers[c.slug] || (items[0] as any)?.image || "/img/recipes/snack.svg",
+      count: items.length,
+    };
   });
 
   return (

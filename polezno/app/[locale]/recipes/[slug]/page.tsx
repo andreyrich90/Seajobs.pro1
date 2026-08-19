@@ -83,12 +83,12 @@ export default async function RecipePage({
       </h1>
       <p className="mt-3 max-w-2xl text-lg text-muted">{pick(recipe.description, lang)}</p>
 
-      <div className="mt-6 overflow-hidden rounded-xl2 border border-line shadow-soft">
+      <div className="mt-6 overflow-hidden rounded-xl2 border border-line bg-cream2 shadow-soft">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={recipe.image}
           alt={pick(recipe.title, lang)}
-          className="aspect-[16/9] w-full object-cover"
+          className="mx-auto max-h-[600px] w-full object-contain"
         />
       </div>
 
