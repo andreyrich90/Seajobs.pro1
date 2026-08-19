@@ -6,31 +6,54 @@ import type { Lang } from "./langs";
 export type Dict = Record<string, string>;
 
 const ru: Dict = {
-  "brand": "Просто Полезно",
-  "brand.tagline": "Рецепты, правильное питание и лайфхаки для кухни",
+  "brand": "Свежо",
+  "brand.tagline": "Рецепты, ПП и кухонные лайфхаки",
 
-  "nav.home": "Главная",
   "nav.recipes": "Рецепты",
-  "nav.pp": "ПП-питание",
+  "nav.pp": "ПП",
   "nav.lifehacks": "Лайфхаки",
   "nav.about": "О проекте",
-  "nav.search": "Поиск",
+  "header.profile": "Мой профиль",
 
-  "home.hero.title": "Готовить вкусно и с пользой — просто",
+  "home.eyebrow": "Проверенные рецепты · ПП · лайфхаки",
+  "home.hero.line1": "Готовим просто.",
+  "home.hero.line2pre": "Едим ",
+  "home.hero.accent": "осознанно",
   "home.hero.subtitle":
-    "Проверенные рецепты, меню правильного питания и кухонные лайфхаки, которые экономят время и деньги.",
+    "Рецепты для ПП, быстрые ужины на будни, десерты без сахара и лайфхаки, которые реально экономят время на кухне.",
   "home.hero.cta": "Смотреть рецепты",
-  "home.hero.ctaPp": "Рецепты ПП",
-  "home.featured": "Популярные рецепты",
-  "home.pp.title": "Правильное питание",
-  "home.pp.subtitle": "Лёгкие блюда до 500 ккал — вкусно и без чувства вины.",
-  "home.pp.cta": "Все ПП-рецепты",
-  "home.lifehacks.title": "Кухонные лайфхаки",
-  "home.lifehacks.subtitle": "Маленькие хитрости, которые меняют готовку.",
-  "home.lifehacks.cta": "Все лайфхаки",
+  "home.hero.cta2": "Рецепты ПП",
+  "home.hero.badge": "100% ПП",
+
   "home.stats.recipes": "рецептов",
   "home.stats.pp": "ПП-блюд",
   "home.stats.lifehacks": "лайфхаков",
+
+  "home.popular.title": "Популярное на этой неделе",
+  "home.popular.subtitle": "То, что чаще всего готовят прямо сейчас",
+  "home.popular.cta": "Все рецепты",
+
+  "home.lifehacks.title": "Лайфхаки недели",
+  "home.lifehacks.subtitle": "Маленькие хитрости, которые экономят время и продукты",
+  "home.lifehacks.cta": "Все лайфхаки",
+
+  "home.plan.eyebrow": "Меню на неделю",
+  "home.plan.title": "Готовые ПП-подборки под вашу цель",
+  "home.plan.body":
+    "Наборы рецептов на неделю: лёгкий завтрак, обед с собой и ужин без готовки часами — с балансом КБЖУ.",
+  "home.plan.f1": "Баланс КБЖУ под вашу цель",
+  "home.plan.f2": "Список покупок одним списком",
+  "home.plan.f3": "Замены при аллергиях и вкусах",
+  "home.plan.cta": "Смотреть ПП-рецепты",
+  "home.plan.week": "Пример недели",
+
+  "home.news.eyebrow": "Раз в неделю, без спама",
+  "home.news.title": "3 новых рецепта и один лайфхак каждую пятницу — прямо в почту",
+  "home.news.placeholder": "Ваш email",
+  "home.news.button": "Подписаться",
+  "home.news.done": "Готово! Проверьте почту.",
+
+  "chips.title": "Куда заглянуть",
 
   "recipes.title": "Рецепты",
   "recipes.subtitle": "Найдите блюдо по категории, времени или запросу.",
@@ -51,6 +74,7 @@ const ru: Dict = {
   "recipe.pp.badge": "ПП",
   "recipe.min": "мин",
   "recipe.kcal": "ккал",
+  "recipe.portions": "порц.",
 
   "lifehacks.title": "Кухонные лайфхаки",
   "lifehacks.subtitle": "Хитрости, которые пригодятся каждый день.",
@@ -58,7 +82,7 @@ const ru: Dict = {
 
   "about.title": "О проекте",
   "about.body":
-    "«Просто Полезно» — это коллекция домашних рецептов, меню правильного питания и проверенных кухонных лайфхаков. Мы собираем только то, что действительно работает: понятные шаги, честные калории и никакой воды.",
+    "«Свежо» — коллекция домашних рецептов, ПП-меню и проверенных кухонных лайфхаков. Мы собираем только то, что действительно работает: понятные шаги, честные калории и никакой воды.",
 
   "difficulty.easy": "Легко",
   "difficulty.medium": "Средне",
@@ -78,36 +102,73 @@ const ru: Dict = {
   "lcat.cleaning": "Уборка",
   "lcat.saving": "Экономия",
 
+  "day.mon": "Понедельник",
+  "day.tue": "Вторник",
+  "day.wed": "Среда",
+  "day.thu": "Четверг",
+  "day.fri": "Пятница",
+
+  "footer.about":
+    "Рецепты, ПП-меню и кухонные лайфхаки для тех, кто хочет готовить вкусно и без лишней сложности.",
+  "footer.col.sections": "Разделы",
+  "footer.col.about": "О проекте",
+  "footer.col.social": "Соцсети",
+  "footer.link.about": "О нас",
+  "footer.link.contacts": "Контакты",
+  "footer.link.partners": "Партнёрам",
   "footer.rights": "Все права защищены.",
-  "footer.madeWith": "Сделано с любовью к еде.",
+  "footer.made": "Сделано с любовью к еде.",
 };
 
 const en: Dict = {
-  "brand": "Simply Healthy",
-  "brand.tagline": "Recipes, healthy eating and kitchen lifehacks",
+  "brand": "Свежо",
+  "brand.tagline": "Recipes, healthy eating & kitchen lifehacks",
 
-  "nav.home": "Home",
   "nav.recipes": "Recipes",
   "nav.pp": "Healthy",
   "nav.lifehacks": "Lifehacks",
   "nav.about": "About",
-  "nav.search": "Search",
+  "header.profile": "My profile",
 
-  "home.hero.title": "Cooking well and healthy — made simple",
+  "home.eyebrow": "Tested recipes · healthy · lifehacks",
+  "home.hero.line1": "Cook simple.",
+  "home.hero.line2pre": "Eat ",
+  "home.hero.accent": "mindfully",
   "home.hero.subtitle":
-    "Tested recipes, healthy-eating menus and kitchen lifehacks that save you time and money.",
+    "Healthy recipes, quick weeknight dinners, sugar-free desserts and lifehacks that genuinely save you time in the kitchen.",
   "home.hero.cta": "Browse recipes",
-  "home.hero.ctaPp": "Healthy recipes",
-  "home.featured": "Popular recipes",
-  "home.pp.title": "Healthy eating",
-  "home.pp.subtitle": "Light dishes under 500 kcal — tasty and guilt-free.",
-  "home.pp.cta": "All healthy recipes",
-  "home.lifehacks.title": "Kitchen lifehacks",
-  "home.lifehacks.subtitle": "Small tricks that change the way you cook.",
-  "home.lifehacks.cta": "All lifehacks",
+  "home.hero.cta2": "Healthy recipes",
+  "home.hero.badge": "100% healthy",
+
   "home.stats.recipes": "recipes",
   "home.stats.pp": "healthy dishes",
   "home.stats.lifehacks": "lifehacks",
+
+  "home.popular.title": "Popular this week",
+  "home.popular.subtitle": "What people are cooking right now",
+  "home.popular.cta": "All recipes",
+
+  "home.lifehacks.title": "Lifehacks of the week",
+  "home.lifehacks.subtitle": "Small tricks that save time and groceries",
+  "home.lifehacks.cta": "All lifehacks",
+
+  "home.plan.eyebrow": "Weekly menu",
+  "home.plan.title": "Ready healthy sets for your goal",
+  "home.plan.body":
+    "Weekly recipe sets: a light breakfast, lunch to go and a dinner that doesn't take hours — with balanced macros.",
+  "home.plan.f1": "Macros balanced for your goal",
+  "home.plan.f2": "Shopping list in one tap",
+  "home.plan.f3": "Swaps for allergies and tastes",
+  "home.plan.cta": "Browse healthy recipes",
+  "home.plan.week": "Sample week",
+
+  "home.news.eyebrow": "Once a week, no spam",
+  "home.news.title": "3 new recipes and one lifehack every Friday — straight to your inbox",
+  "home.news.placeholder": "Your email",
+  "home.news.button": "Subscribe",
+  "home.news.done": "Done! Check your inbox.",
+
+  "chips.title": "Where to start",
 
   "recipes.title": "Recipes",
   "recipes.subtitle": "Find a dish by category, time or keyword.",
@@ -128,6 +189,7 @@ const en: Dict = {
   "recipe.pp.badge": "Healthy",
   "recipe.min": "min",
   "recipe.kcal": "kcal",
+  "recipe.portions": "serv.",
 
   "lifehacks.title": "Kitchen lifehacks",
   "lifehacks.subtitle": "Tricks you will use every day.",
@@ -135,7 +197,7 @@ const en: Dict = {
 
   "about.title": "About",
   "about.body":
-    "Simply Healthy is a collection of home recipes, healthy-eating menus and tested kitchen lifehacks. We keep only what actually works: clear steps, honest calories and no filler.",
+    "Свежо is a collection of home recipes, healthy-eating menus and tested kitchen lifehacks. We keep only what actually works: clear steps, honest calories and no filler.",
 
   "difficulty.easy": "Easy",
   "difficulty.medium": "Medium",
@@ -155,8 +217,22 @@ const en: Dict = {
   "lcat.cleaning": "Cleaning",
   "lcat.saving": "Saving",
 
+  "day.mon": "Monday",
+  "day.tue": "Tuesday",
+  "day.wed": "Wednesday",
+  "day.thu": "Thursday",
+  "day.fri": "Friday",
+
+  "footer.about":
+    "Recipes, healthy menus and kitchen lifehacks for people who want to cook well without the fuss.",
+  "footer.col.sections": "Sections",
+  "footer.col.about": "About",
+  "footer.col.social": "Social",
+  "footer.link.about": "About us",
+  "footer.link.contacts": "Contacts",
+  "footer.link.partners": "Partners",
   "footer.rights": "All rights reserved.",
-  "footer.madeWith": "Made with love for food.",
+  "footer.made": "Made with love for food.",
 };
 
 export const T: Record<Lang, Dict> = { ru, en };

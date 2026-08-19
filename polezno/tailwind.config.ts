@@ -10,23 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm, appetising kitchen palette. Channels live in globals.css and
-        // flip under [data-theme="dark"]. Opacity modifiers keep working via
-        // the <alpha-value> placeholder.
+        // "Свежо" tokens — channels in globals.css, flipped under
+        // [data-theme="dark"]. Opacity modifiers work via <alpha-value>.
         cream: "rgb(var(--c-cream) / <alpha-value>)",
+        cream2: "rgb(var(--c-cream2) / <alpha-value>)",
         surface: "rgb(var(--c-surface) / <alpha-value>)",
         card: "rgb(var(--c-card) / <alpha-value>)",
         ink: "rgb(var(--c-ink) / <alpha-value>)",
         muted: "rgb(var(--c-muted) / <alpha-value>)",
         line: "rgb(var(--c-line) / <alpha-value>)",
-        // basil green — primary accent
+        // forest green — primary
         basil: "rgb(var(--c-basil) / <alpha-value>)",
         basil2: "rgb(var(--c-basil2) / <alpha-value>)",
         basilInk: "rgb(var(--c-basil-ink) / <alpha-value>)",
-        // terracotta — secondary / hot
+        // terracotta — CTA / accent
         clay: "rgb(var(--c-clay) / <alpha-value>)",
-        // honey — pp / healthy highlight
+        clay2: "rgb(var(--c-clay2) / <alpha-value>)",
+        // mustard — numbers / highlight
         honey: "rgb(var(--c-honey) / <alpha-value>)",
+        // leaf green
+        leaf: "rgb(var(--c-leaf) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],
@@ -36,7 +39,11 @@ const config: Config = {
         xl2: "1.25rem",
       },
       boxShadow: {
-        soft: "0 8px 30px -12px rgb(31 42 36 / 0.18)",
+        soft: "0 18px 40px -18px rgb(38 48 31 / 0.35)",
+        card: "0 8px 24px -14px rgb(38 48 31 / 0.25)",
+      },
+      maxWidth: {
+        content: "1180px",
       },
     },
   },

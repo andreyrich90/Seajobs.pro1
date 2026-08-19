@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Salad } from "lucide-react";
 import { useLang, useT } from "./DictProvider";
 import { href } from "@/lib/nav";
 
@@ -10,7 +9,7 @@ export default function Footer() {
   const lang = useLang();
   const year = new Date().getFullYear();
 
-  const links = [
+  const sections = [
     { path: "/recipes", label: t("nav.recipes") },
     { path: "/pp", label: t("nav.pp") },
     { path: "/lifehacks", label: t("nav.lifehacks") },
@@ -18,36 +17,74 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="mt-16 border-t border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-basil text-white">
-              <Salad size={17} />
-            </span>
-            <span className="font-display text-base font-bold text-ink">
-              {t("brand")}
-            </span>
+    <footer className="mt-16 bg-ink text-cream/80">
+      <div className="mx-auto max-w-content px-5 py-14 sm:px-8">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="relative h-8 w-8 rounded-full logo-ring">
+                <span className="absolute inset-[5px] rounded-full bg-ink" />
+              </span>
+              <span className="font-display text-xl font-bold text-cream">
+                {t("brand")}
+              </span>
+            </div>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream/55">
+              {t("footer.about")}
+            </p>
           </div>
-          <p className="mt-2 max-w-xs text-sm text-muted">{t("brand.tagline")}</p>
+
+          <FootCol title={t("footer.col.sections")}>
+            {sections.map((s) => (
+              <Link key={s.path} href={href(lang, s.path)} className="footlink">
+                {s.label}
+              </Link>
+            ))}
+          </FootCol>
+
+          <FootCol title={t("footer.col.about")}>
+            <Link href={href(lang, "/about")} className="footlink">
+              {t("footer.link.about")}
+            </Link>
+            <Link href={href(lang, "/about")} className="footlink">
+              {t("footer.link.contacts")}
+            </Link>
+            <Link href={href(lang, "/about")} className="footlink">
+              {t("footer.link.partners")}
+            </Link>
+          </FootCol>
+
+          <FootCol title={t("footer.col.social")}>
+            <a href="https://t.me" target="_blank" rel="noopener noreferrer" className="footlink">
+              Telegram
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="footlink">
+              Instagram
+            </a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="footlink">
+              YouTube
+            </a>
+          </FootCol>
         </div>
 
-        <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-muted">
-          {links.map((l) => (
-            <Link key={l.path} href={href(lang, l.path)} className="hover:text-ink">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-      </div>
-      <div className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4 text-xs text-muted sm:flex-row sm:justify-between">
-          <span>
-            © {year} {t("brand")}. {t("footer.rights")}
-          </span>
-          <span>{t("footer.madeWith")}</span>
+        <div className="mt-12 flex flex-col gap-2 border-t border-cream/15 pt-6 text-xs text-cream/45 sm:flex-row sm:justify-between">
+          <span>© {year} {t("brand")}. {t("footer.rights")}</span>
+          <span>{t("footer.made")}</span>
         </div>
       </div>
+
+      <style>{`.footlink{display:block;font-size:14px;margin-bottom:11px;color:rgb(var(--c-cream)/0.72);transition:color .2s}.footlink:hover{color:rgb(var(--c-cream))}`}</style>
     </footer>
+  );
+}
+
+function FootCol({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h5 className="mb-4 text-xs font-bold uppercase tracking-wider text-honey">
+        {title}
+      </h5>
+      {children}
+    </div>
   );
 }

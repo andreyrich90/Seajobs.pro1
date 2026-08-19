@@ -10,14 +10,16 @@ import { RECIPE_CATEGORIES, type Recipe } from "@/lib/types";
 export default function RecipeExplorer({
   recipes,
   initialPpOnly = false,
+  initialCategory = "all",
 }: {
   recipes: Recipe[];
   initialPpOnly?: boolean;
+  initialCategory?: string;
 }) {
   const t = useT();
   const lang = useLang();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("all");
+  const [category, setCategory] = useState<string>(initialCategory);
   const [ppOnly, setPpOnly] = useState(initialPpOnly);
 
   // Categories actually present in the data, in the canonical order.

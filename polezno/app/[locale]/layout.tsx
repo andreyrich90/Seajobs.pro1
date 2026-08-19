@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Nunito, Playfair_Display } from "next/font/google";
+import { Manrope, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,9 +14,9 @@ const display = Playfair_Display({
   display: "swap",
 });
 
-const body = Nunito({
+const body = Manrope({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-body",
   display: "swap",
 });
@@ -79,7 +79,7 @@ export default async function LocaleLayout({
       <body className="min-h-screen bg-cream text-ink font-body antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <DictProvider lang={lang} dict={dict}>
-          <div className="flex min-h-screen flex-col">
+          <div id="app-root" className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Salad, X } from "lucide-react";
+import { Heart, Menu, Search, X } from "lucide-react";
 import { useState } from "react";
 import { useLang, useT } from "./DictProvider";
 import LangSwitcher from "./LangSwitcher";
@@ -25,40 +25,67 @@ export default function Header() {
   const isActive = (path: string) => pathname.startsWith(href(lang, path));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-cream/85 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href={href(lang)} className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-basil text-white">
-            <Salad size={20} />
+    <header className="sticky top-0 z-50 border-b border-line bg-cream/85 backdrop-blur">
+      <div className="mx-auto flex h-[68px] max-w-content items-center justify-between gap-4 px-5 sm:px-8">
+        {/* Logo */}
+        <Link href={href(lang)} className="flex items-center gap-2.5">
+          <span className="relative h-[34px] w-[34px] rounded-full logo-ring">
+            <span className="absolute inset-[6px] rounded-full bg-cream" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight text-ink">
+          <span className="font-display text-2xl font-bold tracking-tight text-ink">
             {t("brand")}
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-8 lg:flex">
           {nav.map((item) => (
             <Link
               key={item.path}
               href={href(lang, item.path)}
-              className={`rounded-full px-3.5 py-2 text-sm font-semibold transition ${
-                isActive(item.path)
-                  ? "bg-basil/10 text-basilInk"
-                  : "text-muted hover:text-ink"
+              className={`group relative text-[15px] font-semibold transition ${
+                isActive(item.path) ? "text-clay" : "text-ink/85 hover:text-ink"
               }`}
             >
               {item.label}
+              <span
+                className={`absolute -bottom-1 left-0 h-0.5 bg-clay transition-all ${
+                  isActive(item.path) ? "w-full" : "w-0 group-hover:w-full"
+                }`}
+              />
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
+        {/* Right side */}
+        <div className="flex items-center gap-2.5">
+          <div className="hidden items-center gap-2.5 sm:flex">
             <LangSwitcher />
+            <ThemeToggle />
           </div>
-          <ThemeToggle />
+          <Link
+            href={href(lang, "/recipes")}
+            aria-label="search"
+            className="hidden h-[38px] w-[38px] items-center justify-center rounded-full border border-line text-ink transition hover:bg-cream2 sm:inline-flex"
+          >
+            <Search size={17} />
+          </Link>
+          <Link
+            href={href(lang, "/pp")}
+            aria-label="favorites"
+            className="hidden h-[38px] w-[38px] items-center justify-center rounded-full border border-line text-ink transition hover:bg-cream2 sm:inline-flex"
+          >
+            <Heart size={17} />
+          </Link>
+          <Link
+            href={href(lang, "/about")}
+            className="hidden rounded-full bg-basil px-5 py-2.5 text-sm font-bold text-cream shadow-soft transition hover:bg-clay sm:inline-block"
+          >
+            {t("header.profile")}
+          </Link>
+
           <button
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink md:hidden"
+            className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-full border border-line text-ink lg:hidden"
             onClick={() => setOpen((v) => !v)}
             aria-label="Menu"
           >
@@ -68,24 +95,23 @@ export default function Header() {
       </div>
 
       {open && (
-        <div className="border-t border-line bg-cream md:hidden">
-          <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+        <div className="border-t border-line bg-cream lg:hidden">
+          <nav className="mx-auto flex max-w-content flex-col gap-1 px-5 py-3">
             {nav.map((item) => (
               <Link
                 key={item.path}
                 href={href(lang, item.path)}
                 onClick={() => setOpen(false)}
-                className={`rounded-xl px-3 py-2.5 text-sm font-semibold ${
-                  isActive(item.path)
-                    ? "bg-basil/10 text-basilInk"
-                    : "text-ink"
+                className={`rounded-xl px-3 py-2.5 text-[15px] font-semibold ${
+                  isActive(item.path) ? "bg-clay/10 text-clay" : "text-ink"
                 }`}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="pt-2">
+            <div className="flex items-center gap-3 px-1 pt-3">
               <LangSwitcher />
+              <ThemeToggle />
             </div>
           </nav>
         </div>

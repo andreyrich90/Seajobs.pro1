@@ -3,37 +3,42 @@
 @tailwind utilities;
 
 /*
-  Colour channels (space-separated RGB). Tailwind tokens in tailwind.config.ts
-  reference these as rgb(var(--c-*) / <alpha-value>). Light is the default and
-  lives on bare :root; dark is opt-in under [data-theme="dark"]. Changing the
-  theme means editing only this block.
+  "Свежо" palette. Colour channels (space-separated RGB) referenced by the
+  Tailwind tokens in tailwind.config.ts as rgb(var(--c-*) / <alpha-value>).
+  Light is the default on bare :root; dark is opt-in under [data-theme="dark"].
 */
 :root {
-  --c-cream: 250 246 238;   /* #faf6ee page background */
-  --c-surface: 255 255 255; /* #ffffff raised surface */
+  --c-cream: 246 240 228;   /* #f6f0e4 page background */
+  --c-cream2: 239 230 211;  /* #efe6d3 warm secondary surface */
+  --c-surface: 255 255 255; /* white raised surface */
   --c-card: 255 255 255;    /* card */
-  --c-ink: 31 42 36;        /* #1f2a24 primary text */
-  --c-muted: 106 116 110;   /* #6a746e secondary text */
-  --c-line: 227 220 208;    /* hairline */
-  --c-basil: 74 124 89;     /* #4a7c59 primary accent */
-  --c-basil2: 91 158 111;   /* brighter basil for gradients */
-  --c-basil-ink: 47 92 62;  /* basil readable as text */
-  --c-clay: 224 122 95;     /* #e07a5f terracotta / hot */
-  --c-honey: 226 168 60;    /* #e2a83c honey / healthy */
+  --c-ink: 38 48 31;        /* #26301f primary text */
+  --c-muted: 92 101 83;     /* secondary text */
+  --c-line: 214 208 193;    /* hairline */
+  --c-basil: 47 61 38;      /* #2f3d26 forest — primary */
+  --c-basil2: 63 82 49;     /* #3f5231 forest lighter */
+  --c-basil-ink: 47 61 38;  /* forest as text */
+  --c-clay: 193 85 46;      /* #c1552e terracotta — CTA / accent */
+  --c-clay2: 168 67 31;     /* #a8431f terracotta darker */
+  --c-honey: 217 164 65;    /* #d9a441 mustard — numbers / highlight */
+  --c-leaf: 124 154 90;     /* #7c9a5a leaf green */
 }
 
 [data-theme="dark"] {
-  --c-cream: 18 24 21;      /* deep herb-green night */
-  --c-surface: 26 34 30;
-  --c-card: 30 40 35;
-  --c-ink: 235 240 234;
-  --c-muted: 156 170 160;
-  --c-line: 48 60 52;
-  --c-basil: 122 190 140;
-  --c-basil2: 91 158 111;
-  --c-basil-ink: 150 208 166;
-  --c-clay: 233 145 118;
-  --c-honey: 233 183 92;
+  --c-cream: 26 32 21;
+  --c-cream2: 33 41 27;
+  --c-surface: 34 43 28;
+  --c-card: 40 50 33;
+  --c-ink: 240 238 226;
+  --c-muted: 168 178 150;
+  --c-line: 60 72 50;
+  --c-basil: 150 180 120;
+  --c-basil2: 124 154 90;
+  --c-basil-ink: 172 196 140;
+  --c-clay: 214 110 70;
+  --c-clay2: 197 92 55;
+  --c-honey: 226 178 90;
+  --c-leaf: 150 180 120;
 }
 
 * {
@@ -49,37 +54,67 @@ body {
   color: rgb(var(--c-ink));
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
-/* Warm dawn-kitchen hero wash. The only literal colours outside the token blocks. */
+/* Subtle dotted paper texture behind everything (from the design concept). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgb(var(--c-ink) / 0.05) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Everything sits above the texture. */
+#app-root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Conic-gradient logo ring. */
+.logo-ring {
+  background: conic-gradient(
+    from 210deg,
+    rgb(var(--c-leaf)),
+    rgb(var(--c-honey)),
+    rgb(var(--c-clay)),
+    rgb(var(--c-leaf))
+  );
+}
+
+/* Warm dawn-kitchen hero wash. */
 .hero-surface {
   background:
-    radial-gradient(1200px 500px at 80% -10%, rgba(226, 168, 60, 0.28), transparent 60%),
-    radial-gradient(900px 500px at 0% 0%, rgba(91, 158, 111, 0.22), transparent 55%),
-    rgb(var(--c-cream));
-}
-[data-theme="dark"] .hero-surface {
-  background:
-    radial-gradient(1200px 500px at 80% -10%, rgba(226, 168, 60, 0.18), transparent 60%),
-    radial-gradient(900px 500px at 0% 0%, rgba(91, 158, 111, 0.16), transparent 55%),
+    radial-gradient(1100px 480px at 82% -10%, rgb(var(--c-honey) / 0.22), transparent 60%),
+    radial-gradient(880px 460px at 0% 0%, rgb(var(--c-leaf) / 0.2), transparent 55%),
     rgb(var(--c-cream));
 }
 
-.prose-recipe p {
-  margin-bottom: 0.85rem;
-  line-height: 1.7;
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.rise { animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.rise-1 { animation-delay: 0.08s; }
+.rise-2 { animation-delay: 0.16s; }
+.rise-3 { animation-delay: 0.24s; }
 
-/* Line-clamp helpers */
-.clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-10px) rotate(-4deg); }
 }
-.clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+.floaty { animation: floaty 5.5s ease-in-out infinite; }
+
+/* Hide scrollbar on the horizontal lifehacks rail. */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
