@@ -39,7 +39,7 @@ export async function generateMetadata({
       template: `%s · ${dict["brand"]}`,
     },
     description: dict["brand.tagline"],
-    metadataBase: new URL("https://polezno.example"),
+    metadataBase: new URL("https://gotovo.io"),
     alternates: {
       languages: { ru: "/ru", en: "/en" },
     },

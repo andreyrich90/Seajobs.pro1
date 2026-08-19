@@ -88,7 +88,7 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-5">
-        <h1 className="font-display text-3xl font-bold text-basil">Свежо · админка</h1>
+        <h1 className="font-display text-3xl font-bold text-basil">Готово · админка</h1>
         <p className="mt-2 text-sm text-muted">Введите пароль администратора.</p>
         <form onSubmit={login} className="mt-5 flex flex-col gap-3">
           <input

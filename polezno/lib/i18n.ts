@@ -6,7 +6,7 @@ import type { Lang } from "./langs";
 export type Dict = Record<string, string>;
 
 const ru: Dict = {
-  "brand": "Свежо",
+  "brand": "Готово",
   "brand.tagline": "Рецепты, ПП и кухонные лайфхаки",
 
   "nav.recipes": "Рецепты",
@@ -92,7 +92,7 @@ const ru: Dict = {
 
   "about.title": "О проекте",
   "about.body":
-    "«Свежо» — коллекция домашних рецептов, ПП-меню и проверенных кухонных лайфхаков. Мы собираем только то, что действительно работает: понятные шаги, честные калории и никакой воды.",
+    "«Готово» — коллекция домашних рецептов, ПП-меню и проверенных кухонных лайфхаков. Мы собираем только то, что действительно работает: понятные шаги, честные калории и никакой воды.",
 
   "difficulty.easy": "Легко",
   "difficulty.medium": "Средне",
@@ -131,7 +131,7 @@ const ru: Dict = {
 };
 
 const en: Dict = {
-  "brand": "Свежо",
+  "brand": "Gotovo",
   "brand.tagline": "Recipes, healthy eating & kitchen lifehacks",
 
   "nav.recipes": "Recipes",
@@ -217,7 +217,7 @@ const en: Dict = {
 
   "about.title": "About",
   "about.body":
-    "Свежо is a collection of home recipes, healthy-eating menus and tested kitchen lifehacks. We keep only what actually works: clear steps, honest calories and no filler.",
+    "Gotovo is a collection of home recipes, healthy-eating menus and tested kitchen lifehacks. We keep only what actually works: clear steps, honest calories and no filler.",
 
   "difficulty.easy": "Easy",
   "difficulty.medium": "Medium",

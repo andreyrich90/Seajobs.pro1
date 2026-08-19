@@ -15,7 +15,7 @@ const body = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Свежо — админка",
+  title: "Готово — админка",
   robots: { index: false, follow: false },
 };
 
