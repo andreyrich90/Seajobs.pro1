@@ -51,12 +51,13 @@ export async function generateMetadata({
   };
 }
 
-// Applies the saved theme before paint so a light-default page never flashes
-// dark (or vice versa).
+// Light (the warm "Свежо" look) is the default for everyone, regardless of the
+// device's system theme. Dark is opt-in only: it applies solely when the user
+// picked it with the theme toggle (stored as 'dark'). Runs before paint so
+// there is no flash.
 const themeScript = `
 (function(){try{
-  var t=localStorage.getItem('polezno-theme');
-  if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){
+  if(localStorage.getItem('polezno-theme')==='dark'){
     document.documentElement.setAttribute('data-theme','dark');
   }
 }catch(e){}})();
