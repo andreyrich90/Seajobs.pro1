@@ -148,8 +148,34 @@ function RecipeItem({
 }) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [showUrl, setShowUrl] = useState(false);
+  const [url, setUrl] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const cover = recipe.image || `/img/recipes/${recipe.category}.svg`;
+
+  async function saveUrl() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await authFetch("/api/admin/set-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: recipe.slug, imageUrl: url }),
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) setMsg(j.error || "Ошибка");
+      else {
+        setMsg("Ссылка сохранена ✓");
+        setShowUrl(false);
+        setUrl("");
+        onUpdated();
+      }
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function upload(file: File) {
     setBusy(true);
@@ -174,40 +200,68 @@ function RecipeItem({
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-xl2 border border-line bg-surface p-3">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={cover} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
-      <div className="min-w-0 flex-1">
-        <div className="truncate font-semibold text-ink">
-          {recipe.title?.ru || recipe.slug}
+    <div className="rounded-xl2 border border-line bg-surface p-3">
+      <div className="flex items-center gap-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cover} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold text-ink">
+            {recipe.title?.ru || recipe.slug}
+          </div>
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted">
+            <span className="rounded bg-cream2 px-1.5 py-0.5">{CAT_RU[recipe.category] || recipe.category}</span>
+            {recipe.is_pp && <span className="rounded bg-leaf/20 px-1.5 py-0.5 text-basil2">ПП</span>}
+            <span className={recipe.image ? "text-leaf" : "text-clay"}>
+              {recipe.image ? "фото есть" : "нет фото"}
+            </span>
+          </div>
+          {msg && <div className="mt-1 text-xs font-semibold text-basil2">{msg}</div>}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted">
-          <span className="rounded bg-cream2 px-1.5 py-0.5">{CAT_RU[recipe.category] || recipe.category}</span>
-          {recipe.is_pp && <span className="rounded bg-leaf/20 px-1.5 py-0.5 text-basil2">ПП</span>}
-          <span className={recipe.image ? "text-leaf" : "text-clay"}>
-            {recipe.image ? "фото есть" : "нет фото"}
-          </span>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload(f);
+            e.target.value = "";
+          }}
+        />
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <button
+            onClick={() => fileRef.current?.click()}
+            disabled={busy}
+            className="rounded-full bg-basil px-4 py-2 text-sm font-bold text-cream transition hover:bg-basil2 disabled:opacity-60"
+          >
+            {busy ? "…" : recipe.image ? "Заменить фото" : "Загрузить фото"}
+          </button>
+          <button
+            onClick={() => setShowUrl((v) => !v)}
+            className="text-xs font-semibold text-muted hover:text-ink"
+          >
+            🔗 вставить ссылку
+          </button>
         </div>
-        {msg && <div className="mt-1 text-xs font-semibold text-basil2">{msg}</div>}
       </div>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) upload(f);
-          e.target.value = "";
-        }}
-      />
-      <button
-        onClick={() => fileRef.current?.click()}
-        disabled={busy}
-        className="shrink-0 rounded-full bg-basil px-4 py-2 text-sm font-bold text-cream transition hover:bg-basil2 disabled:opacity-60"
-      >
-        {busy ? "…" : recipe.image ? "Заменить фото" : "Загрузить фото"}
-      </button>
+
+      {showUrl && (
+        <div className="mt-3 flex gap-2">
+          <input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://…/photo.jpg"
+            className="min-w-0 flex-1 rounded-lg border border-line bg-cream2 px-3 py-2 text-sm outline-none focus:border-basil"
+          />
+          <button
+            onClick={saveUrl}
+            disabled={busy}
+            className="shrink-0 rounded-lg bg-clay px-4 py-2 text-sm font-bold text-white transition hover:bg-clay2 disabled:opacity-60"
+          >
+            Сохранить
+          </button>
+        </div>
+      )}
     </div>
   );
 }
