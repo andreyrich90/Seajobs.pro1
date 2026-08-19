@@ -12,7 +12,8 @@ create table if not exists public.recipes (
   category    text not null check (category in
                 ('breakfast','soup','main','salad','dessert','drink','baking','snack')),
   is_pp       boolean not null default false,
-  image       text not null,
+  image       text,  -- nullable: attach a photo later from the admin panel;
+                      -- the app shows a category placeholder cover until then
   minutes     integer not null default 0,
   calories    integer not null default 0,
   servings    integer not null default 1,
@@ -34,7 +35,7 @@ create table if not exists public.lifehacks (
   id         text primary key default gen_random_uuid()::text,
   slug       text not null unique,
   category   text not null check (category in ('storage','cooking','cleaning','saving')),
-  image      text not null,
+  image      text,  -- nullable, same as recipes
   title      jsonb not null,
   summary    jsonb not null,
   body       jsonb not null default '{}'::jsonb,
