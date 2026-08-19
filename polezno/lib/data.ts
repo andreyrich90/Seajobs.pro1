@@ -2,10 +2,8 @@ import type { Lifehack, Recipe } from "./types";
 
 // Built-in seed content. This is what renders when Supabase is not configured,
 // and it doubles as the reference shape for the `recipes` / `lifehacks` tables
-// (see supabase/migrations). Images are Unsplash direct URLs; next.config.js
-// allows any https image host.
-const img = (id: string) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1000&q=70`;
+// (see supabase/migrations). Images are local SVG covers under public/img
+// (scripts/generate-images.mjs), so the site needs no external image host.
 
 export const SEED_RECIPES: Recipe[] = [
   {
@@ -13,7 +11,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "ovsyanka-s-yagodami",
     category: "breakfast",
     isPp: true,
-    image: img("1517673400267-0251440c45dc"),
+    image: "/img/recipes/breakfast.svg",
     minutes: 10,
     calories: 320,
     servings: 1,
@@ -63,7 +61,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "tost-s-avokado-i-yaycom",
     category: "breakfast",
     isPp: true,
-    image: img("1541519227354-08fa5d50c44d"),
+    image: "/img/recipes/breakfast.svg",
     minutes: 12,
     calories: 380,
     servings: 1,
@@ -111,7 +109,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "pyshnye-blinchiki",
     category: "breakfast",
     isPp: false,
-    image: img("1567620905732-2d1ec7ab7445"),
+    image: "/img/recipes/breakfast.svg",
     minutes: 25,
     calories: 540,
     servings: 3,
@@ -163,7 +161,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "grecheskiy-salat",
     category: "salad",
     isPp: true,
-    image: img("1512621776951-a57141f2eefd"),
+    image: "/img/recipes/salad.svg",
     minutes: 15,
     calories: 290,
     servings: 2,
@@ -213,7 +211,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "tomatnyy-krem-sup",
     category: "soup",
     isPp: true,
-    image: img("1547592180-85f173990554"),
+    image: "/img/recipes/soup.svg",
     minutes: 35,
     calories: 220,
     servings: 4,
@@ -263,7 +261,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "kurica-s-kinoa-bowl",
     category: "main",
     isPp: true,
-    image: img("1546069901-ba9599a7e63c"),
+    image: "/img/recipes/main.svg",
     minutes: 30,
     calories: 470,
     servings: 2,
@@ -313,7 +311,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "pasta-s-tomatami-i-bazilikom",
     category: "main",
     isPp: false,
-    image: img("1621996346565-e3dbc646d9a9"),
+    image: "/img/recipes/main.svg",
     minutes: 20,
     calories: 610,
     servings: 2,
@@ -361,7 +359,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "zelenyy-smuzi",
     category: "drink",
     isPp: true,
-    image: img("1502741224143-90386d7f8c82"),
+    image: "/img/recipes/drink.svg",
     minutes: 5,
     calories: 180,
     servings: 1,
@@ -409,7 +407,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "shokoladnyy-brauni",
     category: "dessert",
     isPp: false,
-    image: img("1488477181946-6428a0291777"),
+    image: "/img/recipes/dessert.svg",
     minutes: 40,
     calories: 480,
     servings: 8,
@@ -459,7 +457,7 @@ export const SEED_RECIPES: Recipe[] = [
     slug: "syrniki-iz-tvoroga",
     category: "breakfast",
     isPp: true,
-    image: img("1590137876181-2a5a7e340308"),
+    image: "/img/recipes/breakfast.svg",
     minutes: 20,
     calories: 260,
     servings: 2,
@@ -509,7 +507,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-herbs",
     slug: "kak-hranit-zelen",
     category: "storage",
-    image: img("1524594081293-190a2fe0baae"),
+    image: "/img/lifehacks/storage.svg",
     title: { ru: "Как хранить зелень две недели", en: "Keep herbs fresh for two weeks" },
     summary: {
       ru: "Простой способ, чтобы петрушка и укроп не желтели через два дня.",
@@ -533,7 +531,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-onion",
     slug: "rezat-luk-bez-slez",
     category: "cooking",
-    image: img("1518977676601-b53f82aba655"),
+    image: "/img/lifehacks/cooking.svg",
     title: { ru: "Резать лук без слёз", en: "Chop onions without crying" },
     summary: {
       ru: "Три рабочих приёма против жгучих слёз при нарезке лука.",
@@ -557,7 +555,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-pan",
     slug: "otmyt-prigorevshuyu-skovorodu",
     category: "cleaning",
-    image: img("1584990347449-a2d4c2c9a3b4"),
+    image: "/img/lifehacks/cleaning.svg",
     title: { ru: "Отмыть пригоревшую сковороду", en: "Clean a burnt pan" },
     summary: {
       ru: "Без агрессивной химии и часа оттирания — только сода и вода.",
@@ -581,7 +579,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-freeze",
     slug: "zamorozka-produktov-pravilno",
     category: "storage",
-    image: img("1584270354949-c26b0d5b4a0c"),
+    image: "/img/lifehacks/storage.svg",
     title: { ru: "Заморозка продуктов без потерь", en: "Freeze food without waste" },
     summary: {
       ru: "Что и как замораживать, чтобы не выбрасывать испорченное.",
@@ -605,7 +603,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-budget",
     slug: "ekonomit-na-produktah",
     category: "saving",
-    image: img("1542838132-92c53300491e"),
+    image: "/img/lifehacks/saving.svg",
     title: { ru: "Экономить на продуктах без диеты", en: "Save on groceries without dieting" },
     summary: {
       ru: "Пять привычек, которые снижают счёт в магазине на треть.",
@@ -631,7 +629,7 @@ export const SEED_LIFEHACKS: Lifehack[] = [
     id: "l-eggs",
     slug: "proverit-svezhest-yaic",
     category: "cooking",
-    image: img("1518569656558-1f25e69d93d7"),
+    image: "/img/lifehacks/cooking.svg",
     title: { ru: "Проверить свежесть яиц за 10 секунд", en: "Check egg freshness in 10 seconds" },
     summary: {
       ru: "Стакан воды скажет о яйце больше, чем срок на упаковке.",
