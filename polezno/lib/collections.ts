@@ -63,6 +63,25 @@ export const COLLECTIONS: Collection[] = [
       "kapustnye-kotlety-s-syrom",
     ],
   },
+  {
+    slug: "8-receptov-krevetok",
+    emoji: "🦐",
+    title: { ru: "8 рецептов креветок", en: "8 shrimp recipes" },
+    description: {
+      ru: "Быстро, сочно и невероятно вкусно: от креветок в чесночном масле до пасты «как в ресторане». Выбирайте любой рецепт.",
+      en: "Fast, juicy and unbelievably good: from garlic-butter shrimp to restaurant-style pasta. Pick any recipe.",
+    },
+    recipeSlugs: [
+      "krevetki-v-chesnochnom-masle",
+      "krevetki-medovo-chili",
+      "krevetki-v-slivochnom-souse",
+      "hrustyaschie-krevetki",
+      "kokosovoe-karri-s-krevetkami",
+      "krevetki-teriyaki",
+      "limonno-perechnye-krevetki",
+      "pasta-s-krevetkami",
+    ],
+  },
 ];
 
 export function findCollection(slug: string): Collection | undefined {
