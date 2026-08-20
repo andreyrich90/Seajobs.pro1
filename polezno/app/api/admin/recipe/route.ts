@@ -64,11 +64,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad-json" }, { status: 400 });
   }
 
-  const loc = (v: any) => ({ ru: String(v?.ru ?? "").trim(), en: String(v?.en ?? "").trim() });
-  const locArr = (v: any) => ({
-    ru: Array.isArray(v?.ru) ? v.ru.map((s: any) => String(s).trim()).filter(Boolean) : [],
-    en: Array.isArray(v?.en) ? v.en.map((s: any) => String(s).trim()).filter(Boolean) : [],
+  const loc = (v: any) => ({
+    ru: String(v?.ru ?? "").trim(),
+    en: String(v?.en ?? "").trim(),
+    ua: String(v?.ua ?? "").trim(),
   });
+  const strArr = (x: any) =>
+    Array.isArray(x) ? x.map((s: any) => String(s).trim()).filter(Boolean) : [];
+  const locArr = (v: any) => ({ ru: strArr(v?.ru), en: strArr(v?.en), ua: strArr(v?.ua) });
 
   const title = loc(b.title);
   if (!title.ru || !title.en) {

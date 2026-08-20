@@ -44,7 +44,7 @@ export async function generateMetadata({
     description: dict["brand.tagline"],
     metadataBase: new URL("https://recepto.io"),
     alternates: {
-      languages: { ru: "/ru", en: "/en" },
+      languages: { ru: "/ru", en: "/en", uk: "/ua" },
     },
     openGraph: {
       title: dict["brand"],

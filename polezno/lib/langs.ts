@@ -4,6 +4,7 @@
 export const LANGS = [
   { code: "ru", label: "Русский", short: "RU" },
   { code: "en", label: "English", short: "EN" },
+  { code: "ua", label: "Українська", short: "UA" },
 ] as const;
 
 export type Lang = (typeof LANGS)[number]["code"];
@@ -12,13 +13,17 @@ export const LOCALES: Lang[] = LANGS.map((l) => l.code);
 export const DEFAULT_LANG: Lang = "ru";
 
 export function isLang(v: string | undefined | null): v is Lang {
-  return v === "ru" || v === "en";
+  return v === "ru" || v === "en" || v === "ua";
 }
 
-// A value that carries every locale (e.g. a title). Reading it always falls
-// back to the default language so nothing renders blank.
-export type Localized<T = string> = Record<Lang, T>;
+// A value that carries the site's languages (e.g. a title). Ukrainian (ua) is
+// optional so existing ru+en content still type-checks and simply falls back to
+// Russian until a Ukrainian version is added. Reading always falls back to the
+// default language so nothing renders blank.
+export type Localized<T = string> = { ru: T; en: T; ua?: T };
 
 export function pick<T>(value: Localized<T>, lang: Lang): T {
-  return value[lang] ?? value[DEFAULT_LANG];
+  // `.ru` is always present (required in Localized); ua may be absent and falls
+  // back to it. Index with the literal so the fallback is typed as T, not T|undefined.
+  return value[lang] ?? value.ru;
 }

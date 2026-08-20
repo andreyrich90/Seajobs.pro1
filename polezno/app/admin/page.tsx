@@ -26,16 +26,21 @@ type AuthFetch = (u: string, o?: RequestInit) => Promise<Response>;
 interface FormValues {
   slug: string; category: string; isPp: boolean;
   minutes: string; calories: string; servings: string; difficulty: string;
-  titleRu: string; titleEn: string; descRu: string; descEn: string;
-  ingRu: string; ingEn: string; stepsRu: string; stepsEn: string;
-  tagsRu: string; tagsEn: string;
+  titleRu: string; titleEn: string; titleUa: string;
+  descRu: string; descEn: string; descUa: string;
+  ingRu: string; ingEn: string; ingUa: string;
+  stepsRu: string; stepsEn: string; stepsUa: string;
+  tagsRu: string; tagsEn: string; tagsUa: string;
 }
 
 const EMPTY: FormValues = {
   slug: "", category: "snack", isPp: false, minutes: "", calories: "", servings: "",
   difficulty: "easy",
-  titleRu: "", titleEn: "", descRu: "", descEn: "",
-  ingRu: "", ingEn: "", stepsRu: "", stepsEn: "", tagsRu: "", tagsEn: "",
+  titleRu: "", titleEn: "", titleUa: "",
+  descRu: "", descEn: "", descUa: "",
+  ingRu: "", ingEn: "", ingUa: "",
+  stepsRu: "", stepsEn: "", stepsUa: "",
+  tagsRu: "", tagsEn: "", tagsUa: "",
 };
 
 const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
@@ -53,11 +58,11 @@ function toForm(r: any): FormValues {
     calories: r.calories != null ? String(r.calories) : "",
     servings: r.servings != null ? String(r.servings) : "",
     difficulty: r.difficulty || "easy",
-    titleRu: r.title?.ru || "", titleEn: r.title?.en || "",
-    descRu: r.description?.ru || "", descEn: r.description?.en || "",
-    ingRu: joinLines(r.ingredients?.ru), ingEn: joinLines(r.ingredients?.en),
-    stepsRu: joinLines(r.steps?.ru), stepsEn: joinLines(r.steps?.en),
-    tagsRu: joinCommas(r.tags?.ru), tagsEn: joinCommas(r.tags?.en),
+    titleRu: r.title?.ru || "", titleEn: r.title?.en || "", titleUa: r.title?.ua || "",
+    descRu: r.description?.ru || "", descEn: r.description?.en || "", descUa: r.description?.ua || "",
+    ingRu: joinLines(r.ingredients?.ru), ingEn: joinLines(r.ingredients?.en), ingUa: joinLines(r.ingredients?.ua),
+    stepsRu: joinLines(r.steps?.ru), stepsEn: joinLines(r.steps?.en), stepsUa: joinLines(r.steps?.ua),
+    tagsRu: joinCommas(r.tags?.ru), tagsEn: joinCommas(r.tags?.en), tagsUa: joinCommas(r.tags?.ua),
   };
 }
 
@@ -67,11 +72,11 @@ function fromForm(f: FormValues) {
     slug: f.slug, category: f.category, isPp: f.isPp,
     minutes: Number(f.minutes), calories: Number(f.calories), servings: Number(f.servings),
     difficulty: f.difficulty,
-    title: { ru: f.titleRu, en: f.titleEn },
-    description: { ru: f.descRu, en: f.descEn },
-    ingredients: { ru: lines(f.ingRu), en: lines(f.ingEn) },
-    steps: { ru: lines(f.stepsRu), en: lines(f.stepsEn) },
-    tags: { ru: commas(f.tagsRu), en: commas(f.tagsEn) },
+    title: { ru: f.titleRu, en: f.titleEn, ua: f.titleUa },
+    description: { ru: f.descRu, en: f.descEn, ua: f.descUa },
+    ingredients: { ru: lines(f.ingRu), en: lines(f.ingEn), ua: lines(f.ingUa) },
+    steps: { ru: lines(f.stepsRu), en: lines(f.stepsEn), ua: lines(f.stepsUa) },
+    tags: { ru: commas(f.tagsRu), en: commas(f.tagsEn), ua: commas(f.tagsUa) },
   };
 }
 
@@ -226,6 +231,9 @@ function RecipeForm({
       <label className="text-xs font-semibold text-muted">Название EN
         <input className={inp} value={value.titleEn} onChange={(e) => set("titleEn", e.target.value)} />
       </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Название UA
+        <input className={inp} value={value.titleUa} onChange={(e) => set("titleUa", e.target.value)} />
+      </label>
 
       {slugEditable ? (
         <label className="text-xs font-semibold text-muted">Slug (необязательно)
@@ -270,12 +278,18 @@ function RecipeForm({
       <label className="text-xs font-semibold text-muted sm:col-span-2">Описание EN
         <textarea className={ta} value={value.descEn} onChange={(e) => set("descEn", e.target.value)} />
       </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Описание UA
+        <textarea className={ta} value={value.descUa} onChange={(e) => set("descUa", e.target.value)} />
+      </label>
 
       <label className="text-xs font-semibold text-muted">Ингредиенты RU (по строке)
         <textarea className={ta} value={value.ingRu} onChange={(e) => set("ingRu", e.target.value)} />
       </label>
       <label className="text-xs font-semibold text-muted">Ингредиенты EN (по строке)
         <textarea className={ta} value={value.ingEn} onChange={(e) => set("ingEn", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Ингредиенты UA (по строке)
+        <textarea className={ta} value={value.ingUa} onChange={(e) => set("ingUa", e.target.value)} />
       </label>
 
       <label className="text-xs font-semibold text-muted">Шаги RU (по строке)
@@ -284,12 +298,18 @@ function RecipeForm({
       <label className="text-xs font-semibold text-muted">Шаги EN (по строке)
         <textarea className={ta} value={value.stepsEn} onChange={(e) => set("stepsEn", e.target.value)} />
       </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Шаги UA (по строке)
+        <textarea className={ta} value={value.stepsUa} onChange={(e) => set("stepsUa", e.target.value)} />
+      </label>
 
       <label className="text-xs font-semibold text-muted">Теги RU (через запятую)
         <input className={inp} value={value.tagsRu} onChange={(e) => set("tagsRu", e.target.value)} />
       </label>
       <label className="text-xs font-semibold text-muted">Теги EN (через запятую)
         <input className={inp} value={value.tagsEn} onChange={(e) => set("tagsEn", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Теги UA (через запятую)
+        <input className={inp} value={value.tagsUa} onChange={(e) => set("tagsUa", e.target.value)} />
       </label>
     </div>
   );

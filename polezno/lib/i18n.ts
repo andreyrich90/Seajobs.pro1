@@ -279,7 +279,144 @@ const en: Dict = {
   "cookie.more": "Learn more",
 };
 
-export const T: Record<Lang, Dict> = { ru, en };
+const ua: Dict = {
+  "brand": "Recepto",
+  "brand.tagline": "Рецепти, ПХ та кухонні лайфхаки",
+
+  "nav.recipes": "Рецепти",
+  "nav.pp": "ПХ",
+  "nav.collections": "Добірки",
+  "nav.lifehacks": "Лайфхаки",
+  "nav.about": "Про проєкт",
+  "header.profile": "Мій профіль",
+
+  "collections.title": "Добірки",
+  "collections.subtitle": "Готові набори рецептів під випадок — обирайте й готуйте.",
+  "collections.back": "Усі добірки",
+  "collections.count": "рецептів",
+  "collections.open": "Відкрити добірку",
+  "home.collections.title": "Добірки",
+  "home.collections.subtitle": "Набори рецептів під настрій і привід",
+  "home.collections.cta": "Усі добірки",
+
+  "home.eyebrow": "Перевірені рецепти · ПХ · лайфхаки",
+  "home.hero.line1": "Готуємо просто.",
+  "home.hero.line2pre": "Їмо ",
+  "home.hero.accent": "усвідомлено",
+  "home.hero.subtitle":
+    "Рецепти для правильного харчування, швидкі вечері на будні, десерти без цукру та лайфхаки, що реально економлять час на кухні.",
+  "home.hero.cta": "Дивитися рецепти",
+  "home.hero.cta2": "Рецепти ПХ",
+  "home.hero.badge": "100% ПХ",
+
+  "home.stats.recipes": "рецептів",
+  "home.stats.pp": "страв ПХ",
+  "home.stats.lifehacks": "лайфхаків",
+
+  "home.popular.title": "Популярне цього тижня",
+  "home.popular.subtitle": "Те, що найчастіше готують просто зараз",
+  "home.popular.cta": "Усі рецепти",
+
+  "home.lifehacks.title": "Лайфхаки тижня",
+  "home.lifehacks.subtitle": "Маленькі хитрощі, що заощаджують час і продукти",
+  "home.lifehacks.cta": "Усі лайфхаки",
+
+  "home.plan.eyebrow": "Меню на тиждень",
+  "home.plan.title": "Готові ПХ-добірки під вашу мету",
+  "home.plan.body":
+    "Набори рецептів на тиждень: легкий сніданок, обід із собою та вечеря без готування годинами — зі збалансованим КБЖВ.",
+  "home.plan.f1": "Баланс КБЖВ під вашу мету",
+  "home.plan.f2": "Список покупок одним списком",
+  "home.plan.f3": "Заміни за алергій та смаків",
+  "home.plan.cta": "Дивитися рецепти ПХ",
+  "home.plan.week": "Приклад тижня",
+
+  "home.news.eyebrow": "Раз на тиждень, без спаму",
+  "home.news.title": "3 нові рецепти й один лайфхак щоп’ятниці — прямо на пошту",
+  "home.news.placeholder": "Ваш email",
+  "home.news.button": "Підписатися",
+  "home.news.done": "Готово! Перевірте пошту.",
+
+  "chips.title": "Куди зазирнути",
+
+  "recipes.title": "Рецепти",
+  "recipes.subtitle": "Знайдіть страву за категорією, часом або запитом.",
+  "recipes.search.placeholder": "Що приготувати? Наприклад: паста, салат…",
+  "recipes.filter.all": "Усі",
+  "recipes.filter.ppOnly": "Лише ПХ",
+  "recipes.empty": "Нічого не знайдено. Спробуйте інший запит.",
+  "recipes.count": "Знайдено страв:",
+
+  "recipe.time": "Час",
+  "recipe.calories": "Калорії",
+  "recipe.servings": "Порції",
+  "recipe.difficulty": "Складність",
+  "recipe.ingredients": "Інгредієнти",
+  "recipe.steps": "Приготування",
+  "recipe.tags": "Теги",
+  "recipe.back": "До всіх рецептів",
+  "recipe.pp.badge": "ПХ",
+  "recipe.min": "хв",
+  "recipe.kcal": "ккал",
+  "recipe.portions": "порц.",
+
+  "lifehacks.title": "Кухонні лайфхаки",
+  "lifehacks.subtitle": "Хитрощі, що знадобляться щодня.",
+  "lifehack.back": "До всіх лайфхаків",
+
+  "about.title": "Про проєкт",
+  "about.body":
+    "«Recepto» — колекція домашніх рецептів, ПХ-меню та перевірених кухонних лайфхаків. Ми збираємо лише те, що справді працює: зрозумілі кроки, чесні калорії та жодної води.",
+
+  "difficulty.easy": "Легко",
+  "difficulty.medium": "Середньо",
+  "difficulty.hard": "Складно",
+
+  "cat.breakfast": "Сніданки",
+  "cat.soup": "Супи",
+  "cat.main": "Основні страви",
+  "cat.salad": "Салати",
+  "cat.dessert": "Десерти",
+  "cat.drink": "Напої",
+  "cat.baking": "Випічка",
+  "cat.snack": "Перекуси",
+
+  "lcat.storage": "Зберігання",
+  "lcat.cooking": "Готування",
+  "lcat.cleaning": "Прибирання",
+  "lcat.saving": "Економія",
+
+  "day.mon": "Понеділок",
+  "day.tue": "Вівторок",
+  "day.wed": "Середа",
+  "day.thu": "Четвер",
+  "day.fri": "П’ятниця",
+
+  "footer.about":
+    "Рецепти, ПХ-меню та кухонні лайфхаки для тих, хто хоче готувати смачно й без зайвої складності.",
+  "footer.col.sections": "Розділи",
+  "footer.col.about": "Про проєкт",
+  "footer.col.social": "Соцмережі",
+  "footer.link.about": "Про нас",
+  "footer.link.contacts": "Контакти",
+  "footer.link.partners": "Партнерам",
+  "footer.link.privacy": "Політика конфіденційності",
+  "footer.rights": "Усі права захищені.",
+  "footer.made": "Зроблено з любов’ю до їжі.",
+
+  "privacy.title": "Політика конфіденційності",
+  "privacy.updated": "Оновлено",
+  "contacts.title": "Контакти",
+  "contacts.subtitle": "Пишіть нам із будь-яких питань — про рецепти, співпрацю чи помилки на сайті.",
+  "contacts.email": "Електронна пошта",
+  "contacts.reply": "Відповідаємо зазвичай упродовж кількох днів.",
+
+  "cookie.text": "Ми використовуємо cookie для роботи сайту, аналітики та показу реклами.",
+  "cookie.accept": "Прийняти",
+  "cookie.more": "Докладніше",
+};
+
+export const T: Record<Lang, Dict> = { ru, en, ua };
 
 export function getDict(lang: Lang): Dict {
   return T[lang] ?? T.ru;

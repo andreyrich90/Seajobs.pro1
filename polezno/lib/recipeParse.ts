@@ -19,11 +19,11 @@ export interface ParsedRecipe {
   calories: number;
   servings: number;
   difficulty: Difficulty;
-  title: { ru: string; en: string };
-  description: { ru: string; en: string };
-  ingredients: { ru: string[]; en: string[] };
-  steps: { ru: string[]; en: string[] };
-  tags: { ru: string[]; en: string[] };
+  title: { ru: string; en: string; ua: string };
+  description: { ru: string; en: string; ua: string };
+  ingredients: { ru: string[]; en: string[]; ua: string[] };
+  steps: { ru: string[]; en: string[]; ua: string[] };
+  tags: { ru: string[]; en: string[]; ua: string[] };
 }
 
 export interface ParseImage {
@@ -33,21 +33,23 @@ export interface ParseImage {
 
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
-const SYSTEM = `You are a bilingual (Russian + English) recipe editor for a cooking website.
+const SYSTEM = `You are a trilingual (Russian + English + Ukrainian) recipe editor for a cooking website.
 You are given one or more food photos. Some photos are infographics with text
 baked in (title, ingredient list, steps); others are just a dish. From EACH
 distinct dish, produce a complete recipe.
 
 Rules:
-- Write EVERYTHING in BOTH Russian (ru) and English (en). Natural, native copy —
-  not a machine translation, and never a verbatim copy of text in the image.
+- Write EVERYTHING in THREE languages: Russian (ru), English (en) and Ukrainian
+  (ua). Natural, native copy in each — not a machine translation, and never a
+  verbatim copy of text in the image. The Ukrainian must be real Ukrainian
+  (not Russian words), correct and idiomatic.
 - description: 2–3 warm, appetising sentences in your OWN words. Unique — do not
   copy the photo's caption. No emoji.
-- ingredients: a clean list with amounts (e.g. "Креветки — 400 г" / "Shrimp — 400 g").
-  Keep ru and en items in the same order and count.
+- ingredients: a clean list with amounts (e.g. "Креветки — 400 г" / "Shrimp — 400 g" / "Креветки — 400 г").
+  Keep ru, en and ua items in the same order and count.
 - steps: clear numbered actions (as an array, no numbering inside the text).
-  Keep ru and en in the same order and count. You may add one short helpful tip
-  as the last step.
+  Keep ru, en and ua in the same order and count. You may add one short helpful
+  tip as the last step.
 - category: exactly one of breakfast, soup, main, salad, dessert, drink, baking, snack.
 - difficulty: exactly one of easy, medium, hard.
 - isPp: true only if the dish is genuinely light/healthy ("ПП"), else false.
@@ -62,11 +64,13 @@ const arr = (v: unknown) =>
   Array.isArray(v) ? v.map((x) => str(x)).filter(Boolean) : [];
 
 function normalise(r: any): ParsedRecipe | null {
-  const title = { ru: str(r?.title?.ru), en: str(r?.title?.en) };
-  if (!title.ru && !title.en) return null;
-  // Guarantee both languages have *something* so downstream save never fails.
-  if (!title.ru) title.ru = title.en;
-  if (!title.en) title.en = title.ru;
+  const title = { ru: str(r?.title?.ru), en: str(r?.title?.en), ua: str(r?.title?.ua) };
+  if (!title.ru && !title.en && !title.ua) return null;
+  // Guarantee every language has *something* so downstream save never fails.
+  const anyTitle = title.ru || title.en || title.ua;
+  if (!title.ru) title.ru = anyTitle;
+  if (!title.en) title.en = anyTitle;
+  if (!title.ua) title.ua = anyTitle;
 
   const category: Category = CATEGORIES.includes(r?.category) ? r.category : "main";
   const difficulty: Difficulty = DIFFICULTIES.includes(r?.difficulty) ? r.difficulty : "easy";
@@ -83,10 +87,10 @@ function normalise(r: any): ParsedRecipe | null {
     servings: num(r?.servings, 2),
     difficulty,
     title,
-    description: { ru: str(r?.description?.ru), en: str(r?.description?.en) },
-    ingredients: { ru: arr(r?.ingredients?.ru), en: arr(r?.ingredients?.en) },
-    steps: { ru: arr(r?.steps?.ru), en: arr(r?.steps?.en) },
-    tags: { ru: arr(r?.tags?.ru), en: arr(r?.tags?.en) },
+    description: { ru: str(r?.description?.ru), en: str(r?.description?.en), ua: str(r?.description?.ua) },
+    ingredients: { ru: arr(r?.ingredients?.ru), en: arr(r?.ingredients?.en), ua: arr(r?.ingredients?.ua) },
+    steps: { ru: arr(r?.steps?.ru), en: arr(r?.steps?.en), ua: arr(r?.steps?.ua) },
+    tags: { ru: arr(r?.tags?.ru), en: arr(r?.tags?.en), ua: arr(r?.tags?.ua) },
   };
 }
 
@@ -113,11 +117,19 @@ export async function parseRecipesFromImages(
   // Structured tool use: the model must call save_recipes with a typed object,
   // so we get a real parsed object back — no hand-parsing of free-form JSON,
   // which is what used to break on long or slightly-malformed output.
-  const locStr = { type: "object", properties: { ru: { type: "string" }, en: { type: "string" } }, required: ["ru", "en"] };
+  const locStr = {
+    type: "object",
+    properties: { ru: { type: "string" }, en: { type: "string" }, ua: { type: "string" } },
+    required: ["ru", "en", "ua"],
+  };
   const locArrSchema = {
     type: "object",
-    properties: { ru: { type: "array", items: { type: "string" } }, en: { type: "array", items: { type: "string" } } },
-    required: ["ru", "en"],
+    properties: {
+      ru: { type: "array", items: { type: "string" } },
+      en: { type: "array", items: { type: "string" } },
+      ua: { type: "array", items: { type: "string" } },
+    },
+    required: ["ru", "en", "ua"],
   };
   const tools = [
     {
