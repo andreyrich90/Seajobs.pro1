@@ -126,8 +126,20 @@ const ru: Dict = {
   "footer.link.about": "О нас",
   "footer.link.contacts": "Контакты",
   "footer.link.partners": "Партнёрам",
+  "footer.link.privacy": "Политика конфиденциальности",
   "footer.rights": "Все права защищены.",
   "footer.made": "Сделано с любовью к еде.",
+
+  "privacy.title": "Политика конфиденциальности",
+  "privacy.updated": "Обновлено",
+  "contacts.title": "Контакты",
+  "contacts.subtitle": "Пишите нам по любым вопросам — о рецептах, сотрудничестве или ошибках на сайте.",
+  "contacts.email": "Электронная почта",
+  "contacts.reply": "Отвечаем обычно в течение пары дней.",
+
+  "cookie.text": "Мы используем cookie для работы сайта, аналитики и показа рекламы.",
+  "cookie.accept": "Принять",
+  "cookie.more": "Подробнее",
 };
 
 const en: Dict = {
@@ -251,8 +263,20 @@ const en: Dict = {
   "footer.link.about": "About us",
   "footer.link.contacts": "Contacts",
   "footer.link.partners": "Partners",
+  "footer.link.privacy": "Privacy Policy",
   "footer.rights": "All rights reserved.",
   "footer.made": "Made with love for food.",
+
+  "privacy.title": "Privacy Policy",
+  "privacy.updated": "Updated",
+  "contacts.title": "Contacts",
+  "contacts.subtitle": "Get in touch about recipes, partnerships or any issue on the site.",
+  "contacts.email": "Email",
+  "contacts.reply": "We usually reply within a couple of days.",
+
+  "cookie.text": "We use cookies to run the site, for analytics and to serve ads.",
+  "cookie.accept": "Accept",
+  "cookie.more": "Learn more",
 };
 
 export const T: Record<Lang, Dict> = { ru, en };

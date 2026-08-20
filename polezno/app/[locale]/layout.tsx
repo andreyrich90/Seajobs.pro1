@@ -3,9 +3,12 @@ import { Manrope, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
 import { DictProvider } from "@/components/DictProvider";
 import { getDict } from "@/lib/i18n";
 import { isLang, LOCALES, type Lang } from "@/lib/langs";
+
+const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID;
 
 const display = Playfair_Display({
   subsets: ["latin", "cyrillic"],
@@ -77,6 +80,17 @@ export default async function LocaleLayout({
 
   return (
     <html lang={lang} className={`${display.variable} ${body.variable}`}>
+      <head>
+        {/* Google AdSense loader — only when a publisher id is configured. */}
+        {ADSENSE_ID && (
+          // eslint-disable-next-line @next/next/no-sync-scripts
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
+            crossOrigin="anonymous"
+          />
+        )}
+      </head>
       <body className="min-h-screen bg-cream text-ink font-body antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <DictProvider lang={lang} dict={dict}>
@@ -85,6 +99,7 @@ export default async function LocaleLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <CookieBanner />
         </DictProvider>
       </body>
     </html>

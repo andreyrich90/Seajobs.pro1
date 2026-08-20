@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock, Flame, Gauge, Users } from "lucide-react";
+import AdSlot from "@/components/AdSlot";
 import { getDict } from "@/lib/i18n";
 import { isLang, pick, LOCALES, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
 import { getRecipe, getRecipes } from "@/lib/content";
+
+// Ad unit id created in AdSense for the in-article placement (optional).
+const AD_SLOT_ARTICLE = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE || "";
 
 // Re-read from the database in the background at most every 30s (ISR),
 // so new recipes added via SQL appear without a redeploy.
@@ -152,6 +156,8 @@ export default async function RecipePage({
           </ol>
         </section>
       </div>
+
+      <AdSlot slot={AD_SLOT_ARTICLE} format="fluid" className="border-t border-line pt-6" />
 
       {pick(recipe.tags, lang).length > 0 && (
         <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-line pt-6">

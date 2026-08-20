@@ -47,11 +47,11 @@ export default function Footer() {
             <Link href={href(lang, "/about")} className="footlink">
               {t("footer.link.about")}
             </Link>
-            <Link href={href(lang, "/about")} className="footlink">
+            <Link href={href(lang, "/contacts")} className="footlink">
               {t("footer.link.contacts")}
             </Link>
-            <Link href={href(lang, "/about")} className="footlink">
-              {t("footer.link.partners")}
+            <Link href={href(lang, "/privacy")} className="footlink">
+              {t("footer.link.privacy")}
             </Link>
           </FootCol>
 
