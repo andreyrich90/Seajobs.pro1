@@ -55,8 +55,7 @@ Rules:
 - tags: 3–5 short lowercase tags in each language.
 - If specifics (calories, minutes) are not shown, estimate sensibly from the dish.
 
-Return ONLY valid minified JSON, no prose, no code fences, in this exact shape:
-{"recipes":[{"category":"main","isPp":false,"minutes":15,"calories":240,"servings":2,"difficulty":"easy","title":{"ru":"…","en":"…"},"description":{"ru":"…","en":"…"},"ingredients":{"ru":["…"],"en":["…"]},"steps":{"ru":["…"],"en":["…"]},"tags":{"ru":["…"],"en":["…"]}}]}`;
+Record the result by calling the save_recipes tool. Do not write any prose.`;
 
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 const arr = (v: unknown) =>
@@ -108,8 +107,50 @@ export async function parseRecipesFromImages(
   }));
   content.push({
     type: "text",
-    text: "Read the photo(s) and return the recipe(s) as specified. JSON only.",
+    text: "Read the photo(s) and record every distinct dish with the save_recipes tool.",
   });
+
+  // Structured tool use: the model must call save_recipes with a typed object,
+  // so we get a real parsed object back — no hand-parsing of free-form JSON,
+  // which is what used to break on long or slightly-malformed output.
+  const locStr = { type: "object", properties: { ru: { type: "string" }, en: { type: "string" } }, required: ["ru", "en"] };
+  const locArrSchema = {
+    type: "object",
+    properties: { ru: { type: "array", items: { type: "string" } }, en: { type: "array", items: { type: "string" } } },
+    required: ["ru", "en"],
+  };
+  const tools = [
+    {
+      name: "save_recipes",
+      description: "Record one or more complete recipes read from the photo(s).",
+      input_schema: {
+        type: "object",
+        properties: {
+          recipes: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                category: { type: "string", enum: [...CATEGORIES] },
+                isPp: { type: "boolean" },
+                minutes: { type: "integer" },
+                calories: { type: "integer" },
+                servings: { type: "integer" },
+                difficulty: { type: "string", enum: [...DIFFICULTIES] },
+                title: locStr,
+                description: locStr,
+                ingredients: locArrSchema,
+                steps: locArrSchema,
+                tags: locArrSchema,
+              },
+              required: ["category", "difficulty", "title", "description", "ingredients", "steps", "tags"],
+            },
+          },
+        },
+        required: ["recipes"],
+      },
+    },
+  ];
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -120,8 +161,10 @@ export async function parseRecipesFromImages(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4000,
+      max_tokens: 8000,
       system: SYSTEM,
+      tools,
+      tool_choice: { type: "tool", name: "save_recipes" },
       messages: [{ role: "user", content }],
     }),
   });
@@ -131,29 +174,16 @@ export async function parseRecipesFromImages(
   }
 
   const data = await r.json();
-  let text: string = (data.content ?? [])
-    .map((b: { text?: string }) => b.text ?? "")
-    .join("")
-    .trim();
-  // Strip accidental code fences.
-  text = text.replace(/^```[a-z]*\n?/i, "").replace(/```$/i, "").trim();
 
-  let parsed: any;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    // Last resort: pull the first {...} block out of the response.
-    const s = text.indexOf("{");
-    const e = text.lastIndexOf("}");
-    if (s === -1 || e <= s) throw new Error("model_returned_non_json");
-    parsed = JSON.parse(text.slice(s, e + 1));
+  if (data.stop_reason === "max_tokens") {
+    throw new Error("response_truncated: too many recipes at once — upload fewer photos");
   }
 
-  const list = Array.isArray(parsed?.recipes)
-    ? parsed.recipes
-    : Array.isArray(parsed)
-    ? parsed
-    : [parsed];
+  const toolUse = (data.content ?? []).find(
+    (b: { type?: string; name?: string }) => b.type === "tool_use" && b.name === "save_recipes"
+  );
+  const parsed = toolUse?.input;
+  const list = Array.isArray(parsed?.recipes) ? parsed.recipes : [];
   const recipes = list.map(normalise).filter(Boolean) as ParsedRecipe[];
   if (!recipes.length) throw new Error("no_recipe_parsed");
   return recipes;
