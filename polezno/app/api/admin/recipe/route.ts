@@ -9,6 +9,44 @@ export const dynamic = "force-dynamic";
 const CATEGORIES = ["breakfast", "soup", "main", "salad", "dessert", "drink", "baking", "snack"];
 const DIFFICULTIES = ["easy", "medium", "hard"];
 
+// Full recipe (all fields) for the edit form. Body/query: ?slug=…
+export async function GET(req: Request) {
+  if (!requireAdmin(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: "supabase-not-configured" }, { status: 503 });
+  }
+  const slug = new URL(req.url).searchParams.get("slug")?.trim();
+  if (!slug) return NextResponse.json({ error: "slug-required" }, { status: 400 });
+
+  const { data, error } = await getServerSupabase()
+    .from("recipes")
+    .select("slug, category, is_pp, image, minutes, calories, servings, difficulty, title, description, ingredients, steps, tags")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!data) return NextResponse.json({ error: "not-found" }, { status: 404 });
+  return NextResponse.json({ recipe: data });
+}
+
+// Delete a recipe by slug. Query: ?slug=…
+// Storage photos (cover + gallery) are orphaned but harmless; we leave them.
+export async function DELETE(req: Request) {
+  if (!requireAdmin(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: "supabase-not-configured" }, { status: 503 });
+  }
+  const slug = new URL(req.url).searchParams.get("slug")?.trim();
+  if (!slug) return NextResponse.json({ error: "slug-required" }, { status: 400 });
+
+  const { error } = await getServerSupabase().from("recipes").delete().eq("slug", slug);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
+
 // Create (or update) a recipe from the admin form — no SQL required.
 // image is left NULL; attach a photo afterwards via the upload route.
 export async function POST(req: Request) {

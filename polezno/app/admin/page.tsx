@@ -20,6 +20,61 @@ const CAT_RU: Record<string, string> = {
   dessert: "Десерты", drink: "Напитки", baking: "Выпечка", snack: "Перекусы",
 };
 
+type AuthFetch = (u: string, o?: RequestInit) => Promise<Response>;
+
+// ---- form value shape (all strings; arrays edited as newline / comma text) ----
+interface FormValues {
+  slug: string; category: string; isPp: boolean;
+  minutes: string; calories: string; servings: string; difficulty: string;
+  titleRu: string; titleEn: string; descRu: string; descEn: string;
+  ingRu: string; ingEn: string; stepsRu: string; stepsEn: string;
+  tagsRu: string; tagsEn: string;
+}
+
+const EMPTY: FormValues = {
+  slug: "", category: "snack", isPp: false, minutes: "", calories: "", servings: "",
+  difficulty: "easy",
+  titleRu: "", titleEn: "", descRu: "", descEn: "",
+  ingRu: "", ingEn: "", stepsRu: "", stepsEn: "", tagsRu: "", tagsEn: "",
+};
+
+const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
+const commas = (s: string) => s.split(/[,\n]/).map((x) => x.trim()).filter(Boolean);
+const joinLines = (a?: string[]) => (a || []).join("\n");
+const joinCommas = (a?: string[]) => (a || []).join(", ");
+
+// Full recipe (from GET or the AI parser) -> editable form values.
+function toForm(r: any): FormValues {
+  return {
+    slug: r.slug || "",
+    category: r.category || "snack",
+    isPp: Boolean(r.is_pp ?? r.isPp),
+    minutes: r.minutes != null ? String(r.minutes) : "",
+    calories: r.calories != null ? String(r.calories) : "",
+    servings: r.servings != null ? String(r.servings) : "",
+    difficulty: r.difficulty || "easy",
+    titleRu: r.title?.ru || "", titleEn: r.title?.en || "",
+    descRu: r.description?.ru || "", descEn: r.description?.en || "",
+    ingRu: joinLines(r.ingredients?.ru), ingEn: joinLines(r.ingredients?.en),
+    stepsRu: joinLines(r.steps?.ru), stepsEn: joinLines(r.steps?.en),
+    tagsRu: joinCommas(r.tags?.ru), tagsEn: joinCommas(r.tags?.en),
+  };
+}
+
+// Form values -> POST /api/admin/recipe payload.
+function fromForm(f: FormValues) {
+  return {
+    slug: f.slug, category: f.category, isPp: f.isPp,
+    minutes: Number(f.minutes), calories: Number(f.calories), servings: Number(f.servings),
+    difficulty: f.difficulty,
+    title: { ru: f.titleRu, en: f.titleEn },
+    description: { ru: f.descRu, en: f.descEn },
+    ingredients: { ru: lines(f.ingRu), en: lines(f.ingEn) },
+    steps: { ru: lines(f.stepsRu), en: lines(f.stepsEn) },
+    tags: { ru: commas(f.tagsRu), en: commas(f.tagsEn) },
+  };
+}
+
 export default function AdminPage() {
   const [pass, setPass] = useState("");
   const [authed, setAuthed] = useState(false);
@@ -27,11 +82,11 @@ export default function AdminPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const authFetch = useCallback(
-    (url: string, opts: RequestInit = {}, token?: string) =>
+  const authFetch = useCallback<AuthFetch>(
+    (url, opts = {}) =>
       fetch(url, {
         ...opts,
-        headers: { ...(opts.headers || {}), Authorization: `Bearer ${token ?? pass}` },
+        headers: { ...(opts.headers || {}), Authorization: `Bearer ${pass}` },
       }),
     [pass]
   );
@@ -41,7 +96,9 @@ export default function AdminPage() {
       setLoading(true);
       setError("");
       try {
-        const res = await authFetch("/api/admin/recipes", {}, token);
+        const res = await fetch("/api/admin/recipes", {
+          headers: { Authorization: `Bearer ${token ?? pass}` },
+        });
         if (res.status === 401) {
           setError("Неверный пароль");
           setAuthed(false);
@@ -63,7 +120,7 @@ export default function AdminPage() {
         setLoading(false);
       }
     },
-    [authFetch]
+    [pass]
   );
 
   useEffect(() => {
@@ -123,12 +180,17 @@ export default function AdminPage() {
         </button>
       </div>
 
+      <AiImport authFetch={authFetch} onSaved={() => load()} />
+
       <CollectionCovers authFetch={authFetch} />
 
       <AddRecipe authFetch={authFetch} onAdded={() => load()} />
 
       {error && <p className="mb-4 text-sm font-semibold text-clay">{error}</p>}
 
+      <div className="mb-3 text-sm font-semibold text-muted">
+        Всего рецептов: {recipes.length}
+      </div>
       <div className="flex flex-col gap-3">
         {recipes.map((r) => (
           <RecipeItem key={r.id} recipe={r} authFetch={authFetch} onUpdated={() => load()} />
@@ -141,13 +203,372 @@ export default function AdminPage() {
   );
 }
 
+// ------------------------- shared recipe form -------------------------
+const inp = "w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-basil";
+const ta = inp + " min-h-[80px]";
+
+function RecipeForm({
+  value,
+  onChange,
+  slugEditable = true,
+}: {
+  value: FormValues;
+  onChange: (v: FormValues) => void;
+  slugEditable?: boolean;
+}) {
+  const set = (k: keyof FormValues, v: any) => onChange({ ...value, [k]: v });
+
+  return (
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <label className="text-xs font-semibold text-muted">Название RU
+        <input className={inp} value={value.titleRu} onChange={(e) => set("titleRu", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted">Название EN
+        <input className={inp} value={value.titleEn} onChange={(e) => set("titleEn", e.target.value)} />
+      </label>
+
+      {slugEditable ? (
+        <label className="text-xs font-semibold text-muted">Slug (необязательно)
+          <input className={inp} value={value.slug} onChange={(e) => set("slug", e.target.value)} placeholder="авто из EN-названия" />
+        </label>
+      ) : (
+        <label className="text-xs font-semibold text-muted">Slug (не меняется)
+          <input className={inp + " opacity-60"} value={value.slug} readOnly />
+        </label>
+      )}
+      <div className="grid grid-cols-2 gap-3">
+        <label className="text-xs font-semibold text-muted">Категория
+          <select className={inp} value={value.category} onChange={(e) => set("category", e.target.value)}>
+            {CATEGORIES.map((c) => <option key={c} value={c}>{CAT_RU[c]}</option>)}
+          </select>
+        </label>
+        <label className="text-xs font-semibold text-muted">Сложность
+          <select className={inp} value={value.difficulty} onChange={(e) => set("difficulty", e.target.value)}>
+            {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <label className="text-xs font-semibold text-muted">Мин.
+          <input type="number" className={inp} value={value.minutes} onChange={(e) => set("minutes", e.target.value)} />
+        </label>
+        <label className="text-xs font-semibold text-muted">Ккал
+          <input type="number" className={inp} value={value.calories} onChange={(e) => set("calories", e.target.value)} />
+        </label>
+        <label className="text-xs font-semibold text-muted">Порц.
+          <input type="number" className={inp} value={value.servings} onChange={(e) => set("servings", e.target.value)} />
+        </label>
+      </div>
+      <label className="flex items-center gap-2 self-end text-sm font-semibold text-ink">
+        <input type="checkbox" checked={value.isPp} onChange={(e) => set("isPp", e.target.checked)} /> ПП-блюдо
+      </label>
+
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Описание RU
+        <textarea className={ta} value={value.descRu} onChange={(e) => set("descRu", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted sm:col-span-2">Описание EN
+        <textarea className={ta} value={value.descEn} onChange={(e) => set("descEn", e.target.value)} />
+      </label>
+
+      <label className="text-xs font-semibold text-muted">Ингредиенты RU (по строке)
+        <textarea className={ta} value={value.ingRu} onChange={(e) => set("ingRu", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted">Ингредиенты EN (по строке)
+        <textarea className={ta} value={value.ingEn} onChange={(e) => set("ingEn", e.target.value)} />
+      </label>
+
+      <label className="text-xs font-semibold text-muted">Шаги RU (по строке)
+        <textarea className={ta} value={value.stepsRu} onChange={(e) => set("stepsRu", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted">Шаги EN (по строке)
+        <textarea className={ta} value={value.stepsEn} onChange={(e) => set("stepsEn", e.target.value)} />
+      </label>
+
+      <label className="text-xs font-semibold text-muted">Теги RU (через запятую)
+        <input className={inp} value={value.tagsRu} onChange={(e) => set("tagsRu", e.target.value)} />
+      </label>
+      <label className="text-xs font-semibold text-muted">Теги EN (через запятую)
+        <input className={inp} value={value.tagsEn} onChange={(e) => set("tagsEn", e.target.value)} />
+      </label>
+    </div>
+  );
+}
+
+async function saveRecipe(authFetch: AuthFetch, f: FormValues): Promise<{ ok: boolean; slug?: string; error?: string }> {
+  if (!f.titleRu || !f.titleEn) return { ok: false, error: "Заполните название RU и EN" };
+  try {
+    const res = await authFetch("/api/admin/recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fromForm(f)),
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: j.error || "Ошибка" };
+    return { ok: true, slug: j.slug };
+  } catch {
+    return { ok: false, error: "Сеть недоступна" };
+  }
+}
+
+async function uploadCover(authFetch: AuthFetch, slug: string, file: File): Promise<string | null> {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("slug", slug);
+  const res = await authFetch("/api/admin/upload", { method: "POST", body: fd });
+  if (!res.ok) {
+    const j = await res.json().catch(() => ({}));
+    return j.hint || j.error || "Ошибка загрузки фото";
+  }
+  return null;
+}
+
+// ------------------------- AI: photo -> recipe -------------------------
+interface AiCard {
+  id: number;
+  form: FormValues;
+  coverFile: File | null;
+  coverUrl: string | null; // object URL for preview
+  saving: boolean;
+  saved: boolean;
+  msg: string;
+}
+
+let aiCardSeq = 1;
+
+function AiImport({ authFetch, onSaved }: { authFetch: AuthFetch; onSaved: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [cards, setCards] = useState<AiCard[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function parse(files: FileList) {
+    setBusy(true);
+    setMsg("Читаю фото и составляю рецепты… это занимает 10–30 секунд.");
+    try {
+      const fd = new FormData();
+      const arr = Array.from(files);
+      arr.forEach((f) => fd.append("files", f));
+      const res = await authFetch("/api/admin/parse-recipe-image", { method: "POST", body: fd });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg(j.hint || j.detail || j.error || "Не удалось распознать");
+        return;
+      }
+      const parsed: any[] = j.recipes || [];
+      // Map a cover photo to each recipe when the counts line up 1:1.
+      const oneToOne = parsed.length === arr.length;
+      const next: AiCard[] = parsed.map((r, i) => {
+        const file = oneToOne ? arr[i] : null;
+        return {
+          id: aiCardSeq++,
+          form: toForm(r),
+          coverFile: file,
+          coverUrl: file ? URL.createObjectURL(file) : null,
+          saving: false,
+          saved: false,
+          msg: "",
+        };
+      });
+      setCards((c) => [...next, ...c]);
+      setMsg(
+        `Готово: ${parsed.length} рецепт(ов). Проверьте и сохраните.` +
+          (oneToOne ? "" : " Фото-обложки добавьте вручную в карточках.")
+      );
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function patch(id: number, p: Partial<AiCard>) {
+    setCards((cs) => cs.map((c) => (c.id === id ? { ...c, ...p } : c)));
+  }
+
+  async function saveCard(card: AiCard) {
+    patch(card.id, { saving: true, msg: "" });
+    const r = await saveRecipe(authFetch, card.form);
+    if (!r.ok || !r.slug) {
+      patch(card.id, { saving: false, msg: r.error || "Ошибка" });
+      return;
+    }
+    if (card.coverFile) {
+      const err = await uploadCover(authFetch, r.slug, card.coverFile);
+      if (err) {
+        patch(card.id, { saving: false, saved: true, msg: "Рецепт сохранён, но фото: " + err });
+        onSaved();
+        return;
+      }
+    }
+    patch(card.id, { saving: false, saved: true, msg: "Сохранено ✓" });
+    onSaved();
+  }
+
+  async function saveAll() {
+    for (const c of cards) {
+      if (!c.saved) await saveCard(c);
+    }
+  }
+
+  function pickCover(id: number, file: File) {
+    const c = cards.find((x) => x.id === id);
+    if (c?.coverUrl) URL.revokeObjectURL(c.coverUrl);
+    patch(id, { coverFile: file, coverUrl: URL.createObjectURL(file) });
+  }
+
+  function removeCard(id: number) {
+    const c = cards.find((x) => x.id === id);
+    if (c?.coverUrl) URL.revokeObjectURL(c.coverUrl);
+    setCards((cs) => cs.filter((x) => x.id !== id));
+  }
+
+  const pending = cards.filter((c) => !c.saved).length;
+
+  return (
+    <div className="mb-6 rounded-xl2 border-2 border-brass/40 bg-brass/5 p-4">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between font-bold text-basil"
+      >
+        <span>🤖 AI: рецепт из фото</span>
+        <span className="text-muted">{open ? "свернуть" : ""}</span>
+      </button>
+
+      {open && (
+        <div className="mt-4">
+          <p className="mb-3 text-sm text-muted">
+            Загрузите одно или несколько фото блюд (можно инфографику с текстом).
+            Claude сам напишет уникальное описание, ингредиенты и шаги на русском и
+            английском. Затем проверьте и сохраните. Если фото 1-в-1 с рецептами,
+            оно сразу станет обложкой.
+          </p>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files?.length) parse(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={busy}
+              className="rounded-full bg-brass px-5 py-2.5 font-bold text-ink transition hover:brightness-95 disabled:opacity-60"
+            >
+              {busy ? "Обрабатываю…" : "＋ Загрузить фото"}
+            </button>
+            {pending > 1 && (
+              <button
+                onClick={saveAll}
+                className="rounded-full bg-clay px-5 py-2.5 font-bold text-white transition hover:bg-clay2"
+              >
+                Сохранить все ({pending})
+              </button>
+            )}
+            {msg && <span className="text-sm font-semibold text-basil2">{msg}</span>}
+          </div>
+
+          <div className="mt-4 flex flex-col gap-4">
+            {cards.map((card) => (
+              <AiRecipeCard
+                key={card.id}
+                card={card}
+                onChange={(form) => patch(card.id, { form })}
+                onPickCover={(f) => pickCover(card.id, f)}
+                onSave={() => saveCard(card)}
+                onRemove={() => removeCard(card.id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AiRecipeCard({
+  card,
+  onChange,
+  onPickCover,
+  onSave,
+  onRemove,
+}: {
+  card: AiCard;
+  onChange: (f: FormValues) => void;
+  onPickCover: (f: File) => void;
+  onSave: () => void;
+  onRemove: () => void;
+}) {
+  const coverRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className={`rounded-xl2 border border-line bg-surface p-4 ${card.saved ? "opacity-70" : ""}`}>
+      <div className="mb-3 flex items-center gap-3">
+        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-cream2">
+          {card.coverUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={card.coverUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-2xl">🍽️</div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate font-semibold text-ink">
+            {card.form.titleRu || "Новый рецепт"}
+          </div>
+          <input
+            ref={coverRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onPickCover(f);
+              e.target.value = "";
+            }}
+          />
+          <button
+            onClick={() => coverRef.current?.click()}
+            className="mt-1 text-xs font-semibold text-muted hover:text-ink"
+          >
+            {card.coverFile ? "🖼 заменить фото обложки" : "🖼 выбрать фото обложки"}
+          </button>
+        </div>
+        <button onClick={onRemove} className="shrink-0 text-sm text-muted hover:text-clay">
+          убрать
+        </button>
+      </div>
+
+      <RecipeForm value={card.form} onChange={onChange} />
+
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={onSave}
+          disabled={card.saving || card.saved}
+          className="rounded-full bg-clay px-5 py-2.5 font-bold text-white transition hover:bg-clay2 disabled:opacity-60"
+        >
+          {card.saving ? "Сохраняю…" : card.saved ? "Сохранено ✓" : "Сохранить рецепт"}
+        </button>
+        {card.msg && <span className="text-sm font-semibold text-basil2">{card.msg}</span>}
+      </div>
+    </div>
+  );
+}
+
+// ------------------------- recipe list item -------------------------
 function RecipeItem({
   recipe,
   authFetch,
   onUpdated,
 }: {
   recipe: RecipeRow;
-  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
+  authFetch: AuthFetch;
   onUpdated: () => void;
 }) {
   const [busy, setBusy] = useState(false);
@@ -155,10 +576,67 @@ function RecipeItem({
   const [showUrl, setShowUrl] = useState(false);
   const [url, setUrl] = useState("");
   const [showGallery, setShowGallery] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState<FormValues | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
   const cover = recipe.image || `/img/recipes/${recipe.category}.svg`;
   const gallery = recipe.gallery || [];
+
+  async function openEdit() {
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await authFetch(`/api/admin/recipe?slug=${encodeURIComponent(recipe.slug)}`);
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg(j.error || "Не удалось загрузить рецепт");
+        return;
+      }
+      setEditForm(toForm(j.recipe));
+      setEditing(true);
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveEdit() {
+    if (!editForm) return;
+    setBusy(true);
+    setMsg("");
+    const r = await saveRecipe(authFetch, editForm);
+    setBusy(false);
+    if (!r.ok) {
+      setMsg(r.error || "Ошибка");
+      return;
+    }
+    setEditing(false);
+    setMsg("Изменения сохранены ✓");
+    onUpdated();
+  }
+
+  async function del() {
+    if (!confirm(`Удалить рецепт «${recipe.title?.ru || recipe.slug}»? Это действие необратимо.`)) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const res = await authFetch(`/api/admin/recipe?slug=${encodeURIComponent(recipe.slug)}`, {
+        method: "DELETE",
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg(j.error || "Ошибка удаления");
+        return;
+      }
+      onUpdated();
+    } catch {
+      setMsg("Сеть недоступна");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function uploadGallery(files: FileList) {
     setBusy(true);
@@ -290,20 +768,59 @@ function RecipeItem({
           >
             {busy ? "…" : recipe.image ? "Заменить фото" : "Загрузить фото"}
           </button>
-          <button
-            onClick={() => setShowUrl((v) => !v)}
-            className="text-xs font-semibold text-muted hover:text-ink"
-          >
-            🔗 вставить ссылку
-          </button>
-          <button
-            onClick={() => setShowGallery((v) => !v)}
-            className="text-xs font-semibold text-muted hover:text-ink"
-          >
-            🖼 фото шагов ({gallery.length})
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => (editing ? setEditing(false) : openEdit())}
+              disabled={busy}
+              className="text-xs font-semibold text-basil hover:underline"
+            >
+              ✎ {editing ? "закрыть" : "редактировать"}
+            </button>
+            <button
+              onClick={del}
+              disabled={busy}
+              className="text-xs font-semibold text-clay hover:underline"
+            >
+              🗑 удалить
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowUrl((v) => !v)}
+              className="text-xs font-semibold text-muted hover:text-ink"
+            >
+              🔗 ссылка
+            </button>
+            <button
+              onClick={() => setShowGallery((v) => !v)}
+              className="text-xs font-semibold text-muted hover:text-ink"
+            >
+              🖼 шаги ({gallery.length})
+            </button>
+          </div>
         </div>
       </div>
+
+      {editing && editForm && (
+        <div className="mt-3 border-t border-line pt-3">
+          <RecipeForm value={editForm} onChange={setEditForm} slugEditable={false} />
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              onClick={saveEdit}
+              disabled={busy}
+              className="rounded-full bg-clay px-5 py-2.5 font-bold text-white transition hover:bg-clay2 disabled:opacity-60"
+            >
+              {busy ? "Сохраняю…" : "Сохранить изменения"}
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="text-sm font-semibold text-muted hover:text-ink"
+            >
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
 
       {showGallery && (
         <div className="mt-3 border-t border-line pt-3">
@@ -371,66 +888,27 @@ function RecipeItem({
   );
 }
 
-const EMPTY = {
-  slug: "", category: "snack", isPp: false, minutes: "", calories: "", servings: "",
-  difficulty: "easy",
-  titleRu: "", titleEn: "", descRu: "", descEn: "",
-  ingRu: "", ingEn: "", stepsRu: "", stepsEn: "", tagsRu: "", tagsEn: "",
-};
-
-function AddRecipe({
-  authFetch,
-  onAdded,
-}: {
-  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
-  onAdded: () => void;
-}) {
+// ------------------------- add recipe (manual) -------------------------
+function AddRecipe({ authFetch, onAdded }: { authFetch: AuthFetch; onAdded: () => void }) {
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ ...EMPTY });
+  const [f, setF] = useState<FormValues>({ ...EMPTY });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-
-  const set = (k: keyof typeof EMPTY, v: any) => setF((s) => ({ ...s, [k]: v }));
-  const lines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
-  const commas = (s: string) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setMsg("");
-    try {
-      const payload = {
-        slug: f.slug, category: f.category, isPp: f.isPp,
-        minutes: Number(f.minutes), calories: Number(f.calories), servings: Number(f.servings),
-        difficulty: f.difficulty,
-        title: { ru: f.titleRu, en: f.titleEn },
-        description: { ru: f.descRu, en: f.descEn },
-        ingredients: { ru: lines(f.ingRu), en: lines(f.ingEn) },
-        steps: { ru: lines(f.stepsRu), en: lines(f.stepsEn) },
-        tags: { ru: commas(f.tagsRu), en: commas(f.tagsEn) },
-      };
-      const res = await authFetch("/api/admin/recipe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setMsg(j.error || "Ошибка");
-      } else {
-        setMsg("Рецепт сохранён ✓ — теперь загрузите фото ниже");
-        setF({ ...EMPTY });
-        onAdded();
-      }
-    } catch {
-      setMsg("Сеть недоступна");
-    } finally {
-      setBusy(false);
+    const r = await saveRecipe(authFetch, f);
+    setBusy(false);
+    if (!r.ok) {
+      setMsg(r.error || "Ошибка");
+      return;
     }
+    setMsg("Рецепт сохранён ✓ — теперь загрузите фото ниже");
+    setF({ ...EMPTY });
+    onAdded();
   }
-
-  const inp = "w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-basil";
-  const ta = inp + " min-h-[80px]";
 
   return (
     <div className="mb-6 rounded-xl2 border border-line bg-cream2 p-4">
@@ -438,79 +916,14 @@ function AddRecipe({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between font-bold text-basil"
       >
-        <span>＋ Добавить рецепт (без SQL)</span>
+        <span>＋ Добавить рецепт вручную</span>
         <span className="text-muted">{open ? "свернуть" : ""}</span>
       </button>
 
       {open && (
-        <form onSubmit={submit} className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="text-xs font-semibold text-muted">Название RU
-            <input className={inp} value={f.titleRu} onChange={(e) => set("titleRu", e.target.value)} required />
-          </label>
-          <label className="text-xs font-semibold text-muted">Название EN
-            <input className={inp} value={f.titleEn} onChange={(e) => set("titleEn", e.target.value)} required />
-          </label>
-
-          <label className="text-xs font-semibold text-muted">Slug (необязательно)
-            <input className={inp} value={f.slug} onChange={(e) => set("slug", e.target.value)} placeholder="авто из EN-названия" />
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-xs font-semibold text-muted">Категория
-              <select className={inp} value={f.category} onChange={(e) => set("category", e.target.value)}>
-                {CATEGORIES.map((c) => <option key={c} value={c}>{CAT_RU[c]}</option>)}
-              </select>
-            </label>
-            <label className="text-xs font-semibold text-muted">Сложность
-              <select className={inp} value={f.difficulty} onChange={(e) => set("difficulty", e.target.value)}>
-                {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            <label className="text-xs font-semibold text-muted">Мин.
-              <input type="number" className={inp} value={f.minutes} onChange={(e) => set("minutes", e.target.value)} />
-            </label>
-            <label className="text-xs font-semibold text-muted">Ккал
-              <input type="number" className={inp} value={f.calories} onChange={(e) => set("calories", e.target.value)} />
-            </label>
-            <label className="text-xs font-semibold text-muted">Порц.
-              <input type="number" className={inp} value={f.servings} onChange={(e) => set("servings", e.target.value)} />
-            </label>
-          </div>
-          <label className="flex items-center gap-2 self-end text-sm font-semibold text-ink">
-            <input type="checkbox" checked={f.isPp} onChange={(e) => set("isPp", e.target.checked)} /> ПП-блюдо
-          </label>
-
-          <label className="text-xs font-semibold text-muted sm:col-span-2">Описание RU
-            <textarea className={ta} value={f.descRu} onChange={(e) => set("descRu", e.target.value)} />
-          </label>
-          <label className="text-xs font-semibold text-muted sm:col-span-2">Описание EN
-            <textarea className={ta} value={f.descEn} onChange={(e) => set("descEn", e.target.value)} />
-          </label>
-
-          <label className="text-xs font-semibold text-muted">Ингредиенты RU (по строке)
-            <textarea className={ta} value={f.ingRu} onChange={(e) => set("ingRu", e.target.value)} />
-          </label>
-          <label className="text-xs font-semibold text-muted">Ингредиенты EN (по строке)
-            <textarea className={ta} value={f.ingEn} onChange={(e) => set("ingEn", e.target.value)} />
-          </label>
-
-          <label className="text-xs font-semibold text-muted">Шаги RU (по строке)
-            <textarea className={ta} value={f.stepsRu} onChange={(e) => set("stepsRu", e.target.value)} />
-          </label>
-          <label className="text-xs font-semibold text-muted">Шаги EN (по строке)
-            <textarea className={ta} value={f.stepsEn} onChange={(e) => set("stepsEn", e.target.value)} />
-          </label>
-
-          <label className="text-xs font-semibold text-muted">Теги RU (через запятую)
-            <input className={inp} value={f.tagsRu} onChange={(e) => set("tagsRu", e.target.value)} />
-          </label>
-          <label className="text-xs font-semibold text-muted">Теги EN (через запятую)
-            <input className={inp} value={f.tagsEn} onChange={(e) => set("tagsEn", e.target.value)} />
-          </label>
-
-          <div className="flex items-center gap-3 sm:col-span-2">
+        <form onSubmit={submit} className="mt-4">
+          <RecipeForm value={f} onChange={setF} />
+          <div className="mt-3 flex items-center gap-3">
             <button type="submit" disabled={busy} className="rounded-full bg-clay px-5 py-2.5 font-bold text-white transition hover:bg-clay2 disabled:opacity-60">
               {busy ? "Сохраняю…" : "Сохранить рецепт"}
             </button>
@@ -522,11 +935,8 @@ function AddRecipe({
   );
 }
 
-function CollectionCovers({
-  authFetch,
-}: {
-  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
-}) {
+// ------------------------- collection covers -------------------------
+function CollectionCovers({ authFetch }: { authFetch: AuthFetch }) {
   const [open, setOpen] = useState(false);
   const [covers, setCovers] = useState<Record<string, string>>({});
 
@@ -586,7 +996,7 @@ function CoverRow({
   emoji: string;
   title: string;
   cover?: string;
-  authFetch: (u: string, o?: RequestInit) => Promise<Response>;
+  authFetch: AuthFetch;
   onUpdated: () => void;
 }) {
   const [busy, setBusy] = useState(false);
