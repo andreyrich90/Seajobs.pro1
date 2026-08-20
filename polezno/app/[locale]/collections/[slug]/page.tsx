@@ -6,6 +6,8 @@ import RecipeCard from "@/components/RecipeCard";
 import { getDict } from "@/lib/i18n";
 import { isLang, pick, LOCALES, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
+import { alternates } from "@/lib/seo";
+import { breadcrumbJsonLd, itemListJsonLd, jsonLdScript } from "@/lib/jsonld";
 import { COLLECTIONS, findCollection } from "@/lib/collections";
 import { getCollectionCover, getCollectionRecipes } from "@/lib/content";
 
@@ -25,7 +27,11 @@ export async function generateMetadata({
   const lang: Lang = isLang(locale) ? locale : "ru";
   const c = findCollection(slug);
   if (!c) return { title: "404" };
-  return { title: pick(c.title, lang), description: pick(c.description, lang) };
+  return {
+    title: pick(c.title, lang),
+    description: pick(c.description, lang),
+    alternates: alternates(`/collections/${c.slug}`, lang),
+  };
 }
 
 export default async function CollectionPage({
@@ -44,8 +50,21 @@ export default async function CollectionPage({
     getCollectionCover(collection.slug),
   ]);
 
+  const jsonLd = [
+    breadcrumbJsonLd(lang, [
+      { name: t["nav.home"], path: "/" },
+      { name: t["collections.title"], path: "/collections" },
+      { name: pick(collection.title, lang), path: `/collections/${collection.slug}` },
+    ]),
+    itemListJsonLd(lang, pick(collection.title, lang), recipes.map((r) => r.slug)),
+  ];
+
   return (
     <div className="mx-auto max-w-content px-5 py-12 sm:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
+      />
       <Link
         href={href(lang, "/collections")}
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-ink"

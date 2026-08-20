@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { getDict } from "@/lib/i18n";
 import { isLang, pick, LOCALES, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
+import { alternates } from "@/lib/seo";
 import { getLifehack, getLifehacks } from "@/lib/content";
 
 // Re-read from the database in the background at most every 30s (ISR),
@@ -30,6 +31,7 @@ export async function generateMetadata({
   return {
     title: pick(item.title, lang),
     description: pick(item.summary, lang),
+    alternates: alternates(`/lifehacks/${item.slug}`, lang),
     openGraph: {
       title: pick(item.title, lang),
       description: pick(item.summary, lang),

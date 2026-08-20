@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import LifehackCard from "@/components/LifehackCard";
 import { getDict } from "@/lib/i18n";
+import { alternates } from "@/lib/seo";
 import { isLang } from "@/lib/langs";
 import { getLifehacks } from "@/lib/content";
 
@@ -14,8 +15,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getDict(isLang(locale) ? locale : "ru");
-  return { title: t["lifehacks.title"], description: t["lifehacks.subtitle"] };
+  const lang = isLang(locale) ? locale : "ru";
+  const t = getDict(lang);
+  return {
+    title: t["lifehacks.title"],
+    description: t["lifehacks.subtitle"],
+    alternates: alternates("/lifehacks", lang),
+  };
 }
 
 export default async function LifehacksPage({

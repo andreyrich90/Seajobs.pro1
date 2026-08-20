@@ -7,6 +7,8 @@ import CookieBanner from "@/components/CookieBanner";
 import { DictProvider } from "@/components/DictProvider";
 import { getDict } from "@/lib/i18n";
 import { isLang, LOCALES, type Lang } from "@/lib/langs";
+import { SITE_URL, alternates, ogLocale } from "@/lib/seo";
+import { siteJsonLd, jsonLdScript } from "@/lib/jsonld";
 
 const ADSENSE_ID = process.env.NEXT_PUBLIC_ADSENSE_ID;
 
@@ -42,14 +44,20 @@ export async function generateMetadata({
       template: `%s · ${dict["brand"]}`,
     },
     description: dict["brand.tagline"],
-    metadataBase: new URL("https://recepto.io"),
-    alternates: {
-      languages: { ru: "/ru", en: "/en", uk: "/ua" },
-    },
+    metadataBase: new URL(SITE_URL),
+    alternates: alternates("", lang),
     openGraph: {
-      title: dict["brand"],
+      title: `${dict["brand"]} — ${dict["brand.tagline"]}`,
       description: dict["brand.tagline"],
       type: "website",
+      siteName: dict["brand"],
+      locale: ogLocale(lang),
+      url: `${SITE_URL}/${lang}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${dict["brand"]} — ${dict["brand.tagline"]}`,
+      description: dict["brand.tagline"],
     },
   };
 }
@@ -93,6 +101,10 @@ export default async function LocaleLayout({
       </head>
       <body className="min-h-screen bg-cream text-ink font-body antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(siteJsonLd(lang)) }}
+        />
         <DictProvider lang={lang} dict={dict}>
           <div id="app-root" className="flex min-h-screen flex-col">
             <Header />

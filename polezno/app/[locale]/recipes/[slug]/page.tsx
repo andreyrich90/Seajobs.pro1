@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Clock, Flame, Gauge, Users } from "lucide-react";
+import { ArrowLeft, ChevronRight, Clock, Flame, Gauge, Users } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
+import RecipeCard from "@/components/RecipeCard";
 import { getDict } from "@/lib/i18n";
 import { isLang, pick, LOCALES, type Lang } from "@/lib/langs";
 import { href } from "@/lib/nav";
+import { alternates, ogLocale } from "@/lib/seo";
+import { recipeJsonLd, breadcrumbJsonLd, jsonLdScript } from "@/lib/jsonld";
 import { getRecipe, getRecipes } from "@/lib/content";
 
 // Ad unit id created in AdSense for the in-article placement (optional).
@@ -33,12 +36,23 @@ export async function generateMetadata({
   const lang: Lang = isLang(locale) ? locale : "ru";
   const recipe = await getRecipe(slug);
   if (!recipe) return { title: "404" };
+  const title = pick(recipe.title, lang);
+  const description = pick(recipe.description, lang);
   return {
-    title: pick(recipe.title, lang),
-    description: pick(recipe.description, lang),
+    title,
+    description,
+    alternates: alternates(`/recipes/${recipe.slug}`, lang),
     openGraph: {
-      title: pick(recipe.title, lang),
-      description: pick(recipe.description, lang),
+      type: "article",
+      title,
+      description,
+      images: [recipe.image],
+      locale: ogLocale(lang),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
       images: [recipe.image],
     },
   };
@@ -52,7 +66,7 @@ export default async function RecipePage({
   const { locale, slug } = await params;
   const lang: Lang = isLang(locale) ? locale : "ru";
   const t = getDict(lang);
-  const recipe = await getRecipe(slug);
+  const [recipe, all] = await Promise.all([getRecipe(slug), getRecipes()]);
   if (!recipe) notFound();
 
   const meta = [
@@ -62,11 +76,41 @@ export default async function RecipePage({
     { icon: <Gauge size={18} />, label: t["recipe.difficulty"], value: t[`difficulty.${recipe.difficulty}`] },
   ];
 
+  // Internal linking: prefer same-category recipes, then fill with others.
+  const others = all.filter((r) => r.slug !== recipe.slug);
+  const related = [
+    ...others.filter((r) => r.category === recipe.category),
+    ...others.filter((r) => r.category !== recipe.category),
+  ].slice(0, 3);
+
+  const jsonLd = [
+    recipeJsonLd(recipe, lang),
+    breadcrumbJsonLd(lang, [
+      { name: t["nav.home"], path: "/" },
+      { name: t["recipes.title"], path: "/recipes" },
+      { name: pick(recipe.title, lang), path: `/recipes/${recipe.slug}` },
+    ]),
+  ];
+
   return (
     <article className="mx-auto max-w-4xl px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
+      />
+
+      {/* Breadcrumb */}
+      <nav aria-label="breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-muted">
+        <Link href={href(lang, "/")} className="hover:text-ink">{t["nav.home"]}</Link>
+        <ChevronRight size={14} />
+        <Link href={href(lang, "/recipes")} className="hover:text-ink">{t["recipes.title"]}</Link>
+        <ChevronRight size={14} />
+        <span className="truncate text-ink">{pick(recipe.title, lang)}</span>
+      </nav>
+
       <Link
         href={href(lang, "/recipes")}
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-ink"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-ink"
       >
         <ArrowLeft size={16} /> {t["recipe.back"]}
       </Link>
@@ -171,6 +215,18 @@ export default async function RecipePage({
             </span>
           ))}
         </div>
+      )}
+
+      {/* Related recipes — internal linking */}
+      {related.length > 0 && (
+        <section className="mt-14 border-t border-line pt-8">
+          <h2 className="font-display text-2xl font-bold text-basil">{t["recipe.related"]}</h2>
+          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((r) => (
+              <RecipeCard key={r.id} recipe={r} />
+            ))}
+          </div>
+        </section>
       )}
     </article>
   );

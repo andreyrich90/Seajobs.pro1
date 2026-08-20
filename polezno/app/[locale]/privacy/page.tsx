@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDict } from "@/lib/i18n";
 import { isLang, LOCALES, type Lang } from "@/lib/langs";
+import { alternates } from "@/lib/seo";
 import { privacySections, PRIVACY_UPDATED } from "@/lib/legal";
 
 export function generateStaticParams() {
@@ -15,7 +16,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const lang: Lang = isLang(locale) ? locale : "ru";
   const t = getDict(lang);
-  return { title: t["privacy.title"] };
+  return {
+    title: t["privacy.title"],
+    alternates: alternates("/privacy", lang),
+  };
 }
 
 export default async function PrivacyPage({

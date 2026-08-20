@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getDict } from "@/lib/i18n";
+import { alternates } from "@/lib/seo";
 import { isLang } from "@/lib/langs";
 
 export async function generateMetadata({
@@ -8,8 +9,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getDict(isLang(locale) ? locale : "ru");
-  return { title: t["about.title"], description: t["about.body"] };
+  const lang = isLang(locale) ? locale : "ru";
+  const t = getDict(lang);
+  return {
+    title: t["about.title"],
+    description: t["about.body"],
+    alternates: alternates("/about", lang),
+  };
 }
 
 export default async function AboutPage({

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mail } from "lucide-react";
 import { getDict } from "@/lib/i18n";
 import { isLang, LOCALES, type Lang } from "@/lib/langs";
+import { alternates } from "@/lib/seo";
 import { CONTACT_EMAIL } from "@/lib/legal";
 
 export function generateStaticParams() {
@@ -16,7 +17,11 @@ export async function generateMetadata({
   const { locale } = await params;
   const lang: Lang = isLang(locale) ? locale : "ru";
   const t = getDict(lang);
-  return { title: t["contacts.title"] };
+  return {
+    title: t["contacts.title"],
+    description: t["contacts.subtitle"],
+    alternates: alternates("/contacts", lang),
+  };
 }
 
 export default async function ContactsPage({

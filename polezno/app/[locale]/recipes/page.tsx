@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import RecipeExplorer from "@/components/RecipeExplorer";
+import CategoryChips from "@/components/CategoryChips";
 import { getDict } from "@/lib/i18n";
 import { isLang, type Lang } from "@/lib/langs";
+import { alternates } from "@/lib/seo";
 import { getRecipes } from "@/lib/content";
 
 // Re-read from the database in the background at most every 30s (ISR),
@@ -14,8 +16,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getDict(isLang(locale) ? locale : "ru");
-  return { title: t["recipes.title"], description: t["recipes.subtitle"] };
+  const lang: Lang = isLang(locale) ? locale : "ru";
+  const t = getDict(lang);
+  return {
+    title: t["recipes.title"],
+    description: t["recipes.subtitle"],
+    alternates: alternates("/recipes", lang),
+  };
 }
 
 export default async function RecipesPage({
@@ -33,10 +40,13 @@ export default async function RecipesPage({
 
   return (
     <div className="mx-auto max-w-content px-5 py-12 sm:px-8">
-      <header className="mb-8">
+      <header className="mb-6">
         <h1 className="font-display text-4xl font-semibold text-basil">{t["recipes.title"]}</h1>
         <p className="mt-2 text-muted">{t["recipes.subtitle"]}</p>
       </header>
+      <div className="mb-8">
+        <CategoryChips />
+      </div>
       <RecipeExplorer recipes={recipes} initialCategory={cat || "all"} />
     </div>
   );

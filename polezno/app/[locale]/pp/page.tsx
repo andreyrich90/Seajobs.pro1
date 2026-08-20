@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import RecipeExplorer from "@/components/RecipeExplorer";
 import { getDict } from "@/lib/i18n";
+import { alternates } from "@/lib/seo";
 import { isLang, type Lang } from "@/lib/langs";
 import { getPpRecipes } from "@/lib/content";
 
@@ -14,8 +15,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getDict(isLang(locale) ? locale : "ru");
-  return { title: t["home.pp.title"], description: t["home.pp.subtitle"] };
+  const lang = isLang(locale) ? locale : "ru";
+  const t = getDict(lang);
+  return {
+    title: t["home.pp.title"],
+    description: t["home.pp.subtitle"],
+    alternates: alternates("/pp", lang),
+  };
 }
 
 export default async function PpPage({

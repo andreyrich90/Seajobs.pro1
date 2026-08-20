@@ -73,6 +73,9 @@ const ru: Dict = {
   "recipes.empty": "Ничего не нашлось. Попробуйте другой запрос.",
   "recipes.count": "Найдено блюд:",
 
+  "home.pp.title": "Рецепты ПП",
+  "home.pp.subtitle": "Полезные блюда с честным КБЖУ: лёгкие завтраки, обеды с собой и ужины без готовки часами.",
+
   "recipe.time": "Время",
   "recipe.calories": "Калории",
   "recipe.servings": "Порции",
@@ -81,6 +84,8 @@ const ru: Dict = {
   "recipe.steps": "Приготовление",
   "recipe.tags": "Теги",
   "recipe.back": "Ко всем рецептам",
+  "recipe.related": "Похожие рецепты",
+  "nav.home": "Главная",
   "recipe.pp.badge": "ПП",
   "recipe.min": "мин",
   "recipe.kcal": "ккал",
@@ -210,6 +215,9 @@ const en: Dict = {
   "recipes.empty": "Nothing found. Try another query.",
   "recipes.count": "Dishes found:",
 
+  "home.pp.title": "Healthy recipes",
+  "home.pp.subtitle": "Nourishing dishes with honest macros: light breakfasts, lunches to go and dinners that don't take hours.",
+
   "recipe.time": "Time",
   "recipe.calories": "Calories",
   "recipe.servings": "Servings",
@@ -218,6 +226,8 @@ const en: Dict = {
   "recipe.steps": "Method",
   "recipe.tags": "Tags",
   "recipe.back": "All recipes",
+  "recipe.related": "Related recipes",
+  "nav.home": "Home",
   "recipe.pp.badge": "Healthy",
   "recipe.min": "min",
   "recipe.kcal": "kcal",
@@ -347,6 +357,9 @@ const ua: Dict = {
   "recipes.empty": "Нічого не знайдено. Спробуйте інший запит.",
   "recipes.count": "Знайдено страв:",
 
+  "home.pp.title": "Рецепти ПХ",
+  "home.pp.subtitle": "Корисні страви з чесним КБЖВ: легкі сніданки, обіди із собою та вечері без готування годинами.",
+
   "recipe.time": "Час",
   "recipe.calories": "Калорії",
   "recipe.servings": "Порції",
@@ -355,6 +368,8 @@ const ua: Dict = {
   "recipe.steps": "Приготування",
   "recipe.tags": "Теги",
   "recipe.back": "До всіх рецептів",
+  "recipe.related": "Схожі рецепти",
+  "nav.home": "Головна",
   "recipe.pp.badge": "ПХ",
   "recipe.min": "хв",
   "recipe.kcal": "ккал",

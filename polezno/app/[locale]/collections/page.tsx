@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CollectionCard from "@/components/CollectionCard";
 import { getDict } from "@/lib/i18n";
+import { alternates } from "@/lib/seo";
 import { isLang } from "@/lib/langs";
 import { COLLECTIONS } from "@/lib/collections";
 import { getCollectionCovers, getRecipes } from "@/lib/content";
@@ -13,8 +14,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = getDict(isLang(locale) ? locale : "ru");
-  return { title: t["collections.title"], description: t["collections.subtitle"] };
+  const lang = isLang(locale) ? locale : "ru";
+  const t = getDict(lang);
+  return {
+    title: t["collections.title"],
+    description: t["collections.subtitle"],
+    alternates: alternates("/collections", lang),
+  };
 }
 
 export default async function CollectionsPage({
