@@ -111,14 +111,13 @@ export default function Header() {
     <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4">
       <div className="mx-auto max-w-7xl rounded-2xl border border-white/15 bg-deep/70 shadow-2xl backdrop-blur-xl">
 
-        {/* Tier 1 — utility strip.
-            Everything in it except the CV link is desktop-only: the tagline, the
-            language picker and the theme toggle all have their own place in the
-            mobile drawer and the row below. The strip itself now shows on every
-            width so the CV link has somewhere to live on a phone — inside the
-            burger it was two taps from the page and effectively invisible. */}
-        <div className="flex items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist">
-          <span className="hidden items-center gap-2 xl:inline-flex">
+        {/* Tier 1 — utility strip (desktop only, no counters).
+            The CV link was briefly shown here on phones too, so it would not sit
+            two taps deep in the drawer. Taken back out by request: a phone has
+            the drawer entry, and a second permanent bar above the logo cost 29px
+            of every screen for a link most readers are not looking for. */}
+        <div className="hidden items-center gap-4 border-b border-white/10 px-5 py-1.5 text-xs text-mist xl:flex">
+          <span className="inline-flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-teal shadow-[0_0_0_3px_rgba(45,212,191,0.22)]" />
             {hdr.tagline}
           </span>
@@ -130,17 +129,16 @@ export default function Header() {
               on the right — measured, it overlapped them by 14–95px. This strip
               is empty from the tagline to the language picker, so the link costs
               nothing and still shows on every page. Brass, because it is an
-              offer, not chrome. Centred on a phone, where it is the only thing
-              in the strip. */}
-          <span className="hidden h-3 w-px bg-white/15 xl:block" />
+              offer, not chrome. */}
+          <span className="h-3 w-px bg-white/15" />
           <Link
             href="/cv-distribution"
-            className="mx-auto inline-flex items-center gap-1.5 whitespace-nowrap font-semibold text-brassInk transition hover:text-brass2 xl:mx-0"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap font-semibold text-brassInk transition hover:text-brass2"
           >
             <Mail size={13} /> {t.nav_cv_blast}
           </Link>
 
-          <div className="ml-auto hidden items-center gap-4 xl:flex">
+          <div className="ml-auto flex items-center gap-4">
             {/* Language */}
             <div className="relative">
               <button
