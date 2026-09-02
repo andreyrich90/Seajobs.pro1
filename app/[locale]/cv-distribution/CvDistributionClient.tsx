@@ -31,7 +31,6 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
   const [rank, setRank] = useState("");
   const [fleet, setFleet] = useState("");
   const [note, setNote] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
 
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -47,7 +46,6 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!alive || !session) return;
-        setUserId(session.user.id);
         setEmail((prev) => prev || session.user.email || "");
         const { data } = await supabase
           .from("seafarers")
@@ -89,22 +87,30 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
     setSending(true);
     setError(null);
 
-    const { error: insertError } = await supabase.from("service_requests").insert({
-      user_id: userId,
-      package_code: chosen?.code ?? "unspecified",
-      package_label: chosen ? packageName(chosen, copy) : "—",
-      price_eur: chosen?.eur ?? null,
-      price_usd: chosen?.usd ?? null,
-      name: name.trim() || null,
-      email: trimmed,
-      phone: phone.trim() || null,
-      rank: rank || null,
-      fleet: fleet || null,
-      note: note.trim() || null,
-      lang,
-    });
-
-    if (insertError) {
+    // Posted to the API rather than inserted straight into Supabase: the server
+    // takes the package name and price from the catalogue (so the demand
+    // numbers cannot be forged) and pings the admin on Telegram.
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/service-request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          package_code: chosen?.code ?? null,
+          name: name.trim(),
+          email: trimmed,
+          phone: phone.trim(),
+          rank,
+          fleet,
+          note: note.trim(),
+          lang,
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+    } catch {
       setError(copy.errFail);
       setSending(false);
       return;
