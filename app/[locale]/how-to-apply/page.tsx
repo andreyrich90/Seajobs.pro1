@@ -115,6 +115,7 @@ const C: Record<Lang, Copy> = {
       { t: "Press Apply", d: "The button sits directly under the job description. If anything is still missing from your profile, the form tells you exactly what — and lets you upload a CV right there." },
       { t: "Add a cover letter (optional)", d: "A few lines about why you fit this vessel. It is not required, but it is what separates you from an identical CV." },
       { t: "Send", d: "Your full CV goes to the crewing agency — by e-mail, or into their SeaJobs.pro dashboard if they have an account." },
+      { t: "Or write from your own mailbox", d: "Instead of sending through the portal, you can open the letter in your own mail app — the agency address, the subject and a link to your CV are already written. It arrives as a personal letter from you, replies come straight to your inbox, and the link works for 30 days; you can revoke it at any time from your applications page." },
     ],
 
     afterTitle: "After you apply",
@@ -185,6 +186,7 @@ const C: Record<Lang, Copy> = {
       { t: "Нажмите «Подать анкету»", d: "Кнопка стоит прямо под описанием вакансии. Если в профиле чего-то не хватает, форма скажет, чего именно, и позволит загрузить CV прямо там." },
       { t: "Добавьте сопроводительное письмо (по желанию)", d: "Несколько строк о том, почему вы подходите этому судну. Не обязательно, но именно это отличает вас от такого же CV." },
       { t: "Отправьте", d: "Ваше полное CV уходит в крюинговое агентство — на email или в его кабинет на SeaJobs.pro, если аккаунт есть." },
+      { t: "Или напишите со своей почты", d: "Вместо отправки через портал можно открыть письмо в своей почтовой программе — адрес агентства, тема и ссылка на ваше CV уже подставлены. Письмо приходит как личное от вас, ответы идут прямо вам, а ссылка живёт 30 дней и в любой момент отзывается на странице откликов." },
     ],
 
     afterTitle: "Что происходит после отклика",
@@ -255,6 +257,7 @@ const C: Record<Lang, Copy> = {
       { t: "Натисніть «Подати анкету»", d: "Кнопка стоїть просто під описом вакансії. Якщо в профілі чогось бракує, форма скаже, чого саме, і дозволить завантажити CV прямо там." },
       { t: "Додайте супровідний лист (за бажанням)", d: "Кілька рядків про те, чому ви підходите цьому судну. Не обов'язково, але саме це відрізняє вас від такого самого CV." },
       { t: "Надішліть", d: "Ваше повне CV іде до крюїнгового агентства — на email або в його кабінет на SeaJobs.pro, якщо акаунт є." },
+      { t: "Або напишіть зі своєї пошти", d: "Замість надсилання через портал можна відкрити лист у власній поштовій програмі — адреса агентства, тема й посилання на ваше CV вже підставлені. Лист приходить як особистий від вас, відповіді йдуть прямо вам, а посилання живе 30 днів і будь-коли відкликається на сторінці відгуків." },
     ],
 
     afterTitle: "Що відбувається після відгуку",
@@ -325,6 +328,7 @@ const C: Record<Lang, Copy> = {
       { t: "Kliknij „Aplikuj”", d: "Przycisk znajduje się bezpośrednio pod opisem oferty. Jeśli w profilu czegoś brakuje, formularz powie dokładnie czego — i pozwoli wgrać CV od razu." },
       { t: "Dodaj list motywacyjny (opcjonalnie)", d: "Kilka zdań o tym, dlaczego pasujesz do tego statku. Nieobowiązkowe, ale to właśnie odróżnia Cię od identycznego CV." },
       { t: "Wyślij", d: "Twoje pełne CV trafia do agencji crewingowej — e-mailem albo do jej panelu na SeaJobs.pro, jeśli ma konto." },
+      { t: "Albo napisz z własnej skrzynki", d: "Zamiast wysyłki przez portal możesz otworzyć list we własnym programie pocztowym — adres agencji, temat i link do Twojego CV są już wpisane. List przychodzi jako osobisty od Ciebie, odpowiedzi trafiają wprost do Ciebie, a link działa 30 dni i w każdej chwili możesz go unieważnić na stronie aplikacji." },
     ],
 
     afterTitle: "Co dzieje się po wysłaniu",
@@ -395,6 +399,7 @@ const C: Record<Lang, Copy> = {
       { t: "Apasă „Aplică”", d: "Butonul se află direct sub descrierea postului. Dacă lipsește ceva din profil, formularul îți spune exact ce — și îți permite să încarci un CV chiar acolo." },
       { t: "Adaugă o scrisoare de intenție (opțional)", d: "Câteva rânduri despre de ce te potrivești acestei nave. Nu e obligatorie, dar exact asta te desparte de un CV identic." },
       { t: "Trimite", d: "CV-ul tău complet ajunge la agenția de crewing — prin e-mail sau în panoul ei de pe SeaJobs.pro, dacă are cont." },
+      { t: "Sau scrie de pe e-mailul tău", d: "În loc să trimiți prin portal, poți deschide scrisoarea în propriul program de e-mail — adresa agenției, subiectul și linkul către CV-ul tău sunt deja completate. Ajunge ca o scrisoare personală de la tine, răspunsurile vin direct la tine, iar linkul este valabil 30 de zile și poate fi revocat oricând din pagina aplicărilor." },
     ],
 
     afterTitle: "Ce se întâmplă după ce aplici",
