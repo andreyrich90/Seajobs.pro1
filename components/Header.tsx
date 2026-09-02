@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, ChevronRight, LogIn, Briefcase, MessageSquare,
   Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
-  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp,
+  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp, Mail,
 } from "lucide-react";
 import { LANGS } from "@/lib/langs";
 import { GUIDES_UI } from "@/lib/guidesUi";
@@ -117,6 +117,23 @@ export default function Header() {
             <span className="h-1.5 w-1.5 rounded-full bg-teal shadow-[0_0_0_3px_rgba(45,212,191,0.22)]" />
             {hdr.tagline}
           </span>
+
+          {/* The paid CV distribution. It lives up here rather than in the menu
+              below because that row has no width left: adding an icon+label item
+              costs 115–136px depending on the language, and at 1280 with a
+              signed-in admin the menu already runs within ~40px of the buttons
+              on the right — measured, it overlapped them by 14–95px. This strip
+              is empty from the tagline to the language picker, so the link costs
+              nothing and still shows on every page. Brass, because it is an
+              offer, not chrome. */}
+          <span className="h-3 w-px bg-white/15" />
+          <Link
+            href="/cv-distribution"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap font-semibold text-brassInk transition hover:text-brass2"
+          >
+            <Mail size={13} /> {t.nav_cv_blast}
+          </Link>
+
           <div className="ml-auto flex items-center gap-4">
             {/* Language */}
             <div className="relative">
@@ -318,7 +335,12 @@ export default function Header() {
                 </Link>
               ))}
               {/* The utility strip is desktop-only, so this is where a phone
-                  reaches the employers page. "About" is in the footer. */}
+                  reaches the CV distribution and the employers page. "About" is
+                  in the footer. */}
+              <Link href="/cv-distribution"
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brassInk transition hover:bg-white/5">
+                <Mail size={18} /> {t.nav_cv_blast}
+              </Link>
               <Link href="/for-companies"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                 <Briefcase size={18} /> {t.footer_for_companies}

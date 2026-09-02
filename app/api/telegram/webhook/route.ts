@@ -9,6 +9,8 @@ export const runtime = "nodejs";
 //
 //   /start <code>  link this Telegram account to the profile that minted <code>
 //   /stop          unlink
+//   /id            reply with this chat's id, so the operator can read the value
+//                  for TELEGRAM_ADMIN_CHAT_ID without handing it to a third-party bot
 //   anything else  a one-paragraph explanation of what the bot is for
 //
 // Telegram retries an update until it gets a 2xx, so this route answers 200 for
@@ -69,6 +71,11 @@ export async function POST(req: Request) {
       await handleStart(db, chatId, code, c);
     } else if (text.startsWith("/stop")) {
       await handleStop(db, chatId, c);
+    } else if (text.startsWith("/id")) {
+      // Undocumented on purpose — it exists so the operator can read the chat id
+      // for TELEGRAM_ADMIN_CHAT_ID without trusting a third-party bot with it.
+      // A chat id is not a secret: knowing your own tells you nothing useful.
+      await tgSend(chatId, `<code>${chatId}</code>`);
     } else {
       await tgSend(chatId, esc(c.help));
     }

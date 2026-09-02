@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Ship, Check, ChevronDown, X } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { VESSEL_CATEGORIES, itemName } from "@/lib/vesselFilter";
+import { useClampToViewport } from "@/lib/useClampToViewport";
 
 const UI: Record<string, Record<string, string>> = {
   all: { en: "Vessel: all", ru: "Судно: все", ua: "Судно: усі", pl: "Statek: wszystkie", ro: "Navă: toate" },
@@ -26,6 +27,10 @@ export default function VesselFilter({
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(VESSEL_CATEGORIES[0].key);
   const [draft, setDraft] = useState<string[]>(value);
+  const panel = useRef<HTMLDivElement>(null);
+  // Right-anchored under a trigger that is not always at the right edge —
+  // the same trap the rank picker fell into. See the hook.
+  const shift = useClampToViewport(panel, open);
 
   // Keep the draft in sync when the applied value changes from outside.
   useEffect(() => { setDraft(value); }, [value]);
@@ -57,7 +62,11 @@ export default function VesselFilter({
         <>
           {/* click-outside backdrop */}
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl sm:left-auto sm:right-0">
+          <div
+            ref={panel}
+            style={shift ? { transform: `translateX(${shift}px)` } : undefined}
+            className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl sm:left-auto sm:right-0"
+          >
             {/* Category tabs */}
             <div className="mb-3 flex flex-wrap gap-1.5">
               {VESSEL_CATEGORIES.map((c) => (
