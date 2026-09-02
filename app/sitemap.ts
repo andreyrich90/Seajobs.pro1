@@ -110,6 +110,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/contact", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/for-companies", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
+    ...localizedEntries("/cv-distribution", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
     ...localizedEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
   ];

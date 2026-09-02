@@ -32,7 +32,7 @@ There are two data sources, and which one a feature uses depends on when it was 
   - Schema lives in `supabase/*.sql` (one-off setup scripts, run manually in the Supabase SQL editor) and `supabase/migrations/*.sql` (dated, idempotent migrations). There is no migration runner — apply new SQL files manually against the Supabase project.
 - **`lib/data.ts`** is legacy static/seed data still used for the **news** feature (`NEWS: NewsItem[]`, multilingual `Record<Lang, string>` titles/bodies) and the `Job` type. News today is a hybrid: some articles are these hardcoded entries, others live in the `news_articles` Supabase table (see `app/[locale]/news/`). Don't add new vacancies here — vacancies are 100% Supabase (`vacancies` table); `lib/data.ts`'s `JOBS` array is unused dead data kept only for the `Job` type import in `components/JobCard.tsx`.
 
-Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories` (a.k.a. forum "sections"), `forum_topics`, `forum_posts`, `news_articles`, `news_comments`, `referrals` (referral tracking; `seafarers`/`companies` carry a unique `referral_code`), `outreach_log` (which crewing agencies have already been emailed), `seafarer_telegram` + `telegram_link_codes` (the Telegram binding and the single-use codes behind the bot's deep link — deliberately separate from `seafarers`, which every signed-in user can read).
+Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row per auth user), `seafarers`, `companies`, `vacancies`, `applications`, `saved_vacancies`, `certificates`, `sea_experience`, `job_alerts`, `notifications`, `messages` (contact form), `conversations`/`chat_messages` (company↔seafarer DMs), `forum_categories` (a.k.a. forum "sections"), `forum_topics`, `forum_posts`, `news_articles`, `news_comments`, `referrals` (referral tracking; `seafarers`/`companies` carry a unique `referral_code`), `outreach_log` (which crewing agencies have already been emailed), `seafarer_telegram` + `telegram_link_codes` (the Telegram binding and the single-use codes behind the bot's deep link — deliberately separate from `seafarers`, which every signed-in user can read), `service_requests` (interest in the paid CV distribution — see **Paid services** below).
 
 Migrations under `supabase/migrations/` are dated + idempotent; `20260608000000_baseline_schema.sql` is the consolidated baseline and later files layer on chat, referrals, forum sections/replies, anonymous forum posting, seafarer documents/diplomas, the "profile required before applying" rule, and the Telegram bot's columns.
 
@@ -77,7 +77,8 @@ Almost everything lives under `app/[locale]/`; only the auth screens are unlocal
 | `/news`, `/news/[id]` | `app/[locale]/news/` | hybrid static (`lib/data.ts`) + `news_articles` table |
 | `/seafarer/*` | `app/[locale]/seafarer/` | dashboard, profile, cv, certificates, experience, applications, saved, messages |
 | `/company/*` | `app/[locale]/company/` | dashboard, profile, vacancies, applications, seafarers search, messages |
-| `/admin/*` | `app/[locale]/admin/` | dashboard, users, vacancies, import, messages, chats, forum, news |
+| `/cv-distribution` | `app/[locale]/cv-distribution/` | the paid CV-distribution service — packages, prices, request form (see **Paid services**) |
+| `/admin/*` | `app/[locale]/admin/` | dashboard, users, vacancies, import, messages, chats, forum, news, service-requests |
 | `/auth/*` | `app/auth/` | login, register, forgot-password, callback — **not** under `[locale]` |
 | `/for-companies`, `/about`, `/privacy`, `/terms` | `app/[locale]/...` | static marketing/legal pages |
 
@@ -120,6 +121,19 @@ Two routes, both from the vacancy page's apply modal.
 The CV cannot be the public profile: `seafarers` exposes only a thin whitelist to anonymous visitors, and a CV carries a passport number, visas and a date of birth. Hence a token per application — one link per agency, dead after 30 days, revocable from the applications page (`components/CvLinksPanel.tsx`), and traceable to the agency it was given to if it leaks. `/cv/[token]` sits outside `[locale]` (the reader arrived from an email, and the CV is English) and is `noindex`. Expired, revoked and never-existed all return the same page — telling a stranger which tokens once existed helps nobody.
 
 `lib/cvHtml.ts` renders the CV for both the email and that page, so they cannot drift apart. What the mailto route cannot know is whether the letter was actually sent; `cv_share_tokens.opened_at` is the only feedback it can give back.
+
+### Paid services
+
+`/cv-distribution` sells nothing yet, and that is the design. The page shows the real catalogue and the real prices (`BLAST_PACKAGES` in **`lib/cvBlast.ts`**), but every "order" button opens a form that writes a `service_requests` row — no checkout, no payment provider, no VAT to handle. The question worth answering first is how many readers want the service at that price, and a request form answers it for nothing. `/admin/service-requests` puts the counts per package and per page language above the list, because that aggregate *is* the deliverable.
+
+Two constraints the copy must keep:
+
+- **The site tells seafarers site-wide never to pay for a job** (`components/NoPaymentWarning.tsx`, shown in the footer, the apply flow and the seafarer cabinet). A paid page has to say in the same breath which side of that line it is on, so `notBody` states plainly that nothing is charged for a contract, a berth, a medical, certificates or visas, and that what is paid for is document work. Do not quietly drop that block to make the page read better.
+- **"Do you guarantee a contract?" — "No."** stays in the FAQ. It removes most of the complaints before they arrive.
+
+Charging seafarers is also the sharp edge of **MLC 2006 Standard A1.4(5)(b)**, which forbids recruitment and placement services from taking fees from seafarers. Preparing and sending a document is defensible; "we will get you hired" is not. Keep the wording on the side of preparation and visibility.
+
+The page's copy lives in `lib/cvBlast.ts`, not `lib/i18n.ts` — about 90 strings for one route would otherwise ride along in every reader's dictionary on every page. `page.tsx` is a Server Component: it picks `CV_BLAST_COPY[locale]` and passes it down, so one language reaches the browser. The teaser block on `/seafarer/applications` carries its own three-string map for the same reason.
 
 ### Telegram
 

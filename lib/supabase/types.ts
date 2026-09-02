@@ -678,6 +678,66 @@ export interface Database {
         };
         Relationships: [];
       };
+      service_requests: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          package_code: string;
+          package_label: string;
+          price_eur: number | null;
+          price_usd: number | null;
+          name: string | null;
+          email: string;
+          phone: string | null;
+          rank: string | null;
+          fleet: string | null;
+          note: string | null;
+          lang: string | null;
+          status: string;
+          admin_note: string | null;
+          created_at: string;
+          handled_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          package_code: string;
+          package_label: string;
+          price_eur?: number | null;
+          price_usd?: number | null;
+          name?: string | null;
+          email: string;
+          phone?: string | null;
+          rank?: string | null;
+          fleet?: string | null;
+          note?: string | null;
+          lang?: string | null;
+          status?: string;
+          admin_note?: string | null;
+          created_at?: string;
+          handled_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          package_code?: string;
+          package_label?: string;
+          price_eur?: number | null;
+          price_usd?: number | null;
+          name?: string | null;
+          email?: string;
+          phone?: string | null;
+          rank?: string | null;
+          fleet?: string | null;
+          note?: string | null;
+          lang?: string | null;
+          status?: string;
+          admin_note?: string | null;
+          created_at?: string;
+          handled_at?: string | null;
+        };
+        Relationships: [];
+      };
       notifications: {
         Row: {
           id: string;
@@ -876,3 +936,4 @@ export type Application = Database["public"]["Tables"]["applications"]["Row"];
 export type SavedVacancy = Database["public"]["Tables"]["saved_vacancies"]["Row"];
 export type NewsComment = Database["public"]["Tables"]["news_comments"]["Row"];
 export type Referral = Database["public"]["Tables"]["referrals"]["Row"];
+export type ServiceRequest = Database["public"]["Tables"]["service_requests"]["Row"];
