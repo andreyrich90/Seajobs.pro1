@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BadgeCheck, Check, ChevronDown, X } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { useClampToViewport } from "@/lib/useClampToViewport";
 
 // Multi-select rank/position picker used on /jobs and the homepage. Mirrors the
 // vessel filter: department tabs → checkbox grid → Apply. Tabs are the
@@ -52,6 +53,10 @@ export default function RankFilter({
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState(RANK_GROUPS[0].label);
   const [draft, setDraft] = useState<string[]>(value);
+  const panel = useRef<HTMLDivElement>(null);
+  // This picker is the left column of the filter row, so the `sm:right-0`
+  // anchoring below sends it off the left edge on narrow desktops. See the hook.
+  const shift = useClampToViewport(panel, open);
 
   useEffect(() => { setDraft(value); }, [value]);
 
@@ -82,7 +87,11 @@ export default function RankFilter({
         <>
           {/* click-outside backdrop */}
           <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl sm:left-auto sm:right-0">
+          <div
+            ref={panel}
+            style={shift ? { transform: `translateX(${shift}px)` } : undefined}
+            className="absolute left-0 z-40 mt-2 w-[min(92vw,640px)] max-w-[calc(100vw-1.5rem)] rounded-2xl border border-white/10 bg-card p-3 shadow-2xl sm:left-auto sm:right-0"
+          >
             {/* Department tabs */}
             <div className="mb-3 flex flex-wrap gap-1.5">
               {RANK_GROUPS.map((g) => (
