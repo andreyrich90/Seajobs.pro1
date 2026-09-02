@@ -49,12 +49,21 @@ export default function Footer() {
     ro: "Cum aplici",
   } as Record<string, string>)[lang] ?? "How to apply";
 
+  const cvBlastLabel = ({
+    en: "CV distribution",
+    ru: "Рассылка резюме",
+    ua: "Розсилка резюме",
+    pl: "Wysyłka CV",
+    ro: "Distribuire CV",
+  } as Record<string, string>)[lang] ?? "CV distribution";
+
   const PLATFORM = [
     { label: t.footer_vacancies, href: "/jobs" },
     { label: t.footer_forum, href: "/forum" },
     { label: t.footer_news, href: "/news" },
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
     { label: howToApplyLabel, href: "/how-to-apply" },
+    { label: cvBlastLabel, href: "/cv-distribution" },
   ];
 
   const contactLabel = ({ en: "Contact", ru: "Контакты", ua: "Контакти", pl: "Kontakt", ro: "Contact" } as Record<string, string>)[lang] ?? "Contact";

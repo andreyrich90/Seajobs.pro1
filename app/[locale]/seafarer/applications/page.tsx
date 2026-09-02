@@ -7,7 +7,7 @@ import CvLinksPanel from "@/components/CvLinksPanel";
 import { useT } from "@/components/DictProvider";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Building2, Send, Trash2, ShieldCheck } from "lucide-react";
+import { Building2, Mail, Send, Trash2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
@@ -66,9 +66,21 @@ function formatSalary(v: ApplicationRow["vacancies"]): string {
   return `up to ${money(v.salary_to!)} ${v.currency}${per}`;
 }
 
+// Teaser copy for the CV-distribution block below the list. Three short strings
+// per language, kept here so the page does not import lib/cvBlast.ts (five
+// languages) into the browser.
+const BLAST_TEASER: Record<string, { title: string; sub: string; cta: string }> = {
+  en: { title: "Send your CV to crewing companies", sub: "Straight to HR desks, by fleet type. Packages and prices.", cta: "See packages" },
+  ru: { title: "Разослать резюме по крюингам", sub: "Напрямую в отделы кадров, по базе вашего флота. Пакеты и цены.", cta: "Смотреть пакеты" },
+  ua: { title: "Розіслати резюме по крюїнгах", sub: "Напряму у відділи кадрів, по базі вашого флоту. Пакети й ціни.", cta: "Дивитись пакети" },
+  pl: { title: "Wyślij CV do firm crewingowych", sub: "Prosto do działów kadr, według typu floty. Pakiety i ceny.", cta: "Zobacz pakiety" },
+  ro: { title: "Trimite CV-ul către companiile de crewing", sub: "Direct la departamentele de personal, după tipul flotei. Pachete și prețuri.", cta: "Vezi pachetele" },
+};
+
 export default function ApplicationsPage() {
   const { lang } = useLang();
   const t = useT();
+  const blast = BLAST_TEASER[lang] ?? BLAST_TEASER.en;
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
@@ -216,6 +228,27 @@ export default function ApplicationsPage() {
           here rather than on the dashboard because they belong to applications:
           one link per agency written to. */}
       {userId && <CvLinksPanel seafarerId={userId} />}
+
+      {/* The CV-distribution service. It belongs here rather than on the
+          dashboard for the same reason the CV links do: it is the next thing a
+          seafarer reaches for after seeing how few replies the applications
+          brought. Copy is inline — pulling in the five-language map from
+          lib/cvBlast.ts would ship every language to this page. */}
+      <Link
+        href="/cv-distribution"
+        className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-brass/30 bg-card px-5 py-4 transition hover:border-brass/60"
+      >
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brass/15">
+          <Mail size={19} className="text-brassInk" />
+        </span>
+        <span className="min-w-[190px] flex-1">
+          <b className="block text-[15px] font-bold text-white">{blast.title}</b>
+          <span className="text-[13.5px] text-mist">{blast.sub}</span>
+        </span>
+        <span className="shrink-0 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2 text-[13px] font-bold text-brassInk">
+          {blast.cta}
+        </span>
+      </Link>
     </div>
   );
 }
