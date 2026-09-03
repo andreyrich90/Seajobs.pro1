@@ -59,23 +59,61 @@ function isRussianCrewing(
 export type CollectReport = {
   ok: boolean;
   sources: number;
+  /** Posts the scrape returned, before any filtering. */
+  fetched: number;
+  /** Of those, newer than the source's high-water mark. */
+  fresh: number;
+  /** Of those, passing the keyword hint and handed to the parser. */
+  scanned: number;
   drafts: number;
   published: number;
+  /** Sources that threw. Their messages stay in import_sources.last_error. */
+  errors: number;
   report: Array<Record<string, unknown>>;
 };
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export async function collectTelegram(admin: SupabaseClient<any, any, any>): Promise<CollectReport> {
+type Db = SupabaseClient<any, any, any>;
+
+/**
+ * Record what a run did, so "has the collector stopped?" is answerable on the
+ * site instead of in the Vercel log. Never throws: a missing audit row must not
+ * lose a collection.
+ */
+async function recordRun(admin: Db, row: Record<string, unknown>): Promise<void> {
+  try {
+    await admin.from("collector_runs").insert(row);
+  } catch (e) {
+    console.error("[collectTelegram] could not record the run:", e instanceof Error ? e.message : e);
+  }
+}
+
+export async function collectTelegram(
+  admin: Db,
+  opts: { trigger?: "cron" | "manual" } = {},
+): Promise<CollectReport> {
+  const startedAt = new Date().toISOString();
+  const trigger = opts.trigger ?? "cron";
+
   const { data: sources, error: srcErr } = await admin
     .from("import_sources")
     .select("*")
     .eq("is_active", true)
     .eq("kind", "telegram");
-  if (srcErr) throw new Error(srcErr.message);
+  if (srcErr) {
+    await recordRun(admin, {
+      started_at: startedAt, finished_at: new Date().toISOString(),
+      trigger_kind: trigger, ok: false, errors: 1, error_detail: srcErr.message.slice(0, 500),
+    });
+    throw new Error(srcErr.message);
+  }
 
   const report: Array<Record<string, unknown>> = [];
   let totalDrafts = 0;
   let totalPublished = 0;
+  let totalFetched = 0;
+  let totalFresh = 0;
+  let totalScanned = 0;
 
   for (const source of sources ?? []) {
     const entry: Record<string, unknown> = { handle: source.handle };
@@ -176,6 +214,11 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
 
       totalDrafts += drafted;
       totalPublished += published;
+      totalFetched += posts.length;
+      totalFresh += fresh.length;
+      totalScanned += scanned;
+      entry.fetched = posts.length;
+      entry.fresh = fresh.length;
       entry.scanned = scanned;
       entry.drafted = drafted;
       entry.published = published;
@@ -194,5 +237,36 @@ export async function collectTelegram(admin: SupabaseClient<any, any, any>): Pro
     report.push(entry);
   }
 
-  return { ok: true, sources: report.length, drafts: totalDrafts, published: totalPublished, report };
+  const errors = report.filter((r) => r.error).length;
+  const result: CollectReport = {
+    ok: true,
+    sources: report.length,
+    fetched: totalFetched,
+    fresh: totalFresh,
+    scanned: totalScanned,
+    drafts: totalDrafts,
+    published: totalPublished,
+    errors,
+    report,
+  };
+
+  await recordRun(admin, {
+    started_at: startedAt,
+    finished_at: new Date().toISOString(),
+    trigger_kind: trigger,
+    ok: true,
+    sources: result.sources,
+    fetched: totalFetched,
+    fresh: totalFresh,
+    scanned: totalScanned,
+    drafts: totalDrafts,
+    published: totalPublished,
+    errors,
+    // First error message, if any — enough to see on the page without opening
+    // the per-source breakdown.
+    error_detail: (report.find((r) => r.error)?.error as string | undefined)?.slice(0, 500) ?? null,
+    report,
+  });
+
+  return result;
 }

@@ -678,6 +678,57 @@ export interface Database {
         };
         Relationships: [];
       };
+      collector_runs: {
+        Row: {
+          id: string;
+          started_at: string;
+          finished_at: string | null;
+          trigger_kind: string;
+          ok: boolean;
+          sources: number;
+          fetched: number;
+          fresh: number;
+          scanned: number;
+          drafts: number;
+          published: number;
+          errors: number;
+          error_detail: string | null;
+          report: unknown;
+        };
+        Insert: {
+          id?: string;
+          started_at?: string;
+          finished_at?: string | null;
+          trigger_kind?: string;
+          ok?: boolean;
+          sources?: number;
+          fetched?: number;
+          fresh?: number;
+          scanned?: number;
+          drafts?: number;
+          published?: number;
+          errors?: number;
+          error_detail?: string | null;
+          report?: unknown;
+        };
+        Update: {
+          id?: string;
+          started_at?: string;
+          finished_at?: string | null;
+          trigger_kind?: string;
+          ok?: boolean;
+          sources?: number;
+          fetched?: number;
+          fresh?: number;
+          scanned?: number;
+          drafts?: number;
+          published?: number;
+          errors?: number;
+          error_detail?: string | null;
+          report?: unknown;
+        };
+        Relationships: [];
+      };
       service_requests: {
         Row: {
           id: string;
