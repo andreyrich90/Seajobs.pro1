@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
   try {
-    const result = await collectTelegram(admin);
+    const result = await collectTelegram(admin, { trigger: "cron" });
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(

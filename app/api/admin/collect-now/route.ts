@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   if (!profile?.is_admin) return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
 
   try {
-    const result = await collectTelegram(admin);
+    const result = await collectTelegram(admin, { trigger: "manual" });
     return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json(

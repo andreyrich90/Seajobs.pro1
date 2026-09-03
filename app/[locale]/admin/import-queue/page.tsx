@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useCallback, useEffect, useState } from "react";
 import {
   Inbox, RefreshCw, Play, Plus, Trash2, CheckCircle, XCircle, AlertCircle,
-  ExternalLink, Radio, Building2, Briefcase, Mail, ChevronDown, ChevronUp, BarChart3,
+  ExternalLink, Radio, Building2, Briefcase, Mail, ChevronDown, ChevronUp, BarChart3, History,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -76,6 +76,9 @@ export default function ImportQueuePage() {
   const [newHandle, setNewHandle] = useState("");
   const [newLabel, setNewLabel] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  // Bumped after "Collect now" so the run panel shows the run just made
+  // instead of the one before it.
+  const [runsKey, setRunsKey] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -142,8 +145,10 @@ export default function ImportQueuePage() {
       const json = await res.json();
       if (!json.ok) { setError(json.error ?? "Collection failed"); return; }
       setNotice(
-        `From ${json.sources} source(s): ${json.published ?? 0} published, ${json.drafts} queued for review.`
+        `From ${json.sources} source(s): ${json.fetched ?? "?"} posts fetched, ${json.fresh ?? "?"} new, ` +
+        `${json.published ?? 0} published, ${json.drafts} queued for review.`
       );
+      setRunsKey((k) => k + 1);
       load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Collection failed");
@@ -188,6 +193,8 @@ export default function ImportQueuePage() {
           <AlertCircle size={16} /> {error}
         </div>
       )}
+
+      <LastRuns refreshKey={runsKey} />
 
       <SourceStats />
 
@@ -310,6 +317,176 @@ function statDate(iso: string | null): string {
   const stamp = d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" });
   if (days <= 0) return `${stamp} (today)`;
   return `${stamp} (${days}d ago)`;
+}
+
+/* Last runs of the collector.
+   The cron used to return its summary to nobody, so "have vacancies stopped
+   arriving?" could only be answered by reading Vercel logs — and a 200 there
+   says the route ran, not that it found anything. These counts separate the
+   cases that look identical from the outside: `fetched` at zero means the
+   scrape is broken or blocked, `fresh` at zero with `fetched` high means the
+   channels are just quiet, and drafts piling up means the queue is waiting on
+   a person rather than on code. */
+
+type RunRow = {
+  started_at: string;
+  trigger_kind: string;
+  ok: boolean;
+  sources: number;
+  fetched: number;
+  fresh: number;
+  scanned: number;
+  drafts: number;
+  published: number;
+  errors: number;
+  error_detail: string | null;
+};
+
+function ago(iso: string): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return "—";
+  const mins = Math.max(0, Math.round((Date.now() - t) / 60_000));
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 48) return `${hours} h ago`;
+  return `${Math.round(hours / 24)} d ago`;
+}
+
+function runStamp(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString("en-GB", {
+    timeZone: "UTC", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+}
+
+/** What the numbers mean, so the page answers the question instead of posing it. */
+function verdict(r: RunRow): { tone: "bad" | "warn" | "ok"; text: string } {
+  if (r.errors > 0) {
+    return { tone: "bad", text: `${r.errors} source(s) failed${r.error_detail ? `: ${r.error_detail}` : ""}` };
+  }
+  if (r.sources === 0) {
+    return { tone: "bad", text: "No active Telegram sources — nothing to collect." };
+  }
+  if (r.fetched === 0) {
+    return { tone: "bad", text: "The scrape returned no posts at all. Telegram changed its markup or is refusing this host — this is a code problem, not a quiet channel." };
+  }
+  if (r.fresh === 0) {
+    return { tone: "warn", text: "Nothing newer than the last run. The channels are quiet; the collector is fine." };
+  }
+  if (r.drafts === 0 && r.published === 0) {
+    return { tone: "warn", text: "New posts arrived but none survived the filters — no rank, no crewing name, roubles, or a Russian agency." };
+  }
+  if (r.drafts > 0) {
+    return { tone: "ok", text: `${r.drafts} draft(s) queued — they go live only after you approve them below.` };
+  }
+  return { tone: "ok", text: `${r.published} vacancy(ies) published automatically.` };
+}
+
+function LastRuns({ refreshKey }: { refreshKey: number }) {
+  const [runs, setRuns] = useState<RunRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setErr(null);
+    // Read straight from the table: RLS lets admins select it, so this needs no
+    // route of its own.
+    const { data, error } = await supabase
+      .from("collector_runs")
+      .select("started_at, trigger_kind, ok, sources, fetched, fresh, scanned, drafts, published, errors, error_detail")
+      .order("started_at", { ascending: false })
+      .limit(5);
+    if (error) { setErr(error.message); return; }
+    setRuns((data as RunRow[]) ?? []);
+  }, []);
+
+  useEffect(() => { load(); }, [load, refreshKey]);
+
+  const latest = runs?.[0];
+  const v = latest ? verdict(latest) : null;
+  const tone = v?.tone === "bad" ? "border-coral/30 bg-coral/10 text-coral"
+    : v?.tone === "warn" ? "border-white/10 bg-navy2 text-mist"
+    : "border-teal/30 bg-teal/10 text-teal";
+
+  return (
+    <section className="rounded-2xl border border-white/10 bg-card p-4 sm:p-5 space-y-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 className="flex items-center gap-2 font-display text-base font-bold text-white">
+          <History size={16} className="text-brassInk" /> Collector runs
+        </h2>
+        <button onClick={load}
+          className="ml-auto flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-mist transition hover:border-white/20 hover:text-white">
+          <RefreshCw size={13} /> Refresh
+        </button>
+      </div>
+
+      {err && (
+        <p className="flex items-center gap-2 rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">
+          <AlertCircle size={15} /> {err}
+        </p>
+      )}
+
+      {!runs && !err && <p className="text-sm text-mist">Loading…</p>}
+
+      {runs && runs.length === 0 && (
+        <p className="text-sm text-mist">
+          No run recorded yet. The cron fires at 00:00, 06:00, 12:00 and 18:00 UTC — or press
+          “Collect now” above.
+        </p>
+      )}
+
+      {latest && (
+        <>
+          <p className="text-sm text-foam">
+            <b className="text-white">{ago(latest.started_at)}</b>
+            <span className="text-mist"> · {runStamp(latest.started_at)} UTC · {latest.trigger_kind}</span>
+          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm tabular-nums text-mist">
+            <span>sources <b className="text-white">{latest.sources}</b></span>
+            <span>posts fetched <b className="text-white">{latest.fetched}</b></span>
+            <span>new <b className="text-white">{latest.fresh}</b></span>
+            <span>parsed <b className="text-white">{latest.scanned}</b></span>
+            <span>drafts <b className="text-white">{latest.drafts}</b></span>
+            <span>published <b className="text-white">{latest.published}</b></span>
+          </div>
+          {v && <p className={`rounded-xl border px-3 py-2 text-sm ${tone}`}>{v.text}</p>}
+
+          {runs.length > 1 && (
+            <div className="-mx-4 overflow-x-auto sm:mx-0">
+              <table className="w-full min-w-[520px] text-xs">
+                <thead>
+                  <tr className="border-b border-white/10 text-left uppercase tracking-wider text-mist">
+                    <th className="px-3 py-1.5 font-semibold">Earlier runs</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">Fetched</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">New</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">Drafts</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">Published</th>
+                    <th className="px-3 py-1.5 text-right font-semibold">Errors</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {runs.slice(1).map((r) => (
+                    <tr key={r.started_at}>
+                      <td className="px-3 py-2 whitespace-nowrap text-mist">
+                        {runStamp(r.started_at)} UTC <span className="text-mist/60">· {r.trigger_kind}</span>
+                      </td>
+                      <td className="px-3 py-2 text-right tabular-nums text-foam">{r.fetched}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-foam">{r.fresh}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-foam">{r.drafts || "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums text-foam">{r.published || "—"}</td>
+                      <td className={`px-3 py-2 text-right tabular-nums ${r.errors ? "text-coral" : "text-mist"}`}>
+                        {r.errors || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </section>
+  );
 }
 
 function SourceStats() {
