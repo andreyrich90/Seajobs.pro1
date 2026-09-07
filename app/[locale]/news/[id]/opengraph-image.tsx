@@ -30,6 +30,48 @@ function fmtDate(d: string, lang: string): string {
   }
 }
 
+// Base64 without Buffer, so this does not depend on which runtime the route
+// ends up on.
+function toBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  const CHUNK = 0x8000; // chunked, or a large cover blows the argument limit
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
+  }
+  return btoa(bin);
+}
+
+const COVER_TIMEOUT_MS = 4000;
+const COVER_MAX_BYTES = 4_000_000;
+
+/**
+ * Fetch the cover ourselves and inline it as a data URI.
+ *
+ * Covers are free-text URLs on whatever host the author used — next.config.js
+ * allows any HTTPS origin — so one of them going away is a matter of when, not
+ * if. While Satori fetched the URL itself, a dead host threw mid-render and the
+ * whole card came back 500, which Google files as a *server error against the
+ * article* rather than as a missing image. Inlining means Satori touches the
+ * network never: either we hold the bytes or the card falls back to its
+ * gradient, which is a perfectly good card.
+ */
+async function inlineCover(url: string | null): Promise<string | null> {
+  if (!url) return null;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(COVER_TIMEOUT_MS) });
+    if (!res.ok) return null;
+    const type = res.headers.get("content-type") ?? "";
+    if (!type.startsWith("image/")) return null;
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength === 0 || buf.byteLength > COVER_MAX_BYTES) return null;
+    return `data:${type};base64,${toBase64(buf)}`;
+  } catch {
+    // Dead host, timeout, redirect to an HTML error page — all the same answer.
+    return null;
+  }
+}
+
 type Resolved = { title: string; tag: string; date: string; coverUrl: string | null; gradient: string };
 
 async function resolve(id: string, locale: string): Promise<Resolved> {
@@ -66,6 +108,7 @@ async function resolve(id: string, locale: string): Promise<Resolved> {
 export default async function Image({ params }: { params: Promise<{ id: string; locale: string }> }) {
   const { id, locale } = await params;
   const a = await resolve(id, locale);
+  const cover = await inlineCover(a.coverUrl);
 
   // Facebook (and most chat apps) crop link-preview images toward a near-square
   // frame instead of showing the full 1200x630 canvas, so anything close to the
@@ -86,12 +129,12 @@ export default async function Image({ params }: { params: Promise<{ id: string; 
           fontFamily: "serif",
           padding: "56px 0",
           position: "relative",
-          background: a.coverUrl ? "#0a1f33" : a.gradient,
+          background: cover ? "#0a1f33" : a.gradient,
         }}
       >
-        {a.coverUrl && (
+        {cover && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={a.coverUrl} alt="" style={{ position: "absolute", inset: 0, width: 1200, height: 630, objectFit: "cover" }} />
+          <img src={cover} alt="" style={{ position: "absolute", inset: 0, width: 1200, height: 630, objectFit: "cover" }} />
         )}
         {/* dark overlay for legibility */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(10,31,51,0.55) 0%, rgba(10,31,51,0.85) 100%)" }} />
