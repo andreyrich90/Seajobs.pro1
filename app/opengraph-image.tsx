@@ -68,10 +68,14 @@ export default function OgImage() {
             }}
           >
             <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#061523" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="5" r="3" fill="#061523" stroke="none" />
-              <line x1="12" y1="8" x2="12" y2="22" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <path d="M5 20C5 16.5 8.13 14 12 14s7 2.5 7 6" />
+              {/* The same lucide Anchor the header uses — a ring, a shank and
+                  the flukes — with the bottom arc written as two cubics instead
+                  of an SVG arc, which Satori draws unreliably. The old shape (a
+                  filled disc, a crossbar and a curve bulging upward) came out
+                  reading as a stick figure at card size. */}
+              <circle cx="12" cy="5" r="3" />
+              <path d="M12 22 L12 8" />
+              <path d="M5 12 L2 12 C2 17.52 6.48 22 12 22 C17.52 22 22 17.52 22 12 L19 12" />
             </svg>
           </div>
           <span
