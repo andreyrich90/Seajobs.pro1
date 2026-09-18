@@ -79,6 +79,14 @@ export type CvBlastCopy = {
   packagesSub: string;
   currencyLabel: string;
   groups: Record<PackageGroup, { title: string; note: string }>;
+  /** A paragraph per group, shown in the package dialog — what this family of
+   *  bases actually is, which the one-line `note` has no room for. */
+  groupDetail: Record<PackageGroup, string>;
+  openDetails: string;
+  modalIncluded: string;
+  modalHow: string;
+  modalNote: string;
+  close: string;
   /** Names for the packages that have no fixed Latin name. */
   packages: Record<string, string>;
   chipAddresses: string;
@@ -138,6 +146,17 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       monthly: { title: "Місячні пакети", note: "кілька відправок протягом місяця — для активного пошуку" },
       extra:   { title: "Додатково", note: "можна замовити окремо від розсилки" },
     },
+    groupDetail: {
+      fleet: "Вузька база: лише компанії та крюїнги, які набирають на цей тип флоту. Листів іде менше, але кожен — за адресою, тому відгук вищий, ніж із загальної бази.",
+      general: "Максимальне охоплення одразу по всіх типах суден. Беруть, коли готові йти на будь-який флот або коли посада потрібна скрізь.",
+      monthly: "Кілька відправок протягом місяця за одну ціну. Для активного пошуку, коли треба потрапити в кілька хвиль набору, а не в одну.",
+      extra: "Окрема послуга, не розсилка. Можна замовити саму по собі.",
+    },
+    openDetails: "Детальніше і замовити",
+    modalIncluded: "Що входить",
+    modalHow: "Як це працює",
+    modalNote: "Гарантії контракту немає: розсилка збільшує кількість компаній, які побачать анкету. Рішення про найм ухвалює компанія.",
+    close: "Закрити",
     packages: {
       gen_max_ua: "Загальна MAX + UA Base",
       gen_mid: "Загальна Середня",
@@ -212,6 +231,17 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       monthly: { title: "Месячные пакеты", note: "несколько отправок в течение месяца — для активного поиска" },
       extra:   { title: "Дополнительно", note: "можно заказать отдельно от рассылки" },
     },
+    groupDetail: {
+      fleet: "Узкая база: только компании и крюинги, которые набирают на этот тип флота. Писем уходит меньше, но каждое — по адресу, поэтому отклик выше, чем с общей базы.",
+      general: "Максимальный охват сразу по всем типам судов. Берут, когда готовы идти на любой флот или когда должность нужна везде.",
+      monthly: "Несколько отправок в течение месяца по одной цене. Для активного поиска, когда надо попасть в несколько волн набора, а не в одну.",
+      extra: "Отдельная услуга, не рассылка. Можно заказать саму по себе.",
+    },
+    openDetails: "Подробнее и заказать",
+    modalIncluded: "Что входит",
+    modalHow: "Как это работает",
+    modalNote: "Гарантии контракта нет: рассылка увеличивает число компаний, которые увидят анкету. Решение о найме принимает компания.",
+    close: "Закрыть",
     packages: {
       gen_max_ua: "Общая MAX + UA Base",
       gen_mid: "Общая Средняя",
@@ -286,6 +316,17 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       monthly: { title: "Pakiety miesięczne", note: "kilka wysyłek w miesiącu — do aktywnego szukania" },
       extra:   { title: "Dodatkowo", note: "można zamówić osobno" },
     },
+    groupDetail: {
+      fleet: "Wąska baza: tylko armatorzy i agencje rekrutujące na ten typ floty. Listów idzie mniej, ale każdy pod właściwy adres, więc odpowiedzi jest więcej niż z bazy ogólnej.",
+      general: "Maksymalny zasięg od razu na wszystkie typy statków. Wybierany, gdy jesteś gotów na dowolną flotę albo gdy Twoje stanowisko jest potrzebne wszędzie.",
+      monthly: "Kilka wysyłek w ciągu miesiąca w jednej cenie. Do aktywnego szukania, gdy chcesz trafić w kilka fal rekrutacji, a nie w jedną.",
+      extra: "Osobna usługa, nie wysyłka. Można zamówić samodzielnie.",
+    },
+    openDetails: "Szczegóły i zamówienie",
+    modalIncluded: "Co obejmuje",
+    modalHow: "Jak to działa",
+    modalNote: "Nie ma gwarancji kontraktu: wysyłka zwiększa liczbę firm, które zobaczą Twoją aplikację. Decyzję o zatrudnieniu podejmuje firma.",
+    close: "Zamknij",
     packages: {
       gen_max_ua: "Ogólna MAX + UA Base",
       gen_mid: "Ogólna Średnia",
@@ -360,6 +401,17 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       monthly: { title: "Monthly packages", note: "several sends across a month — for an active search" },
       extra:   { title: "Extras", note: "can be ordered on its own" },
     },
+    groupDetail: {
+      fleet: "A narrow base: only the owners and agencies that crew this fleet. Fewer letters go out, but each one lands where it belongs, so more of them are answered than from a general base.",
+      general: "The widest reach, every vessel type at once. Chosen when you will take any fleet, or when your rank is wanted everywhere.",
+      monthly: "Several sends across one month for a single price. For an active search, when you want to catch more than one hiring wave.",
+      extra: "A service in its own right, not a mailing. Can be ordered on its own.",
+    },
+    openDetails: "Details and order",
+    modalIncluded: "What is included",
+    modalHow: "How it works",
+    modalNote: "No contract is guaranteed: the mailing increases how many companies see your application. Hiring is the company's decision.",
+    close: "Close",
     packages: {
       gen_max_ua: "General MAX + UA Base",
       gen_mid: "General Medium",
@@ -434,6 +486,17 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       monthly: { title: "Pachete lunare", note: "mai multe trimiteri într-o lună — pentru căutare activă" },
       extra:   { title: "Suplimentar", note: "se poate comanda separat" },
     },
+    groupDetail: {
+      fleet: "O bază îngustă: doar armatorii și agențiile care recrutează pentru acest tip de flotă. Pleacă mai puține scrisori, dar fiecare la adresa potrivită, deci răspund mai mulți decât dintr-o bază generală.",
+      general: "Acoperire maximă, toate tipurile de nave deodată. Se alege când accepți orice flotă sau când funcția ta este căutată peste tot.",
+      monthly: "Mai multe trimiteri într-o singură lună, la un singur preț. Pentru căutare activă, când vrei să prinzi mai multe valuri de recrutare.",
+      extra: "Un serviciu de sine stătător, nu o distribuire. Se poate comanda separat.",
+    },
+    openDetails: "Detalii și comandă",
+    modalIncluded: "Ce include",
+    modalHow: "Cum funcționează",
+    modalNote: "Nu se garantează niciun contract: distribuirea crește numărul companiilor care îți văd dosarul. Angajarea o decide compania.",
+    close: "Închide",
     packages: {
       gen_max_ua: "Generală MAX + UA Base",
       gen_mid: "Generală Medie",
