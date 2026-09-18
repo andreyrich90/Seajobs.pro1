@@ -120,6 +120,9 @@ export type CvBlastCopy = {
   fFleet: string;
   fNote: string;
   fAny: string;
+  /** The empty option of the package select. It stays in the list — dropping it
+   *  would silently pre-select the first package — but it cannot be submitted. */
+  fPick: string;
   fCv: string;
   fCvHint: string;
   fCvNote: string;
@@ -128,6 +131,7 @@ export type CvBlastCopy = {
   errCvType: string;
   errCvSize: string;
   errCvRequired: string;
+  errPackage: string;
   payTitle: string;
   payBody: string;
   payCta: string;
@@ -210,6 +214,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Тип флоту",
     fNote: "Коментар (не обов'язково)",
     fAny: "Не вказано",
+    fPick: "— оберіть пакет —",
     fCv: "Прикріпити CV",
     fCvHint: "PDF або Word, до 8 МБ",
     fCvNote: "Саме цей файл ми перевіряємо і розсилаємо. Зберігається закрито, нікуди більше не потрапляє.",
@@ -218,6 +223,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     errCvType: "Підійде PDF або Word (.doc, .docx)",
     errCvSize: "Файл завеликий — до 8 МБ",
     errCvRequired: "Прикріпіть CV — без нього розсилку не зробити",
+    errPackage: "Оберіть пакет — без нього незрозуміло, куди і скільки надсилати",
     payTitle: "Залишився останній крок — оплата",
     payBody: "Анкету отримали. Після оплати беремо пакет у роботу й напишемо, коли розсилка піде.",
     payCta: "Оплатити",
@@ -308,6 +314,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Тип флота",
     fNote: "Комментарий (необязательно)",
     fAny: "Не указано",
+    fPick: "— выберите пакет —",
     fCv: "Прикрепить CV",
     fCvHint: "PDF или Word, до 8 МБ",
     fCvNote: "Именно этот файл мы проверяем и рассылаем. Хранится закрыто, больше никуда не попадает.",
@@ -316,6 +323,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     errCvType: "Подойдёт PDF или Word (.doc, .docx)",
     errCvSize: "Файл слишком большой — до 8 МБ",
     errCvRequired: "Прикрепите CV — без него рассылку не сделать",
+    errPackage: "Выберите пакет — без него непонятно, куда и сколько отправлять",
     payTitle: "Остался последний шаг — оплата",
     payBody: "Анкету получили. После оплаты берём пакет в работу и напишем, когда рассылка уйдёт.",
     payCta: "Оплатить",
@@ -406,6 +414,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Typ floty",
     fNote: "Komentarz (opcjonalnie)",
     fAny: "Nie podano",
+    fPick: "— wybierz pakiet —",
     fCv: "Dołącz CV",
     fCvHint: "PDF lub Word, do 8 MB",
     fCvNote: "To właśnie ten plik sprawdzamy i wysyłamy. Przechowywany prywatnie, nigdzie indziej nie trafia.",
@@ -414,6 +423,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     errCvType: "Przyjmujemy PDF lub Word (.doc, .docx)",
     errCvSize: "Plik za duży — do 8 MB",
     errCvRequired: "Dołącz CV — bez niego nie ma czego wysyłać",
+    errPackage: "Wybierz pakiet — bez niego nie wiadomo, gdzie i ile wysłać",
     payTitle: "Został ostatni krok — płatność",
     payBody: "Aplikację mamy. Po opłaceniu bierzemy pakiet do realizacji i napiszemy, gdy wysyłka ruszy.",
     payCta: "Zapłać",
@@ -504,6 +514,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Fleet",
     fNote: "Comment (optional)",
     fAny: "Not specified",
+    fPick: "— choose a package —",
     fCv: "Attach your CV",
     fCvHint: "PDF or Word, up to 8 MB",
     fCvNote: "This file is the one we check and send. It is stored privately and goes nowhere else.",
@@ -512,6 +523,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     errCvType: "PDF or Word (.doc, .docx), please",
     errCvSize: "That file is too large — 8 MB max",
     errCvRequired: "Attach your CV — there is nothing to send without it",
+    errPackage: "Choose a package — without one we do not know where or how much to send",
     payTitle: "One step left — payment",
     payBody: "We have your application. Once it is paid we start on the package and write to you when the mailing goes out.",
     payCta: "Pay",
@@ -602,6 +614,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Tipul flotei",
     fNote: "Comentariu (opțional)",
     fAny: "Nespecificat",
+    fPick: "— alege un pachet —",
     fCv: "Atașează CV-ul",
     fCvHint: "PDF sau Word, până la 8 MB",
     fCvNote: "Exact acest fișier îl verificăm și îl trimitem. Se păstrează privat și nu ajunge nicăieri altundeva.",
@@ -610,6 +623,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     errCvType: "Acceptăm PDF sau Word (.doc, .docx)",
     errCvSize: "Fișier prea mare — maximum 8 MB",
     errCvRequired: "Atașează CV-ul — fără el nu avem ce trimite",
+    errPackage: "Alege un pachet — altfel nu știm unde și cât trimitem",
     payTitle: "A mai rămas un pas — plata",
     payBody: "Dosarul a ajuns la noi. După plată punem pachetul în lucru și îți scriem când pleacă distribuirea.",
     payCta: "Plătește",

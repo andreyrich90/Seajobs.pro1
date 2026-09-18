@@ -88,10 +88,15 @@ export async function POST(req: NextRequest) {
   const lang: Lang = LANGS.includes(body.lang as Lang) ? (body.lang as Lang) : "en";
   const copy = CV_BLAST_COPY[lang];
 
-  // The catalogue is the authority. An unknown code is recorded as "unspecified"
-  // with no price rather than rejected: someone who filled the form without
-  // picking a package is still a person who wants the service.
+  // The catalogue is the authority, and a request must name a package in it.
+  // A row without one carries no base, no price and no number of sends: it can
+  // be neither quoted nor counted, and the counts per package are what this
+  // page exists to produce. Refused here as well as in the form, because the
+  // form is not a boundary.
   const pkg = BLAST_PACKAGES.find((p) => p.code === body.package_code) ?? null;
+  if (!pkg) {
+    return NextResponse.json({ error: "Package required" }, { status: 400 });
+  }
 
   const text = (v: unknown, max: number) => {
     const s = String(v ?? "").trim();
@@ -128,10 +133,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Upload before the insert, so the row either carries a working path or none.
-  let cvBytes: ArrayBuffer | null = null;
   let cvPath: string | null = null;
-  if (cv) {
-    cvBytes = await cv.arrayBuffer();
+  const cvBytes = await cv.arrayBuffer();
+  {
     const path = `${crypto.randomUUID()}/${safeName(cv.name)}`;
     const { error: upErr } = await db.storage
       .from(CV_BUCKET)
@@ -147,10 +151,10 @@ export async function POST(req: NextRequest) {
 
   const row = {
     user_id: await callerId(req, db),
-    package_code: pkg?.code ?? "unspecified",
-    package_label: pkg ? packageName(pkg, copy) : "—",
-    price_eur: pkg?.eur ?? null,
-    price_usd: pkg?.usd ?? null,
+    package_code: pkg.code,
+    package_label: packageName(pkg, copy),
+    price_eur: pkg.eur,
+    price_usd: pkg.usd,
     name: text(body.name, 120),
     email,
     phone: text(body.phone, 80),
@@ -159,8 +163,8 @@ export async function POST(req: NextRequest) {
     note: text(body.note, 2000),
     lang,
     cv_path: cvPath,
-    cv_name: cv ? safeName(cv.name) : null,
-    cv_size: cv ? cv.size : null,
+    cv_name: safeName(cv.name),
+    cv_size: cv.size,
   };
 
   const { error } = await db.from("service_requests").insert(row);
@@ -169,7 +173,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
   }
 
-  await notifyAdmin(row, cv && cvBytes ? { name: safeName(cv.name), type: cv.type, bytes: cvBytes } : null);
+  await notifyAdmin(row, { name: safeName(cv.name), type: cv.type, bytes: cvBytes });
   return NextResponse.json({ ok: true });
 }
 
