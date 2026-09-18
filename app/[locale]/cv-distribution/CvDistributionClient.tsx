@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle, Mail, Send, ShieldAlert, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, CheckCircle, Mail, Paperclip, Send, ShieldAlert, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -18,6 +18,11 @@ import {
 } from "@/lib/cvBlast";
 
 const GROUP_ORDER: PackageGroup[] = ["fleet", "general", "monthly", "extra"];
+
+// Mirrors the server's own limits, so a bad file is refused before the upload
+// rather than after it.
+const CV_EXTS = ["pdf", "doc", "docx"];
+const CV_MAX_BYTES = 8 * 1024 * 1024;
 
 type Currency = "eur" | "usd";
 
@@ -395,6 +400,21 @@ function RequestForm({
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // The CV stays local to the form instance: a File cannot be lifted into the
+  // shared values without also carrying it across a dialog that may be closed
+  // and reopened, and re-picking a file is one tap.
+  const [cv, setCv] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function pickCv(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null;
+    if (!f) { setCv(null); return; }
+    const ext = (f.name.split(".").pop() ?? "").toLowerCase();
+    if (!CV_EXTS.includes(ext)) { setError(copy.errCvType); e.target.value = ""; return; }
+    if (f.size > CV_MAX_BYTES) { setError(copy.errCvSize); e.target.value = ""; return; }
+    setError(null);
+    setCv(f);
+  }
 
   const set = useCallback(
     (k: keyof Values) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
@@ -414,26 +434,37 @@ function RequestForm({
 
     // Posted to the API rather than inserted straight into Supabase: the server
     // takes the package name and price from the catalogue (so the demand
-    // numbers cannot be forged) and pings the admin on Telegram.
+    // numbers cannot be forged), stores an attached CV in a bucket the anon key
+    // cannot reach, and pings the admin on Telegram.
+    const payload: Record<string, string> = {
+      package_code: chosen?.code ?? "",
+      name: values.name.trim(),
+      email,
+      phone: values.phone.trim(),
+      rank: values.rank,
+      fleet: values.fleet,
+      note: values.note.trim(),
+      lang,
+    };
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch("/api/service-request", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
-        },
-        body: JSON.stringify({
-          package_code: chosen?.code ?? null,
-          name: values.name.trim(),
-          email,
-          phone: values.phone.trim(),
-          rank: values.rank,
-          fleet: values.fleet,
-          note: values.note.trim(),
-          lang,
-        }),
-      });
+      const auth: Record<string, string> = session
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {};
+      let res: Response;
+      if (cv) {
+        const form = new FormData();
+        for (const [k, v] of Object.entries(payload)) form.append(k, v);
+        form.append("cv", cv);
+        // No Content-Type header: the browser must set the multipart boundary.
+        res = await fetch("/api/service-request", { method: "POST", headers: auth, body: form });
+      } else {
+        res = await fetch("/api/service-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...auth },
+          body: JSON.stringify(payload),
+        });
+      }
       if (!res.ok) throw new Error(String(res.status));
     } catch {
       setError(copy.errFail);
@@ -456,6 +487,8 @@ function RequestForm({
           type="button"
           onClick={() => {
             setSent(false);
+            setCv(null);
+            if (fileRef.current) fileRef.current.value = "";
             onChange({ ...values, note: "" });
             onDone?.();
           }}
@@ -560,6 +593,44 @@ function RequestForm({
             </option>
           ))}
         </select>
+      </div>
+
+      {/* The CV. Optional on purpose: demanding a file before anyone has paid
+          anything would cost more requests than the file is worth at this
+          stage, and the copy says we will ask later. */}
+      <div className="rounded-xl border border-white/10 bg-navy2 px-4 py-3">
+        {cv ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <Paperclip size={15} className="shrink-0 text-brassInk" />
+            <span className="min-w-0 flex-1 truncate text-sm text-white">{cv.name}</span>
+            <span className="shrink-0 text-xs text-mist">{Math.max(1, Math.round(cv.size / 1024))} KB</span>
+            <button
+              type="button"
+              onClick={() => { setCv(null); if (fileRef.current) fileRef.current.value = ""; }}
+              className="shrink-0 text-xs font-semibold text-coral hover:underline"
+            >
+              {copy.fCvRemove}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex w-full items-center gap-3 text-left"
+          >
+            <Paperclip size={15} className="shrink-0 text-brassInk" />
+            <span className="text-sm font-semibold text-white">{copy.fCv}</span>
+            <span className="text-xs text-mist">{copy.fCvHint}</span>
+          </button>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          onChange={pickCv}
+          className="hidden"
+        />
+        <p className="mt-2 text-xs leading-relaxed text-mist">{copy.fCvNote}</p>
       </div>
 
       <textarea

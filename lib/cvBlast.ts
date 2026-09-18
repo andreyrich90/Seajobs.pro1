@@ -105,6 +105,12 @@ export type CvBlastCopy = {
   fFleet: string;
   fNote: string;
   fAny: string;
+  fCv: string;
+  fCvHint: string;
+  fCvNote: string;
+  fCvRemove: string;
+  errCvType: string;
+  errCvSize: string;
   submit: string;
   sending: string;
   okTitle: string;
@@ -182,6 +188,12 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Тип флоту",
     fNote: "Коментар (не обов'язково)",
     fAny: "Не вказано",
+    fCv: "Прикріпити CV",
+    fCvHint: "PDF або Word, до 8 МБ",
+    fCvNote: "Файл потрібен, щоб перевірити анкету й відправити її. Зберігається закрито, нікуди більше не потрапляє. Можна не прикріпляти — попросимо пізніше.",
+    fCvRemove: "Прибрати",
+    errCvType: "Підійде PDF або Word (.doc, .docx)",
+    errCvSize: "Файл завеликий — до 8 МБ",
     submit: "Залишити заявку",
     sending: "Надсилаємо…",
     okTitle: "Заявку прийнято",
@@ -267,6 +279,12 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Тип флота",
     fNote: "Комментарий (необязательно)",
     fAny: "Не указано",
+    fCv: "Прикрепить CV",
+    fCvHint: "PDF или Word, до 8 МБ",
+    fCvNote: "Файл нужен, чтобы проверить анкету и отправить её. Хранится закрыто, больше никуда не попадает. Можно не прикреплять — попросим позже.",
+    fCvRemove: "Убрать",
+    errCvType: "Подойдёт PDF или Word (.doc, .docx)",
+    errCvSize: "Файл слишком большой — до 8 МБ",
     submit: "Оставить заявку",
     sending: "Отправляем…",
     okTitle: "Заявка принята",
@@ -352,6 +370,12 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Typ floty",
     fNote: "Komentarz (opcjonalnie)",
     fAny: "Nie podano",
+    fCv: "Dołącz CV",
+    fCvHint: "PDF lub Word, do 8 MB",
+    fCvNote: "Plik jest potrzebny, żeby sprawdzić aplikację i ją wysłać. Przechowywany prywatnie, nigdzie indziej nie trafia. Możesz nie dołączać — poprosimy później.",
+    fCvRemove: "Usuń",
+    errCvType: "Przyjmujemy PDF lub Word (.doc, .docx)",
+    errCvSize: "Plik za duży — do 8 MB",
     submit: "Zostaw zgłoszenie",
     sending: "Wysyłamy…",
     okTitle: "Zgłoszenie przyjęte",
@@ -437,6 +461,12 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Fleet",
     fNote: "Comment (optional)",
     fAny: "Not specified",
+    fCv: "Attach your CV",
+    fCvHint: "PDF or Word, up to 8 MB",
+    fCvNote: "The file is what we check and send. It is stored privately and goes nowhere else. You can leave it out — we will ask later.",
+    fCvRemove: "Remove",
+    errCvType: "PDF or Word (.doc, .docx), please",
+    errCvSize: "That file is too large — 8 MB max",
     submit: "Send the request",
     sending: "Sending…",
     okTitle: "Request received",
@@ -522,6 +552,12 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fFleet: "Tipul flotei",
     fNote: "Comentariu (opțional)",
     fAny: "Nespecificat",
+    fCv: "Atașează CV-ul",
+    fCvHint: "PDF sau Word, până la 8 MB",
+    fCvNote: "Fișierul este ce verificăm și trimitem. Se păstrează privat și nu ajunge nicăieri altundeva. Poți să nu îl atașezi — îl cerem mai târziu.",
+    fCvRemove: "Elimină",
+    errCvType: "Acceptăm PDF sau Word (.doc, .docx)",
+    errCvSize: "Fișier prea mare — maximum 8 MB",
     submit: "Trimite cererea",
     sending: "Se trimite…",
     okTitle: "Cerere primită",
