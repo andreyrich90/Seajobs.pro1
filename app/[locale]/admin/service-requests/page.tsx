@@ -13,11 +13,14 @@ import type { ServiceRequest } from "@/lib/supabase/types";
 // which package, at which price — so the counts sit above the list rather than
 // being something to work out by scrolling.
 
-const STATUSES = ["new", "contacted", "done", "dropped"] as const;
+// "paid" sits between new and contacted because that is the order it happens
+// in: the request is saved, then the reader is sent to the checkout.
+const STATUSES = ["new", "paid", "contacted", "done", "dropped"] as const;
 type Status = (typeof STATUSES)[number];
 
 const STATUS_STYLE: Record<Status, string> = {
   new: "text-brassInk border-brass/30 bg-brass/10",
+  paid: "text-teal border-teal/40 bg-teal/15",
   contacted: "text-teal border-teal/30 bg-teal/10",
   done: "text-mist border-mist/30 bg-mist/10",
   dropped: "text-coral border-coral/30 bg-coral/10",

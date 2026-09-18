@@ -61,7 +61,9 @@ export async function POST(req: NextRequest) {
   const db = admin();
   if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
 
-  // The form posts multipart when a CV is attached and JSON when it is not.
+  // The form always posts multipart now that the CV is required. JSON is still
+  // parsed so a request without a file fails on the missing CV with a clear
+  // message, rather than on a content type it never got to explain.
   let body: Record<string, unknown>;
   let cv: File | null = null;
   if ((req.headers.get("content-type") ?? "").includes("multipart/form-data")) {
@@ -96,7 +98,13 @@ export async function POST(req: NextRequest) {
     return s ? s.slice(0, max) : null;
   };
 
-  if (cv) {
+  // Required, and enforced here rather than only in the form: the CV is the
+  // work. Note the split — the *file* must be present, but its *upload* is
+  // allowed to fail below, because the contacts are still worth keeping.
+  if (!cv) {
+    return NextResponse.json({ error: "CV required" }, { status: 400 });
+  }
+  {
     const ext = (cv.name.split(".").pop() ?? "").toLowerCase();
     if (!CV_TYPES[cv.type] && !CV_EXTS.has(ext)) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CheckCircle, Mail, Paperclip, Send, ShieldAlert, X } from "lucide-react";
+import { AlertCircle, CheckCircle, CreditCard, Mail, Paperclip, Send, ShieldAlert, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
@@ -23,6 +23,10 @@ const GROUP_ORDER: PackageGroup[] = ["fleet", "general", "monthly", "extra"];
 // rather than after it.
 const CV_EXTS = ["pdf", "doc", "docx"];
 const CV_MAX_BYTES = 8 * 1024 * 1024;
+
+// The page flips from "collecting requests" to "selling" the moment a single
+// package carries a checkout link, with no other edit anywhere.
+const SELLING = BLAST_PACKAGES.some((p) => !!p.payUrl);
 
 type Currency = "eur" | "usd";
 
@@ -114,11 +118,14 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
       </div>
 
       <div className="mx-auto w-full max-w-5xl flex-1 px-5 pb-20 pt-8">
-        {/* Nothing is on sale yet, and the page says so before anything else. */}
-        <div className="flex items-start gap-3 rounded-2xl border border-brass/30 bg-brass/10 px-4 py-3.5">
-          <Mail size={18} className="mt-0.5 shrink-0 text-brassInk" />
-          <p className="text-sm leading-relaxed text-foam/90">{copy.soon}</p>
-        </div>
+        {/* Only while it is true. Leaving "no payment is taken yet" up next to a
+            working pay button would be the page contradicting itself. */}
+        {!SELLING && (
+          <div className="flex items-start gap-3 rounded-2xl border border-brass/30 bg-brass/10 px-4 py-3.5">
+            <Mail size={18} className="mt-0.5 shrink-0 text-brassInk" />
+            <p className="text-sm leading-relaxed text-foam/90">{copy.soon}</p>
+          </div>
+        )}
 
         {/* How it works */}
         <section className="mt-11">
@@ -223,7 +230,7 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
         <section className="mt-12">
           <div className="rounded-2xl border border-brass/30 bg-card p-6 sm:p-7">
             <h2 className="font-display text-xl font-bold text-white">{copy.formTitle}</h2>
-            <p className="mt-1 text-sm text-mist">{copy.formSub}</p>
+            <p className="mt-1 text-sm text-mist">{SELLING ? copy.formSubPaid : copy.formSub}</p>
             <RequestForm
               copy={copy}
               lang={lang}
@@ -360,7 +367,7 @@ function PackageDialog({
 
           <div className="border-t border-white/10 pt-5">
             <h3 className="font-display text-base font-bold text-white">{copy.formTitle}</h3>
-            <p className="mt-1 text-sm text-mist">{copy.formSub}</p>
+            <p className="mt-1 text-sm text-mist">{SELLING ? copy.formSubPaid : copy.formSub}</p>
             <RequestForm
               copy={copy}
               lang={lang}
@@ -429,6 +436,12 @@ function RequestForm({
       setError(copy.errEmail);
       return;
     }
+    // The CV is the work. A request without one is a lead we would have to chase
+    // before anything could start, so it is refused here and again on the server.
+    if (!cv) {
+      setError(copy.errCvRequired);
+      return;
+    }
     setSending(true);
     setError(null);
 
@@ -451,20 +464,11 @@ function RequestForm({
       const auth: Record<string, string> = session
         ? { Authorization: `Bearer ${session.access_token}` }
         : {};
-      let res: Response;
-      if (cv) {
-        const form = new FormData();
-        for (const [k, v] of Object.entries(payload)) form.append(k, v);
-        form.append("cv", cv);
-        // No Content-Type header: the browser must set the multipart boundary.
-        res = await fetch("/api/service-request", { method: "POST", headers: auth, body: form });
-      } else {
-        res = await fetch("/api/service-request", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...auth },
-          body: JSON.stringify(payload),
-        });
-      }
+      const form = new FormData();
+      for (const [k, v] of Object.entries(payload)) form.append(k, v);
+      form.append("cv", cv);
+      // No Content-Type header: the browser must set the multipart boundary.
+      const res = await fetch("/api/service-request", { method: "POST", headers: auth, body: form });
       if (!res.ok) throw new Error(String(res.status));
     } catch {
       setError(copy.errFail);
@@ -476,13 +480,33 @@ function RequestForm({
   }
 
   if (sent) {
+    // The request is already saved and the CV already in hand, so the pay step
+    // is the last thing shown rather than a gate in front of the form: someone
+    // who abandons the checkout is still a lead we can write to.
+    const pay = chosen?.payUrl;
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-9 text-center">
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-teal/10">
           <CheckCircle size={28} className="text-teal" />
         </div>
-        <p className="font-semibold text-white">{copy.okTitle}</p>
-        <p className="max-w-md text-sm text-mist">{copy.okBody}</p>
+        <p className="font-semibold text-white">{pay ? copy.payTitle : copy.okTitle}</p>
+        <p className="max-w-md text-sm text-mist">{pay ? copy.payBody : copy.okBody}</p>
+
+        {pay && chosen && (
+          <>
+            <a
+              href={pay}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+            >
+              <CreditCard size={15} />
+              {copy.payCta} {priceOf(chosen, currency)}
+            </a>
+            <p className="max-w-md text-xs text-mist">{copy.payNote}</p>
+          </>
+        )}
+
         <button
           type="button"
           onClick={() => {
@@ -620,6 +644,9 @@ function RequestForm({
           >
             <Paperclip size={15} className="shrink-0 text-brassInk" />
             <span className="text-sm font-semibold text-white">{copy.fCv}</span>
+            <span className="rounded-full border border-coral/30 bg-coral/10 px-2 py-0.5 text-[11px] font-bold text-coral">
+              {copy.fCvRequiredTag}
+            </span>
             <span className="text-xs text-mist">{copy.fCvHint}</span>
           </button>
         )}
@@ -643,7 +670,7 @@ function RequestForm({
 
       <button
         type="submit"
-        disabled={sending || !values.email.trim()}
+        disabled={sending || !values.email.trim() || !cv}
         className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
       >
         <Send size={15} />
