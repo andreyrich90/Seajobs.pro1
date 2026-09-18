@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useState } from "react";
-import { Inbox, Mail, Trash2, Clock, User, Anchor } from "lucide-react";
+import { Inbox, Mail, Trash2, Clock, User, Anchor, Paperclip } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { money } from "@/lib/format";
 import type { ServiceRequest } from "@/lib/supabase/types";
@@ -22,6 +22,25 @@ const STATUS_STYLE: Record<Status, string> = {
   done: "text-mist border-mist/30 bg-mist/10",
   dropped: "text-coral border-coral/30 bg-coral/10",
 };
+
+async function authFetch(url: string) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error("Not authenticated");
+  return fetch(url, { headers: { Authorization: `Bearer ${session.access_token}` } });
+}
+
+/** The bucket is private, so a link is minted per click and lives ten minutes.
+ *  Nothing durable is stored in the page. */
+async function openCv(id: string) {
+  try {
+    const res = await authFetch(`/api/admin/service-request-cv?id=${id}`);
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error ?? "failed");
+    window.open(json.url, "_blank", "noopener");
+  } catch (e) {
+    alert(e instanceof Error ? e.message : "Could not open the CV");
+  }
+}
 
 function formatDate(d: string) {
   return new Date(d).toLocaleString("en-GB", {
@@ -191,6 +210,20 @@ export default function AdminServiceRequestsPage() {
                   <span className="flex items-center gap-1.5">
                     <Clock size={13} /> {formatDate(r.created_at)}
                   </span>
+                  {r.cv_path ? (
+                    <button
+                      onClick={() => openCv(r.id)}
+                      className="flex items-center gap-1.5 font-semibold text-brassInk hover:underline"
+                    >
+                      <Paperclip size={13} />
+                      {r.cv_name ?? "CV"}
+                      {r.cv_size ? ` · ${Math.max(1, Math.round(r.cv_size / 1024))} KB` : ""}
+                    </button>
+                  ) : (
+                    <span className="flex items-center gap-1.5 text-mist/60">
+                      <Paperclip size={13} /> no CV
+                    </span>
+                  )}
                 </div>
 
                 {r.note && (

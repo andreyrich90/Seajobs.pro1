@@ -748,6 +748,9 @@ export interface Database {
           admin_note: string | null;
           created_at: string;
           handled_at: string | null;
+          cv_path: string | null;
+          cv_name: string | null;
+          cv_size: number | null;
         };
         Insert: {
           id?: string;
@@ -767,6 +770,9 @@ export interface Database {
           admin_note?: string | null;
           created_at?: string;
           handled_at?: string | null;
+          cv_path?: string | null;
+          cv_name?: string | null;
+          cv_size?: number | null;
         };
         Update: {
           id?: string;
@@ -786,6 +792,9 @@ export interface Database {
           admin_note?: string | null;
           created_at?: string;
           handled_at?: string | null;
+          cv_path?: string | null;
+          cv_name?: string | null;
+          cv_size?: number | null;
         };
         Relationships: [];
       };

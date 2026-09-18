@@ -103,6 +103,48 @@ export async function tgSend(
   });
 }
 
+/**
+ * Send a file. Cannot go through `tgApi`: sendDocument takes multipart, not
+ * JSON, and the Bot API will not fetch a URL that needs credentials — which a
+ * seafarer's CV always does, since it lives in a private bucket. Handing the
+ * bytes over means the file reaches the operator's chat without a readable URL
+ * existing anywhere.
+ *
+ * The Bot API caps a document at 50 MB; callers cap far lower than that.
+ */
+export async function tgSendDocument(
+  chatId: string | number,
+  file: { name: string; type: string; bytes: ArrayBuffer },
+  caption?: string,
+): Promise<TgResult<{ message_id: number }>> {
+  const t = token();
+  if (!t) return { ok: false, error: "TELEGRAM_BOT_TOKEN not set" };
+
+  const form = new FormData();
+  form.append("chat_id", String(chatId));
+  if (caption) {
+    form.append("caption", caption.slice(0, 1024)); // Telegram's caption limit
+    form.append("parse_mode", "HTML");
+  }
+  form.append(
+    "document",
+    new Blob([file.bytes], { type: file.type || "application/octet-stream" }),
+    file.name,
+  );
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${t}/sendDocument`, {
+      method: "POST",
+      body: form,
+    });
+    const json = (await res.json()) as { ok?: boolean; result?: { message_id: number }; description?: string };
+    if (!json.ok || !json.result) return { ok: false, error: String(json.description ?? res.status) };
+    return { ok: true, result: json.result };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 /** The bot's @username, needed to build deep links. Cached — it never changes. */
 let cachedUsername: string | null = null;
 export async function botUsername(): Promise<string | null> {

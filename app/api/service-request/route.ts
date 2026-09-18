@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BLAST_PACKAGES, CV_BLAST_COPY, packageName } from "@/lib/cvBlast";
 import type { Lang } from "@/lib/langs";
-import { esc, tgSend, SITE } from "@/lib/telegramBot";
+import { esc, tgSend, tgSendDocument, SITE } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -15,9 +15,24 @@ export const runtime = "nodejs";
 // gets a Telegram message the moment a request lands, which a client-side
 // insert could not trigger without exposing the bot token.
 //
-// Telegram is best-effort: a failed notification must never lose the request.
+// An attached CV rides along as multipart. It goes into a private bucket the
+// anon key cannot reach — a CV carries a passport number, visas and a date of
+// birth — and to the operator's Telegram chat as a document, so no readable URL
+// for it exists anywhere.
+//
+// Telegram is best-effort throughout: a failed notification must never lose the
+// request, and a failed upload must never lose it either.
 
 const LANGS: Lang[] = ["ua", "pl", "ru", "en", "ro"];
+
+const CV_BUCKET = "service-cv";
+const CV_MAX_BYTES = 8 * 1024 * 1024;
+const CV_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+};
+const CV_EXTS = new Set(["pdf", "doc", "docx"]);
 
 function admin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -36,12 +51,32 @@ async function callerId(req: NextRequest, db: Db): Promise<string | null> {
   return data?.user?.id ?? null;
 }
 
+/** Keep a filename that is safe as an object key and still recognisable. */
+function safeName(raw: string): string {
+  const base = raw.split(/[/\\]/).pop() ?? "cv";
+  return base.replace(/[^\w.\- ]+/g, "_").slice(-80) || "cv";
+}
+
 export async function POST(req: NextRequest) {
   const db = admin();
   if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
 
-  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
-  if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });
+  // The form posts multipart when a CV is attached and JSON when it is not.
+  let body: Record<string, unknown>;
+  let cv: File | null = null;
+  if ((req.headers.get("content-type") ?? "").includes("multipart/form-data")) {
+    const form = await req.formData().catch(() => null);
+    if (!form) return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    body = {};
+    for (const [k, v] of form.entries()) {
+      if (typeof v === "string") body[k] = v;
+      else if (k === "cv") cv = v;
+    }
+  } else {
+    const json = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+    if (!json) return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    body = json;
+  }
 
   const email = String(body.email ?? "").trim();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 200) {
@@ -61,6 +96,16 @@ export async function POST(req: NextRequest) {
     return s ? s.slice(0, max) : null;
   };
 
+  if (cv) {
+    const ext = (cv.name.split(".").pop() ?? "").toLowerCase();
+    if (!CV_TYPES[cv.type] && !CV_EXTS.has(ext)) {
+      return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
+    }
+    if (cv.size === 0 || cv.size > CV_MAX_BYTES) {
+      return NextResponse.json({ error: "File too large" }, { status: 400 });
+    }
+  }
+
   // Cheap flood guard. The rows are a demand measurement, so a bot filling them
   // does not just cost storage — it destroys the only number this page exists
   // to produce.
@@ -72,6 +117,24 @@ export async function POST(req: NextRequest) {
     .gte("created_at", since);
   if ((count ?? 0) >= 5) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
+  // Upload before the insert, so the row either carries a working path or none.
+  let cvBytes: ArrayBuffer | null = null;
+  let cvPath: string | null = null;
+  if (cv) {
+    cvBytes = await cv.arrayBuffer();
+    const path = `${crypto.randomUUID()}/${safeName(cv.name)}`;
+    const { error: upErr } = await db.storage
+      .from(CV_BUCKET)
+      .upload(path, cvBytes, { contentType: cv.type || "application/octet-stream", upsert: false });
+    if (upErr) {
+      // Losing the request over a storage hiccup would be worse than losing the
+      // file: the contacts are what we came for.
+      console.error("[service-request] cv upload", upErr.message);
+    } else {
+      cvPath = path;
+    }
   }
 
   const row = {
@@ -87,6 +150,9 @@ export async function POST(req: NextRequest) {
     fleet: text(body.fleet, 40),
     note: text(body.note, 2000),
     lang,
+    cv_path: cvPath,
+    cv_name: cv ? safeName(cv.name) : null,
+    cv_size: cv ? cv.size : null,
   };
 
   const { error } = await db.from("service_requests").insert(row);
@@ -95,22 +161,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
   }
 
-  await notifyAdmin(row);
+  await notifyAdmin(row, cv && cvBytes ? { name: safeName(cv.name), type: cv.type, bytes: cvBytes } : null);
   return NextResponse.json({ ok: true });
 }
 
 /** Ping the admin's private chat. Silent when the chat id is not configured. */
-async function notifyAdmin(row: {
-  package_label: string;
-  price_eur: number | null;
-  name: string | null;
-  email: string;
-  phone: string | null;
-  rank: string | null;
-  fleet: string | null;
-  note: string | null;
-  lang: string;
-}) {
+async function notifyAdmin(
+  row: {
+    package_label: string;
+    price_eur: number | null;
+    name: string | null;
+    email: string;
+    phone: string | null;
+    rank: string | null;
+    fleet: string | null;
+    note: string | null;
+    lang: string;
+    cv_name: string | null;
+    cv_path: string | null;
+  },
+  file: { name: string; type: string; bytes: ArrayBuffer } | null,
+) {
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
   if (!chatId) return;
 
@@ -124,6 +195,13 @@ async function notifyAdmin(row: {
     row.rank ? `⚓ ${esc(row.rank)}` : null,
     row.fleet ? `🚢 ${esc(row.fleet)}` : null,
     `🌐 ${esc(row.lang.toUpperCase())}`,
+    // Say which of the three states this is, so a missing file is never read as
+    // "the seafarer did not attach one".
+    row.cv_name
+      ? row.cv_path
+        ? `📎 ${esc(row.cv_name)}`
+        : `📎 ${esc(row.cv_name)} — не збереглося, попросіть надіслати ще раз`
+      : "📎 без CV",
     row.note ? `\n${esc(row.note)}` : null,
   ].filter(Boolean) as string[];
 
@@ -132,6 +210,9 @@ async function notifyAdmin(row: {
       buttonText: "Відкрити в адмінці",
       buttonUrl: `${SITE}/admin/service-requests`,
     });
+    if (file) {
+      await tgSendDocument(chatId, file, `CV — ${esc(row.name ?? row.email)}`);
+    }
   } catch (e) {
     console.error("[service-request] telegram", e instanceof Error ? e.message : e);
   }
