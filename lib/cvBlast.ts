@@ -50,7 +50,7 @@ export type BlastPackage = {
 
 export const BLAST_PACKAGES: BlastPackage[] = [
   // Narrow bases: fewer addresses, but every one of them hires this fleet.
-  { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 24, usd: 28, addresses: 5400, sends: 1, tags: "Offshore · Merchant" },
+  { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 24, usd: 28, addresses: 5400, sends: 1, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/Seajobs.pro/e/577095" },
   { code: "offshore2",  name: "Offshore MAX ×2",                   group: "fleet", eur: 38, usd: 44, addresses: 4900, sends: 2, tags: "Offshore · Merchant" },
   { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 27, usd: 31, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant" },
   { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 19, usd: 22, addresses: 1060, sends: 3, tags: "Bulker · Merchant" },

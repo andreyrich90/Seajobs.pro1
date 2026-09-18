@@ -129,7 +129,12 @@ The CV cannot be the public profile: `seafarers` exposes only a thin whitelist t
 
 `/cv-distribution` shows the real catalogue and the real prices (`BLAST_PACKAGES` in **`lib/cvBlast.ts`**); every "order" button opens a dialog whose form posts to `api/service-request` and writes a `service_requests` row.
 
-**Whether it sells is one field.** Each package carries an optional `payUrl` — a Stripe Payment Link or whatever the provider gives. `SELLING` in the client is `BLAST_PACKAGES.some(p => p.payUrl)`, and that single derived flag flips the page: while every link is empty the "no payment is taken yet" banner shows and the form's success panel just thanks the reader, and the moment one link is pasted in the banner disappears, the form subtitle switches to `formSubPaid`, and the success panel becomes a pay step. Nothing else needs editing — a page that promises "nothing to pay now" directly above a working pay button is the failure this guards against.
+**Whether it sells is one field.** Each package carries an optional `payUrl` — a Buy Me a Coffee "extra", a Stripe Payment Link, whatever the provider gives. Pasting one in is the whole edit; the catalogue sells in parts, so the page reads it at two levels:
+
+- **Page level** — `SELLING` (`BLAST_PACKAGES.some(p => p.payUrl)`) only retires the "no payment is taken yet" banner. That line cannot stand on the same page as a working pay button.
+- **Package level** — the form subtitle (`formSub` vs `formSubPaid`) and the success panel follow *the package in hand*. A package with a link ends in a pay step with its price on the button; one without still ends in "we will write when it launches". Mixing the two levels would promise payment on packages that have no checkout, or hide it on the ones that do.
+
+The price on the button comes from `BLAST_PACKAGES`, not from the provider, so **a `payUrl` must point at a product priced the same as the row it sits on** — otherwise the button says €24 and the checkout says something else.
 
 **The request is saved before the reader is sent to pay**, on purpose: someone who abandons the checkout is still a lead whose CV is already in hand. Match a payment to its request by the email address, and mark the row `paid` on `/admin/service-requests`.
 

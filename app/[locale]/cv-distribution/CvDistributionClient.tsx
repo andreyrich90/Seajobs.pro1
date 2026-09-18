@@ -24,8 +24,10 @@ const GROUP_ORDER: PackageGroup[] = ["fleet", "general", "monthly", "extra"];
 const CV_EXTS = ["pdf", "doc", "docx"];
 const CV_MAX_BYTES = 8 * 1024 * 1024;
 
-// The page flips from "collecting requests" to "selling" the moment a single
-// package carries a checkout link, with no other edit anywhere.
+// One checkout link anywhere in the catalogue retires the "nothing is on sale
+// yet" banner: it would be a lie on the same page as a working pay button.
+// Everything below the banner follows the package in hand instead, so a package
+// without a link still reads as a request rather than a purchase.
 const SELLING = BLAST_PACKAGES.some((p) => !!p.payUrl);
 
 type Currency = "eur" | "usd";
@@ -230,7 +232,13 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
         <section className="mt-12">
           <div className="rounded-2xl border border-brass/30 bg-card p-6 sm:p-7">
             <h2 className="font-display text-xl font-bold text-white">{copy.formTitle}</h2>
-            <p className="mt-1 text-sm text-mist">{SELLING ? copy.formSubPaid : copy.formSub}</p>
+            {/* Follows the package in hand, not the page: with some packages on
+                sale and some not, one line for both would be wrong for one of
+                them. Nothing picked yet reads as the pre-sale line, and switches
+                the moment a package with a link is chosen. */}
+            <p className="mt-1 text-sm text-mist">
+              {bottomPick?.payUrl ? copy.formSubPaid : copy.formSub}
+            </p>
             <RequestForm
               copy={copy}
               lang={lang}
@@ -367,7 +375,9 @@ function PackageDialog({
 
           <div className="border-t border-white/10 pt-5">
             <h3 className="font-display text-base font-bold text-white">{copy.formTitle}</h3>
-            <p className="mt-1 text-sm text-mist">{SELLING ? copy.formSubPaid : copy.formSub}</p>
+            <p className="mt-1 text-sm text-mist">
+              {pkg.payUrl ? copy.formSubPaid : copy.formSub}
+            </p>
             <RequestForm
               copy={copy}
               lang={lang}
