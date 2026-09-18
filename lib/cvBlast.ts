@@ -34,6 +34,18 @@ export type BlastPackage = {
   recurring?: boolean;
   /** Fleet tags, English throughout the site (vessel types are stored in English). */
   tags: string;
+  /**
+   * The checkout link for this package — a Stripe Payment Link or whatever the
+   * provider gives. Paste it here and the page changes behaviour on its own:
+   * the "nothing is on sale yet" banner disappears and the form's success panel
+   * turns into a pay step. While every package is empty the page stays a request
+   * collector, which is what it was built as.
+   *
+   * The request is saved *before* the reader is sent to pay, on purpose: someone
+   * who abandons the checkout is still a lead, and their CV is already in hand.
+   * Match a payment to its request by the email address.
+   */
+  payUrl?: string;
 };
 
 export const BLAST_PACKAGES: BlastPackage[] = [
@@ -97,6 +109,9 @@ export type CvBlastCopy = {
 
   formTitle: string;
   formSub: string;
+  /** Replaces formSub once a checkout link exists: the pre-sale line promises
+   *  that nothing has to be paid, which would sit directly above a pay button. */
+  formSubPaid: string;
   formChosen: string;
   fName: string;
   fEmail: string;
@@ -109,8 +124,14 @@ export type CvBlastCopy = {
   fCvHint: string;
   fCvNote: string;
   fCvRemove: string;
+  fCvRequiredTag: string;
   errCvType: string;
   errCvSize: string;
+  errCvRequired: string;
+  payTitle: string;
+  payBody: string;
+  payCta: string;
+  payNote: string;
   submit: string;
   sending: string;
   okTitle: string;
@@ -180,6 +201,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     formTitle: "Заявка на розсилку",
     formSub: "Залиште контакти — напишемо, щойно послуга запрацює. Нічого платити зараз не потрібно.",
+    formSubPaid: "Заповніть анкету і прикріпіть CV. Далі — оплата, і беремо в роботу.",
     formChosen: "Обраний пакет",
     fName: "Ім'я",
     fEmail: "Email",
@@ -190,10 +212,16 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fAny: "Не вказано",
     fCv: "Прикріпити CV",
     fCvHint: "PDF або Word, до 8 МБ",
-    fCvNote: "Файл потрібен, щоб перевірити анкету й відправити її. Зберігається закрито, нікуди більше не потрапляє. Можна не прикріпляти — попросимо пізніше.",
+    fCvNote: "Саме цей файл ми перевіряємо і розсилаємо. Зберігається закрито, нікуди більше не потрапляє.",
     fCvRemove: "Прибрати",
+    fCvRequiredTag: "обов'язково",
     errCvType: "Підійде PDF або Word (.doc, .docx)",
     errCvSize: "Файл завеликий — до 8 МБ",
+    errCvRequired: "Прикріпіть CV — без нього розсилку не зробити",
+    payTitle: "Залишився останній крок — оплата",
+    payBody: "Анкету отримали. Після оплати беремо пакет у роботу й напишемо, коли розсилка піде.",
+    payCta: "Оплатити",
+    payNote: "Закрили сторінку до оплати? Напишіть нам — надішлемо посилання ще раз.",
     submit: "Залишити заявку",
     sending: "Надсилаємо…",
     okTitle: "Заявку прийнято",
@@ -271,6 +299,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     formTitle: "Заявка на рассылку",
     formSub: "Оставьте контакты — напишем, как только услуга заработает. Платить сейчас ничего не нужно.",
+    formSubPaid: "Заполните анкету и приложите CV. Дальше — оплата, и берём в работу.",
     formChosen: "Выбранный пакет",
     fName: "Имя",
     fEmail: "Email",
@@ -281,10 +310,16 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fAny: "Не указано",
     fCv: "Прикрепить CV",
     fCvHint: "PDF или Word, до 8 МБ",
-    fCvNote: "Файл нужен, чтобы проверить анкету и отправить её. Хранится закрыто, больше никуда не попадает. Можно не прикреплять — попросим позже.",
+    fCvNote: "Именно этот файл мы проверяем и рассылаем. Хранится закрыто, больше никуда не попадает.",
     fCvRemove: "Убрать",
+    fCvRequiredTag: "обязательно",
     errCvType: "Подойдёт PDF или Word (.doc, .docx)",
     errCvSize: "Файл слишком большой — до 8 МБ",
+    errCvRequired: "Прикрепите CV — без него рассылку не сделать",
+    payTitle: "Остался последний шаг — оплата",
+    payBody: "Анкету получили. После оплаты берём пакет в работу и напишем, когда рассылка уйдёт.",
+    payCta: "Оплатить",
+    payNote: "Закрыли страницу до оплаты? Напишите нам — пришлём ссылку ещё раз.",
     submit: "Оставить заявку",
     sending: "Отправляем…",
     okTitle: "Заявка принята",
@@ -362,6 +397,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     formTitle: "Zgłoszenie na wysyłkę",
     formSub: "Zostaw kontakt — napiszemy, gdy usługa ruszy. Teraz nic nie płacisz.",
+    formSubPaid: "Wypełnij formularz i dołącz CV. Dalej płatność — i bierzemy do realizacji.",
     formChosen: "Wybrany pakiet",
     fName: "Imię",
     fEmail: "Email",
@@ -372,10 +408,16 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fAny: "Nie podano",
     fCv: "Dołącz CV",
     fCvHint: "PDF lub Word, do 8 MB",
-    fCvNote: "Plik jest potrzebny, żeby sprawdzić aplikację i ją wysłać. Przechowywany prywatnie, nigdzie indziej nie trafia. Możesz nie dołączać — poprosimy później.",
+    fCvNote: "To właśnie ten plik sprawdzamy i wysyłamy. Przechowywany prywatnie, nigdzie indziej nie trafia.",
     fCvRemove: "Usuń",
+    fCvRequiredTag: "wymagane",
     errCvType: "Przyjmujemy PDF lub Word (.doc, .docx)",
     errCvSize: "Plik za duży — do 8 MB",
+    errCvRequired: "Dołącz CV — bez niego nie ma czego wysyłać",
+    payTitle: "Został ostatni krok — płatność",
+    payBody: "Aplikację mamy. Po opłaceniu bierzemy pakiet do realizacji i napiszemy, gdy wysyłka ruszy.",
+    payCta: "Zapłać",
+    payNote: "Zamknąłeś stronę przed płatnością? Napisz do nas — wyślemy link ponownie.",
     submit: "Zostaw zgłoszenie",
     sending: "Wysyłamy…",
     okTitle: "Zgłoszenie przyjęte",
@@ -453,6 +495,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     formTitle: "Request the mailing",
     formSub: "Leave your contacts and we will write once the service is live. Nothing to pay now.",
+    formSubPaid: "Fill in the form and attach your CV. Payment comes next, then we start.",
     formChosen: "Chosen package",
     fName: "Name",
     fEmail: "Email",
@@ -463,10 +506,16 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fAny: "Not specified",
     fCv: "Attach your CV",
     fCvHint: "PDF or Word, up to 8 MB",
-    fCvNote: "The file is what we check and send. It is stored privately and goes nowhere else. You can leave it out — we will ask later.",
+    fCvNote: "This file is the one we check and send. It is stored privately and goes nowhere else.",
     fCvRemove: "Remove",
+    fCvRequiredTag: "required",
     errCvType: "PDF or Word (.doc, .docx), please",
     errCvSize: "That file is too large — 8 MB max",
+    errCvRequired: "Attach your CV — there is nothing to send without it",
+    payTitle: "One step left — payment",
+    payBody: "We have your application. Once it is paid we start on the package and write to you when the mailing goes out.",
+    payCta: "Pay",
+    payNote: "Closed the page before paying? Write to us and we will send the link again.",
     submit: "Send the request",
     sending: "Sending…",
     okTitle: "Request received",
@@ -544,6 +593,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     formTitle: "Cerere pentru distribuire",
     formSub: "Lasă-ne datele de contact — scriem când serviciul pornește. Nu plătești nimic acum.",
+    formSubPaid: "Completează formularul și atașează CV-ul. Urmează plata, apoi începem.",
     formChosen: "Pachet ales",
     fName: "Nume",
     fEmail: "Email",
@@ -554,10 +604,16 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     fAny: "Nespecificat",
     fCv: "Atașează CV-ul",
     fCvHint: "PDF sau Word, până la 8 MB",
-    fCvNote: "Fișierul este ce verificăm și trimitem. Se păstrează privat și nu ajunge nicăieri altundeva. Poți să nu îl atașezi — îl cerem mai târziu.",
+    fCvNote: "Exact acest fișier îl verificăm și îl trimitem. Se păstrează privat și nu ajunge nicăieri altundeva.",
     fCvRemove: "Elimină",
+    fCvRequiredTag: "obligatoriu",
     errCvType: "Acceptăm PDF sau Word (.doc, .docx)",
     errCvSize: "Fișier prea mare — maximum 8 MB",
+    errCvRequired: "Atașează CV-ul — fără el nu avem ce trimite",
+    payTitle: "A mai rămas un pas — plata",
+    payBody: "Dosarul a ajuns la noi. După plată punem pachetul în lucru și îți scriem când pleacă distribuirea.",
+    payCta: "Plătește",
+    payNote: "Ai închis pagina înainte de plată? Scrie-ne și îți trimitem linkul din nou.",
     submit: "Trimite cererea",
     sending: "Se trimite…",
     okTitle: "Cerere primită",

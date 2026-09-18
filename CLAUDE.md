@@ -127,7 +127,13 @@ The CV cannot be the public profile: `seafarers` exposes only a thin whitelist t
 
 ### Paid services
 
-`/cv-distribution` sells nothing yet, and that is the design. The page shows the real catalogue and the real prices (`BLAST_PACKAGES` in **`lib/cvBlast.ts`**), but every "order" button opens a form that posts to `api/service-request` and writes a `service_requests` row — no checkout, no payment provider, no VAT to handle. The question worth answering first is how many readers want the service at that price, and a request form answers it for nothing. `/admin/service-requests` puts the counts per package and per page language above the list, because that aggregate *is* the deliverable, and `TELEGRAM_ADMIN_CHAT_ID` gets a message per request so nobody has to poll that screen.
+`/cv-distribution` shows the real catalogue and the real prices (`BLAST_PACKAGES` in **`lib/cvBlast.ts`**); every "order" button opens a dialog whose form posts to `api/service-request` and writes a `service_requests` row.
+
+**Whether it sells is one field.** Each package carries an optional `payUrl` — a Stripe Payment Link or whatever the provider gives. `SELLING` in the client is `BLAST_PACKAGES.some(p => p.payUrl)`, and that single derived flag flips the page: while every link is empty the "no payment is taken yet" banner shows and the form's success panel just thanks the reader, and the moment one link is pasted in the banner disappears, the form subtitle switches to `formSubPaid`, and the success panel becomes a pay step. Nothing else needs editing — a page that promises "nothing to pay now" directly above a working pay button is the failure this guards against.
+
+**The request is saved before the reader is sent to pay**, on purpose: someone who abandons the checkout is still a lead whose CV is already in hand. Match a payment to its request by the email address, and mark the row `paid` on `/admin/service-requests`.
+
+**The CV is required**, in the form and again in the route. It is the work: a request without one is a lead someone has to chase before anything can start. Note the split in `api/service-request` — the *file* must be present, but its *upload* is allowed to fail, because the contacts are still worth keeping. `/admin/service-requests` puts the counts per package and per page language above the list, because that aggregate *is* the deliverable, and `TELEGRAM_ADMIN_CHAT_ID` gets a message per request so nobody has to poll that screen.
 
 Reachable from three places: the footer, a card under the list on `/seafarer/applications`, and its own item in the seafarer cabinet's sidebar (`cab_cv_blast`, pointing outside the `/seafarer` tree the way "Browse jobs" does).
 
