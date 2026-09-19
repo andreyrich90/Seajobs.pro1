@@ -30,19 +30,20 @@ const CV_MAX_BYTES = 8 * 1024 * 1024;
 // without a link still reads as a request rather than a purchase.
 const SELLING = BLAST_PACKAGES.some((p) => !!p.payUrl);
 
-type Currency = "eur" | "usd";
-
 /** The contact fields, lifted so they survive moving between the package dialog
  *  and the form at the foot of the page — and so the session prefill runs once. */
 type Values = { name: string; email: string; phone: string; rank: string; fleet: string; note: string };
 const EMPTY: Values = { name: "", email: "", phone: "", rank: "", fleet: "", note: "" };
 
-function priceOf(p: BlastPackage, currency: Currency): string {
-  return currency === "eur" ? `€${p.eur}` : `$${p.usd}`;
+// The site quotes in one currency, and it is the one the checkout charges in.
+// A reader who switched to euros and then paid in dollars would have been shown
+// a price nobody was going to take from them; `eur` stays in the catalogue for
+// the admin screen and for the day another provider is used.
+function priceOf(p: BlastPackage): string {
+  return `$${p.usd}`;
 }
 
 export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy; lang: Lang }) {
-  const [currency, setCurrency] = useState<Currency>("eur");
   /** The package whose dialog is open. */
   const [detail, setDetail] = useState<BlastPackage | null>(null);
   /** The package selected in the form at the foot of the page. */
@@ -150,20 +151,6 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
         <section className="mt-12">
           <div className="flex flex-wrap items-baseline gap-4">
             <h2 className="font-display text-xl font-semibold text-white sm:text-2xl">{copy.packagesTitle}</h2>
-            <div className="inline-flex overflow-hidden rounded-xl border border-white/15" role="group" aria-label={copy.currencyLabel}>
-              {(["eur", "usd"] as Currency[]).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCurrency(c)}
-                  className={`px-3.5 py-1.5 text-[13px] font-semibold transition ${
-                    currency === c ? "bg-brass/15 text-brassInk" : "text-mist hover:text-white"
-                  }`}
-                >
-                  {c === "eur" ? "EUR €" : "USD $"}
-                </button>
-              ))}
-            </div>
           </div>
           <p className="mt-1 text-sm text-mist">{copy.packagesSub}</p>
 
@@ -211,7 +198,7 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
 
                     <span className="text-right">
                       <b className="block font-display text-2xl font-bold leading-tight text-brassInk">
-                        {priceOf(p, currency)}
+                        {priceOf(p)}
                       </b>
                       <span className="text-xs text-mist">{p.recurring ? copy.perMonth : copy.once}</span>
                     </span>
@@ -222,7 +209,7 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
                         as if nothing were for sale. */}
                     {p.payUrl ? (
                       <span className="shrink-0 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-[13px] font-bold text-[#061523]">
-                        {copy.buyCta} · {priceOf(p, currency)}
+                        {copy.buyCta} · {priceOf(p)}
                       </span>
                     ) : (
                       <span className="shrink-0 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2 text-[13px] font-bold text-brassInk">
@@ -252,7 +239,6 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
             <RequestForm
               copy={copy}
               lang={lang}
-              currency={currency}
               values={values}
               onChange={setValues}
               chosen={bottomPick}
@@ -298,7 +284,6 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
           pkg={detail}
           copy={copy}
           lang={lang}
-          currency={currency}
           values={values}
           onChange={setValues}
           onClose={() => setDetail(null)}
@@ -311,12 +296,11 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
 }
 
 function PackageDialog({
-  pkg, copy, lang, currency, values, onChange, onClose,
+  pkg, copy, lang, values, onChange, onClose,
 }: {
   pkg: BlastPackage;
   copy: CvBlastCopy;
   lang: Lang;
-  currency: Currency;
   values: Values;
   onChange: (v: Values) => void;
   onClose: () => void;
@@ -338,7 +322,7 @@ function PackageDialog({
           <div className="min-w-0 flex-1">
             <h2 className="font-display text-xl font-bold text-white">{packageName(pkg, copy)}</h2>
             <p className="mt-1">
-              <b className="font-display text-2xl font-bold text-brassInk">{priceOf(pkg, currency)}</b>
+              <b className="font-display text-2xl font-bold text-brassInk">{priceOf(pkg)}</b>
               <span className="ml-2 text-xs text-mist">{pkg.recurring ? copy.perMonth : copy.once}</span>
             </p>
           </div>
@@ -391,7 +375,6 @@ function PackageDialog({
             <RequestForm
               copy={copy}
               lang={lang}
-              currency={currency}
               values={values}
               onChange={onChange}
               chosen={pkg}
@@ -411,11 +394,10 @@ function PackageDialog({
  * one and then opening the other keeps what was typed.
  */
 function RequestForm({
-  copy, lang, currency, values, onChange, chosen, onChoose, onDone,
+  copy, lang, values, onChange, chosen, onChoose, onDone,
 }: {
   copy: CvBlastCopy;
   lang: Lang;
-  currency: Currency;
   values: Values;
   onChange: (v: Values) => void;
   chosen: BlastPackage | null;
@@ -532,7 +514,7 @@ function RequestForm({
               className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
             >
               <CreditCard size={15} />
-              {copy.payCta} {priceOf(chosen, currency)}
+              {copy.payCta} {priceOf(chosen)}
             </a>
             <p className="max-w-md text-xs text-mist">{copy.payNote}</p>
           </>
@@ -577,7 +559,7 @@ function RequestForm({
                 <optgroup key={group} label={copy.groups[group].title}>
                   {items.map((p) => (
                     <option key={p.code} value={p.code}>
-                      {packageName(p, copy)} — {priceOf(p, currency)}
+                      {packageName(p, copy)} — {priceOf(p)}
                     </option>
                   ))}
                 </optgroup>
@@ -586,7 +568,7 @@ function RequestForm({
           </select>
         ) : (
           <p className="mt-0.5 text-sm font-bold text-white">
-            {chosen ? `${packageName(chosen, copy)} — ${priceOf(chosen, currency)}` : copy.fAny}
+            {chosen ? `${packageName(chosen, copy)} — ${priceOf(chosen)}` : copy.fAny}
           </p>
         )}
       </div>

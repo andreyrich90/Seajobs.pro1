@@ -134,7 +134,7 @@ The CV cannot be the public profile: `seafarers` exposes only a thin whitelist t
 - **Page level** — `SELLING` (`BLAST_PACKAGES.some(p => p.payUrl)`) only retires the "no payment is taken yet" banner. That line cannot stand on the same page as a working pay button.
 - **Package level** — the form subtitle (`formSub` vs `formSubPaid`) and the success panel follow *the package in hand*. A package with a link ends in a pay step with its price on the button; one without still ends in "we will write when it launches". Mixing the two levels would promise payment on packages that have no checkout, or hide it on the ones that do.
 
-The price on the button comes from `BLAST_PACKAGES`, not from the provider, so **a `payUrl` must point at a product priced the same as the row it sits on** — otherwise the button says €24 and the checkout says something else.
+The price on the button comes from `BLAST_PACKAGES`, not from the provider, so **a `payUrl` must point at a product priced the same as the row it sits on** — otherwise the button says $28 and the checkout says something else. For the same reason **the page quotes `usd` only**: the checkout charges in dollars, and a currency switcher let a reader read a euro price they would never be charged. `eur` stays in the catalogue because `/admin/service-requests` records and reports both.
 
 **The request is saved before the reader is sent to pay**, on purpose: someone who abandons the checkout is still a lead whose CV is already in hand. Match a payment to its request by the email address, and mark the row `paid` on `/admin/service-requests`.
 
