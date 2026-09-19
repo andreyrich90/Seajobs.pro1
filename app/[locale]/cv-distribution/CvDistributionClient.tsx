@@ -216,9 +216,19 @@ export default function CvDistributionClient({ copy, lang }: { copy: CvBlastCopy
                       <span className="text-xs text-mist">{p.recurring ? copy.perMonth : copy.once}</span>
                     </span>
 
-                    <span className="shrink-0 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2 text-[13px] font-bold text-brassInk">
-                      {copy.openDetails}
-                    </span>
+                    {/* A package that can be paid for says so in the list. The
+                        row still opens the dialog — the CV comes before the
+                        checkout — but "Подробнее" on a purchasable package read
+                        as if nothing were for sale. */}
+                    {p.payUrl ? (
+                      <span className="shrink-0 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-[13px] font-bold text-[#061523]">
+                        {copy.buyCta} · {priceOf(p, currency)}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2 text-[13px] font-bold text-brassInk">
+                        {copy.openDetails}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
