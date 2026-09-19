@@ -95,6 +95,9 @@ export type CvBlastCopy = {
    *  bases actually is, which the one-line `note` has no room for. */
   groupDetail: Record<PackageGroup, string>;
   openDetails: string;
+  /** Replaces openDetails on a package that has a checkout link, so the list
+   *  itself shows which packages can be bought today. */
+  buyCta: string;
   modalIncluded: string;
   modalHow: string;
   modalNote: string;
@@ -184,6 +187,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       extra: "Окрема послуга, не розсилка. Можна замовити саму по собі.",
     },
     openDetails: "Детальніше і замовити",
+    buyCta: "Купити",
     modalIncluded: "Що входить",
     modalHow: "Як це працює",
     modalNote: "Гарантії контракту немає: розсилка збільшує кількість компаній, які побачать анкету. Рішення про найм ухвалює компанія.",
@@ -284,6 +288,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       extra: "Отдельная услуга, не рассылка. Можно заказать саму по себе.",
     },
     openDetails: "Подробнее и заказать",
+    buyCta: "Купить",
     modalIncluded: "Что входит",
     modalHow: "Как это работает",
     modalNote: "Гарантии контракта нет: рассылка увеличивает число компаний, которые увидят анкету. Решение о найме принимает компания.",
@@ -384,6 +389,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       extra: "Osobna usługa, nie wysyłka. Można zamówić samodzielnie.",
     },
     openDetails: "Szczegóły i zamówienie",
+    buyCta: "Kup",
     modalIncluded: "Co obejmuje",
     modalHow: "Jak to działa",
     modalNote: "Nie ma gwarancji kontraktu: wysyłka zwiększa liczbę firm, które zobaczą Twoją aplikację. Decyzję o zatrudnieniu podejmuje firma.",
@@ -484,6 +490,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       extra: "A service in its own right, not a mailing. Can be ordered on its own.",
     },
     openDetails: "Details and order",
+    buyCta: "Buy",
     modalIncluded: "What is included",
     modalHow: "How it works",
     modalNote: "No contract is guaranteed: the mailing increases how many companies see your application. Hiring is the company's decision.",
@@ -584,6 +591,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
       extra: "Un serviciu de sine stătător, nu o distribuire. Se poate comanda separat.",
     },
     openDetails: "Detalii și comandă",
+    buyCta: "Cumpără",
     modalIncluded: "Ce include",
     modalHow: "Cum funcționează",
     modalNote: "Nu se garantează niciun contract: distribuirea crește numărul companiilor care îți văd dosarul. Angajarea o decide compania.",
