@@ -10,9 +10,13 @@
 //
 // Prices are the ones agreed with the partner who runs the mailing, already
 // carrying the agreed markup (+10% on the expensive packages, +20% on the cheap
-// ones), converted at 1 € = 52 ₴ and 1 $ = 45 ₴ and rounded. They are shown, but
-// nothing is charged yet: the button opens a request form, not a checkout.
-// Whole units only — nobody prices a mailing at €23.60.
+// ones), converted at 1 € = 52 ₴ and 1 $ = 45 ₴ and rounded. Whole units only —
+// nobody prices a mailing at $23.60.
+//
+// **The page quotes `usd`, and only `usd`** — the checkout charges in dollars,
+// and a price the reader is shown must be the price they are charged. `eur` is
+// kept because `/admin/service-requests` records and reports both, and because
+// the day a euro provider is used it is the number to quote.
 
 import type { Lang } from "@/lib/langs";
 
@@ -89,7 +93,6 @@ export type CvBlastCopy = {
 
   packagesTitle: string;
   packagesSub: string;
-  currencyLabel: string;
   groups: Record<PackageGroup, { title: string; note: string }>;
   /** A paragraph per group, shown in the package dialog — what this family of
    *  bases actually is, which the one-line `note` has no room for. */
@@ -173,7 +176,6 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     packagesTitle: "Пакети",
     packagesSub: "Ціна вказана за пакет цілком. «Відправок: 3» означає три відправки по цій базі з інтервалом.",
-    currencyLabel: "Валюта",
     groups: {
       fleet:   { title: "За типом флоту", note: "вужча база — вищий відгук" },
       general: { title: "Загальні бази", note: "максимальне охоплення по всіх типах суден" },
@@ -274,7 +276,6 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     packagesTitle: "Пакеты",
     packagesSub: "Цена указана за пакет целиком. «Отправок: 3» означает три отправки по этой базе с интервалом.",
-    currencyLabel: "Валюта",
     groups: {
       fleet:   { title: "По типу флота", note: "узкая база — выше отклик" },
       general: { title: "Общие базы", note: "максимальный охват по всем типам судов" },
@@ -375,7 +376,6 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     packagesTitle: "Pakiety",
     packagesSub: "Cena za cały pakiet. „Wysyłek: 3” oznacza trzy wysyłki do tej bazy w odstępach.",
-    currencyLabel: "Waluta",
     groups: {
       fleet:   { title: "Według typu floty", note: "węższa baza — wyższa odpowiedź" },
       general: { title: "Bazy ogólne", note: "maksymalny zasięg, wszystkie typy statków" },
@@ -476,7 +476,6 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     packagesTitle: "Packages",
     packagesSub: "The price is for the whole package. “Sends: 3” means three mailings to that base, spaced out.",
-    currencyLabel: "Currency",
     groups: {
       fleet:   { title: "By fleet type", note: "a narrower base answers more often" },
       general: { title: "General bases", note: "widest reach, every vessel type" },
@@ -577,7 +576,6 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
 
     packagesTitle: "Pachete",
     packagesSub: "Prețul este pentru tot pachetul. „Trimiteri: 3” înseamnă trei trimiteri către acea bază, la interval.",
-    currencyLabel: "Monedă",
     groups: {
       fleet:   { title: "După tipul flotei", note: "o bază mai îngustă răspunde mai des" },
       general: { title: "Baze generale", note: "acoperire maximă, toate tipurile de nave" },
