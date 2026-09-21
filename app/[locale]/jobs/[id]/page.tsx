@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
@@ -57,12 +57,22 @@ function getAdminClient() {
 }
 
 async function fetchVacancy(param: string): Promise<VacancyFull | null> {
-  const id = extractId(param) ?? param; // accept "<slug>-<uuid>" or bare id
-  const { data } = await getAdminClient()
+  // "<slug>-<uuid>" or a bare uuid both end in one; anything else was never a
+  // vacancy URL, and asking Postgres about it only earns an invalid-uuid error.
+  const id = extractId(param);
+  if (!id) return null;
+  const { data, error } = await getAdminClient()
     .from("vacancies")
     .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, contact_phone, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
+  // PGRST116 is PostgREST's "no rows": the listing really is gone, and 404 is
+  // the truth. Anything else is our side failing, and a failure must not be
+  // answered with "gone" — throw, end the request in a 500, and let Google come
+  // back to a URL it would otherwise drop from the index.
+  if (error && error.code !== "PGRST116") {
+    throw new Error(`vacancy lookup failed: ${error.message}`);
+  }
   return (data as VacancyFull | null);
 }
 
@@ -205,10 +215,13 @@ export default async function VacancyPage(
 ) {
   const { id, locale } = await params;
   const vacancy = await fetchVacancy(id);
-  // Old/deleted vacancy links (still indexed by Google, or shared before the
-  // listing was removed) send the visitor to the job board instead of a 404 —
-  // keeping their locale (English has no prefix under localePrefix "as-needed").
-  if (!vacancy) redirect(locale === "en" ? "/jobs" : `/${locale}/jobs`);
+  // A deleted listing answers 404, not a redirect to the board. These URLs are
+  // in the sitemap while they live, so when one goes Google refetches it: a
+  // redirect told it "this moved to /jobs", which is false and which Search
+  // Console reports as "page with redirect" against every expired vacancy. The
+  // 404 page itself says the vacancy was filled or removed and links to the
+  // board, so a visitor from an old Telegram post still lands somewhere useful.
+  if (!vacancy) notFound();
 
   const company = vacancy.companies;
 

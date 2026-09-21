@@ -198,6 +198,10 @@ The `@/` path alias resolves to the repository root (configured in `tsconfig.jso
 
 `lib/seo.ts` builds hreflang `alternates.languages` maps and OpenGraph locale codes per route, used in every `[locale]` layout's `generateMetadata`. `app/sitemap.ts` and `app/robots.ts` are dynamic route handlers (not static files). Job and news detail pages have dedicated `opengraph-image.tsx`/`twitter-image.tsx` route handlers for per-item social cards. URL slugs are `<slugified-title>-<uuid>` (`lib/slug.ts`); always look records up by the trailing UUID, never by the slug text, so old/edited-title links keep resolving.
 
+**A detail page whose record is gone answers `notFound()` — never a redirect to the index, never a 200 with an empty shell.** Every one of these URLs was in the sitemap while it lived, so Google refetches it after the record goes: a redirect claims the vacancy *moved to* `/jobs`, which fills Search Console's "page with redirect" report as fast as listings expire, and a 200 on an empty page is a soft 404 that gets recrawled forever and can be folded into another page as a duplicate. `app/not-found.tsx` is written for exactly this reader — it says in five languages that the vacancy was filled or removed and links to the board — so the honest status costs the visitor nothing.
+
+The lookups distinguish **gone** from **broken**: PostgREST's `PGRST116` ("no rows") is the only error that becomes a 404, and every other error is rethrown so the request ends in a 500. A Supabase outage answering "404" for every vacancy would invite Google to drop the whole index; a 500 asks it to come back.
+
 ### Shared components (`components/`)
 
 All are `"use client"`. The reused ones worth knowing:
