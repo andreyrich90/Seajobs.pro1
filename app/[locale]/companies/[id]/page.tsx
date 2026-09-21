@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
 import CompanyClient from "./CompanyClient";
@@ -70,6 +71,35 @@ export async function generateMetadata(
   };
 }
 
-export default function PublicCompanyPage() {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Does this company still exist? The profile itself is rendered by the client,
+ * which is why a deleted company used to answer 200 and then say "not found" in
+ * the body — a soft 404, recrawled forever and liable to be folded into another
+ * page as a duplicate. One cheap server-side lookup turns it into a real 404.
+ *
+ * Same split as the vacancy page: PGRST116 ("no rows") is the only error that
+ * means gone; anything else is our side failing and must not be reported as a
+ * missing company.
+ */
+async function companyExists(id: string): Promise<boolean> {
+  if (!UUID.test(id)) return false; // never a company URL — don't ask Postgres
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+  const { error } = await supabase.from("companies").select("id").eq("id", id).single();
+  if (error && error.code !== "PGRST116") {
+    throw new Error(`company lookup failed: ${error.message}`);
+  }
+  return !error;
+}
+
+export default async function PublicCompanyPage(
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  if (!(await companyExists(id))) notFound();
   return <CompanyClient />;
 }
