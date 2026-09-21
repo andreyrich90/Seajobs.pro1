@@ -71,7 +71,7 @@ Almost everything lives under `app/[locale]/`; only the auth screens are unlocal
 |-------|-----------|-------|
 | `/` | `app/[locale]/page.tsx` + `HomeClient.tsx` | hero + search + latest jobs/news |
 | `/jobs`, `/jobs/[id]` | `app/[locale]/jobs/` | Supabase-backed listing + detail; `[id]` accepts `slug-<uuid>` (see `lib/slug.ts`) |
-| `/companies/[id]` | `app/[locale]/companies/[id]/` | public company profile |
+| `/companies/[id]` | `app/[locale]/companies/[id]/` | public company profile; the page is a Server Component that only checks the company exists (404 if not — see **SEO**) and hands rendering to `CompanyClient` |
 | `/seafarers/[id]` | `app/[locale]/seafarers/[id]/` | public seafarer profile (shared with companies) |
 | `/forum`, `/forum/[id]` | `app/[locale]/forum/` | categories + topics/posts, all Supabase |
 | `/news`, `/news/[id]` | `app/[locale]/news/` | hybrid static (`lib/data.ts`) + `news_articles` table |
