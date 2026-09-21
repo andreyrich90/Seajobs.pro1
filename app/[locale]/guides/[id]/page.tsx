@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { extractId, slugId } from "@/lib/slug";
@@ -28,25 +28,27 @@ function excerpt(text: string, max = 160): string {
 async function resolveGuide(id: string, locale: string): Promise<ResolvedGuide | null> {
   const uuid = extractId(id);
   if (!uuid) return null;
-  try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    );
-    const { data } = await supabase.from("news_articles").select("*").eq("id", uuid).single();
-    if (!data || data.category !== "guide" || !data.is_published) return null;
-    return {
-      id,
-      title: loc(data.title, locale),
-      body: loc(data.body, locale),
-      tag: data.tag ?? null,
-      gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
-      coverUrl: data.cover_url ?? null,
-      date: data.published_at ?? data.created_at,
-    };
-  } catch {
-    return null;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+  const { data, error } = await supabase.from("news_articles").select("*").eq("id", uuid).single();
+  // PGRST116 is "no rows" — genuinely gone, and null here becomes a 404. Every
+  // other failure used to be swallowed into that same null, which would now
+  // tell Google a live guide had vanished; let it throw instead.
+  if (error && error.code !== "PGRST116") {
+    throw new Error(`guide lookup failed: ${error.message}`);
   }
+  if (!data || data.category !== "guide" || !data.is_published) return null;
+  return {
+    id,
+    title: loc(data.title, locale),
+    body: loc(data.body, locale),
+    tag: data.tag ?? null,
+    gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+    coverUrl: data.cover_url ?? null,
+    date: data.published_at ?? data.created_at,
+  };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string; locale: string }> }): Promise<Metadata> {
@@ -77,7 +79,10 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
   await connection();
   const { id, locale } = await params;
   const guide = await resolveGuide(id, locale);
-  if (!guide) redirect(locale === "en" ? "/guides" : `/${locale}/guides`);
+  // 404, not a redirect to the index: a guide that is gone has not moved to
+  // /guides, and telling Google it did is what fills the "page with redirect"
+  // report. Same reasoning as the vacancy page.
+  if (!guide) notFound();
 
   const ui = GUIDES_UI[locale as Lang] ?? GUIDES_UI.en;
   const prefix = locale === "en" ? "" : `/${locale}`;

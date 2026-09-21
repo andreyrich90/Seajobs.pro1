@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { NEWS } from "@/lib/data";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { extractId, slugId } from "@/lib/slug";
@@ -153,26 +154,27 @@ async function resolveArticle(id: string, locale: string): Promise<InitialArticl
     };
   }
   if (uuid) {
-    try {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      );
-      const { data } = await supabase.from("news_articles").select("*").eq("id", uuid).single();
-      if (data) {
-        return {
-          id,
-          title: loc(data.title, locale),
-          slugTitle: loc(data.title, "en") || loc(data.title, locale),
-          body: loc(data.body, locale),
-          tag: data.tag ?? "News",
-          gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
-          coverUrl: data.cover_url ?? null,
-          date: data.published_at ?? data.created_at,
-        };
-      }
-    } catch {
-      /* fall through */
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    const { data, error } = await supabase.from("news_articles").select("*").eq("id", uuid).single();
+    // PGRST116 is "no rows" — the article is gone and the page must 404.
+    // Any other error is ours; it must not be reported as a missing article.
+    if (error && error.code !== "PGRST116") {
+      throw new Error(`news lookup failed: ${error.message}`);
+    }
+    if (data) {
+      return {
+        id,
+        title: loc(data.title, locale),
+        slugTitle: loc(data.title, "en") || loc(data.title, locale),
+        body: loc(data.body, locale),
+        tag: data.tag ?? "News",
+        gradient: data.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+        coverUrl: data.cover_url ?? null,
+        date: data.published_at ?? data.created_at,
+      };
     }
   }
   return null;
@@ -183,7 +185,10 @@ const BASE_URL = "https://seajobs.pro";
 export default async function NewsArticlePage({ params }: { params: Promise<{ id: string; locale: string }> }) {
   const { id, locale } = await params;
   const initialArticle = await resolveArticle(id, locale);
-  if (!initialArticle) return <ArticleClient id={id} initialArticle={initialArticle} />;
+  // An article that cannot be resolved answers 404 rather than rendering an
+  // empty shell with a 200. A soft 404 is worse than a hard one: Google keeps
+  // recrawling the URL, and may treat the empty page as a duplicate of another.
+  if (!initialArticle) notFound();
 
   const nUuid = extractId(id);
   const canonicalPath = nUuid ? `/news/${slugId(initialArticle.slugTitle, nUuid)}` : `/news/${id}`;
