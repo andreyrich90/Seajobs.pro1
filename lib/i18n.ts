@@ -2322,3 +2322,42 @@ Object.assign(T.en, CAB7_EN);
 Object.assign(T.ru, CAB7_RU);
 Object.assign(T.ua, CAB7_UA);
 Object.assign(T.pl, CAB7_PL);
+
+// ── "Buy us a coffee" on the home page ──
+//
+// A tip, not a fee, and the copy has to keep it that way: the site tells
+// seafarers everywhere never to pay for a job (components/NoPaymentWarning),
+// and MLC 2006 A1.4(5)(b) forbids charging them for placement. So the block
+// says plainly that everything is free and that the coffee buys nothing — no
+// priority, no hidden features. Drop that sentence and the block changes from
+// a thank-you into a soft paywall.
+const TIP_EN: Record<string, string> = {
+  tip_title: "The site is free — and stays free",
+  tip_body: "Vacancies, applications, your profile and your CV cost seafarers nothing, and we never take money for a job. If SeaJobs.pro has been useful, you can buy us a coffee. It is voluntary and buys nothing: no priority in applications, no hidden features.",
+  tip_cta: "Buy us a coffee",
+};
+const TIP_RU: Record<string, string> = {
+  tip_title: "Сайт бесплатный — и останется таким",
+  tip_body: "Вакансии, отклики, профиль и резюме не стоят морякам ничего, и мы никогда не берём деньги за трудоустройство. Если портал вам пригодился — можете угостить нас кофе. Это добровольно и ничего не даёт: ни приоритета в откликах, ни закрытых возможностей.",
+  tip_cta: "Купить нам кофе",
+};
+const TIP_UA: Record<string, string> = {
+  tip_title: "Сайт безкоштовний — і таким залишиться",
+  tip_body: "Вакансії, відгуки, профіль і резюме не коштують морякам нічого, і ми ніколи не беремо грошей за працевлаштування. Якщо портал вам знадобився — можете пригостити нас кавою. Це добровільно і нічого не дає: ні пріоритету у відгуках, ні закритих можливостей.",
+  tip_cta: "Купити нам каву",
+};
+const TIP_PL: Record<string, string> = {
+  tip_title: "Serwis jest bezpłatny — i taki zostanie",
+  tip_body: "Oferty, aplikacje, profil i CV nic marynarzy nie kosztują, a za pracę nigdy nie bierzemy pieniędzy. Jeśli SeaJobs.pro się przydał, możesz postawić nam kawę. To dobrowolne i nic nie daje: żadnego pierwszeństwa w aplikacjach ani ukrytych funkcji.",
+  tip_cta: "Postaw nam kawę",
+};
+const TIP_RO: Record<string, string> = {
+  tip_title: "Site-ul este gratuit — și așa rămâne",
+  tip_body: "Posturile, aplicările, profilul și CV-ul nu costă marinarii nimic, iar pentru un job nu luăm niciodată bani. Dacă SeaJobs.pro ți-a fost de folos, ne poți face cinste cu o cafea. Este voluntar și nu îți aduce nimic: nicio prioritate la aplicări, nicio funcție ascunsă.",
+  tip_cta: "Fă-ne cinste cu o cafea",
+};
+Object.assign(T.en, TIP_EN);
+Object.assign(T.ru, TIP_RU);
+Object.assign(T.ua, TIP_UA);
+Object.assign(T.pl, TIP_PL);
+Object.assign(T.ro, TIP_RO);
