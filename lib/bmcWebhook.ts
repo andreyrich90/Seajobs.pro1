@@ -70,6 +70,33 @@ export type BmcEvent = {
   eventKey: string;
 };
 
+/**
+ * What this event means for the order.
+ *
+ * The webhook is subscribed to three kinds — purchased, updated, refunded —
+ * and only the first is money arriving. Treating them alike would mark an
+ * order paid because its title was edited, or because the money went back.
+ *
+ * Matched on substrings because the exact strings BMC puts in `type` are not
+ * something we have seen yet: the dashboard calls them "Extra purchased",
+ * "Extra updated" and "Extra refunded", and the payload may spell them
+ * `extra_purchase.created`, `extra.purchased` or something else again.
+ *
+ * **An unrecognised type is never a payment.** Failing that way costs a
+ * message you have to act on by hand; failing the other way would start a
+ * mailing to thousands of addresses for an order nobody paid for.
+ */
+export function classify(eventType: string): "paid" | "refund" | "other" {
+  const t = eventType.toLowerCase();
+  // Order matters. "extra_purchase.refunded" and "extra_purchase.updated" both
+  // contain "purchase", so the verbs that are *not* money have to be read
+  // first — otherwise editing a product's title would mark an order paid.
+  if (t.includes("refund") || t.includes("chargeback") || t.includes("cancel")) return "refund";
+  if (t.includes("updated") || t.includes("edited") || t.includes("changed")) return "other";
+  if (t.includes("purchas") || t.includes("sale") || t.includes("order")) return "paid";
+  return "other";
+}
+
 export function readEvent(body: unknown, raw: string): BmcEvent {
   return {
     eventType: str(pick(body, ["type", "event", "event_type"])) ?? "unknown",
