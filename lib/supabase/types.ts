@@ -751,6 +751,11 @@ export interface Database {
           cv_path: string | null;
           cv_name: string | null;
           cv_size: number | null;
+          pay_clicked_at: string | null;
+          paid_at: string | null;
+          paid_amount: number | null;
+          paid_currency: string | null;
+          paid_ref: string | null;
         };
         Insert: {
           id?: string;
@@ -773,6 +778,11 @@ export interface Database {
           cv_path?: string | null;
           cv_name?: string | null;
           cv_size?: number | null;
+          pay_clicked_at?: string | null;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
         };
         Update: {
           id?: string;
@@ -795,6 +805,11 @@ export interface Database {
           cv_path?: string | null;
           cv_name?: string | null;
           cv_size?: number | null;
+          pay_clicked_at?: string | null;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
         };
         Relationships: [];
       };

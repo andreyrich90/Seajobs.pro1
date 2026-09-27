@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useEffect, useMemo, useState } from "react";
-import { Inbox, Mail, Trash2, Clock, User, Anchor, Paperclip } from "lucide-react";
+import { Inbox, Mail, Trash2, Clock, User, Anchor, Paperclip, CreditCard } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { money } from "@/lib/format";
 import type { ServiceRequest } from "@/lib/supabase/types";
@@ -213,6 +213,23 @@ export default function AdminServiceRequestsPage() {
                   <span className="flex items-center gap-1.5">
                     <Clock size={13} /> {formatDate(r.created_at)}
                   </span>
+                  {/* Paid beats went-to-pay, and both beat neither: the three
+                      states decide whether the mailing can start, who needs
+                      chasing, and who is still thinking about it. */}
+                  {r.paid_at ? (
+                    <span className="flex items-center gap-1.5 font-semibold text-teal">
+                      <CreditCard size={13} />
+                      {r.paid_amount !== null
+                        ? `${r.paid_amount} ${r.paid_currency ?? ""}`.trim()
+                        : "paid"}
+                      {" · "}
+                      {formatDate(r.paid_at)}
+                    </span>
+                  ) : r.pay_clicked_at ? (
+                    <span className="flex items-center gap-1.5 text-brassInk">
+                      <CreditCard size={13} /> went to pay · {formatDate(r.pay_clicked_at)}
+                    </span>
+                  ) : null}
                   {r.cv_path ? (
                     <button
                       onClick={() => openCv(r.id)}

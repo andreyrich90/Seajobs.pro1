@@ -167,14 +167,21 @@ export async function POST(req: NextRequest) {
     cv_size: cv.size,
   };
 
-  const { error } = await db.from("service_requests").insert(row);
+  // The id comes back so the browser can report the pay-button click against
+  // this exact row. It is a uuid nobody else has, and the only thing it unlocks
+  // is a timestamp — see api/service-request/pay-click.
+  const { data: inserted, error } = await db
+    .from("service_requests")
+    .insert(row)
+    .select("id")
+    .single();
   if (error) {
     console.error("[service-request]", error.message);
     return NextResponse.json({ error: "Could not save" }, { status: 500 });
   }
 
   await notifyAdmin(row, { name: safeName(cv.name), type: cv.type, bytes: cvBytes });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, id: inserted?.id ?? null });
 }
 
 /** Ping the admin's private chat. Silent when the chat id is not configured. */
