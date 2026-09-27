@@ -61,12 +61,12 @@ export const BLAST_PACKAGES: BlastPackage[] = [
   { code: "container",  name: "Container MAX",                     group: "fleet", eur: 22, usd: 25, addresses: 740,  sends: 3, tags: "Container · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580670" },
   { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 26, usd: 30, addresses: 810,  sends: 3, tags: "RO-RO · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580673" },
 
-  { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets" },
-  { code: "gen_mid",    group: "general", eur: 37, usd: 43, addresses: 11000, sends: 1, tags: "all fleets" },
+  { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580677" },
+  { code: "gen_mid",    group: "general", eur: 37, usd: 43, addresses: 11000, sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580679" },
   { code: "gen_std",    group: "general", eur: 31, usd: 36, addresses: 9600,  sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580675" },
   { code: "gen_eco",    group: "general", eur: 26, usd: 30, addresses: 7100,  sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580674" },
-  { code: "ua_crewing", group: "general", eur: 22, usd: 25, addresses: 700,   sends: 3, tags: "all fleets" },
-  { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing" },
+  { code: "ua_crewing", group: "general", eur: 22, usd: 25, addresses: 700,   sends: 3, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580681" },
+  { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580682" },
 
   // One price, different cadence: the narrower the base, the more often it can
   // be mailed without burning it out.
