@@ -63,7 +63,7 @@ export const BLAST_PACKAGES: BlastPackage[] = [
 
   { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets" },
   { code: "gen_mid",    group: "general", eur: 37, usd: 43, addresses: 11000, sends: 1, tags: "all fleets" },
-  { code: "gen_std",    group: "general", eur: 28, usd: 32, addresses: 9600,  sends: 1, tags: "all fleets" },
+  { code: "gen_std",    group: "general", eur: 31, usd: 36, addresses: 9600,  sends: 1, tags: "all fleets" },
   { code: "gen_eco",    group: "general", eur: 26, usd: 30, addresses: 7100,  sends: 1, tags: "all fleets" },
   { code: "ua_crewing", group: "general", eur: 22, usd: 25, addresses: 700,   sends: 3, tags: "all fleets" },
   { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing" },
