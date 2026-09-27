@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, tgSend, SITE } from "@/lib/telegramBot";
-import { readEvent, verifySignature } from "@/lib/bmcWebhook";
+import { classify, readEvent, verifySignature } from "@/lib/bmcWebhook";
 
 export const runtime = "nodejs";
 
@@ -51,19 +51,26 @@ export async function POST(req: NextRequest) {
 
   const { eventType, email, amount, currency, eventKey } = readEvent(body, raw);
 
-  // The row this payment belongs to: the newest unpaid request from that
-  // address. Matching on e-mail is imperfect — people pay from a second
-  // mailbox — and an unmatched payment is a normal outcome, not an error. It is
-  // still recorded, and still announced, so nobody has to notice it by hand.
+  // Money, money going back, or neither. The webhook is subscribed to three
+  // kinds of event and only one of them pays for anything.
+  const kind = classify(eventType);
+
+  // The row this event belongs to, matched on e-mail. A payment looks for the
+  // newest *unpaid* request; a refund looks for the newest *paid* one, since
+  // that is the order whose money is being returned.
+  //
+  // Matching on e-mail is imperfect — people pay from a second mailbox — and an
+  // unmatched event is a normal outcome, not an error. It is still recorded,
+  // and still announced, so nobody has to notice it by hand.
   let matched: { id: string; package_label: string; name: string | null; email: string } | null = null;
   if (email) {
-    const { data } = await db
+    const q = db
       .from("service_requests")
       .select("id, package_label, name, email")
       .eq("email", email)
-      .is("paid_at", null)
       .order("created_at", { ascending: false })
       .limit(1);
+    const { data } = await (kind === "refund" ? q.not("paid_at", "is", null) : q.is("paid_at", null));
     matched = data?.[0] ?? null;
   }
 
@@ -88,7 +95,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Could not record" }, { status: 500 });
   }
 
-  if (matched) {
+  // Only a purchase writes paid_at, and only paid_at authorises a mailing.
+  // A refund takes it away again: an order whose money went back is not paid,
+  // whatever it was a minute ago. "other" — an edit to the product, an event
+  // kind we have not seen — changes nothing and is only announced.
+  if (matched && kind === "paid") {
     const { error } = await db
       .from("service_requests")
       .update({
@@ -100,10 +111,16 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", matched.id);
     if (error) console.error("[bmc] request update", error.message);
+  } else if (matched && kind === "refund") {
+    const { error } = await db
+      .from("service_requests")
+      .update({ status: "dropped", paid_at: null })
+      .eq("id", matched.id);
+    if (error) console.error("[bmc] refund update", error.message);
   }
 
-  await announce({ matched, email, amount, currency, eventType });
-  return NextResponse.json({ ok: true, matched: !!matched });
+  await announce({ matched, email, amount, currency, eventType, kind });
+  return NextResponse.json({ ok: true, kind, matched: !!matched });
 }
 
 /** Tell the operator, loudly. This is the message the work starts from. */
@@ -113,30 +130,64 @@ async function announce(p: {
   amount: number | null;
   currency: string | null;
   eventType: string;
+  kind: "paid" | "refund" | "other";
 }) {
   const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
   if (!chatId) return;
 
   const sum = p.amount !== null ? `${p.amount} ${esc(p.currency ?? "")}`.trim() : "—";
-  const lines = p.matched
-    ? [
-        "💰 <b>ОПЛАЧЕНО</b>",
-        "",
-        `<b>${esc(p.matched.package_label)}</b> — ${sum}`,
-        p.matched.name ? `👤 ${esc(p.matched.name)}` : null,
-        `✉️ ${esc(p.matched.email)}`,
-        "",
-        "Заявка позначена як <b>paid</b> — можна запускати розсилку.",
-      ]
-    : [
-        "💰 <b>Оплата без заявки</b>",
-        "",
-        `Сума: ${sum}`,
-        p.email ? `✉️ ${esc(p.email)}` : "✉️ пошта не вказана",
-        `Подія: ${esc(p.eventType)}`,
-        "",
-        "Платіж не зіставився з жодною неоплаченою заявкою — можливо, платили з іншої пошти. Знайдіть заявку в адмінці й позначте вручну.",
-      ];
+  const who = [
+    p.matched?.name ? `👤 ${esc(p.matched.name)}` : null,
+    `✉️ ${esc(p.matched?.email ?? p.email ?? "пошта не вказана")}`,
+  ].filter(Boolean) as string[];
+
+  // Three messages, because three different things are being asked of the
+  // reader: start the work, stop it, or look at something unexpected.
+  let lines: (string | null)[];
+  if (p.kind === "refund") {
+    lines = [
+      "↩️ <b>ПОВЕРНЕННЯ КОШТІВ</b>",
+      "",
+      p.matched ? `<b>${esc(p.matched.package_label)}</b> — ${sum}` : `Сума: ${sum}`,
+      ...who,
+      "",
+      p.matched
+        ? "Заявку знято з оплати (<b>dropped</b>). <b>Не запускайте розсилку.</b> Якщо вона вже пішла — вирішуйте окремо."
+        : "Повернення не зіставилося з жодною оплаченою заявкою. Перевірте вручну.",
+    ];
+  } else if (p.kind === "paid" && p.matched) {
+    lines = [
+      "💰 <b>ОПЛАЧЕНО</b>",
+      "",
+      `<b>${esc(p.matched.package_label)}</b> — ${sum}`,
+      ...who,
+      "",
+      "Заявка позначена як <b>paid</b> — можна запускати розсилку.",
+    ];
+  } else if (p.kind === "paid") {
+    lines = [
+      "💰 <b>Оплата без заявки</b>",
+      "",
+      `Сума: ${sum}`,
+      ...who,
+      `Подія: ${esc(p.eventType)}`,
+      "",
+      "Платіж не зіставився з жодною неоплаченою заявкою — можливо, платили з іншої пошти. Знайдіть заявку в адмінці й позначте вручну.",
+    ];
+  } else {
+    // Not recognised as money either way. Announced rather than swallowed: if
+    // this turns out to be how Buy Me a Coffee spells a purchase, the message
+    // is what tells us to teach the code that spelling.
+    lines = [
+      "ℹ️ <b>Подія від Buy Me a Coffee</b>",
+      "",
+      `Тип: <code>${esc(p.eventType)}</code>`,
+      `Сума: ${sum}`,
+      ...who,
+      "",
+      "Нічого не змінено. Якщо це була оплата — позначте заявку вручну й перешліть це повідомлення розробнику.",
+    ];
+  }
 
   try {
     await tgSend(chatId, lines.filter(Boolean).join("\n"), {
