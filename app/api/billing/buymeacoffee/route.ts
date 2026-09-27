@@ -1,0 +1,149 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { esc, tgSend, SITE } from "@/lib/telegramBot";
+import { readEvent, verifySignature } from "@/lib/bmcWebhook";
+
+export const runtime = "nodejs";
+
+// Buy Me a Coffee's webhook: the only thing on the site that may say a
+// CV-distribution order was paid for.
+//
+// Nothing is mailed to a few thousand crewing addresses on a maybe, so the bar
+// for writing `paid_at` is a request this route can prove came from BMC. The
+// proof is an HMAC-SHA256 of the *raw* body under the webhook's signing secret,
+// arriving in `x-signature-sha256`. Without it anyone who learns the URL could
+// mark their own order paid, and the URL is not a secret — it sits in BMC's
+// dashboard and in every delivery log.
+//
+// The signature check and the payload reading both live in lib/bmcWebhook.ts,
+// where they can be exercised without a database. What is left here is the part
+// that needs one: match, record, announce.
+
+const PROVIDER = "buymeacoffee";
+
+function admin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+export async function POST(req: NextRequest) {
+  const secret = process.env.BMC_WEBHOOK_SECRET?.trim();
+  // 503, not 200: a webhook that silently accepts everything while unconfigured
+  // would let the first real payment vanish with no trace and no retry.
+  if (!secret) return NextResponse.json({ error: "Not configured" }, { status: 503 });
+
+  const db = admin();
+  if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
+
+  const raw = await req.text();
+  if (!verifySignature(raw, req.headers.get("x-signature-sha256"), secret)) {
+    return NextResponse.json({ error: "Bad signature" }, { status: 401 });
+  }
+
+  let body: Record<string, unknown>;
+  try {
+    body = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
+  }
+
+  const { eventType, email, amount, currency, eventKey } = readEvent(body, raw);
+
+  // The row this payment belongs to: the newest unpaid request from that
+  // address. Matching on e-mail is imperfect — people pay from a second
+  // mailbox — and an unmatched payment is a normal outcome, not an error. It is
+  // still recorded, and still announced, so nobody has to notice it by hand.
+  let matched: { id: string; package_label: string; name: string | null; email: string } | null = null;
+  if (email) {
+    const { data } = await db
+      .from("service_requests")
+      .select("id, package_label, name, email")
+      .eq("email", email)
+      .is("paid_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    matched = data?.[0] ?? null;
+  }
+
+  // Store the event first. If the update below fails, the money is still on
+  // record. The unique (provider, event_key) index makes a BMC retry a no-op.
+  const { error: evErr } = await db.from("payment_events").insert({
+    provider: PROVIDER,
+    event_key: eventKey,
+    event_type: eventType,
+    email,
+    amount,
+    currency,
+    request_id: matched?.id ?? null,
+    matched: !!matched,
+    payload: body,
+  });
+  if (evErr) {
+    // 23505 is "already have it": BMC retried a delivery we handled. Answer 200
+    // so they stop retrying, and do nothing else — the order is already paid.
+    if (evErr.code === "23505") return NextResponse.json({ ok: true, duplicate: true });
+    console.error("[bmc] event insert", evErr.message);
+    return NextResponse.json({ error: "Could not record" }, { status: 500 });
+  }
+
+  if (matched) {
+    const { error } = await db
+      .from("service_requests")
+      .update({
+        status: "paid",
+        paid_at: new Date().toISOString(),
+        paid_amount: amount,
+        paid_currency: currency,
+        paid_ref: eventKey,
+      })
+      .eq("id", matched.id);
+    if (error) console.error("[bmc] request update", error.message);
+  }
+
+  await announce({ matched, email, amount, currency, eventType });
+  return NextResponse.json({ ok: true, matched: !!matched });
+}
+
+/** Tell the operator, loudly. This is the message the work starts from. */
+async function announce(p: {
+  matched: { id: string; package_label: string; name: string | null; email: string } | null;
+  email: string | null;
+  amount: number | null;
+  currency: string | null;
+  eventType: string;
+}) {
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
+  if (!chatId) return;
+
+  const sum = p.amount !== null ? `${p.amount} ${esc(p.currency ?? "")}`.trim() : "—";
+  const lines = p.matched
+    ? [
+        "💰 <b>ОПЛАЧЕНО</b>",
+        "",
+        `<b>${esc(p.matched.package_label)}</b> — ${sum}`,
+        p.matched.name ? `👤 ${esc(p.matched.name)}` : null,
+        `✉️ ${esc(p.matched.email)}`,
+        "",
+        "Заявка позначена як <b>paid</b> — можна запускати розсилку.",
+      ]
+    : [
+        "💰 <b>Оплата без заявки</b>",
+        "",
+        `Сума: ${sum}`,
+        p.email ? `✉️ ${esc(p.email)}` : "✉️ пошта не вказана",
+        `Подія: ${esc(p.eventType)}`,
+        "",
+        "Платіж не зіставився з жодною неоплаченою заявкою — можливо, платили з іншої пошти. Знайдіть заявку в адмінці й позначте вручну.",
+      ];
+
+  try {
+    await tgSend(chatId, lines.filter(Boolean).join("\n"), {
+      buttonText: "Відкрити в адмінці",
+      buttonUrl: `${SITE}/admin/service-requests`,
+    });
+  } catch (e) {
+    console.error("[bmc] telegram", e instanceof Error ? e.message : e);
+  }
+}

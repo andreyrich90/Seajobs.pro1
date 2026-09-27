@@ -413,7 +413,30 @@ function RequestForm({
   // shared values without also carrying it across a dialog that may be closed
   // and reopened, and re-picking a file is one tap.
   const [cv, setCv] = useState<File | null>(null);
+  // Set once the request is saved; see onPayClick.
+  const [requestId, setRequestId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  /**
+   * "Went to pay", reported as the reader leaves for the checkout.
+   *
+   * sendBeacon, not fetch: the browser is about to open another tab and may
+   * throw this page's work away, and a beacon is handed to the browser to
+   * deliver whatever happens next. It is fire-and-forget on purpose — a lost
+   * beacon must never stand between the reader and the payment page, which is
+   * why nothing here is awaited and no failure is shown.
+   */
+  function onPayClick() {
+    if (!requestId) return;
+    try {
+      navigator.sendBeacon?.(
+        "/api/service-request/pay-click",
+        new Blob([JSON.stringify({ id: requestId })], { type: "text/plain" }),
+      );
+    } catch {
+      /* the checkout matters more than the telemetry */
+    }
+  }
 
   function pickCv(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0] ?? null;
@@ -483,6 +506,10 @@ function RequestForm({
       // No Content-Type header: the browser must set the multipart boundary.
       const res = await fetch("/api/service-request", { method: "POST", headers: auth, body: form });
       if (!res.ok) throw new Error(String(res.status));
+      // The row's id, kept only so the pay-button click can be reported against
+      // it. Nothing else on the page uses it.
+      const saved = (await res.json().catch(() => null)) as { id?: string } | null;
+      setRequestId(saved?.id ?? null);
     } catch {
       setError(copy.errFail);
       setSending(false);
@@ -511,6 +538,7 @@ function RequestForm({
               href={pay}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={onPayClick}
               className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
             >
               <CreditCard size={15} />
@@ -525,6 +553,7 @@ function RequestForm({
           onClick={() => {
             setSent(false);
             setCv(null);
+            setRequestId(null);
             if (fileRef.current) fileRef.current.value = "";
             onChange({ ...values, note: "" });
             onDone?.();
