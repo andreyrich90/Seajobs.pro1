@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
 async function notifyAdmin(
   row: {
     package_label: string;
-    price_eur: number | null;
+    price_usd: number | null;
     name: string | null;
     email: string;
     phone: string | null;
@@ -207,7 +207,10 @@ async function notifyAdmin(
   const lines = [
     "<b>Нова заявка на розсилку CV</b>",
     "",
-    `<b>${esc(row.package_label)}</b>${row.price_eur !== null ? ` — €${row.price_eur}` : ""}`,
+    // Dollars, because that is what the page quotes and what the checkout
+    // charges. The euro column still exists on the row, but showing it here
+    // put "€30" in the same thread as a "$35" pay button.
+    `<b>${esc(row.package_label)}</b>${row.price_usd !== null ? ` — $${row.price_usd}` : ""}`,
     row.name ? `👤 ${esc(row.name)}` : null,
     `✉️ ${esc(row.email)}`,
     row.phone ? `📞 ${esc(row.phone)}` : null,
