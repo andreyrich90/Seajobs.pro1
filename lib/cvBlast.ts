@@ -59,12 +59,12 @@ export const BLAST_PACKAGES: BlastPackage[] = [
   { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 34, usd: 40, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580665" },
   { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 26, usd: 30, addresses: 1060, sends: 3, tags: "Bulker · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580668" },
   { code: "container",  name: "Container MAX",                     group: "fleet", eur: 22, usd: 25, addresses: 740,  sends: 3, tags: "Container · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580670" },
-  { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 26, usd: 30, addresses: 810,  sends: 3, tags: "RO-RO · Merchant" },
+  { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 26, usd: 30, addresses: 810,  sends: 3, tags: "RO-RO · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580673" },
 
   { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets" },
   { code: "gen_mid",    group: "general", eur: 37, usd: 43, addresses: 11000, sends: 1, tags: "all fleets" },
-  { code: "gen_std",    group: "general", eur: 31, usd: 36, addresses: 9600,  sends: 1, tags: "all fleets" },
-  { code: "gen_eco",    group: "general", eur: 26, usd: 30, addresses: 7100,  sends: 1, tags: "all fleets" },
+  { code: "gen_std",    group: "general", eur: 31, usd: 36, addresses: 9600,  sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580675" },
+  { code: "gen_eco",    group: "general", eur: 26, usd: 30, addresses: 7100,  sends: 1, tags: "all fleets", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580674" },
   { code: "ua_crewing", group: "general", eur: 22, usd: 25, addresses: 700,   sends: 3, tags: "all fleets" },
   { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing" },
 
