@@ -56,9 +56,9 @@ export const BLAST_PACKAGES: BlastPackage[] = [
   // Narrow bases: fewer addresses, but every one of them hires this fleet.
   { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 30, usd: 35, addresses: 5400, sends: 1, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/Seajobs.pro/e/577095" },
   { code: "offshore2",  name: "Offshore MAX ×2",                   group: "fleet", eur: 43, usd: 50, addresses: 4900, sends: 2, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/577118" },
-  { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 34, usd: 40, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant" },
-  { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 26, usd: 30, addresses: 1060, sends: 3, tags: "Bulker · Merchant" },
-  { code: "container",  name: "Container MAX",                     group: "fleet", eur: 22, usd: 25, addresses: 740,  sends: 3, tags: "Container · Merchant" },
+  { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 34, usd: 40, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580665" },
+  { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 26, usd: 30, addresses: 1060, sends: 3, tags: "Bulker · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580668" },
+  { code: "container",  name: "Container MAX",                     group: "fleet", eur: 22, usd: 25, addresses: 740,  sends: 3, tags: "Container · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580670" },
   { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 26, usd: 30, addresses: 810,  sends: 3, tags: "RO-RO · Merchant" },
 
   { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets" },
