@@ -114,6 +114,10 @@ export type CvBlastCopy = {
   choose: string;
 
   formTitle: string;
+  /** Shown for a package with no checkout link. The service itself is running,
+   *  so this line must not read as "not launched yet" — what is missing is a
+   *  way to pay for *this* package on the site, and the answer is a link sent
+   *  by hand. */
   formSub: string;
   /** Replaces formSub once a checkout link exists: the pre-sale line promises
    *  that nothing has to be paid, which would sit directly above a pay button. */
@@ -210,7 +214,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     choose: "Залишити заявку",
 
     formTitle: "Заявка на розсилку",
-    formSub: "Залиште контакти — напишемо, щойно послуга запрацює. Нічого платити зараз не потрібно.",
+    formSub: "Цей пакет поки не можна оплатити на сайті. Залиште заявку з CV — надішлемо посилання на оплату, і беремо в роботу.",
     formSubPaid: "Заповніть анкету і прикріпіть CV. Далі — оплата, і беремо в роботу.",
     formChosen: "Обраний пакет",
     fName: "Ім'я",
@@ -237,7 +241,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     submit: "Залишити заявку",
     sending: "Надсилаємо…",
     okTitle: "Заявку прийнято",
-    okBody: "Напишемо на вказану пошту, щойно послуга запрацює. Ви серед перших — знижка ваша.",
+    okBody: "Надішлемо посилання на оплату на вказану пошту. Після оплати беремо розсилку в роботу.",
     another: "Залишити ще одну",
     errEmail: "Перевірте адресу пошти",
     errFail: "Не вдалося надіслати. Спробуйте ще раз.",
@@ -310,7 +314,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     choose: "Оставить заявку",
 
     formTitle: "Заявка на рассылку",
-    formSub: "Оставьте контакты — напишем, как только услуга заработает. Платить сейчас ничего не нужно.",
+    formSub: "Этот пакет пока нельзя оплатить на сайте. Оставьте заявку с CV — пришлём ссылку на оплату, и берём в работу.",
     formSubPaid: "Заполните анкету и приложите CV. Дальше — оплата, и берём в работу.",
     formChosen: "Выбранный пакет",
     fName: "Имя",
@@ -337,7 +341,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     submit: "Оставить заявку",
     sending: "Отправляем…",
     okTitle: "Заявка принята",
-    okBody: "Напишем на указанную почту, как только услуга заработает. Вы среди первых — скидка ваша.",
+    okBody: "Пришлём ссылку на оплату на указанную почту. После оплаты берём рассылку в работу.",
     another: "Оставить ещё одну",
     errEmail: "Проверьте адрес почты",
     errFail: "Не удалось отправить. Попробуйте ещё раз.",
@@ -410,7 +414,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     choose: "Zostaw zgłoszenie",
 
     formTitle: "Zgłoszenie na wysyłkę",
-    formSub: "Zostaw kontakt — napiszemy, gdy usługa ruszy. Teraz nic nie płacisz.",
+    formSub: "Tego pakietu nie da się na razie opłacić na stronie. Zostaw zgłoszenie z CV — wyślemy link do płatności i bierzemy do realizacji.",
     formSubPaid: "Wypełnij formularz i dołącz CV. Dalej płatność — i bierzemy do realizacji.",
     formChosen: "Wybrany pakiet",
     fName: "Imię",
@@ -437,7 +441,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     submit: "Zostaw zgłoszenie",
     sending: "Wysyłamy…",
     okTitle: "Zgłoszenie przyjęte",
-    okBody: "Napiszemy na podany adres, gdy usługa ruszy. Jesteś wśród pierwszych — zniżka jest Twoja.",
+    okBody: "Wyślemy link do płatności na podany adres. Po opłaceniu bierzemy wysyłkę do realizacji.",
     another: "Zostaw kolejne",
     errEmail: "Sprawdź adres e-mail",
     errFail: "Nie udało się wysłać. Spróbuj ponownie.",
@@ -510,7 +514,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     choose: "Request it",
 
     formTitle: "Request the mailing",
-    formSub: "Leave your contacts and we will write once the service is live. Nothing to pay now.",
+    formSub: "This package cannot be paid for on the site yet. Leave a request with your CV and we will send you a payment link, then start.",
     formSubPaid: "Fill in the form and attach your CV. Payment comes next, then we start.",
     formChosen: "Chosen package",
     fName: "Name",
@@ -537,7 +541,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     submit: "Send the request",
     sending: "Sending…",
     okTitle: "Request received",
-    okBody: "We will write to that address as soon as the service is live. You are among the first — the discount is yours.",
+    okBody: "We will send a payment link to that address. Once it is paid we start on the mailing.",
     another: "Send another",
     errEmail: "Check the email address",
     errFail: "Could not send. Please try again.",
@@ -610,7 +614,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     choose: "Trimite cererea",
 
     formTitle: "Cerere pentru distribuire",
-    formSub: "Lasă-ne datele de contact — scriem când serviciul pornește. Nu plătești nimic acum.",
+    formSub: "Acest pachet nu poate fi plătit încă pe site. Lasă cererea cu CV-ul — îți trimitem linkul de plată și începem.",
     formSubPaid: "Completează formularul și atașează CV-ul. Urmează plata, apoi începem.",
     formChosen: "Pachet ales",
     fName: "Nume",
@@ -637,7 +641,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     submit: "Trimite cererea",
     sending: "Se trimite…",
     okTitle: "Cerere primită",
-    okBody: "Îți scriem pe adresa indicată de îndată ce serviciul pornește. Ești printre primii — reducerea e a ta.",
+    okBody: "Îți trimitem linkul de plată pe adresa indicată. După plată punem distribuirea în lucru.",
     another: "Mai trimite una",
     errEmail: "Verifică adresa de e-mail",
     errFail: "Trimiterea a eșuat. Încearcă din nou.",
