@@ -54,29 +54,29 @@ export type BlastPackage = {
 
 export const BLAST_PACKAGES: BlastPackage[] = [
   // Narrow bases: fewer addresses, but every one of them hires this fleet.
-  { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 24, usd: 28, addresses: 5400, sends: 1, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/Seajobs.pro/e/577095" },
-  { code: "offshore2",  name: "Offshore MAX ×2",                   group: "fleet", eur: 38, usd: 44, addresses: 4900, sends: 2, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/577118" },
-  { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 27, usd: 31, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant" },
-  { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 19, usd: 22, addresses: 1060, sends: 3, tags: "Bulker · Merchant" },
-  { code: "container",  name: "Container MAX",                     group: "fleet", eur: 16, usd: 19, addresses: 740,  sends: 3, tags: "Container · Merchant" },
-  { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 20, usd: 23, addresses: 810,  sends: 3, tags: "RO-RO · Merchant" },
+  { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 30, usd: 35, addresses: 5400, sends: 1, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/Seajobs.pro/e/577095" },
+  { code: "offshore2",  name: "Offshore MAX ×2",                   group: "fleet", eur: 43, usd: 50, addresses: 4900, sends: 2, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/577118" },
+  { code: "tanker_gas", name: "Tanker + GAS Fleet",                group: "fleet", eur: 34, usd: 40, addresses: 2400, sends: 3, tags: "Tanker · GAS · Merchant" },
+  { code: "bulk",       name: "Bulk Carrier MAX",                  group: "fleet", eur: 26, usd: 30, addresses: 1060, sends: 3, tags: "Bulker · Merchant" },
+  { code: "container",  name: "Container MAX",                     group: "fleet", eur: 22, usd: 25, addresses: 740,  sends: 3, tags: "Container · Merchant" },
+  { code: "roro",       name: "RO-RO · Ferry · Passenger · Yacht", group: "fleet", eur: 26, usd: 30, addresses: 810,  sends: 3, tags: "RO-RO · Merchant" },
 
-  { code: "gen_max_ua", group: "general", eur: 37, usd: 43, addresses: 14000, sends: 1, tags: "all fleets" },
-  { code: "gen_mid",    group: "general", eur: 32, usd: 37, addresses: 11000, sends: 1, tags: "all fleets" },
+  { code: "gen_max_ua", group: "general", eur: 43, usd: 50, addresses: 14000, sends: 1, tags: "all fleets" },
+  { code: "gen_mid",    group: "general", eur: 37, usd: 43, addresses: 11000, sends: 1, tags: "all fleets" },
   { code: "gen_std",    group: "general", eur: 28, usd: 32, addresses: 9600,  sends: 1, tags: "all fleets" },
-  { code: "gen_eco",    group: "general", eur: 21, usd: 24, addresses: 7100,  sends: 1, tags: "all fleets" },
-  { code: "ua_crewing", group: "general", eur: 18, usd: 21, addresses: 700,   sends: 3, tags: "all fleets" },
-  { code: "crew_sites", group: "general", eur: 21, usd: 24, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing" },
+  { code: "gen_eco",    group: "general", eur: 26, usd: 30, addresses: 7100,  sends: 1, tags: "all fleets" },
+  { code: "ua_crewing", group: "general", eur: 22, usd: 25, addresses: 700,   sends: 3, tags: "all fleets" },
+  { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing" },
 
   // One price, different cadence: the narrower the base, the more often it can
   // be mailed without burning it out.
-  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 97, usd: 112, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant" },
-  { code: "full_tanker",    name: "Full Tanker",    group: "monthly", eur: 97, usd: 112, addresses: null, sends: 11, recurring: true, tags: "Tanker · Merchant" },
-  { code: "full_bulk",      name: "Full Bulk",      group: "monthly", eur: 97, usd: 112, addresses: null, sends: 16, recurring: true, tags: "Bulker · Merchant" },
-  { code: "full_container", name: "Full Container", group: "monthly", eur: 97, usd: 112, addresses: null, sends: 16, recurring: true, tags: "Container · Merchant" },
-  { code: "full_general",   name: "Full General",   group: "monthly", eur: 97, usd: 112, addresses: null, sends: 4,  recurring: true, tags: "all fleets" },
+  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 99, usd: 115, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant" },
+  { code: "full_tanker",    name: "Full Tanker",    group: "monthly", eur: 99, usd: 115, addresses: null, sends: 11, recurring: true, tags: "Tanker · Merchant" },
+  { code: "full_bulk",      name: "Full Bulk",      group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Bulker · Merchant" },
+  { code: "full_container", name: "Full Container", group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Container · Merchant" },
+  { code: "full_general",   name: "Full General",   group: "monthly", eur: 99, usd: 115, addresses: null, sends: 4,  recurring: true, tags: "all fleets" },
 
-  { code: "application_form", group: "extra", eur: 21, usd: 24, addresses: null, sends: 0, tags: "PDF · Word" },
+  { code: "application_form", group: "extra", eur: 17, usd: 20, addresses: null, sends: 0, tags: "PDF · Word" },
 ];
 
 export type CvBlastCopy = {
