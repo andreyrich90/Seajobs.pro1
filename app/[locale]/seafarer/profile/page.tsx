@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2, Link2, Copy, Check, MessageCircle, Send } from "lucide-react";
+import { cvParseError } from "@/lib/cvParseError";
 import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -226,13 +227,11 @@ export default function ProfilePage() {
       const data = await res.json();
 
       if (!data.ok || !data.profile) {
-        const reason =
-          data.error === "missing_api_key"
-            ? t.sp_cv_missing_key
-            : data.detail
-            ? t.sp_cv_could_not + data.detail
-            : t.sp_cv_unreadable;
-        setMessage({ type: "error", text: reason });
+        // The route answers with a code; the phrase is chosen here, where the
+        // reader's language is known. It used to append the route's English
+        // `detail` to a translated prefix, so a Polish seafarer read half a
+        // sentence in Polish and half in English.
+        setMessage({ type: "error", text: cvParseError(data.error, t) });
         return;
       }
 
