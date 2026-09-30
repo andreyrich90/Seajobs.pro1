@@ -14,6 +14,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { useLang } from "@/components/LangProvider";
+import { useT } from "@/components/DictProvider";
+import { cvParseError } from "@/lib/cvParseError";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
 import { supabase, notify } from "@/lib/supabase/client";
@@ -363,6 +365,8 @@ export default function VacancyDetailClient({
   relatedGuides?: RelatedGuide[];
 }) {
   const { lang } = useLang();
+  // Only for the CV-upload errors; the rest of this page's copy is per-lang maps.
+  const t = useT();
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
@@ -576,7 +580,7 @@ export default function VacancyDetailClient({
       });
       const data = await res.json();
       if (!data.ok || !data.profile) {
-        setCvNotice({ type: "error", text: "Could not read the CV. Please fill in your profile manually." });
+        setCvNotice({ type: "error", text: cvParseError(data.error, t) });
         return;
       }
       const p = data.profile as Record<string, unknown>;

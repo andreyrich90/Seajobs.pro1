@@ -2361,3 +2361,50 @@ Object.assign(T.ru, TIP_RU);
 Object.assign(T.ua, TIP_UA);
 Object.assign(T.pl, TIP_PL);
 Object.assign(T.ro, TIP_RO);
+
+// ── What went wrong reading a CV ──
+//
+// One phrase per error code from api/cv-parse (see lib/cvParseError.ts). Each
+// one ends with the next step: the logs showed a seafarer pressing the same
+// button on the same unreadable file six times, which is what a message saying
+// only "could not read this CV" earns.
+const CVP_EN: Record<string, string> = {
+  cvp_doc_old: "This is an old .doc file, which we cannot read. Open it in Word and save as .docx or PDF, then upload again.",
+  cvp_no_text: "No text was found in this file — it looks like a scan or a photo. Upload a PDF with selectable text, or a .docx.",
+  cvp_bad_type: "That file type is not supported. Upload a PDF or a Word .docx file.",
+  cvp_failed: "We could not read this CV automatically. Fill in the profile by hand — everything you enter is saved.",
+  cvp_busy: "The CV reader is unavailable right now. Try again in a few minutes, or fill in the profile by hand.",
+};
+const CVP_RU: Record<string, string> = {
+  cvp_doc_old: "Это старый формат .doc, мы его не читаем. Откройте файл в Word, сохраните как .docx или PDF и загрузите снова.",
+  cvp_no_text: "В файле не нашлось текста — похоже, это скан или фотография. Загрузите PDF, в котором текст выделяется, или .docx.",
+  cvp_bad_type: "Такой тип файла не поддерживается. Загрузите PDF или документ Word .docx.",
+  cvp_failed: "Автоматически прочитать это CV не удалось. Заполните профиль вручную — всё, что вы введёте, сохранится.",
+  cvp_busy: "Разбор CV сейчас недоступен. Попробуйте через несколько минут или заполните профиль вручную.",
+};
+const CVP_UA: Record<string, string> = {
+  cvp_doc_old: "Це старий формат .doc, ми його не читаємо. Відкрийте файл у Word, збережіть як .docx або PDF і завантажте ще раз.",
+  cvp_no_text: "У файлі не знайшлося тексту — схоже, це скан або фотографія. Завантажте PDF, у якому текст виділяється, або .docx.",
+  cvp_bad_type: "Такий тип файлу не підтримується. Завантажте PDF або документ Word .docx.",
+  cvp_failed: "Автоматично прочитати це CV не вдалося. Заповніть профіль вручну — усе, що ви введете, збережеться.",
+  cvp_busy: "Розбір CV зараз недоступний. Спробуйте за кілька хвилин або заповніть профіль вручну.",
+};
+const CVP_PL: Record<string, string> = {
+  cvp_doc_old: "To stary format .doc, którego nie odczytujemy. Otwórz plik w Wordzie, zapisz jako .docx lub PDF i wgraj ponownie.",
+  cvp_no_text: "W pliku nie znaleziono tekstu — to wygląda na skan lub zdjęcie. Wgraj PDF z tekstem do zaznaczenia albo .docx.",
+  cvp_bad_type: "Ten typ pliku nie jest obsługiwany. Wgraj PDF lub dokument Word .docx.",
+  cvp_failed: "Nie udało się odczytać tego CV automatycznie. Wypełnij profil ręcznie — wszystko, co wpiszesz, zostanie zapisane.",
+  cvp_busy: "Odczyt CV jest chwilowo niedostępny. Spróbuj za kilka minut albo wypełnij profil ręcznie.",
+};
+const CVP_RO: Record<string, string> = {
+  cvp_doc_old: "Este un fișier .doc vechi, pe care nu îl putem citi. Deschide-l în Word, salvează-l ca .docx sau PDF și încarcă-l din nou.",
+  cvp_no_text: "Nu am găsit text în acest fișier — pare a fi o scanare sau o fotografie. Încarcă un PDF cu text selectabil sau un .docx.",
+  cvp_bad_type: "Acest tip de fișier nu este acceptat. Încarcă un PDF sau un document Word .docx.",
+  cvp_failed: "Nu am reușit să citim automat acest CV. Completează profilul manual — tot ce introduci se salvează.",
+  cvp_busy: "Citirea CV-ului nu este disponibilă acum. Încearcă peste câteva minute sau completează profilul manual.",
+};
+Object.assign(T.en, CVP_EN);
+Object.assign(T.ru, CVP_RU);
+Object.assign(T.ua, CVP_UA);
+Object.assign(T.pl, CVP_PL);
+Object.assign(T.ro, CVP_RO);
