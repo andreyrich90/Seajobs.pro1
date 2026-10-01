@@ -65,7 +65,18 @@ Use `Link`/`useRouter`/`usePathname` from `@/i18n/navigation` (not `next/navigat
 
 ### Routing
 
-Almost everything lives under `app/[locale]/`; only the auth screens are unlocalized.
+The app has **two root layouts**, one per route group, and no `app/layout.tsx`:
+
+- **`app/(site)/[locale]/layout.tsx`** — every localized page. It owns `<html>`.
+- **`app/(plain)/layout.tsx`** — `/auth/*` and `/cv/[token]`, which carry no locale in the URL. It owns `<html>` too, fixed to `lang="en"`.
+
+Both render **`components/HtmlShell.tsx`** (fonts, the pre-paint theme script, the site JSON-LD, analytics, `ThemeProvider`/`LangProvider`). `app/not-found.tsx` renders the shell itself — an unmatched URL belongs to neither group, so nothing above it supplies the document.
+
+**Why it is split, and why not to merge it back:** `<html lang>` has to be the reader's language, and a layout can only know that from the URL — which means the layout owning `<html>` must sit *under* the `[locale]` segment. A single root layout above it could only learn the locale by reading request headers (`getLocale()`), and that one call rendered **every page on the site per request**, silently voiding every `revalidate` in the codebase. Route groups change no URLs; `app/(site)/[locale]/jobs` still serves `/jobs`.
+
+One trap this creates: **anything rendered inside `HtmlShell` is above `NextIntlClientProvider`**, so it cannot use `Link`/`useRouter` from `@/i18n/navigation` (they call `useLocale()` and throw "no intl context"). `CookieBanner` is rendered by each root layout *inside* its provider for exactly this reason.
+
+Almost everything lives under `app/(site)/[locale]/`; only the auth screens and the tokenised CV page are unlocalized.
 
 | Route | Page file | Notes |
 |-------|-----------|-------|
@@ -201,6 +212,17 @@ The `@/` path alias resolves to the repository root (configured in `tsconfig.jso
 ### SEO
 
 `lib/seo.ts` builds hreflang `alternates.languages` maps and OpenGraph locale codes per route, used in every `[locale]` layout's `generateMetadata`. `app/sitemap.ts` and `app/robots.ts` are dynamic route handlers (not static files). Job and news detail pages have dedicated `opengraph-image.tsx`/`twitter-image.tsx` route handlers for per-item social cards. URL slugs are `<slugified-title>-<uuid>` (`lib/slug.ts`); always look records up by the trailing UUID, never by the slug text, so old/edited-title links keep resolving.
+
+### Caching
+
+Public pages are cached and revalidated, not rendered per request. The numbers follow how fast each page's content actually changes: home and the rank/vessel/country landings **300s**, forum **60s** (a reply should appear while its author is still looking), news **600s**, salaries **1800s**, guides **3600s**, a company profile **600s**, a vacancy **300s**.
+
+Two rules worth keeping:
+
+- **A dynamic segment needs `generateStaticParams` or it is never cached.** `revalidate` alone does nothing there — the route is rendered per request. The landing pages return the real slug list, so all 190 of them are prerendered; the `[id]` routes return `[]`, which prerenders none but caches each one the first time it is asked for.
+- **`/jobs` stays dynamic on purpose**: it reads `searchParams`, so it cannot be cached without losing the filters.
+
+`/cv/[token]` must never be cached — it is a private document behind a bearer token.
 
 **A detail page whose record is gone answers `notFound()` — never a redirect to the index, never a 200 with an empty shell.** Every one of these URLs was in the sitemap while it lived, so Google refetches it after the record goes: a redirect claims the vacancy *moved to* `/jobs`, which fills Search Console's "page with redirect" report as fast as listings expire, and a 200 on an empty page is a soft 404 that gets recrawled forever and can be folded into another page as a duplicate. `app/not-found.tsx` is written for exactly this reader — it says in five languages that the vacancy was filled or removed and links to the board — so the honest status costs the visitor nothing.
 
