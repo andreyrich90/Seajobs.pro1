@@ -290,6 +290,10 @@ export default async function VacancyPage(
       "@type": "Organization",
       "name": company?.name ?? "SeaJobs.pro",
       "sameAs": company?.website ?? BASE_URL,
+      // The employer's own logo, and only that — this is the image Google puts
+      // next to the posting, so our card in its place would be a lie about who
+      // is hiring. Companies without one simply have no logo field.
+      ...(company?.logo_url ? { "logo": company.logo_url } : {}),
     },
     "jobLocation": {
       "@type": "Place",
@@ -304,8 +308,14 @@ export default async function VacancyPage(
     },
     "directApply": true,
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
-    // Per-vacancy social card, so the listing carries an indexable image.
-    "image": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}/opengraph-image`,
+    // NOT the per-vacancy social card, however much it looks like the right
+    // answer. Under a dynamic segment Next serves that image only at the hashed
+    // path it writes into <head> (…/opengraph-image-1cudn2?<token>); the hash is
+    // a build artefact with no API to read it, so the bare …/opengraph-image
+    // this used to point at answered 404 on every vacancy — and Googlebot
+    // fetches exactly this URL for Google Jobs. The root card has no hash
+    // because it sits on a static route, which is what makes it safe here.
+    "image": `${BASE_URL}/opengraph-image`,
   };
 
   // Always emit baseSalary — Google flags "missing field baseSalary" otherwise.
