@@ -1,0 +1,44 @@
+import type { Metadata } from "next";
+import { getServerSupabase } from "@/lib/supabase/admin";
+import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import NewsClient, { type DbArticle } from "./NewsClient";
+
+
+// News is written by hand, a few times a week.
+export const revalidate = 600;
+
+const TITLES: Record<string, string> = {
+  ua: "Морські новини для моряків | SeaJobs.pro",
+  pl: "Wiadomości morskie dla marynarzy | SeaJobs.pro",
+  ru: "Морские новости для моряков | SeaJobs.pro",
+  en: "Maritime News for Seafarers | SeaJobs.pro",
+  ro: "Știri maritime pentru marinari | SeaJobs.pro",
+};
+const DESCS: Record<string, string> = {
+  ua: "Останні новини морської індустрії, регуляції та оновлення крюінгу.",
+  pl: "Najnowsze wiadomości z branży morskiej, regulacje i aktualności crewingowe.",
+  ru: "Свежие новости морской отрасли, регуляции и обновления крюинга.",
+  en: "Latest maritime industry news, regulations and crewing updates.",
+  ro: "Cele mai noi știri din industria maritimă, reglementări și noutăți de crewing.",
+};
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const languages = hreflangAlternates("/news");
+  return {
+    title: TITLES[locale] ?? TITLES.en,
+    description: DESCS[locale] ?? DESCS.en,
+    alternates: { canonical: canonicalUrl("/news", locale), languages },
+  };
+}
+
+export default async function NewsPage() {
+  const { data } = await getServerSupabase()
+    .from("news_articles")
+    .select("id, title, body, tag, cover_gradient, cover_url, published_at, created_at")
+    .eq("is_published", true)
+    .neq("category", "guide")
+    .order("published_at", { ascending: false });
+
+  return <NewsClient initialDbArticles={(data ?? []) as DbArticle[]} />;
+}

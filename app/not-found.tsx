@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import HtmlShell from "@/components/HtmlShell";
 
-// Custom 404. Renders inside the root layout (navy background, fonts). Shown
-// for any unmatched URL — most often an old, since-deleted vacancy link from
+// Custom 404. Shown for any unmatched URL — most often an old, since-deleted vacancy link from
 // Google's index or a bot probing random paths. Keeps the visitor on-site with
 // clear links instead of a dead end. noindex so the 404 itself never ranks.
 export const metadata: Metadata = {
@@ -10,7 +10,12 @@ export const metadata: Metadata = {
 };
 
 export default function NotFound() {
+  // This page carries its own <html>. An unmatched URL belongs to neither root
+  // layout — not to the localized tree, not to /auth — so there is nothing
+  // above it to provide the document. Without the shell it would render
+  // unstyled, with no fonts and a white background.
   return (
+    <HtmlShell lang="en">
     <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
       <p className="font-display text-7xl font-bold text-brassInk">404</p>
       <h1 className="mt-4 font-display text-2xl font-semibold text-foam">
@@ -42,5 +47,6 @@ export default function NotFound() {
         </a>
       </div>
     </main>
+    </HtmlShell>
   );
 }
