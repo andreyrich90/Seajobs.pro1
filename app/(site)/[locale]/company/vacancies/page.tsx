@@ -652,8 +652,10 @@ export default function VacanciesPage() {
                   )}
                 </div>
 
+                {/* Счётчик просмотров отсюда убран: он виден только администратору,
+                    на /admin/vacancies. Отклики компания видит по-прежнему — это её
+                    собственные заявки, а не статистика площадки. */}
                 <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist/60">
-                  <span>{t.va_views}{v.views_count}</span>
                   <span>{t.va_apps}{appCounts[v.id] ?? 0}</span>
                 </div>
               </div>
