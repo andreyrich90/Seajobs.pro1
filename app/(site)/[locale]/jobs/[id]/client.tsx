@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,9 +37,7 @@ export type VacancyDetail = {
   contract_duration: string | null;
   joining_date: string | null;
   description: string | null;
-  // views_count сюда не приходит: страница его не показывает, а отдавать счётчик
-  // в HTML каждому читателю — значит показывать его всем. Инкремент идёт через
-  // RPC по id вакансии и в текущем значении не нуждается.
+  views_count: number;
   created_at: string;
   is_imported?: boolean;
   source_url?: string | null;
@@ -118,6 +116,7 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Worth reading before you apply",
     howToApply: "How to apply — step by step",
     share: "Share",
+    views: "Views",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -141,6 +140,7 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Что почитать перед откликом",
     howToApply: "Как подать анкету — пошаговая инструкция",
     share: "Поделиться",
+    views: "Просмотры",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -164,6 +164,7 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Що почитати перед відгуком",
     howToApply: "Як подати анкету — покрокова інструкція",
     share: "Поділитись",
+    views: "Перегляди",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -187,6 +188,7 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Warto przeczytać przed aplikowaniem",
     howToApply: "Jak aplikować — krok po kroku",
     share: "Udostępnij",
+    views: "Wyświetlenia",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -210,6 +212,7 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "De citit înainte de a aplica",
     howToApply: "Cum aplici — pas cu pas",
     share: "Distribuie",
+    views: "Vizualizări",
   },
 };
 
@@ -808,6 +811,13 @@ export default function VacancyDetailClient({
                   <div>
                     <p className="text-xs text-mist">Posted</p>
                     <p className="text-sm font-semibold text-white">{formatDate(vacancy.created_at)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Eye size={15} className="text-mist shrink-0" />
+                  <div>
+                    <p className="text-xs text-mist">{(CTX[lang] ?? CTX.en).views}</p>
+                    <p className="text-sm font-semibold tabular-nums text-white">{vacancy.views_count ?? 0}</p>
                   </div>
                 </div>
               </div>
