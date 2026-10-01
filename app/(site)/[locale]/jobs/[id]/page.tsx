@@ -27,11 +27,7 @@ export function generateStaticParams() {
 }
 
 
-// Everything the vacancy row itself carries. `applications_count` is left out
-// on purpose: it is not a column but a COUNT run beside this query, and it is
-// added to the object at the point where it is handed to the client — so the
-// type here does not claim the row came back with it.
-type VacancyFull = Omit<VacancyDetail, "applications_count"> & {
+type VacancyFull = VacancyDetail & {
   is_imported: boolean;
   source_url: string | null;
   country: string | null;
@@ -94,29 +90,6 @@ async function fetchVacancy(param: string): Promise<VacancyFull | null> {
     throw new Error(`vacancy lookup failed: ${error.message}`);
   }
   return (data as VacancyFull | null);
-}
-
-/**
- * How many seafarers have applied, for the public counter on the page.
- *
- * Counted here with the service-role key rather than from the browser, because
- * `applications` is closed by policy: its rows are visible only to the seafarer
- * who wrote one, the company that owns the vacancy, and an admin. What leaves
- * the server is the finished number, never access to the applications
- * themselves. `head: true` asks Postgres for the count without sending a single
- * row back, and the page is cached for 5 minutes, so this costs one cheap
- * COUNT per revalidation rather than one per reader.
- *
- * A failure returns 0 instead of throwing: a counter is decoration, and no
- * vacancy should 500 because a count did not come back.
- */
-async function countApplications(vacancyId: string): Promise<number> {
-  const { count, error } = await getAdminClient()
-    .from("applications")
-    .select("id", { count: "exact", head: true })
-    .eq("vacancy_id", vacancyId);
-  if (error) return 0;
-  return count ?? 0;
 }
 
 // Wrapper words for the share card and the search-result snippet, kept here
@@ -272,10 +245,9 @@ export default async function VacancyPage(
   // the portal-wide range for its rank × fleet, what the rank actually does,
   // and the guides worth reading before applying. Imported postings otherwise
   // carry nothing but the agency's own text.
-  const [salaryIndex, relatedGuides, applicationsCount] = await Promise.all([
+  const [salaryIndex, relatedGuides] = await Promise.all([
     getSalaryIndex(),
     fetchRelatedGuides(vacancy.rank, vacancy.vessel_type, vacancy.title),
-    countApplications(vacancy.id),
   ]);
   const salaryContext: SalaryContext | null = buildSalaryContext(salaryIndex, {
     rank: vacancy.rank,
@@ -407,7 +379,7 @@ export default async function VacancyPage(
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <VacancyDetailClient
-        vacancy={{ ...vacancy, applications_count: applicationsCount }}
+        vacancy={vacancy}
         salaryContext={salaryContext}
         rankBlurb={rankBlurb}
         rankSlug={rankInfo?.slug ?? null}
