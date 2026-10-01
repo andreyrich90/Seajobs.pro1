@@ -10,6 +10,30 @@ import { postVacancyToChannel, type ChannelPostResult } from "@/lib/telegramFeed
 // are flagged is_imported and carry the crewing contact_email so applications
 // forward our CV straight to the agency.
 
+/**
+ * A joining date that has already passed is stored as "ASAP" (null).
+ *
+ * The parser is told to use the first day of the month when a post gives only
+ * "joining September", so a post written late in September arrives carrying a
+ * date three weeks old. Stored as-is, it met the auto-close rule
+ * (`joining_date` older than 14 days) on the very next nightly run, and a
+ * vacancy published today went Inactive overnight — the whole imported batch
+ * at once, since one post gives one date to every rank in it.
+ *
+ * Null is also the more honest reading: an agency posting today is crewing now,
+ * not retroactively. The check lives here rather than in the prompt because
+ * every import route passes through this function, and a rule the model has to
+ * remember is not a rule.
+ */
+function joiningDateOrAsap(raw: string | null | undefined): string | null {
+  const d = raw?.trim();
+  if (!d) return null;
+  // The parser emits YYYY-MM-DD, which compares correctly as a string. Anything
+  // else is left alone rather than guessed at — same as before this check.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  return d < new Date().toISOString().slice(0, 10) ? null : d;
+}
+
 export type ImportVacancyInput = {
   companyName?: string | null;
   companyLocation?: string | null;
@@ -123,7 +147,7 @@ export async function importVacancy(
     // The parser turns a tolerance like "4 +/- 1 month" into "4+-1 months";
     // clean it on the way in so the stored value is presentable too.
     contract_duration: normalizeContractDuration(input.contractDuration),
-    joining_date: input.joiningDate || null,
+    joining_date: joiningDateOrAsap(input.joiningDate),
     description: input.description?.trim() || null,
     is_active: true,
     is_imported: true,
