@@ -26,11 +26,21 @@ export async function GET(req: Request) {
   // Grace period: keep vacancies live for 2 weeks after the joining date.
   // Only deactivate those whose joining date passed more than 14 days ago.
   const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+  // …and never close something that was only just posted. The joining date
+  // comes from the agency's own text and can already be in the past when the
+  // posting arrives, which used to mean a vacancy published today went Inactive
+  // on tonight's run — a whole imported batch at once, before anyone could see
+  // it. Posting age is the floor: whatever the text says, a vacancy gets two
+  // weeks on the board. Note that re-importing a recurring posting rewrites
+  // created_at, so a refreshed vacancy gets that window again, which is the
+  // intent — the agency has just re-advertised it.
+  const posted = new Date(Date.now() - 14 * 864e5).toISOString();
   const { data, error } = await admin
     .from("vacancies")
     .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq("is_active", true)
     .lt("joining_date", cutoff) // null joining_date never matches → "ASAP" stays active
+    .lt("created_at", posted)
     .select("id");
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });

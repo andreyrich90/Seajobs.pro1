@@ -13,6 +13,14 @@ function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
+// The same 14-day rule the nightly cron applies, so the date that will cost a
+// vacancy its place is marked before it does. Red means the next run closes it
+// — unless the posting itself is younger than 14 days, which the cron now also
+// requires.
+function expiredJoining(d: string) {
+  return d < new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+}
+
 export default function AdminVacanciesPage() {
   const [vacancies, setVacancies] = useState<VacancyRow[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -95,13 +103,18 @@ export default function AdminVacanciesPage() {
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">Vacancy</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden sm:table-cell">Company</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden md:table-cell">Posted</th>
+                {/* Дата выхода стоит рядом со статусом не для красоты: именно по ней
+                    ночной крон гасит вакансию, и без неё «почему Inactive» из
+                    таблицы не читается. */}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase hidden lg:table-cell">Joining</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-mist uppercase">Views</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-mist uppercase">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-mist uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-10 text-center text-mist text-sm">No vacancies found.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-mist text-sm">No vacancies found.</td></tr>
               ) : filtered.map((v) => (
                 <tr key={v.id} className="bg-card hover:bg-white/[0.02] transition">
                   <td className="px-4 py-3">
@@ -110,6 +123,13 @@ export default function AdminVacanciesPage() {
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell text-foam text-sm">{v.company_name}</td>
                   <td className="px-4 py-3 hidden md:table-cell text-mist text-xs">{formatDate(v.created_at)}</td>
+                  <td className="px-4 py-3 hidden lg:table-cell text-xs">
+                    {v.joining_date
+                      ? <span className={expiredJoining(v.joining_date) ? "text-coral" : "text-mist"}>{formatDate(v.joining_date)}</span>
+                      : <span className="text-mist">ASAP</span>}
+                  </td>
+                  {/* Единственное место на сайте, где показан счётчик просмотров. */}
+                  <td className="px-4 py-3 text-right text-sm tabular-nums text-foam">{v.views_count ?? 0}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                       v.is_active ? "border-teal/20 bg-teal/10 text-teal" : "border-white/10 bg-white/5 text-mist"

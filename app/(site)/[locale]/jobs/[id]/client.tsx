@@ -37,7 +37,9 @@ export type VacancyDetail = {
   contract_duration: string | null;
   joining_date: string | null;
   description: string | null;
-  views_count: number;
+  // views_count сюда не приходит: страница его не показывает, а отдавать счётчик
+  // в HTML каждому читателю — значит показывать его всем. Инкремент идёт через
+  // RPC по id вакансии и в текущем значении не нуждается.
   created_at: string;
   is_imported?: boolean;
   source_url?: string | null;
