@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Users,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,9 +37,14 @@ export type VacancyDetail = {
   contract_duration: string | null;
   joining_date: string | null;
   description: string | null;
-  // views_count сюда не приходит: страница его не показывает, а отдавать счётчик
-  // в HTML каждому читателю — значит показывать его всем. Инкремент идёт через
-  // RPC по id вакансии и в текущем значении не нуждается.
+  views_count: number;
+  /**
+   * Сколько человек откликнулось. Считается на сервере сервисным ключом:
+   * таблица applications закрыта политикой (её строки видят только сам моряк,
+   * компания-владелец вакансии и админ), поэтому из браузера это число не
+   * получить — наружу выходит готовая цифра, а не доступ к откликам.
+   */
+  applications_count: number;
   created_at: string;
   is_imported?: boolean;
   source_url?: string | null;
@@ -118,6 +123,8 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Worth reading before you apply",
     howToApply: "How to apply — step by step",
     share: "Share",
+    views: "Views",
+    applicants: "Applied",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -141,6 +148,8 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Что почитать перед откликом",
     howToApply: "Как подать анкету — пошаговая инструкция",
     share: "Поделиться",
+    views: "Просмотры",
+    applicants: "Откликнулись",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -164,6 +173,8 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Що почитати перед відгуком",
     howToApply: "Як подати анкету — покрокова інструкція",
     share: "Поділитись",
+    views: "Перегляди",
+    applicants: "Відгукнулися",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -187,6 +198,8 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "Warto przeczytać przed aplikowaniem",
     howToApply: "Jak aplikować — krok po kroku",
     share: "Udostępnij",
+    views: "Wyświetlenia",
+    applicants: "Aplikowało",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -210,6 +223,8 @@ const CTX: Record<string, Record<string, string>> = {
     guidesTitle: "De citit înainte de a aplica",
     howToApply: "Cum aplici — pas cu pas",
     share: "Distribuie",
+    views: "Vizualizări",
+    applicants: "Au aplicat",
   },
 };
 
@@ -810,6 +825,25 @@ export default function VacancyDetailClient({
                     <p className="text-sm font-semibold text-white">{formatDate(vacancy.created_at)}</p>
                   </div>
                 </div>
+                <div className="flex items-center gap-2">
+                  <Eye size={15} className="text-mist shrink-0" />
+                  <div>
+                    <p className="text-xs text-mist">{(CTX[lang] ?? CTX.en).views}</p>
+                    <p className="text-sm font-semibold tabular-nums text-white">{vacancy.views_count ?? 0}</p>
+                  </div>
+                </div>
+                {/* Отклики показываем только когда они есть. «Откликнулись: 0» на
+                    свежей вакансии читается как «её никто не берёт», хотя значит
+                    лишь то, что она появилась час назад. */}
+                {vacancy.applications_count > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Users size={15} className="text-teal shrink-0" />
+                    <div>
+                      <p className="text-xs text-mist">{(CTX[lang] ?? CTX.en).applicants}</p>
+                      <p className="text-sm font-semibold tabular-nums text-white">{vacancy.applications_count}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Share */}

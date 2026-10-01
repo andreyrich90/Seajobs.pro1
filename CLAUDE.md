@@ -136,6 +136,8 @@ Two routes, both from the vacancy page's apply modal.
 
 The CV cannot be the public profile: `seafarers` exposes only a thin whitelist to anonymous visitors, and a CV carries a passport number, visas and a date of birth. Hence a token per application — one link per agency, dead after 30 days, revocable from the applications page (`components/CvLinksPanel.tsx`), and traceable to the agency it was given to if it leaks. `/cv/[token]` sits outside `[locale]` (the reader arrived from an email, and the CV is English) and is `noindex`. Expired, revoked and never-existed all return the same page — telling a stranger which tokens once existed helps nobody.
 
+The vacancy page shows both counters publicly — views and how many have applied. Views come from `vacancies.views_count`, incremented client-side through the `increment_vacancy_views` RPC. The applicant count cannot work the same way: `applications` is closed by policy to the seafarer who wrote one, the owning company and an admin, so a browser counting it gets zero rather than a count. `countApplications()` in `jobs/[id]/page.tsx` runs it server-side with the service-role key as a `head: true` COUNT — what leaves the server is the number, never access to the rows. The page's 300s `revalidate` means one COUNT per revalidation, not per reader, and both figures can be up to five minutes stale. The count is hidden at zero: "0 applied" on an hour-old vacancy reads as rejection rather than as newness.
+
 `lib/cvHtml.ts` renders the CV for both the email and that page, so they cannot drift apart. What the mailto route cannot know is whether the letter was actually sent; `cv_share_tokens.opened_at` is the only feedback it can give back.
 
 ### Paid services
