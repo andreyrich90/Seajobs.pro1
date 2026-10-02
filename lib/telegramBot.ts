@@ -388,3 +388,60 @@ export function botLang(): TgLang {
 export function channelId(): string | null {
   return process.env.TELEGRAM_CHANNEL_ID?.trim() || null;
 }
+
+/**
+ * The chats that get the operator notifications — a new CV-distribution
+ * request, a click on the pay button, a payment.
+ *
+ * `TELEGRAM_ADMIN_CHAT_ID` holds one id or several separated by commas, so a
+ * second person is added by editing an environment variable rather than by
+ * touching three routes. A group's id works here exactly like a private chat's
+ * and is usually the better answer: after that the recipients are managed in
+ * Telegram and nothing has to be redeployed.
+ *
+ * Mind that a group which Telegram promotes to a supergroup changes its id from
+ * `-123…` to `-100123…`. Nothing errors when that happens — the notifications
+ * simply stop — so re-read the id with the bot's /id command once the group is
+ * settled.
+ */
+export function adminChatIds(): string[] {
+  return (process.env.TELEGRAM_ADMIN_CHAT_ID ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Send the same message to every operator chat.
+ *
+ * One recipient failing must not stop the others — a blocked bot or a stale
+ * group id is exactly the case this exists for — so each send is awaited
+ * separately and its error logged rather than thrown. The caller gets how many
+ * actually went out.
+ */
+export async function tgSendAdmins(
+  html: string,
+  opts: { buttonText?: string; buttonUrl?: string } = {},
+): Promise<number> {
+  let sent = 0;
+  for (const chatId of adminChatIds()) {
+    const res = await tgSend(chatId, html, opts);
+    if (res.ok) sent++;
+    else console.error(`[telegram] admin ${chatId}: ${res.error}`);
+  }
+  return sent;
+}
+
+/** The same fan-out for a file. See `tgSendAdmins`. */
+export async function tgSendAdminsDocument(
+  file: { name: string; type: string; bytes: ArrayBuffer },
+  caption?: string,
+): Promise<number> {
+  let sent = 0;
+  for (const chatId of adminChatIds()) {
+    const res = await tgSendDocument(chatId, file, caption);
+    if (res.ok) sent++;
+    else console.error(`[telegram] admin doc ${chatId}: ${res.error}`);
+  }
+  return sent;
+}

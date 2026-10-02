@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { BLAST_PACKAGES, CV_BLAST_COPY, packageName } from "@/lib/cvBlast";
 import type { Lang } from "@/lib/langs";
-import { esc, tgSend, tgSendDocument, SITE } from "@/lib/telegramBot";
+import { esc, adminChatIds, tgSendAdmins, tgSendAdminsDocument, SITE } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -201,8 +201,12 @@ async function notifyAdmin(
   },
   file: { name: string; type: string; bytes: ArrayBuffer } | null,
 ) {
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
-  if (!chatId) return;
+  // Every operator chat, not one: TELEGRAM_ADMIN_CHAT_ID may list several.
+  // Note what goes out here — contacts and the CV file itself, which carries a
+  // passport number, visas and a date of birth. Adding a recipient to that
+  // variable hands them every applicant's personal data, so it is a decision
+  // about access, not about convenience.
+  if (adminChatIds().length === 0) return;
 
   const lines = [
     "<b>Нова заявка на розсилку CV</b>",
@@ -228,12 +232,12 @@ async function notifyAdmin(
   ].filter(Boolean) as string[];
 
   try {
-    await tgSend(chatId, lines.join("\n"), {
+    await tgSendAdmins(lines.join("\n"), {
       buttonText: "Відкрити в адмінці",
       buttonUrl: `${SITE}/admin/service-requests`,
     });
     if (file) {
-      await tgSendDocument(chatId, file, `CV — ${esc(row.name ?? row.email)}`);
+      await tgSendAdminsDocument(file, `CV — ${esc(row.name ?? row.email)}`);
     }
   } catch (e) {
     console.error("[service-request] telegram", e instanceof Error ? e.message : e);

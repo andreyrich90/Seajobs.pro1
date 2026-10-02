@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { esc, tgSend, SITE } from "@/lib/telegramBot";
+import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
 import { classify, readEvent, verifySignature } from "@/lib/bmcWebhook";
 
 export const runtime = "nodejs";
@@ -132,8 +132,7 @@ async function announce(p: {
   eventType: string;
   kind: "paid" | "refund" | "other";
 }) {
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
-  if (!chatId) return;
+  if (adminChatIds().length === 0) return;
 
   const sum = p.amount !== null ? `${p.amount} ${esc(p.currency ?? "")}`.trim() : "—";
   const who = [
@@ -190,7 +189,7 @@ async function announce(p: {
   }
 
   try {
-    await tgSend(chatId, lines.filter(Boolean).join("\n"), {
+    await tgSendAdmins(lines.filter(Boolean).join("\n"), {
       buttonText: "Відкрити в адмінці",
       buttonUrl: `${SITE}/admin/service-requests`,
     });

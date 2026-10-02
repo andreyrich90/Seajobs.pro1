@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { esc, tgSend, SITE } from "@/lib/telegramBot";
+import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -67,11 +67,9 @@ async function announce(row: {
   email: string;
   price_usd: number | null;
 }) {
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID?.trim();
-  if (!chatId) return;
+  if (adminChatIds().length === 0) return;
   try {
-    await tgSend(
-      chatId,
+    await tgSendAdmins(
       [
         "🧾 <b>Перейшов до оплати</b>",
         "",

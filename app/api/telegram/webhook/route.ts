@@ -4,14 +4,19 @@ import { botLang, esc, TG_COPY, tgSend } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
-// The bot's inbox. Telegram POSTs every update here; we only care about three
-// things a seafarer can do in a private chat:
+// The bot's inbox. Telegram POSTs every update here; we only care about a
+// handful of messages:
 //
 //   /start <code>  link this Telegram account to the profile that minted <code>
 //   /stop          unlink
-//   /id            reply with this chat's id, so the operator can read the value
-//                  for TELEGRAM_ADMIN_CHAT_ID without handing it to a third-party bot
 //   anything else  a one-paragraph explanation of what the bot is for
+//
+// Those three are private-chat only. One command is not:
+//
+//   /id            reply with this chat's id, so the operator can read the
+//                  value for TELEGRAM_ADMIN_CHAT_ID without handing it to a
+//                  third-party bot — in a private chat or in a group, since a
+//                  group is usually what should receive the notifications
 //
 // Telegram retries an update until it gets a 2xx, so this route answers 200 for
 // everything it understood — including the cases it deliberately ignores.
@@ -54,7 +59,27 @@ export async function POST(req: Request) {
 
   // Channel posts, edits, joins, bots — nothing to do, but acknowledge so
   // Telegram stops resending.
-  if (!chatId || msg?.chat?.type !== "private" || msg.from?.is_bot || !text) {
+  if (!chatId || msg.from?.is_bot || !text) {
+    return NextResponse.json({ ok: true });
+  }
+
+  // /id is the one command that answers outside a private chat, because its
+  // whole job is to read a chat's own id — and the chat whose id the operator
+  // actually needs is the group that receives the CV-distribution
+  // notifications. Telegram addresses a command to a specific bot as
+  // "/id@thebot" in groups, so both spellings are accepted. A chat id is not a
+  // secret: knowing your own tells you nothing useful.
+  //
+  // Everything else stays private-only. /start carries the one-time code that
+  // binds a Telegram account to a seafarer profile, and honouring that in a
+  // group would bind the profile to the group — and show the code to everyone
+  // in it.
+  if (text.startsWith("/id")) {
+    await tgSend(chatId, `<code>${chatId}</code>`);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (msg.chat?.type !== "private") {
     return NextResponse.json({ ok: true });
   }
 
@@ -71,11 +96,6 @@ export async function POST(req: Request) {
       await handleStart(db, chatId, code, c);
     } else if (text.startsWith("/stop")) {
       await handleStop(db, chatId, c);
-    } else if (text.startsWith("/id")) {
-      // Undocumented on purpose — it exists so the operator can read the chat id
-      // for TELEGRAM_ADMIN_CHAT_ID without trusting a third-party bot with it.
-      // A chat id is not a secret: knowing your own tells you nothing useful.
-      await tgSend(chatId, `<code>${chatId}</code>`);
     } else {
       await tgSend(chatId, esc(c.help));
     }
