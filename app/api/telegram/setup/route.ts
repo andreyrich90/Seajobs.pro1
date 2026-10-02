@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { botLang, botUsername, channelId, telegramConfigured, tgApi } from "@/lib/telegramBot";
+import { adminChatIds, botLang, botUsername, channelId, telegramConfigured, tgApi } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -11,6 +11,11 @@ export const runtime = "nodejs";
 //
 //   /api/telegram/setup?secret=<CRON_SECRET>          register + report
 //   /api/telegram/setup?secret=...&check=1            report only
+//
+// The report covers the webhook, the public channel, and every chat in
+// TELEGRAM_ADMIN_CHAT_ID — the last one because a recipient the bot cannot
+// reach fails silently: the request is saved, the notification is dropped, and
+// the only trace is a log line.
 //
 // Gated by TELEGRAM_WEBHOOK_SECRET or CRON_SECRET: whoever can call this can
 // redirect the bot's traffic.
@@ -72,6 +77,53 @@ export async function GET(req: Request) {
     bot: await botUsername(),
     webhook: { url: webhookUrl, registered, info: info.ok ? info.result : info },
     channel,
+    admins: await checkAdmins(),
     language: botLang(),
   });
+}
+
+/**
+ * Can the bot actually reach every chat in TELEGRAM_ADMIN_CHAT_ID?
+ *
+ * Worth a line of its own because the failure is silent where it matters: a
+ * request arrives, the row is written, the notification is dropped, and the
+ * only trace is a line in the Vercel log nobody is reading. Before this, the
+ * way to find out was to submit a real request through the form — which also
+ * costs one of the five an address is allowed per hour.
+ *
+ * `getChat` is the probe rather than a test message: it answers with the same
+ * "chat not found" a send would, and it does not put anything in the chat.
+ */
+async function checkAdmins() {
+  const ids = adminChatIds();
+  if (ids.length === 0) {
+    return { count: 0, note: "TELEGRAM_ADMIN_CHAT_ID is not set — nobody is notified about CV-distribution requests", chats: [] };
+  }
+
+  const chats = [];
+  for (const id of ids) {
+    const res = await tgApi<{ title?: string; type?: string; first_name?: string; username?: string }>(
+      "getChat",
+      { chat_id: id },
+    );
+    if (res.ok) {
+      chats.push({
+        id,
+        reachable: true,
+        type: res.result.type,
+        name: res.result.title ?? res.result.first_name ?? res.result.username ?? null,
+      });
+    } else {
+      chats.push({ id, reachable: false, error: res.error, fix: hint(id, res.error) });
+    }
+  }
+  return { count: ids.length, reachable: chats.filter((c) => c.reachable).length, chats };
+}
+
+/** The two ways this goes wrong look identical from Telegram; the id tells them apart. */
+function hint(id: string, error: string): string | undefined {
+  if (!/not found|chat_id is empty|invalid/i.test(error)) return undefined;
+  return id.startsWith("-")
+    ? "A group: either the bot is not a member of it, or the id changed when Telegram promoted the group to a supergroup (-123… becomes -100123…). Add the bot, then ask it /id in the group again."
+    : "A person: they have never pressed Start on this bot, so the chat does not exist yet — a bot cannot open one. Ask them to open the bot, press Start, then send /id.";
 }
