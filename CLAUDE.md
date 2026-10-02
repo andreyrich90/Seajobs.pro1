@@ -188,6 +188,8 @@ What goes to those chats is the applicant's name, e-mail, phone, rank — **and 
 
 Setup, once: create the bot with @BotFather → set `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (mandatory; the webhook rejects every update without it), `TELEGRAM_CHANNEL_ID` → add the bot as a channel admin with "post messages" → open `/api/telegram/setup?secret=<CRON_SECRET>` to register the webhook and verify the wiring.
 
+That report also probes **every chat in `TELEGRAM_ADMIN_CHAT_ID`** and says which the bot can reach, because an unreachable recipient fails silently — the request is saved, the notification is dropped, and the only trace is a log line. It probes with `getChat` rather than a test message, so it leaves nothing in the chat, and it names the fix for the two ways this goes wrong, which Telegram reports identically as "chat not found": a **positive** id means that person has never pressed Start (a bot cannot open a chat), a **negative** one means the bot is not in the group or the group's id changed when it became a supergroup. `?check=1` reports without re-registering the webhook.
+
 ### Styling
 
 Tailwind CSS with a custom maritime palette. **`tailwind.config.ts` holds no literal colours** — every token is `rgb(var(--c-*) / <alpha-value>)`, and the channel values live in `app/globals.css`. Changing the theme therefore means editing that one file, never a component.
