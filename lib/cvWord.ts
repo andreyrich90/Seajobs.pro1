@@ -15,7 +15,7 @@
  * quoting euro would be a figure nobody is ever billed.
  */
 export const CV_WORD = {
-  usd: 5,
+  usd: 6.49,
   /** Buy Me a Coffee extra priced at CV_WORD.usd. Null until the product exists. */
   payUrl: null as string | null,
 };
