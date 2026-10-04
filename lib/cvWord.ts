@@ -39,6 +39,23 @@ export const CV_WORD_EXTRA_ID: number | null = (() => {
 
 export const CV_WORD_SELLING = CV_WORD.payUrl !== null;
 
+/**
+ * The price as a reader sees it, and the only way it should ever be written.
+ *
+ * Two decimals always: `$${CV_WORD.usd}` renders "$6.5", and the one thing a
+ * price must not look like is approximate. Polish and Romanian write the symbol
+ * after the number with a decimal comma, so they get that form — a price in the
+ * wrong notation reads as a foreign site's price.
+ *
+ * Every page that quotes the figure calls this. The page copy used to carry the
+ * number as text in five languages, which meant a price change silently left
+ * /cv-builder advertising the old one while the checkout charged the new.
+ */
+export function cvWordPrice(lang?: string): string {
+  const n = CV_WORD.usd.toFixed(2);
+  return lang === "pl" || lang === "ro" ? `${n.replace(".", ",")} $` : `$${n}`;
+}
+
 export type CvWordCopy = {
   /** Button label before buying, e.g. "Word — $5". */
   buy: string;

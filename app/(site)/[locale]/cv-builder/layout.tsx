@@ -2,7 +2,7 @@ import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
-import { CV_MAKER_COPY } from "@/lib/cvMaker";
+import { cvMakerCopy } from "@/lib/cvMaker";
 import type { Lang } from "@/lib/langs";
 
 // Title, description and keywords come from the same copy file as the page, so
@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) return {};
 
-  const c = CV_MAKER_COPY[locale as Lang] ?? CV_MAKER_COPY.en;
+  const c = cvMakerCopy(locale as Lang);
 
   return {
     title: c.metaTitle,

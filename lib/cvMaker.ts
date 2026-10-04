@@ -1,4 +1,5 @@
 import type { Lang } from "@/lib/langs";
+import { cvWordPrice } from "@/lib/cvWord";
 
 /**
  * The public page about making a seafarer's CV on the site — the free builder
@@ -54,7 +55,7 @@ export type CvMakerCopy = {
 const en: CvMakerCopy = {
   metaTitle: "Seafarer CV builder — make and download your CV in PDF or Word | SeaJobs.pro",
   metaDescription:
-    "Build a maritime CV from your SeaJobs.pro profile: ranks, certificates, documents and sea service in place. Download it free as PDF, or as an editable Word file for $6.49.",
+    "Build a maritime CV from your SeaJobs.pro profile: ranks, certificates, documents and sea service in place. Download it free as PDF, or as an editable Word file for {price}.",
   keywords:
     "seafarer cv, maritime cv template, seaman cv, cv for crewing agency, download cv in word, editable seafarer cv, marine cv maker, sea service record, stcw certificates cv",
 
@@ -105,7 +106,7 @@ const en: CvMakerCopy = {
       body: [
         "PDF is what you attach to an application: it looks the same everywhere and cannot be altered on the way. The image version exists for Telegram and WhatsApp, where a picture is read and an attachment is not. Both are free, always.",
         "Word is the one that costs, because it is the one you can change. Crewing departments ask for it by name — some paste your details into their own form, some want the objective rewritten for a specific vessel. From a PDF you cannot do either; you would be retyping your own CV.",
-        "One payment of $6.49 opens the Word export for your account for good. Add a certificate next month, change your readiness date, and rebuild the file as many times as you like — there is nothing to buy twice.",
+        "One payment of {price} opens the Word export for your account for good. Add a certificate next month, change your readiness date, and rebuild the file as many times as you like — there is nothing to buy twice.",
       ],
     },
     {
@@ -129,7 +130,7 @@ const en: CvMakerCopy = {
   priceTitle: "What it costs",
   priceBody: "Making the CV, every template, and as many downloads as you like are free. One format is paid.",
   priceFree: "PDF and image — free, unlimited",
-  pricePaid: "Word (.docx), editable — $6.49 once, yours for good",
+  pricePaid: "Word (.docx), editable — {price} once, yours for good",
   priceNote:
     "Payment goes through Buy Me a Coffee. The download opens by itself as soon as the payment arrives — nobody has to confirm anything by hand.",
 
@@ -173,7 +174,7 @@ const en: CvMakerCopy = {
 const ru: CvMakerCopy = {
   metaTitle: "Анкета моряка — составить и скачать CV в PDF или Word | SeaJobs.pro",
   metaDescription:
-    "Соберите морское CV из профиля на SeaJobs.pro: ранг, сертификаты, документы и стаж уже на местах. Скачивайте бесплатно в PDF или в редактируемом Word за $6.49.",
+    "Соберите морское CV из профиля на SeaJobs.pro: ранг, сертификаты, документы и стаж уже на местах. Скачивайте бесплатно в PDF или в редактируемом Word за {price}.",
   keywords:
     "анкета моряка, резюме моряка, cv моряка, скачать анкету моряка, анкета моряка word, резюме моряка образец, cv для крюинга, морской стаж в резюме, анкета в word редактируемая",
 
@@ -224,7 +225,7 @@ const ru: CvMakerCopy = {
       body: [
         "PDF — то, что прикладывают к отклику: он выглядит одинаково везде и не меняется по дороге. Картинка нужна для Telegram и WhatsApp, где изображение смотрят, а вложение — нет. И то и другое бесплатно, всегда.",
         "Платный — Word, потому что именно его можно менять. Крюинги просят его прямо: кто-то переносит ваши данные в свою форму, кто-то хочет переписанный objective под конкретное судно. Из PDF ни того, ни другого не сделать — придётся перепечатывать собственную анкету.",
-        "Одна оплата $6.49 открывает выгрузку в Word для вашего аккаунта навсегда. Добавили сертификат через месяц, поменяли дату готовности — пересобирайте файл сколько нужно, второй раз платить не за что.",
+        "Одна оплата {price} открывает выгрузку в Word для вашего аккаунта навсегда. Добавили сертификат через месяц, поменяли дату готовности — пересобирайте файл сколько нужно, второй раз платить не за что.",
       ],
     },
     {
@@ -248,7 +249,7 @@ const ru: CvMakerCopy = {
   priceTitle: "Сколько это стоит",
   priceBody: "Сборка анкеты, все шаблоны и любое число скачиваний — бесплатно. Платный один формат.",
   priceFree: "PDF и картинка — бесплатно, без ограничений",
-  pricePaid: "Word (.docx), редактируемый — $6.49 один раз, навсегда",
+  pricePaid: "Word (.docx), редактируемый — {price} один раз, навсегда",
   priceNote:
     "Оплата через Buy Me a Coffee. Скачивание открывается само, как только платёж дошёл, — подтверждать вручную ничего не нужно.",
 
@@ -292,7 +293,7 @@ const ru: CvMakerCopy = {
 const ua: CvMakerCopy = {
   metaTitle: "Анкета моряка — скласти та завантажити CV у PDF чи Word | SeaJobs.pro",
   metaDescription:
-    "Зберіть морське CV з профілю на SeaJobs.pro: ранг, сертифікати, документи та стаж уже на місцях. Завантажуйте безкоштовно у PDF або в редагованому Word за $6.49.",
+    "Зберіть морське CV з профілю на SeaJobs.pro: ранг, сертифікати, документи та стаж уже на місцях. Завантажуйте безкоштовно у PDF або в редагованому Word за {price}.",
   keywords:
     "анкета моряка, резюме моряка, cv моряка, завантажити анкету моряка, анкета моряка word, резюме моряка зразок, cv для крюїнгу, морський стаж у резюме",
 
@@ -343,7 +344,7 @@ const ua: CvMakerCopy = {
       body: [
         "PDF — те, що додають до відгуку: він виглядає однаково всюди й не змінюється дорогою. Зображення потрібне для Telegram і WhatsApp, де картинку дивляться, а вкладення — ні. І те й інше безкоштовно, завжди.",
         "Платний — Word, бо саме його можна змінювати. Крюїнги просять його прямо: хтось переносить ваші дані у власну форму, хтось хоче переписаний objective під конкретне судно. З PDF ні того, ні іншого не зробити — доведеться передруковувати власну анкету.",
-        "Одна оплата $6.49 відкриває вивантаження у Word для вашого акаунта назавжди. Додали сертифікат за місяць, змінили дату готовності — перезбирайте файл скільки треба, вдруге платити нема за що.",
+        "Одна оплата {price} відкриває вивантаження у Word для вашого акаунта назавжди. Додали сертифікат за місяць, змінили дату готовності — перезбирайте файл скільки треба, вдруге платити нема за що.",
       ],
     },
     {
@@ -367,7 +368,7 @@ const ua: CvMakerCopy = {
   priceTitle: "Скільки це коштує",
   priceBody: "Збірка анкети, всі шаблони та будь-яка кількість завантажень — безкоштовно. Платний один формат.",
   priceFree: "PDF і зображення — безкоштовно, без обмежень",
-  pricePaid: "Word (.docx), редагований — $6.49 один раз, назавжди",
+  pricePaid: "Word (.docx), редагований — {price} один раз, назавжди",
   priceNote:
     "Оплата через Buy Me a Coffee. Завантаження відкривається само, щойно платіж надійшов, — підтверджувати вручну нічого не треба.",
 
@@ -393,7 +394,7 @@ const ua: CvMakerCopy = {
 const pl: CvMakerCopy = {
   metaTitle: "CV marynarza — stwórz i pobierz w PDF lub Wordzie | SeaJobs.pro",
   metaDescription:
-    "Zbuduj morskie CV z profilu na SeaJobs.pro: stopień, certyfikaty, dokumenty i staż już na miejscu. Pobierz za darmo w PDF albo w edytowalnym Wordzie za 6,49 $.",
+    "Zbuduj morskie CV z profilu na SeaJobs.pro: stopień, certyfikaty, dokumenty i staż już na miejscu. Pobierz za darmo w PDF albo w edytowalnym Wordzie za {price}.",
   keywords:
     "cv marynarza, cv morskie, cv dla crewingu, pobierz cv marynarza, cv marynarza word, wzór cv marynarza, staż morski w cv, certyfikaty stcw cv",
 
@@ -432,7 +433,7 @@ const pl: CvMakerCopy = {
       body: [
         "PDF załączasz do aplikacji: wygląda wszędzie tak samo i nie zmieni się po drodze. Obraz jest do Telegrama i WhatsAppa, gdzie zdjęcie się ogląda, a załącznika nie. Oba są darmowe, zawsze.",
         "Płatny jest Word, bo to ten, który można zmieniać. Crewingi proszą o niego wprost: jedni przenoszą dane do własnego formularza, inni chcą przepisanego objective pod konkretny statek. Z PDF nie zrobisz ani jednego, ani drugiego — przepisywałbyś własne CV.",
-        "Jedna płatność 6,49 $ otwiera eksport do Worda dla Twojego konta na stałe. Dodasz certyfikat za miesiąc, zmienisz datę gotowości — składaj plik ile chcesz, drugi raz nie ma za co płacić.",
+        "Jedna płatność {price} otwiera eksport do Worda dla Twojego konta na stałe. Dodasz certyfikat za miesiąc, zmienisz datę gotowości — składaj plik ile chcesz, drugi raz nie ma za co płacić.",
       ],
     },
     {
@@ -456,7 +457,7 @@ const pl: CvMakerCopy = {
   priceTitle: "Ile to kosztuje",
   priceBody: "Zrobienie CV, wszystkie szablony i dowolna liczba pobrań są darmowe. Płatny jest jeden format.",
   priceFree: "PDF i obraz — za darmo, bez limitu",
-  pricePaid: "Word (.docx), edytowalny — 6,49 $ raz, na stałe",
+  pricePaid: "Word (.docx), edytowalny — {price} raz, na stałe",
   priceNote:
     "Płatność przez Buy Me a Coffee. Pobieranie otwiera się samo, gdy tylko płatność dotrze — nikt niczego nie potwierdza ręcznie.",
 
@@ -482,7 +483,7 @@ const pl: CvMakerCopy = {
 const ro: CvMakerCopy = {
   metaTitle: "CV de marinar — creează și descarcă în PDF sau Word | SeaJobs.pro",
   metaDescription:
-    "Construiește-ți CV-ul maritim din profilul SeaJobs.pro: rangul, certificatele, actele și vechimea sunt deja la locul lor. Descarcă gratuit în PDF sau în Word editabil cu 6,49 $.",
+    "Construiește-ți CV-ul maritim din profilul SeaJobs.pro: rangul, certificatele, actele și vechimea sunt deja la locul lor. Descarcă gratuit în PDF sau în Word editabil cu {price}.",
   keywords:
     "cv marinar, cv maritim, cv pentru crewing, descarca cv marinar, cv marinar word, model cv marinar, vechime pe mare in cv, certificate stcw cv",
 
@@ -521,7 +522,7 @@ const ro: CvMakerCopy = {
       body: [
         "PDF-ul este ce atașezi la o aplicație: arată la fel peste tot și nu se modifică pe drum. Imaginea există pentru Telegram și WhatsApp, unde o poză se citește, iar un atașament nu. Amândouă sunt gratuite, întotdeauna.",
         "Word-ul costă, pentru că el este cel pe care îl poți schimba. Agențiile îl cer pe nume: unii îți mută datele în formularul lor, alții vor obiectivul rescris pentru o navă anume. Dintr-un PDF nu faci niciuna — ai retasta propriul CV.",
-        "O plată de 6,49 $ deschide exportul în Word pentru contul tău definitiv. Adaugi un certificat luna viitoare, schimbi data disponibilității — reconstruiești fișierul de câte ori vrei, nu ai ce plăti a doua oară.",
+        "O plată de {price} deschide exportul în Word pentru contul tău definitiv. Adaugi un certificat luna viitoare, schimbi data disponibilității — reconstruiești fișierul de câte ori vrei, nu ai ce plăti a doua oară.",
       ],
     },
     {
@@ -545,7 +546,7 @@ const ro: CvMakerCopy = {
   priceTitle: "Cât costă",
   priceBody: "Crearea CV-ului, toate machetele și oricâte descărcări sunt gratuite. Un singur format se plătește.",
   priceFree: "PDF și imagine — gratuit, nelimitat",
-  pricePaid: "Word (.docx), editabil — 6,49 $ o dată, definitiv",
+  pricePaid: "Word (.docx), editabil — {price} o dată, definitiv",
   priceNote:
     "Plata trece prin Buy Me a Coffee. Descărcarea se deschide singură imediat ce plata ajunge — nimeni nu confirmă nimic manual.",
 
@@ -569,6 +570,32 @@ const ro: CvMakerCopy = {
 };
 
 export const CV_MAKER_COPY: Record<Lang, CvMakerCopy> = { en, ru, ua, pl, ro };
+
+/** Put the real price wherever the copy wrote `{price}`. */
+function fill<T>(node: T, price: string): T {
+  if (typeof node === "string") return node.split("{price}").join(price) as T;
+  if (Array.isArray(node)) return node.map((v) => fill(v, price)) as T;
+  if (node && typeof node === "object") {
+    return Object.fromEntries(
+      Object.entries(node as Record<string, unknown>).map(([k, v]) => [k, fill(v, price)]),
+    ) as T;
+  }
+  return node;
+}
+
+/**
+ * The copy for one language, with the price filled in.
+ *
+ * **Use this, never `CV_MAKER_COPY` directly.** The strings carry a `{price}`
+ * token rather than the figure, because this page quotes it in three places
+ * per language — a meta description, a FAQ answer and the price card — and
+ * fifteen literals across five languages is fifteen chances for the page to
+ * advertise a number the checkout does not charge. That is not hypothetical:
+ * it is what happened when the price moved from 6.49 to 6.50.
+ */
+export function cvMakerCopy(lang: Lang): CvMakerCopy {
+  return fill(CV_MAKER_COPY[lang] ?? CV_MAKER_COPY.en, cvWordPrice(lang));
+}
 
 /** The two service tiles the home page shows in place of the salary widget. */
 export type ServiceTile = { eyebrow: string; title: string; body: string; cta: string };
