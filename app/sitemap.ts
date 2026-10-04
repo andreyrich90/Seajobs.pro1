@@ -111,6 +111,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/contact", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
     ...localizedEntries("/for-companies", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...localizedEntries("/cv-distribution", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
+    // The CV builder page: the one meant to rank for "скачать анкету моряка"
+    // and its neighbours, so it is crawled more often than the other statics.
+    ...localizedEntries("/cv-builder", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
     ...localizedEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
   ];
