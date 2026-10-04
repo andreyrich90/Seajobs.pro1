@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
-import { chooseWordMatch, classify, readEvent, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
-import { CV_WORD } from "@/lib/cvWord";
+import { chooseWordMatch, classify, extraIds, readEvent, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
+import { CV_WORD, CV_WORD_EXTRA_ID } from "@/lib/cvWord";
 
 export const runtime = "nodejs";
 
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
   // a $5 payment and start a mailing nobody bought. So the Word purchase is
   // tried first and only when the amount fits it — a payment too large to be a
   // Word export falls through to the package matching below, unchanged.
-  const word = await matchWordPurchase(db, email, kind, amount);
+  const word = await matchWordPurchase(db, email, kind, amount, body);
   if (word) {
     const { error: evErr } = await db.from("payment_events").insert({
       provider: PROVIDER, event_key: eventKey, event_type: eventType,
@@ -258,8 +258,19 @@ async function matchWordPurchase(
   email: string | null,
   kind: "paid" | "refund" | "other",
   amount: number | null,
+  body: unknown,
 ): Promise<WordMatchRow | null> {
   if (kind === "other") return null;
+
+  // What did they buy? Buy Me a Coffee names it: an extra purchase carries the
+  // same id that sits in the checkout link. When the body says so, the price
+  // stops being evidence — which is what keeps a mailing package and a Word
+  // export apart no matter how either is priced.
+  const ids = extraIds(body);
+  const isWordProduct = ids.length === 0 || CV_WORD_EXTRA_ID === null
+    ? null
+    : ids.includes(CV_WORD_EXTRA_ID);
+  if (isWordProduct === false) return null;
 
   // By e-mail first, when the provider gave us one.
   let byEmail: WordMatchRow | null = null;
@@ -293,6 +304,7 @@ async function matchWordPurchase(
     kind,
     amount,
     price: CV_WORD.usd,
+    isWordProduct,
     byEmail,
     pending: (openRows ?? []) as WordMatchRow[],
   });

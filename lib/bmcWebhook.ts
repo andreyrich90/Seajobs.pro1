@@ -141,16 +141,69 @@ export function chooseWordMatch(opts: {
   price: number;
   /** Tolerance above the price before the payment is read as something else. */
   margin?: number;
+  /**
+   * Did the body name this product? `true` means the payment carries our
+   * extra's id and the amount no longer has to be consulted; `false` means it
+   * named a different product and this is certainly not a Word payment; `null`
+   * means the body said nothing, and the amount is all there is.
+   */
+  isWordProduct?: boolean | null;
   /** The row found by e-mail, if any. */
   byEmail: WordMatchRow | null;
   /** Unpaid rows opened inside the matching window — two is enough to know it is ambiguous. */
   pending: WordMatchRow[];
 }): { row: WordMatchRow; by: "email" | "recency" } | null {
-  const { kind, amount, price, margin = 2, byEmail, pending } = opts;
+  const { kind, amount, price, margin = 2, isWordProduct = null, byEmail, pending } = opts;
   if (kind === "other") return null;
-  if (amount !== null && amount > price + margin) return null;
+  // The provider named a different product: nothing here is ours, whatever it cost.
+  if (isWordProduct === false) return null;
+  // It named ours, so the price is no longer evidence — only a fallback for the
+  // bodies that say nothing.
+  if (isWordProduct !== true && amount !== null && amount > price + margin) return null;
   if (byEmail) return { row: byEmail, by: "email" };
   if (kind !== "paid") return null;
   if (pending.length !== 1) return null;
   return { row: pending[0], by: "recency" };
+}
+
+/**
+ * The provider's product ids carried by a payment body.
+ *
+ * Buy Me a Coffee names what was bought: an extra purchase carries
+ * `data.extras[]`, each with the `id` that also appears in the checkout link.
+ * That turns "which product is this payment for" from a guess based on the
+ * amount into a fact — a mailing package can then never be mistaken for a Word
+ * export however either is priced.
+ *
+ * Walked rather than read from a fixed path, for the same reason `readEvent`
+ * searches the body: the shape differs between event kinds, and a strict path
+ * would return nothing the day they nest it one level deeper. An empty result
+ * means "the body does not say", which is different from "a different product"
+ * — the caller has to treat those apart.
+ */
+export function extraIds(body: unknown): number[] {
+  const found: number[] = [];
+  const seen = new Set<unknown>();
+
+  const walk = (node: unknown, key?: string) => {
+    if (!node || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    if (Array.isArray(node)) {
+      // An `extras` array is the one that names products; any other array is
+      // walked but its ids are not collected.
+      for (const item of node) {
+        if (key === "extras" && item && typeof item === "object") {
+          const id = (item as Record<string, unknown>).id;
+          if (typeof id === "number") found.push(id);
+          else if (typeof id === "string" && /^\d+$/.test(id)) found.push(Number(id));
+        }
+        walk(item, key);
+      }
+      return;
+    }
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) walk(v, k);
+  };
+
+  walk(body);
+  return found;
 }
