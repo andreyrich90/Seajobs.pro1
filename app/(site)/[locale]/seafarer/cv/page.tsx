@@ -1154,6 +1154,11 @@ function WordButton({ lang }: { lang: string }) {
   const copy = CV_WORD_COPY[lang] ?? CV_WORD_COPY.en;
   const [state, setState] = useState<"loading" | "locked" | "waiting" | "paid">("loading");
   const [busy, setBusy] = useState(false);
+  // Was this tab the one that sent the buyer to the checkout? Only that tab
+  // starts the download by itself — a tab opened later should not fling a file
+  // at someone who came back a day afterwards to look at their CV.
+  const bought = useRef(false);
+  const pulled = useRef(false);
 
   const refresh = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -1180,6 +1185,17 @@ function WordButton({ lang }: { lang: string }) {
     return () => clearInterval(id);
   }, [state, refresh]);
 
+  // Paid while this tab was waiting: fetch the file without being asked. The
+  // click that started all this was minutes ago, so a browser may decline the
+  // download — hence `pulled`, which makes this one attempt rather than a loop,
+  // and hence the button below, which stays the real way to get the file.
+  useEffect(() => {
+    if (state !== "paid" || !bought.current || pulled.current) return;
+    pulled.current = true;
+    void download();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
   async function buy() {
     if (!CV_WORD.payUrl) return;
     setBusy(true);
@@ -1192,7 +1208,10 @@ function WordButton({ lang }: { lang: string }) {
       });
       const json = await res.json().catch(() => null);
       if (json?.paid) { setState("paid"); return; }
+      bought.current = true;
       setState("waiting");
+      // A new tab, so this one stays open and keeps polling. When the webhook
+      // lands, the buyer comes back to a page that has already unlocked.
       window.open(CV_WORD.payUrl, "_blank", "noopener");
     } finally {
       setBusy(false);

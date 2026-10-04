@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
-import { classify, readEvent, verifySignature } from "@/lib/bmcWebhook";
+import { chooseWordMatch, classify, readEvent, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
 import { CV_WORD } from "@/lib/cvWord";
 
 export const runtime = "nodejs";
@@ -19,6 +19,14 @@ export const runtime = "nodejs";
 // The signature check and the payload reading both live in lib/bmcWebhook.ts,
 // where they can be exercised without a database. What is left here is the part
 // that needs one: match, record, announce.
+
+/**
+ * How long after opening the checkout a payment may still be matched to a
+ * purchase by time rather than by e-mail. Twenty minutes is slack enough for
+ * someone who left the tab to find their card, and short enough that two
+ * unrelated buyers rarely overlap — and when they do, nothing is guessed.
+ */
+const WORD_MATCH_WINDOW_MIN = 20;
 
 const PROVIDER = "buymeacoffee";
 
@@ -250,20 +258,47 @@ async function matchWordPurchase(
   email: string | null,
   kind: "paid" | "refund" | "other",
   amount: number | null,
-): Promise<{ id: string; email: string } | null> {
-  if (!email || kind === "other") return null;
-  if (amount !== null && amount > CV_WORD.usd + 2) return null;
+): Promise<WordMatchRow | null> {
+  if (kind === "other") return null;
 
-  const q = db
+  // By e-mail first, when the provider gave us one.
+  let byEmail: WordMatchRow | null = null;
+  if (email) {
+    const q = db
+      .from("cv_word_purchases")
+      .select("id, email")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const { data, error } = await (kind === "refund" ? q.not("paid_at", "is", null) : q.is("paid_at", null));
+    if (error) {
+      console.error("[bmc] word lookup", error.message);
+      return null;
+    }
+    byEmail = (data?.[0] as WordMatchRow | undefined) ?? null;
+  }
+
+  // Everything opened recently and still unpaid. Two rows is already enough to
+  // know the window is ambiguous, so the query stops there.
+  const since = new Date(Date.now() - WORD_MATCH_WINDOW_MIN * 60_000).toISOString();
+  const { data: openRows, error: openErr } = await db
     .from("cv_word_purchases")
     .select("id, email")
-    .eq("email", email)
-    .order("created_at", { ascending: false })
-    .limit(1);
-  const { data, error } = await (kind === "refund" ? q.not("paid_at", "is", null) : q.is("paid_at", null));
-  if (error) {
-    console.error("[bmc] word lookup", error.message);
-    return null;
+    .is("paid_at", null)
+    .gte("created_at", since)
+    .limit(2);
+  if (openErr) console.error("[bmc] word recency lookup", openErr.message);
+
+  const hit = chooseWordMatch({
+    kind,
+    amount,
+    price: CV_WORD.usd,
+    byEmail,
+    pending: (openRows ?? []) as WordMatchRow[],
+  });
+  if (!hit) return null;
+  if (hit.by === "recency") {
+    console.warn(`[bmc] word purchase ${hit.row.id} matched by recency, not e-mail (paid as ${email ?? "no address"})`);
   }
-  return (data?.[0] as { id: string; email: string } | undefined) ?? null;
+  return hit.row;
 }

@@ -175,7 +175,9 @@ The pieces:
 - **`api/billing/buymeacoffee`** now serves two products. A Word purchase is matched first and **only when the amount fits it** — a payment too large falls through to the package matching unchanged. Clearing the wrong one is the expensive mistake: it would mark a $35 order paid on a $5 payment and start a mailing nobody bought. `payment_events.cv_purchase_id` keeps Word payments on record beside the package ones rather than loosening `request_id`.
 - Migration `20261004000000_cv_word_purchases.sql`. RLS gives the owner **select only**: every write runs with the service role, so a browser cannot declare itself paid. Code treats a missing table as "not purchased" rather than crashing, so the site is unharmed before the migration is run.
 
-**Before this goes live** two things are still missing: a `payUrl`, and a way for an admin to mark a purchase paid by hand. An unmatched payment is a normal outcome here exactly as it is for distribution — people pay from a second mailbox — and today the only trace is the Telegram message.
+**Nothing has to be confirmed by hand.** The webhook opens the export and the cabinet page, which polls while a payment is in flight, unlocks itself and starts the download in the tab that sent the buyer to the checkout. `chooseWordMatch()` in `lib/bmcWebhook.ts` decides which purchase a payment belongs to, and is a pure function there for the reason that file exists — the money path is exercised without a database. It goes: anything above the price plus a small margin is not a Word payment and falls through to the package matching untouched; then the e-mail; then, when the e-mail does not match or the payload carried none, **the single purchase opened in the last 20 minutes**. One, never two — two buyers in the same window is where a guess becomes a coin toss, and giving one person's file to the other's payment is worse than a wait. Recency never settles a refund.
+
+**Before this goes live** a `payUrl` is needed, and an admin way to mark a purchase paid by hand for the case the matcher deliberately refuses.
 
 Two constraints the copy must keep:
 
