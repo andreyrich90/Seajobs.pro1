@@ -7,8 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, ChevronRight, LogIn, Briefcase, MessageSquare,
   Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
-  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp, Mail,
-} from "lucide-react";
+  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp, Mail, FileText } from "lucide-react";
 import { LANGS } from "@/lib/langs";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import { useLang } from "@/components/LangProvider";
@@ -54,6 +53,9 @@ export default function Header() {
   const fleetDesc = (k: FleetKey) => FLEET_DESC[k][lang] ?? FLEET_DESC[k].en;
 
   const nav = [
+    // Before the salary comparison on purpose: making a CV is the thing a
+    // seafarer needs first, and it is free.
+    { label: t.nav_cv_builder, icon: FileText, href: "/cv-builder" },
     { label: t.nav_salaries, icon: TrendingUp, href: "/salaries" },
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },
     { label: t.nav_news,  icon: Newspaper,     href: "/news" },
@@ -341,6 +343,10 @@ export default function Header() {
               {/* The utility strip is desktop-only, so this is where a phone
                   reaches the CV distribution and the employers page. "About" is
                   in the footer. */}
+              <Link href="/cv-builder"
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
+                <FileText size={18} /> {t.nav_cv_builder}
+              </Link>
               <Link href="/cv-distribution"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brassInk transition hover:bg-white/5">
                 <Mail size={18} /> {t.nav_cv_blast}
