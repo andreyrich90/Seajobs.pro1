@@ -97,6 +97,58 @@ export function classify(eventType: string): "paid" | "refund" | "other" {
   return "other";
 }
 
+/**
+ * What the body itself says about the money, as opposed to what the event is
+ * called.
+ *
+ * A real delivery carries `status: "succeeded"`, `refunded: false` and
+ * `refunded_at: null` beside the amount. Those are worth reading, because the
+ * event type is the provider's description of *why they wrote to us* and these
+ * are their description of *the payment*, and only the second can say that the
+ * money went back after the fact. A re-sent purchase event for an order that
+ * has since been refunded carries the same type it always did.
+ *
+ * `refunded_at` is read as well as `refunded` on the assumption that one of
+ * them may be the only one present in some event kind; a timestamp there means
+ * the same thing as the flag.
+ */
+export function readState(body: unknown): { refunded: boolean; status: string | null } {
+  // `pick` skips null and "", so `refunded: false` comes back as false and a
+  // null `refunded_at` reads as absent — both of which are what we want.
+  return {
+    refunded: pick(body, ["refunded"]) === true || str(pick(body, ["refunded_at"])) !== null,
+    status: str(pick(body, ["status", "payment_status"]))?.toLowerCase() ?? null,
+  };
+}
+
+/** Statuses that mean the money actually arrived. */
+const SETTLED = ["succeeded", "success", "successful", "paid", "completed", "complete", "captured", "ok"];
+
+/**
+ * The event type, corrected by what the body says about the payment.
+ *
+ * Two corrections, both in the safe direction:
+ *
+ * - **Refunded is a refund**, whatever the event is called. Otherwise a
+ *   re-delivery of the original purchase event would re-open an export whose
+ *   money has gone back.
+ * - **A status we do not recognise as settled is not money.** A payment that is
+ *   pending, failed or disputed should change nothing; it is still recorded and
+ *   still announced, so a status we have not seen before surfaces as a message
+ *   rather than as an unlock. This mirrors `classify`: failing this way costs
+ *   somebody a minute in the admin ledger, failing the other way hands out a
+ *   product or starts a mailing for money that never came.
+ *
+ * A body with no status at all is left alone — most event kinds will not carry
+ * one, and absence is not a failure.
+ */
+export function refineKind(kind: "paid" | "refund" | "other", body: unknown): "paid" | "refund" | "other" {
+  const { refunded, status } = readState(body);
+  if (refunded) return "refund";
+  if (kind === "paid" && status !== null && !SETTLED.includes(status)) return "other";
+  return kind;
+}
+
 export function readEvent(body: unknown, raw: string): BmcEvent {
   return {
     eventType: str(pick(body, ["type", "event", "event_type"])) ?? "unknown",
@@ -141,16 +193,69 @@ export function chooseWordMatch(opts: {
   price: number;
   /** Tolerance above the price before the payment is read as something else. */
   margin?: number;
+  /**
+   * Did the body name this product? `true` means the payment carries our
+   * extra's id and the amount no longer has to be consulted; `false` means it
+   * named a different product and this is certainly not a Word payment; `null`
+   * means the body said nothing, and the amount is all there is.
+   */
+  isWordProduct?: boolean | null;
   /** The row found by e-mail, if any. */
   byEmail: WordMatchRow | null;
   /** Unpaid rows opened inside the matching window — two is enough to know it is ambiguous. */
   pending: WordMatchRow[];
 }): { row: WordMatchRow; by: "email" | "recency" } | null {
-  const { kind, amount, price, margin = 2, byEmail, pending } = opts;
+  const { kind, amount, price, margin = 2, isWordProduct = null, byEmail, pending } = opts;
   if (kind === "other") return null;
-  if (amount !== null && amount > price + margin) return null;
+  // The provider named a different product: nothing here is ours, whatever it cost.
+  if (isWordProduct === false) return null;
+  // It named ours, so the price is no longer evidence — only a fallback for the
+  // bodies that say nothing.
+  if (isWordProduct !== true && amount !== null && amount > price + margin) return null;
   if (byEmail) return { row: byEmail, by: "email" };
   if (kind !== "paid") return null;
   if (pending.length !== 1) return null;
   return { row: pending[0], by: "recency" };
+}
+
+/**
+ * The provider's product ids carried by a payment body.
+ *
+ * Buy Me a Coffee names what was bought: an extra purchase carries
+ * `data.extras[]`, each with the `id` that also appears in the checkout link.
+ * That turns "which product is this payment for" from a guess based on the
+ * amount into a fact — a mailing package can then never be mistaken for a Word
+ * export however either is priced.
+ *
+ * Walked rather than read from a fixed path, for the same reason `readEvent`
+ * searches the body: the shape differs between event kinds, and a strict path
+ * would return nothing the day they nest it one level deeper. An empty result
+ * means "the body does not say", which is different from "a different product"
+ * — the caller has to treat those apart.
+ */
+export function extraIds(body: unknown): number[] {
+  const found: number[] = [];
+  const seen = new Set<unknown>();
+
+  const walk = (node: unknown, key?: string) => {
+    if (!node || typeof node !== "object" || seen.has(node)) return;
+    seen.add(node);
+    if (Array.isArray(node)) {
+      // An `extras` array is the one that names products; any other array is
+      // walked but its ids are not collected.
+      for (const item of node) {
+        if (key === "extras" && item && typeof item === "object") {
+          const id = (item as Record<string, unknown>).id;
+          if (typeof id === "number") found.push(id);
+          else if (typeof id === "string" && /^\d+$/.test(id)) found.push(Number(id));
+        }
+        walk(item, key);
+      }
+      return;
+    }
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) walk(v, k);
+  };
+
+  walk(body);
+  return found;
 }

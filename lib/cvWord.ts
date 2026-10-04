@@ -15,10 +15,27 @@
  * quoting euro would be a figure nobody is ever billed.
  */
 export const CV_WORD = {
-  usd: 6.49,
+  /** What the checkout actually charges. The first real payment arrived as 6.50. */
+  usd: 6.5,
   /** Buy Me a Coffee extra priced at CV_WORD.usd. Null until the product exists. */
   payUrl: "https://buymeacoffee.com/seajobs.pro/e/583093" as string | null,
 };
+
+/**
+ * The provider's own id for this product, read off the checkout link.
+ *
+ * Buy Me a Coffee puts it in the payment body as `data.extras[].id`, which is
+ * the difference between knowing what was bought and inferring it from the
+ * price. With the id, a mailing package can never be mistaken for a Word export
+ * however it is priced; without it, the amount is all there is to go on.
+ *
+ * Derived rather than written twice: a link and an id that disagree would be a
+ * bug nobody notices until a payment lands on the wrong product.
+ */
+export const CV_WORD_EXTRA_ID: number | null = (() => {
+  const m = /\/e\/(\d+)/.exec(CV_WORD.payUrl ?? "");
+  return m ? Number(m[1]) : null;
+})();
 
 export const CV_WORD_SELLING = CV_WORD.payUrl !== null;
 

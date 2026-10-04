@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
-import { chooseWordMatch, classify, readEvent, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
-import { CV_WORD } from "@/lib/cvWord";
+import { chooseWordMatch, classify, extraIds, readEvent, readState, refineKind, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
+import { CV_WORD, CV_WORD_EXTRA_ID } from "@/lib/cvWord";
 
 export const runtime = "nodejs";
 
@@ -61,8 +61,12 @@ export async function POST(req: NextRequest) {
   const { eventType, email, amount, currency, eventKey } = readEvent(body, raw);
 
   // Money, money going back, or neither. The webhook is subscribed to three
-  // kinds of event and only one of them pays for anything.
-  const kind = classify(eventType);
+  // kinds of event and only one of them pays for anything — then the body is
+  // allowed to correct that, because `refunded` and `status` describe the
+  // payment while the type only describes why they wrote to us. A re-sent
+  // purchase event for an order refunded since carries its original type.
+  const state = readState(body);
+  const kind = refineKind(classify(eventType), body);
 
   // Two different things are sold through the same checkout, so decide which
   // one this payment is for before touching either.
@@ -73,7 +77,7 @@ export async function POST(req: NextRequest) {
   // a $5 payment and start a mailing nobody bought. So the Word purchase is
   // tried first and only when the amount fits it — a payment too large to be a
   // Word export falls through to the package matching below, unchanged.
-  const word = await matchWordPurchase(db, email, kind, amount);
+  const word = await matchWordPurchase(db, email, kind, amount, body);
   if (word) {
     const { error: evErr } = await db.from("payment_events").insert({
       provider: PROVIDER, event_key: eventKey, event_type: eventType,
@@ -163,7 +167,7 @@ export async function POST(req: NextRequest) {
     if (error) console.error("[bmc] refund update", error.message);
   }
 
-  await announce({ matched, email, amount, currency, eventType, kind });
+  await announce({ matched, email, amount, currency, eventType, kind, status: state.status });
   return NextResponse.json({ ok: true, kind, matched: !!matched });
 }
 
@@ -175,6 +179,8 @@ async function announce(p: {
   currency: string | null;
   eventType: string;
   kind: "paid" | "refund" | "other";
+  /** What the body said about the payment, when it said anything. */
+  status?: string | null;
 }) {
   if (adminChatIds().length === 0) return;
 
@@ -225,9 +231,13 @@ async function announce(p: {
       "ℹ️ <b>Подія від Buy Me a Coffee</b>",
       "",
       `Тип: <code>${esc(p.eventType)}</code>`,
+      p.status ? `Статус платежу: <code>${esc(p.status)}</code>` : null,
       `Сума: ${sum}`,
       ...who,
       "",
+      // The status line matters here: a payment that is pending or failed is
+      // deliberately left alone, and without naming it this message reads as a
+      // mystery rather than as a decision.
       "Нічого не змінено. Якщо це була оплата — позначте заявку вручну й перешліть це повідомлення розробнику.",
     ];
   }
@@ -258,8 +268,19 @@ async function matchWordPurchase(
   email: string | null,
   kind: "paid" | "refund" | "other",
   amount: number | null,
+  body: unknown,
 ): Promise<WordMatchRow | null> {
   if (kind === "other") return null;
+
+  // What did they buy? Buy Me a Coffee names it: an extra purchase carries the
+  // same id that sits in the checkout link. When the body says so, the price
+  // stops being evidence — which is what keeps a mailing package and a Word
+  // export apart no matter how either is priced.
+  const ids = extraIds(body);
+  const isWordProduct = ids.length === 0 || CV_WORD_EXTRA_ID === null
+    ? null
+    : ids.includes(CV_WORD_EXTRA_ID);
+  if (isWordProduct === false) return null;
 
   // By e-mail first, when the provider gave us one.
   let byEmail: WordMatchRow | null = null;
@@ -293,6 +314,7 @@ async function matchWordPurchase(
     kind,
     amount,
     price: CV_WORD.usd,
+    isWordProduct,
     byEmail,
     pending: (openRows ?? []) as WordMatchRow[],
   });
