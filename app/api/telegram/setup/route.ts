@@ -12,6 +12,10 @@ export const runtime = "nodejs";
 //   /api/telegram/setup?secret=<CRON_SECRET>          register + report
 //   /api/telegram/setup?secret=...&check=1            report only
 //
+// `?secret=` is the convenient form, not the only one: a secret containing &
+// or # cannot survive a URL, so `Authorization: Bearer <secret>` is accepted
+// too. A 401 here says which of the two usual mistakes was made.
+//
 // The report covers the webhook, the public channel, and every chat in
 // TELEGRAM_ADMIN_CHAT_ID — the last one because a recipient the bot cannot
 // reach fails silently: the request is saved, the notification is dropped, and
@@ -29,9 +33,26 @@ export async function GET(req: Request) {
       { status: 503 },
     );
   }
-  const provided = url.searchParams.get("secret") ?? req.headers.get("authorization")?.replace(/^Bearer /, "");
-  if (provided !== expected) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  // Both sides trimmed. This is a secret a person pastes into a browser bar,
+  // from a password manager or from the Vercel dashboard, and both of those
+  // hand over a trailing newline often enough that an untrimmed compare turns
+  // a correct secret into a 401 with nothing to go on.
+  const provided = (url.searchParams.get("secret") ?? req.headers.get("authorization")?.replace(/^Bearer /, "") ?? "").trim();
+  if (provided !== expected.trim()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Unauthorized",
+        // Named the two ways this goes wrong, because the answer is in the URL
+        // and nowhere else. Neither hint says anything about the real secret.
+        hint: !provided
+          ? "No secret given. Open /api/telegram/setup?secret=<the value of CRON_SECRET>"
+          : /^<.*>$/.test(provided)
+            ? "That is the placeholder from the docs, brackets and all. Paste the actual value of CRON_SECRET in its place."
+            : "The value does not match CRON_SECRET (or TELEGRAM_SETUP_SECRET). Copy it from the Vercel dashboard; if it contains & or # the browser cuts it off — use the Authorization: Bearer header instead.",
+      },
+      { status: 401 },
+    );
   }
 
   if (!telegramConfigured()) {
