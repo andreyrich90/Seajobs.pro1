@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { loadCvData } from "@/lib/cvData";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = SupabaseClient<any, any, any>;
@@ -16,17 +17,9 @@ export async function buildCvHtml(
   email: string | null,
   coverLetter?: string | null,
 ): Promise<{ html: string; name: string }> {
-  const [{ data: sf }, { data: experience }, { data: certificates }] = await Promise.all([
-    admin.from("seafarers")
-      .select("first_name, last_name, nationality, date_of_birth, phone, rank, readiness_date, about, passport_no, passport_expiry, seamans_book, seamans_book_expiry, medical, medical_expiry, diploma, diploma_expiry, schengen_visa, us_visa")
-      .eq("id", seafarerId).single(),
-    admin.from("sea_experience")
-      .select("vessel_name, vessel_type, rank, company, dwt, engine, from_date, to_date")
-      .eq("seafarer_id", seafarerId).order("from_date", { ascending: false }).limit(10),
-    admin.from("certificates")
-      .select("name, issuing_authority, expiry_date")
-      .eq("seafarer_id", seafarerId).order("expiry_date", { ascending: false }).limit(20),
-  ]);
+  // The query lives in lib/cvData so the Word export renders the same CV — see
+  // the note there.
+  const { seafarer: sf, experience, certificates } = await loadCvData(admin, seafarerId, email);
 
   const name = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ") || "Seafarer";
   const fmt = (d?: string | null) =>
@@ -54,7 +47,7 @@ export async function buildCvHtml(
   ].join("");
 
   const certRows = (certificates ?? []).map((c) =>
-    row(c.name, [c.issuing_authority, fmt(c.expiry_date) ? `exp. ${fmt(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "—")
+    row(c.name ?? "—", [c.issuing_authority, fmt(c.expiry_date) ? `exp. ${fmt(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "—")
   ).join("");
 
   const expHeader = `<tr>${["Vessel", "Type", "DWT", "Rank", "Company", "Period"]

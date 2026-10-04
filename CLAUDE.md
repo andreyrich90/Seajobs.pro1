@@ -159,6 +159,24 @@ The price on the button comes from `BLAST_PACKAGES`, not from the provider, so *
 
 Reachable from three places: the footer, a card under the list on `/seafarer/applications`, and its own item in the seafarer cabinet's sidebar (`cab_cv_blast`, pointing outside the `/seafarer` tree the way "Browse jobs" does).
 
+#### The paid Word export
+
+The second thing sold through the same checkout. `/seafarer/cv` builds a CV from the profile and exports it free as **PDF and PNG**; the paid product is the **editable `.docx`** — the one thing a finished picture cannot be, and the format crewing managers ask for by name. Nothing that was free became paid, which is the constraint the feature was designed around: that page is a reason seafarers register.
+
+Price and checkout live in **`lib/cvWord.ts`** (`CV_WORD`), the same one-field shape as `BLAST_PACKAGES`: paste a Buy Me a Coffee extra into `payUrl` and the button becomes a checkout; leave it `null` and the page says the export is not on sale rather than taking money it cannot honour. **Dollars only**, for the reason above. The copy map there carries all five languages inside a client component — about 1.5 KB, deliberately not threaded through the server component the way `lib/cvBlast.ts` is, because the machinery would cost more than the bytes.
+
+**One payment unlocks the export for that account for good.** A CV is rewritten for every second application; charging again for a corrected line turns the product into an annoyance.
+
+The pieces:
+
+- **`lib/cvData.ts`** is now the single loader for every CV renderer. There are three — the application e-mail, `/cv/[token]` (both via `lib/cvHtml.ts`) and the Word export — and a document that lists a certificate in one and omits it in another is worse than either alone.
+- **`lib/cvDocx.ts`** builds a real OOXML file with the `docx` package. Not HTML served as `.doc`: Word opens that, but styles collapse and tables lose their widths, so the buyer would get something visibly worse than the free PDF.
+- **`api/cv/word`** — `POST` opens a pending `cv_word_purchases` row (one per buyer; a second checkout reuses it, or the webhook would clear the newer and strand the older), `GET` returns the file. **The gate is this route**, which re-derives the caller from their bearer token; the button in the cabinet is presentation and is not meant to stop anyone.
+- **`api/billing/buymeacoffee`** now serves two products. A Word purchase is matched first and **only when the amount fits it** — a payment too large falls through to the package matching unchanged. Clearing the wrong one is the expensive mistake: it would mark a $35 order paid on a $5 payment and start a mailing nobody bought. `payment_events.cv_purchase_id` keeps Word payments on record beside the package ones rather than loosening `request_id`.
+- Migration `20261004000000_cv_word_purchases.sql`. RLS gives the owner **select only**: every write runs with the service role, so a browser cannot declare itself paid. Code treats a missing table as "not purchased" rather than crashing, so the site is unharmed before the migration is run.
+
+**Before this goes live** two things are still missing: a `payUrl`, and a way for an admin to mark a purchase paid by hand. An unmatched payment is a normal outcome here exactly as it is for distribution — people pay from a second mailbox — and today the only trace is the Telegram message.
+
 Two constraints the copy must keep:
 
 - **The site tells seafarers site-wide never to pay for a job** (`components/NoPaymentWarning.tsx`, shown in the footer, the apply flow and the seafarer cabinet). A paid page has to say in the same breath which side of that line it is on, so `notBody` states plainly that nothing is charged for a contract, a berth, a medical, certificates or visas, and that what is paid for is document work. Do not quietly drop that block to make the page read better.
