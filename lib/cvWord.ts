@@ -17,7 +17,7 @@
 export const CV_WORD = {
   usd: 6.49,
   /** Buy Me a Coffee extra priced at CV_WORD.usd. Null until the product exists. */
-  payUrl: null as string | null,
+  payUrl: "https://buymeacoffee.com/seajobs.pro/e/583093" as string | null,
 };
 
 export const CV_WORD_SELLING = CV_WORD.payUrl !== null;

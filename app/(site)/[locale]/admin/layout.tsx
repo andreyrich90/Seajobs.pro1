@@ -8,7 +8,7 @@ import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import {
   Anchor, LayoutDashboard, Users, Briefcase, MessageSquare, MessageCircle,
   Newspaper, LogOut, Menu, X, ShieldCheck, Mail, Upload, Inbox, Send, Building2,
-  ClipboardList,
+  ClipboardList, FileText,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
@@ -21,6 +21,7 @@ const navItems = [
   { label: "Auto-queue", href: "/admin/import-queue", icon: Inbox },
   { label: "Messages",   href: "/admin/messages",    icon: Mail },
   { label: "CV requests", href: "/admin/service-requests", icon: ClipboardList },
+  { label: "CV in Word", href: "/admin/cv-purchases", icon: FileText },
   { label: "Chats",      href: "/admin/chats",        icon: MessageCircle },
   { label: "Forum",      href: "/admin/forum",       icon: MessageSquare },
   { label: "News",       href: "/admin/news",        icon: Newspaper },

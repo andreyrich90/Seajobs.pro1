@@ -177,7 +177,9 @@ The pieces:
 
 **Nothing has to be confirmed by hand.** The webhook opens the export and the cabinet page, which polls while a payment is in flight, unlocks itself and starts the download in the tab that sent the buyer to the checkout. `chooseWordMatch()` in `lib/bmcWebhook.ts` decides which purchase a payment belongs to, and is a pure function there for the reason that file exists — the money path is exercised without a database. It goes: anything above the price plus a small margin is not a Word payment and falls through to the package matching untouched; then the e-mail; then, when the e-mail does not match or the payload carried none, **the single purchase opened in the last 20 minutes**. One, never two — two buyers in the same window is where a guess becomes a coin toss, and giving one person's file to the other's payment is worse than a wait. Recency never settles a refund.
 
-**Before this goes live** a `payUrl` is needed, and an admin way to mark a purchase paid by hand for the case the matcher deliberately refuses.
+**`/admin/cv-purchases`** is the ledger and the one lever a person has: it lists every purchase and opens — or closes, after a refund — the export by hand, through `api/admin/cv-purchase`, which verifies the admin from the bearer token because the table has a select policy and nothing else. A purchase opened this way keeps `paid_ref = manual:<admin id>`, so the row says for ever whether money arrived or a decision did. Normally nothing is needed here; it exists for the payments `chooseWordMatch` refuses to guess at.
+
+Buy Me a Coffee's **"Redirect to a URL after purchase"** should point at `/seafarer/cv?paid=1`. The flag matters: the buyer lands in the *checkout* tab, which never opened the purchase, and without it that tab would sit locked while the original one unlocked. **The product must not carry an uploaded file** — the document is generated per buyer from their profile, and a file attached at BMC would hand everyone the same stranger's CV.
 
 Two constraints the copy must keep:
 
