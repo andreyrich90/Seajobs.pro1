@@ -97,6 +97,58 @@ export function classify(eventType: string): "paid" | "refund" | "other" {
   return "other";
 }
 
+/**
+ * What the body itself says about the money, as opposed to what the event is
+ * called.
+ *
+ * A real delivery carries `status: "succeeded"`, `refunded: false` and
+ * `refunded_at: null` beside the amount. Those are worth reading, because the
+ * event type is the provider's description of *why they wrote to us* and these
+ * are their description of *the payment*, and only the second can say that the
+ * money went back after the fact. A re-sent purchase event for an order that
+ * has since been refunded carries the same type it always did.
+ *
+ * `refunded_at` is read as well as `refunded` on the assumption that one of
+ * them may be the only one present in some event kind; a timestamp there means
+ * the same thing as the flag.
+ */
+export function readState(body: unknown): { refunded: boolean; status: string | null } {
+  // `pick` skips null and "", so `refunded: false` comes back as false and a
+  // null `refunded_at` reads as absent — both of which are what we want.
+  return {
+    refunded: pick(body, ["refunded"]) === true || str(pick(body, ["refunded_at"])) !== null,
+    status: str(pick(body, ["status", "payment_status"]))?.toLowerCase() ?? null,
+  };
+}
+
+/** Statuses that mean the money actually arrived. */
+const SETTLED = ["succeeded", "success", "successful", "paid", "completed", "complete", "captured", "ok"];
+
+/**
+ * The event type, corrected by what the body says about the payment.
+ *
+ * Two corrections, both in the safe direction:
+ *
+ * - **Refunded is a refund**, whatever the event is called. Otherwise a
+ *   re-delivery of the original purchase event would re-open an export whose
+ *   money has gone back.
+ * - **A status we do not recognise as settled is not money.** A payment that is
+ *   pending, failed or disputed should change nothing; it is still recorded and
+ *   still announced, so a status we have not seen before surfaces as a message
+ *   rather than as an unlock. This mirrors `classify`: failing this way costs
+ *   somebody a minute in the admin ledger, failing the other way hands out a
+ *   product or starts a mailing for money that never came.
+ *
+ * A body with no status at all is left alone — most event kinds will not carry
+ * one, and absence is not a failure.
+ */
+export function refineKind(kind: "paid" | "refund" | "other", body: unknown): "paid" | "refund" | "other" {
+  const { refunded, status } = readState(body);
+  if (refunded) return "refund";
+  if (kind === "paid" && status !== null && !SETTLED.includes(status)) return "other";
+  return kind;
+}
+
 export function readEvent(body: unknown, raw: string): BmcEvent {
   return {
     eventType: str(pick(body, ["type", "event", "event_type"])) ?? "unknown",
