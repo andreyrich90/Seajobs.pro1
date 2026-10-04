@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
-import { classify, readEvent, verifySignature } from "@/lib/bmcWebhook";
+import { chooseWordMatch, classify, readEvent, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
+import { CV_WORD } from "@/lib/cvWord";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,14 @@ export const runtime = "nodejs";
 // The signature check and the payload reading both live in lib/bmcWebhook.ts,
 // where they can be exercised without a database. What is left here is the part
 // that needs one: match, record, announce.
+
+/**
+ * How long after opening the checkout a payment may still be matched to a
+ * purchase by time rather than by e-mail. Twenty minutes is slack enough for
+ * someone who left the tab to find their card, and short enough that two
+ * unrelated buyers rarely overlap — and when they do, nothing is guessed.
+ */
+const WORD_MATCH_WINDOW_MIN = 20;
 
 const PROVIDER = "buymeacoffee";
 
@@ -54,6 +63,41 @@ export async function POST(req: NextRequest) {
   // Money, money going back, or neither. The webhook is subscribed to three
   // kinds of event and only one of them pays for anything.
   const kind = classify(eventType);
+
+  // Two different things are sold through the same checkout, so decide which
+  // one this payment is for before touching either.
+  //
+  // The Word export costs a few dollars; a distribution package costs tens. A
+  // buyer can plausibly have both pending at once, and clearing the wrong one
+  // is the expensive mistake: it would mark a $35 order paid on the strength of
+  // a $5 payment and start a mailing nobody bought. So the Word purchase is
+  // tried first and only when the amount fits it — a payment too large to be a
+  // Word export falls through to the package matching below, unchanged.
+  const word = await matchWordPurchase(db, email, kind, amount);
+  if (word) {
+    const { error: evErr } = await db.from("payment_events").insert({
+      provider: PROVIDER, event_key: eventKey, event_type: eventType,
+      email, amount, currency, cv_purchase_id: word.id, matched: true, payload: body,
+    });
+    if (evErr) {
+      if (evErr.code === "23505") return NextResponse.json({ ok: true, duplicate: true });
+      console.error("[bmc] event insert (word)", evErr.message);
+      return NextResponse.json({ error: "Could not record" }, { status: 500 });
+    }
+
+    const patch = kind === "paid"
+      ? { status: "paid", paid_at: new Date().toISOString(), paid_amount: amount, paid_currency: currency, paid_ref: eventKey }
+      : { status: "refunded", paid_at: null };
+    const { error } = await db.from("cv_word_purchases").update(patch).eq("id", word.id);
+    if (error) console.error("[bmc] word update", error.message);
+
+    await tgSendAdmins(
+      kind === "paid"
+        ? `📄 <b>ОПЛАЧЕНО — CV у Word</b>\n\n✉️ ${esc(word.email)}\nСума: ${amount ?? "—"} ${esc(currency ?? "")}\n\nВивантаження відкрито автоматично, робити нічого не треба.`
+        : `↩️ <b>ПОВЕРНЕННЯ — CV у Word</b>\n\n✉️ ${esc(word.email)}\n\nДоступ до вивантаження закрито.`,
+    );
+    return NextResponse.json({ ok: true, kind, matched: true, product: "cv_word" });
+  }
 
   // The row this event belongs to, matched on e-mail. A payment looks for the
   // newest *unpaid* request; a refund looks for the newest *paid* one, since
@@ -196,4 +240,65 @@ async function announce(p: {
   } catch (e) {
     console.error("[bmc] telegram", e instanceof Error ? e.message : e);
   }
+}
+
+/**
+ * The pending Word-export purchase this payment belongs to, if it is one.
+ *
+ * Returns null — meaning "not a Word payment, carry on" — whenever the amount
+ * is larger than a Word export could be. The tolerance is deliberately small:
+ * it exists because a provider may report a figure that includes a tip or a
+ * rounding, not to catch anything in the price range of a mailing package.
+ *
+ * A missing table (the migration has not been run) is not an error here: the
+ * product simply is not live yet, and distribution payments must keep working.
+ */
+async function matchWordPurchase(
+  db: NonNullable<ReturnType<typeof admin>>,
+  email: string | null,
+  kind: "paid" | "refund" | "other",
+  amount: number | null,
+): Promise<WordMatchRow | null> {
+  if (kind === "other") return null;
+
+  // By e-mail first, when the provider gave us one.
+  let byEmail: WordMatchRow | null = null;
+  if (email) {
+    const q = db
+      .from("cv_word_purchases")
+      .select("id, email")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const { data, error } = await (kind === "refund" ? q.not("paid_at", "is", null) : q.is("paid_at", null));
+    if (error) {
+      console.error("[bmc] word lookup", error.message);
+      return null;
+    }
+    byEmail = (data?.[0] as WordMatchRow | undefined) ?? null;
+  }
+
+  // Everything opened recently and still unpaid. Two rows is already enough to
+  // know the window is ambiguous, so the query stops there.
+  const since = new Date(Date.now() - WORD_MATCH_WINDOW_MIN * 60_000).toISOString();
+  const { data: openRows, error: openErr } = await db
+    .from("cv_word_purchases")
+    .select("id, email")
+    .is("paid_at", null)
+    .gte("created_at", since)
+    .limit(2);
+  if (openErr) console.error("[bmc] word recency lookup", openErr.message);
+
+  const hit = chooseWordMatch({
+    kind,
+    amount,
+    price: CV_WORD.usd,
+    byEmail,
+    pending: (openRows ?? []) as WordMatchRow[],
+  });
+  if (!hit) return null;
+  if (hit.by === "recency") {
+    console.warn(`[bmc] word purchase ${hit.row.id} matched by recency, not e-mail (paid as ${email ?? "no address"})`);
+  }
+  return hit.row;
 }

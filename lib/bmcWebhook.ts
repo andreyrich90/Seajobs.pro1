@@ -108,3 +108,49 @@ export function readEvent(body: unknown, raw: string): BmcEvent {
       crypto.createHash("sha256").update(raw).digest("hex").slice(0, 40),
   };
 }
+
+export type WordMatchRow = { id: string; email: string };
+
+/**
+ * Which pending Word-export purchase a payment belongs to — the decision,
+ * separated from the queries that feed it so it can be exercised without a
+ * database, which is what this file is for.
+ *
+ * The order is deliberate:
+ *
+ * 1. **Too large to be a Word export → nothing.** The same checkout also sells
+ *    mailing packages that cost tens of dollars. Clearing the wrong one would
+ *    mark a $35 order paid on the strength of a $5 payment and start a mailing
+ *    nobody bought, so anything above the price falls through to the package
+ *    matching untouched. The margin covers a tip or a rounding, not a package.
+ * 2. **By e-mail**, when the provider sent one and it matches a row.
+ * 3. **By time**, when it does not. The buyer paid from a second mailbox, or the
+ *    payload carried no address; the row was written the moment the checkout
+ *    opened and the payment lands seconds later. Only when there is exactly one
+ *    candidate — two buyers in the same window is where a guess becomes a coin
+ *    toss, and handing one person's file to the other's payment is worse than a
+ *    wait. Then nothing matches, and the payment is still recorded and
+ *    announced for a human to settle.
+ * 4. **Never by time for a refund.** Taking access away from someone whose money
+ *    may not even be involved is not a mistake worth automating.
+ */
+export function chooseWordMatch(opts: {
+  kind: "paid" | "refund" | "other";
+  amount: number | null;
+  /** The catalogue price, in the same currency the checkout charges. */
+  price: number;
+  /** Tolerance above the price before the payment is read as something else. */
+  margin?: number;
+  /** The row found by e-mail, if any. */
+  byEmail: WordMatchRow | null;
+  /** Unpaid rows opened inside the matching window — two is enough to know it is ambiguous. */
+  pending: WordMatchRow[];
+}): { row: WordMatchRow; by: "email" | "recency" } | null {
+  const { kind, amount, price, margin = 2, byEmail, pending } = opts;
+  if (kind === "other") return null;
+  if (amount !== null && amount > price + margin) return null;
+  if (byEmail) return { row: byEmail, by: "email" };
+  if (kind !== "paid") return null;
+  if (pending.length !== 1) return null;
+  return { row: pending[0], by: "recency" };
+}

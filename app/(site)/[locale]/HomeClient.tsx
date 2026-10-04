@@ -3,13 +3,12 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Coffee } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Coffee, FileText, Send } from "lucide-react";
 import Header from "@/components/Header";
 import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
-import SalaryStatsWidget from "@/components/SalaryStats";
 import VesselFilter from "@/components/VesselFilter";
 import VacancyCard from "@/components/VacancyCard";
 import RankFilter from "@/components/RankFilter";
@@ -19,6 +18,7 @@ import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
 import { FLEETS, fleetLabel } from "@/lib/fleets";
+import { HOME_SERVICE_TILES } from "@/lib/cvMaker";
 
 import { money } from "@/lib/format";
 
@@ -79,6 +79,7 @@ export default function HomeClient({
   salaryStats: SalaryStats;
 }) {
   const { lang } = useLang();
+  const tiles = HOME_SERVICE_TILES[lang] ?? HOME_SERVICE_TILES.en;
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const t = useT();
@@ -90,7 +91,6 @@ export default function HomeClient({
   }
 
   const dbVacancies = initialVacancies;
-  const heroCards = dbVacancies.slice(0, 3);
   const PAGE_SIZE = 30;
   const jobsRef = useRef<HTMLDivElement>(null);
 
@@ -247,50 +247,60 @@ export default function HomeClient({
             )}
           </div>
 
-          {/* Right column — live salary comparison across fleets.
-              Desktop only: on mobile the comparison lives on its own /salaries
-              page (linked below the search) to keep the hero short. */}
-          {salaryStats.hasData ? (
-            <div className="relative hidden min-w-0 lg:block">
-              <SalaryStatsWidget stats={salaryStats} />
-            </div>
-          ) : heroCards.length > 0 && (
-            <div className="relative hidden lg:block">
-              <div className="flex flex-col gap-4">
-                {heroCards.map((v, i) => (
-                  <Link
-                    key={v.id}
-                    href={`/jobs/${slugId(v.title, v.id)}`}
-                    style={{ marginLeft: i === 1 ? "2.5rem" : i === 2 ? "1.25rem" : 0 }}
-                    className="group block rounded-2xl border border-white/10 bg-card px-5 py-4 shadow-xl backdrop-blur transition hover:-translate-y-0.5 hover:border-brass/40"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="truncate font-semibold text-sm text-white">{v.title}</p>
-                          {v.companies?.is_verified && <ShieldCheck size={13} className="shrink-0 text-teal" />}
-                        </div>
-                        {v.companies?.name && (
-                          <p className="mt-1 flex items-center gap-1 text-xs text-mist">
-                            <Building2 size={11} /> {v.companies.name}
-                          </p>
-                        )}
-                      </div>
-                      {(v.salary_from || v.salary_to) && (
-                        <span className="shrink-0 rounded-lg bg-brass/10 px-2 py-1 text-xs font-bold text-brassInk">
-                          {v.salary_from ? money(v.salary_from) : money(v.salary_to!)} {v.currency}
-                        </span>
-                      )}
+          {/* Right column — the two things a seafarer can do here besides apply.
+              Desktop only, like the salary widget it replaced: the hero has to
+              stay short on a phone, and both pages are in the menu anyway.
+              The salary comparison did not disappear — it keeps its own page and
+              is linked from under the tiles, because /salaries is a landing page
+              Google crawls and dropping every link to it would cost more than
+              the space it took. */}
+          <div className="relative hidden min-w-0 lg:block">
+            <div className="flex flex-col gap-4">
+              {([
+                { t: tiles.cv, href: "/cv-builder", icon: FileText, accent: true },
+                { t: tiles.blast, href: "/cv-distribution", icon: Send, accent: false },
+              ] as const).map(({ t: tile, href, icon: Icon, accent }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`group block rounded-2xl border bg-card p-5 shadow-xl backdrop-blur transition hover:-translate-y-0.5 ${
+                    accent ? "border-brass/30 hover:border-brass/60" : "border-white/10 hover:border-brass/40"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                      accent ? "bg-brass/15 text-brassInk" : "bg-white/5 text-mist"
+                    }`}>
+                      <Icon size={17} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className={`text-[11px] font-bold uppercase tracking-[0.16em] ${accent ? "text-brassInk" : "text-mist"}`}>
+                        {tile.eyebrow}
+                      </p>
+                      <h3 className="mt-1 font-display text-lg font-bold text-white">{tile.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-mist">{tile.body}</p>
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-brassInk">
+                        {tile.cta} <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
+                      </span>
                     </div>
-                    <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-                      {v.rank && <span className="rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-[11px] font-semibold text-brassInk">{v.rank}</span>}
-                      {v.vessel_type && <span className="rounded-full border border-teal/20 bg-teal/10 px-2 py-0.5 text-[11px] font-semibold text-teal">{v.vessel_type}</span>}
-                    </div>
-                  </Link>
-                ))}
-              </div>
+                  </div>
+                </Link>
+              ))}
+
+              {salaryStats.hasData && (
+                <Link
+                  href="/salaries"
+                  className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-mist transition hover:border-brass/40 hover:text-brassInk"
+                >
+                  <span className="flex items-center gap-2">
+                    <TrendingUp size={15} /> {tiles.salaries}
+                  </span>
+                  <ArrowRight size={15} />
+                </Link>
+              )}
             </div>
-          )}
+          </div>
+
         </div>
       </section>
 

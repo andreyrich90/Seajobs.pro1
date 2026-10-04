@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
-  Download, ZoomIn, ZoomOut, ImageDown, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
+  Download, ZoomIn, ZoomOut, ImageDown, FileText, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
   Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
+import { CV_WORD, CV_WORD_COPY } from "@/lib/cvWord";
 
 // A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
 // on-screen preview so a full A4 page fits the phone's viewport width.
@@ -1042,6 +1043,7 @@ export default function CVPage() {
             >
               <Download size={16} /> {t.cv_download_pdf}
             </button>
+            <WordButton lang={lang} />
           </div>
         </div>
 
@@ -1133,5 +1135,168 @@ export default function CVPage() {
           document.body
         )}
     </>
+  );
+}
+
+/**
+ * The paid Word export, next to the free PDF and PNG.
+ *
+ * Three states, and the component shows exactly one: not bought (a price on the
+ * button), waiting for the payment to arrive, and bought (a plain download for
+ * ever). The purchase is read straight from `cv_word_purchases`, which RLS
+ * opens to its owner alone — so this reads the truth rather than being told it,
+ * and the download route checks again anyway.
+ *
+ * Nothing here is a security boundary: hiding the button would not stop anyone,
+ * and is not meant to. `api/cv/word` is where the gate is.
+ */
+function WordButton({ lang }: { lang: string }) {
+  const copy = CV_WORD_COPY[lang] ?? CV_WORD_COPY.en;
+  const [state, setState] = useState<"loading" | "locked" | "waiting" | "paid">("loading");
+  const [busy, setBusy] = useState(false);
+  // Was this tab the one that sent the buyer to the checkout? Only that tab
+  // starts the download by itself — a tab opened later should not fling a file
+  // at someone who came back a day afterwards to look at their CV.
+  const bought = useRef(false);
+  const pulled = useRef(false);
+
+  const refresh = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const { data, error } = await supabase
+      .from("cv_word_purchases")
+      .select("paid_at")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    // A missing table means the migration has not been run yet: show the
+    // product as simply not bought rather than breaking the page.
+    if (error) { setState("locked"); return; }
+    const row = data?.[0] as { paid_at: string | null } | undefined;
+    setState(!row ? "locked" : row.paid_at ? "paid" : "waiting");
+  }, []);
+
+  useEffect(() => { void refresh(); }, [refresh]);
+
+  // Buy Me a Coffee can redirect the buyer back here after paying, and when it
+  // does they arrive in the *checkout* tab — which never opened the purchase
+  // and so would sit there with a locked button while the original tab, maybe
+  // on another device, quietly unlocks. The `?paid=1` on that redirect says
+  // "this tab is the one waiting", so it polls and pulls the file like the one
+  // that sent them.
+  //
+  // Read off location rather than useSearchParams: this page is prerendered,
+  // and that hook would force it out of static rendering for one flag.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).get("paid") !== "1") return;
+    bought.current = true;
+    setState((s) => (s === "paid" ? s : "waiting"));
+    void refresh();
+  }, [refresh]);
+
+  // While a payment is in flight the webhook is what flips the row, and it
+  // lands a few seconds later. Poll gently rather than make the buyer reload.
+  useEffect(() => {
+    if (state !== "waiting") return;
+    const id = setInterval(() => { void refresh(); }, 4000);
+    return () => clearInterval(id);
+  }, [state, refresh]);
+
+  // Paid while this tab was waiting: fetch the file without being asked. The
+  // click that started all this was minutes ago, so a browser may decline the
+  // download — hence `pulled`, which makes this one attempt rather than a loop,
+  // and hence the button below, which stays the real way to get the file.
+  useEffect(() => {
+    if (state !== "paid" || !bought.current || pulled.current) return;
+    pulled.current = true;
+    void download();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  async function buy() {
+    if (!CV_WORD.payUrl) return;
+    setBusy(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/cv/word", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const json = await res.json().catch(() => null);
+      if (json?.paid) { setState("paid"); return; }
+      bought.current = true;
+      setState("waiting");
+      // A new tab, so this one stays open and keeps polling. When the webhook
+      // lands, the buyer comes back to a page that has already unlocked.
+      window.open(CV_WORD.payUrl, "_blank", "noopener");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function download() {
+    setBusy(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/cv/word", { headers: { Authorization: `Bearer ${session.access_token}` } });
+      if (!res.ok) { await refresh(); return; }
+      const blob = await res.blob();
+      // The filename the route chose travels in Content-Disposition; read it
+      // back so the saved file keeps the seafarer's name and rank.
+      const cd = res.headers.get("content-disposition") ?? "";
+      const star = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+      const name = star ? decodeURIComponent(star[1]) : "cv.docx";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (state === "loading") return null;
+
+  if (state === "paid") {
+    return (
+      <button
+        onClick={download}
+        disabled={busy}
+        title={copy.what}
+        className="flex items-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-4 py-2.5 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-60"
+      >
+        <FileText size={16} /> {busy ? "…" : copy.download}
+      </button>
+    );
+  }
+
+  if (state === "waiting") {
+    return (
+      <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist" title={copy.trouble}>
+        <FileText size={16} /> {copy.waiting}
+      </span>
+    );
+  }
+
+  if (!CV_WORD.payUrl) {
+    return (
+      <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist" title={copy.why}>
+        <FileText size={16} /> {copy.soon}
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={buy}
+      disabled={busy}
+      title={`${copy.what} ${copy.why}`}
+      className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
+    >
+      <FileText size={16} /> {busy ? "…" : `${copy.buy} — $${CV_WORD.usd}`}
+    </button>
   );
 }

@@ -504,6 +504,43 @@ export interface Database {
         };
         Relationships: [];
       };
+      // One row per attempt to buy the Word export of a CV. Readable by its
+      // owner; written only by the service role, so a browser cannot declare
+      // itself paid. See supabase/migrations/20261004000000_cv_word_purchases.
+      cv_word_purchases: {
+        Row: {
+          id: string;
+          seafarer_id: string;
+          email: string;
+          status: string;
+          price_usd: number | null;
+          paid_at: string | null;
+          paid_amount: number | null;
+          paid_currency: string | null;
+          paid_ref: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          seafarer_id: string;
+          email: string;
+          status?: string;
+          price_usd?: number | null;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: string;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
+        };
+        Relationships: [];
+      };
       saved_vacancies: {
         Row: {
           vacancy_id: string;

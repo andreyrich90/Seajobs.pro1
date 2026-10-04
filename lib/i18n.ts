@@ -67,6 +67,7 @@ export const T: Record<Lang, Dict> = {
     cab_applications: "Aplicări",
     cab_saved: "Posturi salvate",
     nav_cv_blast: "Trimitere CV",
+    nav_cv_builder: "Creează CV",
     cab_cv_blast: "Distribuire CV",
     cab_messages: "Mesaje",
     cab_notifications: "Notificări",
@@ -521,6 +522,7 @@ export const T: Record<Lang, Dict> = {
     cab_dashboard: "Головна", cab_profile: "Мій профіль", cab_certificates: "Сертифікати",
     cab_experience: "Досвід роботи", cab_cv: "Моє резюме", cab_applications: "Мої відгуки",
     nav_cv_blast: "Розсилка CV",
+    nav_cv_builder: "Зібрати CV",
     cab_cv_blast: "Розсилка резюме",
     cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
@@ -602,6 +604,7 @@ export const T: Record<Lang, Dict> = {
     cab_dashboard: "Pulpit", cab_profile: "Mój profil", cab_certificates: "Certyfikaty",
     cab_experience: "Doświadczenie", cab_cv: "Moje CV", cab_applications: "Moje aplikacje",
     nav_cv_blast: "Wysyłka CV",
+    nav_cv_builder: "Zrób CV",
     cab_cv_blast: "Wysyłka CV",
     cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
@@ -683,6 +686,7 @@ export const T: Record<Lang, Dict> = {
     cab_dashboard: "Главная", cab_profile: "Мой профиль", cab_certificates: "Сертификаты",
     cab_experience: "Опыт работы", cab_cv: "Моё резюме", cab_applications: "Мои отклики",
     nav_cv_blast: "Рассылка CV",
+    nav_cv_builder: "Собрать CV",
     cab_cv_blast: "Рассылка резюме",
     cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
@@ -764,6 +768,7 @@ export const T: Record<Lang, Dict> = {
     cab_dashboard: "Dashboard", cab_profile: "My Profile", cab_certificates: "Certificates",
     cab_experience: "Sea Experience", cab_cv: "My CV", cab_applications: "Applications",
     nav_cv_blast: "CV mailing",
+    nav_cv_builder: "Make a CV",
     cab_cv_blast: "CV distribution",
     cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
