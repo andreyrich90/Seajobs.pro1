@@ -1177,6 +1177,23 @@ function WordButton({ lang }: { lang: string }) {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
+  // Buy Me a Coffee can redirect the buyer back here after paying, and when it
+  // does they arrive in the *checkout* tab — which never opened the purchase
+  // and so would sit there with a locked button while the original tab, maybe
+  // on another device, quietly unlocks. The `?paid=1` on that redirect says
+  // "this tab is the one waiting", so it polls and pulls the file like the one
+  // that sent them.
+  //
+  // Read off location rather than useSearchParams: this page is prerendered,
+  // and that hook would force it out of static rendering for one flag.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).get("paid") !== "1") return;
+    bought.current = true;
+    setState((s) => (s === "paid" ? s : "waiting"));
+    void refresh();
+  }, [refresh]);
+
   // While a payment is in flight the webhook is what flips the row, and it
   // lands a few seconds later. Poll gently rather than make the buyer reload.
   useEffect(() => {
