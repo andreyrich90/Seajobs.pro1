@@ -10,6 +10,7 @@ import { ArrowLeft, User, Ship, Award, MapPin, Anchor } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
+import { dedupeVoyages } from "@/lib/voyages";
 
 type PublicProfile = {
   first_name: string | null;
@@ -97,7 +98,7 @@ export default function PublicSeafarerPage() {
             .order("expiry_date", { ascending: false }),
         ]);
 
-        setExperience((expRes.data as Experience[]) ?? []);
+        setExperience(dedupeVoyages((expRes.data as Experience[]) ?? []).rows);
         setCertificates((certRes.data as Certificate[]) ?? []);
       } finally {
         setLoading(false);

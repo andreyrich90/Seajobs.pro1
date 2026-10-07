@@ -10,6 +10,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { supabase } from "@/lib/supabase/client";
+import { cleanSeaExperience } from "@/lib/cvImport";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
@@ -930,6 +931,7 @@ export default function CVPage() {
     async function loadData() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
+      await cleanSeaExperience(session.user.id);
       const [seafarerRes, certsRes, expRes] = await Promise.all([
         supabase.from("seafarers").select("*").eq("id", session.user.id).single(),
         supabase.from("certificates").select("*").eq("seafarer_id", session.user.id).order("expiry_date"),

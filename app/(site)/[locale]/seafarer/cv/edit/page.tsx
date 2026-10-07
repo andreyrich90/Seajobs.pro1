@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, CheckCircle2, Plus, Trash2, Save, ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { cleanSeaExperience } from "@/lib/cvImport";
 import { useT } from "@/components/DictProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { VESSEL_TYPE_GROUPS } from "@/lib/vesselTypes";
@@ -66,6 +67,9 @@ export default function CvEditPage() {
   const [savedJson, setSavedJson] = useState("");
 
   async function load(uid: string) {
+    // Duplicate voyages are merged before anything is shown, so the editor
+    // never offers two copies of one contract to correct separately.
+    await cleanSeaExperience(uid);
     const [{ data: sf }, { data: cs }, { data: ex }] = await Promise.all([
       supabase.from("seafarers").select("*").eq("id", uid).single(),
       supabase.from("certificates").select("*").eq("seafarer_id", uid).order("expiry_date"),

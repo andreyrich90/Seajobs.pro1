@@ -36,6 +36,8 @@ Key Supabase tables: `profiles` (role + `is_admin`/`is_blocked` flags, one row p
 
 Migrations under `supabase/migrations/` are dated + idempotent; `20260608000000_baseline_schema.sql` is the consolidated baseline and later files layer on chat, referrals, forum sections/replies, anonymous forum posting, seafarer documents/diplomas, the "profile required before applying" rule, and the Telegram bot's columns.
 
+**Sea service never holds one contract twice.** `lib/voyages.ts` (`sameVoyage`, `dedupeVoyages`) decides when two `sea_experience` rows are the same contract: the same ship once `M/V`, `MT` and punctuation are stripped, and starts within a month or more than 15 days of overlap. Rank and company are deliberately not compared — a second CV upload reads "C/O" where the first read "Chief Officer". Back-to-back contracts on one ship never overlap, so they stay apart. The CV imports skip a voyage already on file by that rule. `cleanSeaExperience()` in `lib/cvImport.ts` merges the pairs left in the database (the most complete copy stays and takes the others' empty fields) and runs whenever the editor, the CV page or the experience page opens. `lib/cvData.ts`, the company applicant view and the public profile apply the same merge in memory, so a crewing agency never reads a pair even from a profile nobody has opened since. `20261007000000_sea_experience_dedupe.sql` did it once for every row already stored, with the same rule in SQL. If you change the rule, change both.
+
 ### Auth & roles
 
 - Supabase Auth with the **PKCE** flow. `app/auth/login`, `register`, `forgot-password`, `callback` are the (non-localized) auth screens; `app/auth/callback/page.tsx` exchanges the `?code=` and inserts a `seafarers` row for new sign-ups.

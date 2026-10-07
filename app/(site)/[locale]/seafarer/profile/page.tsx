@@ -5,6 +5,8 @@ import Image from "next/image";
 import { CheckCircle, AlertCircle, Upload, User, FileText, Sparkles, Plus, Trash2, Link2, Copy, Check, MessageCircle, Send } from "lucide-react";
 import { cvParseError } from "@/lib/cvParseError";
 import { supabase } from "@/lib/supabase/client";
+import { cleanSeaExperience } from "@/lib/cvImport";
+import { sameVoyage, type VoyageLike } from "@/lib/voyages";
 import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
@@ -280,14 +282,13 @@ export default function ProfilePage() {
       // dedupe within the parsed batch itself).
       const [{ data: exCerts }, { data: exExp }] = await Promise.all([
         supabase.from("certificates").select("name, number").eq("seafarer_id", userId),
-        supabase.from("sea_experience").select("vessel_name, rank, from_date, to_date").eq("seafarer_id", userId),
+        supabase.from("sea_experience").select("vessel_name, from_date, to_date").eq("seafarer_id", userId),
       ]);
       const certKey = (name?: string | null, number?: string | null) =>
         `${(name ?? "").trim().toLowerCase()}|${(number ?? "").trim().toLowerCase()}`;
-      const expKey = (vessel?: string | null, rank?: string | null, from?: string | null, to?: string | null) =>
-        `${(vessel ?? "").trim().toLowerCase()}|${(rank ?? "").trim().toLowerCase()}|${from ?? ""}|${to ?? ""}`;
       const seenCerts = new Set((exCerts ?? []).map((c) => certKey(c.name, c.number)));
-      const seenExp = new Set((exExp ?? []).map((e) => expKey(e.vessel_name, e.rank, e.from_date, e.to_date)));
+      // The same contract, not the same text — see lib/voyages.ts.
+      const seenExp: VoyageLike[] = [...(exExp ?? [])];
 
       let certCount = 0;
       if (Array.isArray(p.certificates)) {
@@ -318,9 +319,8 @@ export default function ProfilePage() {
         const rows = p.experience
           .filter((x: { vessel_name?: string }) => x?.vessel_name)
           .filter((x: Record<string, string | null>) => {
-            const k = expKey(x.vessel_name, x.rank, x.from_date, x.to_date);
-            if (seenExp.has(k)) return false;
-            seenExp.add(k);
+            if (seenExp.some((e) => sameVoyage(e, x))) return false;
+            seenExp.push(x);
             return true;
           })
           .map((x: Record<string, string | null>) => ({
@@ -340,6 +340,7 @@ export default function ProfilePage() {
           if (!error) expCount = rows.length;
         }
       }
+      await cleanSeaExperience(userId);
 
       void certCount;
       void expCount;
