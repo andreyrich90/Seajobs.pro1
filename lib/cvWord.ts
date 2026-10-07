@@ -65,6 +65,10 @@ export type CvWordCopy = {
   what: string;
   /** Shown while the payment has not arrived yet. */
   waiting: string;
+  /** The short label on the waiting badge — the long line sits under it. */
+  waitingShort: string;
+  /** Re-opens the checkout for someone who closed it before paying. */
+  reopen: string;
   /** The "I paid but nothing happened" escape hatch. */
   trouble: string;
   /** Shown when no checkout link is configured yet. */
@@ -79,6 +83,8 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     download: "Download Word (.docx)",
     what: "An editable .docx with your details already filled in — the format crewing managers ask for.",
     waiting: "Waiting for the payment to arrive. It usually takes a few seconds; this page unlocks by itself.",
+    waitingShort: "Waiting for payment…",
+    reopen: "Open the checkout again",
     trouble: "Paid and still locked? Tell us — we will open it by hand.",
     soon: "The Word export is not on sale yet. PDF and image stay free.",
     why: "PDF and image stay free. Word costs money because it is the one you can edit afterwards.",
@@ -88,6 +94,8 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     download: "Скачать Word (.docx)",
     what: "Редактируемый .docx с уже заполненными данными — тот формат, который просят крюинги.",
     waiting: "Ждём подтверждения оплаты. Обычно это несколько секунд, страница откроется сама.",
+    waitingShort: "Ждём оплату…",
+    reopen: "Открыть оплату ещё раз",
     trouble: "Оплатили, а доступа нет? Напишите нам — откроем вручную.",
     soon: "Выгрузка в Word пока не продаётся. PDF и картинка остаются бесплатными.",
     why: "PDF и картинка остаются бесплатными. Word платный, потому что его можно редактировать.",
@@ -97,6 +105,8 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     download: "Завантажити Word (.docx)",
     what: "Редагований .docx із уже заповненими даними — формат, який просять крюїнги.",
     waiting: "Чекаємо підтвердження оплати. Зазвичай це кілька секунд, сторінка відкриється сама.",
+    waitingShort: "Чекаємо оплату…",
+    reopen: "Відкрити оплату ще раз",
     trouble: "Оплатили, а доступу немає? Напишіть нам — відкриємо вручну.",
     soon: "Вивантаження у Word поки не продається. PDF і зображення лишаються безкоштовними.",
     why: "PDF і зображення лишаються безкоштовними. Word платний, бо його можна редагувати.",
@@ -106,6 +116,8 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     download: "Pobierz Word (.docx)",
     what: "Edytowalny plik .docx z już wypełnionymi danymi — format, o który proszą crewingi.",
     waiting: "Czekamy na potwierdzenie płatności. Zwykle kilka sekund, strona odblokuje się sama.",
+    waitingShort: "Czekamy na płatność…",
+    reopen: "Otwórz płatność ponownie",
     trouble: "Zapłacone, a nadal zablokowane? Napisz do nas — otworzymy ręcznie.",
     soon: "Eksport do Worda nie jest jeszcze w sprzedaży. PDF i obraz pozostają darmowe.",
     why: "PDF i obraz pozostają darmowe. Word kosztuje, bo to ten, który możesz edytować.",
@@ -115,6 +127,8 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     download: "Descarcă Word (.docx)",
     what: "Un fișier .docx editabil cu datele deja completate — formatul cerut de agențiile de crewing.",
     waiting: "Așteptăm confirmarea plății. De obicei durează câteva secunde, pagina se deblochează singură.",
+    waitingShort: "Așteptăm plata…",
+    reopen: "Deschide din nou plata",
     trouble: "Ai plătit și tot e blocat? Scrie-ne — îl deschidem manual.",
     soon: "Exportul în Word nu este încă la vânzare. PDF și imaginea rămân gratuite.",
     why: "PDF și imaginea rămân gratuite. Word costă pentru că pe acesta îl poți edita.",
