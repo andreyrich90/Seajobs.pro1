@@ -56,6 +56,24 @@ export function cvWordPrice(lang?: string): string {
   return lang === "pl" || lang === "ro" ? `${n.replace(".", ",")} $` : `$${n}`;
 }
 
+/**
+ * Fill every `{price}` in a copy object — strings, arrays, nested objects —
+ * with the Word price as `lang` writes it. Pages that quote the price carry the
+ * token, never the figure, so a price change cannot leave one of them behind.
+ */
+export function withPrice<T>(node: T, lang?: string): T {
+  const price = cvWordPrice(lang);
+  const fill = (n: unknown): unknown => {
+    if (typeof n === "string") return n.split("{price}").join(price);
+    if (Array.isArray(n)) return n.map(fill);
+    if (n && typeof n === "object") {
+      return Object.fromEntries(Object.entries(n as Record<string, unknown>).map(([k, v]) => [k, fill(v)]));
+    }
+    return n;
+  };
+  return fill(node) as T;
+}
+
 export type CvWordCopy = {
   /** Button label before buying, e.g. "Word — $5". */
   buy: string;
@@ -69,6 +87,8 @@ export type CvWordCopy = {
   waitingShort: string;
   /** Re-opens the checkout for someone who closed it before paying. */
   reopen: string;
+  /** Shown once on arrival from /maritime-cv, after the AI filled the profile. */
+  fromMaker: string;
   /** The "I paid but nothing happened" escape hatch. */
   trouble: string;
   /** Shown when no checkout link is configured yet. */
@@ -85,6 +105,7 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Waiting for the payment to arrive. It usually takes a few seconds; this page unlocks by itself.",
     waitingShort: "Waiting for payment…",
     reopen: "Open the checkout again",
+    fromMaker: "Your CV has been filled in from your file. Check the rank, documents and sea service — anything wrong is fixed in My profile, Certificates and Experience. The finished CV is below: PDF free, editable Word as a one-off.",
     trouble: "Paid and still locked? Tell us — we will open it by hand.",
     soon: "The Word export is not on sale yet. PDF and image stay free.",
     why: "PDF and image stay free. Word costs money because it is the one you can edit afterwards.",
@@ -96,6 +117,7 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Ждём подтверждения оплаты. Обычно это несколько секунд, страница откроется сама.",
     waitingShort: "Ждём оплату…",
     reopen: "Открыть оплату ещё раз",
+    fromMaker: "Анкета заполнена из вашего файла. Проверьте ранг, документы и стаж — поправить можно в разделах «Мой профиль», «Сертификаты» и «Опыт работы». Ниже готовая анкета: PDF бесплатно, редактируемый Word — один раз.",
     trouble: "Оплатили, а доступа нет? Напишите нам — откроем вручную.",
     soon: "Выгрузка в Word пока не продаётся. PDF и картинка остаются бесплатными.",
     why: "PDF и картинка остаются бесплатными. Word платный, потому что его можно редактировать.",
@@ -107,6 +129,7 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Чекаємо підтвердження оплати. Зазвичай це кілька секунд, сторінка відкриється сама.",
     waitingShort: "Чекаємо оплату…",
     reopen: "Відкрити оплату ще раз",
+    fromMaker: "Анкету заповнено з вашого файлу. Перевірте ранг, документи й стаж — виправити можна в розділах «Мій профіль», «Сертифікати» та «Досвід роботи». Нижче готова анкета: PDF безкоштовно, редагований Word — один раз.",
     trouble: "Оплатили, а доступу немає? Напишіть нам — відкриємо вручну.",
     soon: "Вивантаження у Word поки не продається. PDF і зображення лишаються безкоштовними.",
     why: "PDF і зображення лишаються безкоштовними. Word платний, бо його можна редагувати.",
@@ -118,6 +141,7 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Czekamy na potwierdzenie płatności. Zwykle kilka sekund, strona odblokuje się sama.",
     waitingShort: "Czekamy na płatność…",
     reopen: "Otwórz płatność ponownie",
+    fromMaker: "CV zostało wypełnione z Twojego pliku. Sprawdź stopień, dokumenty i staż — poprawisz je w sekcjach „Mój profil”, „Certyfikaty” i „Doświadczenie”. Poniżej gotowe CV: PDF za darmo, edytowalny Word jednorazowo.",
     trouble: "Zapłacone, a nadal zablokowane? Napisz do nas — otworzymy ręcznie.",
     soon: "Eksport do Worda nie jest jeszcze w sprzedaży. PDF i obraz pozostają darmowe.",
     why: "PDF i obraz pozostają darmowe. Word kosztuje, bo to ten, który możesz edytować.",
@@ -129,6 +153,7 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Așteptăm confirmarea plății. De obicei durează câteva secunde, pagina se deblochează singură.",
     waitingShort: "Așteptăm plata…",
     reopen: "Deschide din nou plata",
+    fromMaker: "CV-ul a fost completat din fișierul tău. Verifică rangul, actele și vechimea — corecturile se fac în «Profilul meu», «Certificate» și «Experiență». Mai jos e CV-ul gata: PDF gratuit, Word editabil o singură dată.",
     trouble: "Ai plătit și tot e blocat? Scrie-ne — îl deschidem manual.",
     soon: "Exportul în Word nu este încă la vânzare. PDF și imaginea rămân gratuite.",
     why: "PDF și imaginea rămân gratuite. Word costă pentru că pe acesta îl poți edita.",

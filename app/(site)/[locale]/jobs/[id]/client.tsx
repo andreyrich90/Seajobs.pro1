@@ -15,6 +15,7 @@ import Footer from "@/components/Footer";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
+import { DOCX_TYPE, PDF_TYPE, importParsedCv, parseCvFile } from "@/lib/cvImport";
 import { cvParseError } from "@/lib/cvParseError";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
@@ -77,15 +78,6 @@ function formatSalary(v: VacancyDetail, lang: string): string {
     return `${money(v.salary_from)}–${money(v.salary_to)} ${v.currency}${per}`;
   if (v.salary_from) return `${t.salaryFrom} ${money(v.salary_from)} ${v.currency}${per}`;
   return `${t.salaryUpTo} ${money(v.salary_to!)} ${v.currency}${per}`;
-}
-
-function readAsDataURL(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
 
 /* ── Original context we add on top of the (often imported) listing ──────────
@@ -658,91 +650,12 @@ export default function VacancyDetailClient({
     setCvUploading(true);
     setCvNotice(null);
     try {
-      const fileBase64 = await readAsDataURL(file);
-      const mediaType = isPdf
-        ? "application/pdf"
-        : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-      const res = await fetch("/api/cv-parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileBase64, mediaType }),
-      });
-      const data = await res.json();
-      if (!data.ok || !data.profile) {
-        setCvNotice({ type: "error", text: cvParseError(data.error, t) });
+      const parsed = await parseCvFile(file, isPdf ? PDF_TYPE : DOCX_TYPE);
+      if (!parsed.ok) {
+        setCvNotice({ type: "error", text: cvParseError(parsed.error, t) });
         return;
       }
-      const p = data.profile as Record<string, unknown>;
-
-      // Profile fields: only overwrite with values the CV actually contains.
-      const fields = [
-        "first_name", "last_name", "rank", "nationality", "phone", "date_of_birth",
-        "readiness_date", "about", "seamans_book", "seamans_book_expiry", "passport_no",
-        "passport_expiry", "service_record_book", "medical", "medical_expiry", "diploma",
-        "diploma_expiry", "us_visa", "schengen_visa", "education", "languages", "competencies",
-      ] as const;
-      const upd: { [K in (typeof fields)[number]]?: string } = {};
-      for (const k of fields) if (typeof p[k] === "string" && p[k]) upd[k] = p[k] as string;
-      if (Object.keys(upd).length) {
-        await supabase.from("seafarers").update(upd).eq("id", userId);
-      }
-
-      // Skip rows that already exist so re-uploading a CV never duplicates
-      // certificates or sea-service entries (also dedupes within the batch).
-      const [{ data: exCerts }, { data: exExp }] = await Promise.all([
-        supabase.from("certificates").select("name, number").eq("seafarer_id", userId),
-        supabase.from("sea_experience").select("vessel_name, rank, from_date, to_date").eq("seafarer_id", userId),
-      ]);
-      const certKey = (name?: string | null, number?: string | null) =>
-        `${(name ?? "").trim().toLowerCase()}|${(number ?? "").trim().toLowerCase()}`;
-      const expKey = (vessel?: string | null, rank?: string | null, from?: string | null, to?: string | null) =>
-        `${(vessel ?? "").trim().toLowerCase()}|${(rank ?? "").trim().toLowerCase()}|${from ?? ""}|${to ?? ""}`;
-      const seenCerts = new Set((exCerts ?? []).map((c) => certKey(c.name, c.number)));
-      const seenExp = new Set((exExp ?? []).map((e) => expKey(e.vessel_name, e.rank, e.from_date, e.to_date)));
-
-      if (Array.isArray(p.certificates)) {
-        const rows = (p.certificates as Record<string, string | null>[])
-          .filter((c) => c?.name)
-          .filter((c) => {
-            const k = certKey(c.name, c.number);
-            if (seenCerts.has(k)) return false;
-            seenCerts.add(k);
-            return true;
-          })
-          .map((c) => ({
-            seafarer_id: userId,
-            name: c.name as string,
-            number: c.number ?? null,
-            issue_date: c.issue_date ?? null,
-            expiry_date: c.expiry_date ?? null,
-            issuing_authority: c.issuing_authority ?? null,
-          }));
-        if (rows.length) await supabase.from("certificates").insert(rows);
-      }
-
-      if (Array.isArray(p.experience)) {
-        const rows = (p.experience as Record<string, string | null>[])
-          .filter((x) => x?.vessel_name)
-          .filter((x) => {
-            const k = expKey(x.vessel_name, x.rank, x.from_date, x.to_date);
-            if (seenExp.has(k)) return false;
-            seenExp.add(k);
-            return true;
-          })
-          .map((x) => ({
-            seafarer_id: userId,
-            vessel_name: x.vessel_name as string,
-            vessel_type: x.vessel_type ?? null,
-            rank: x.rank ?? null,
-            company: x.company ?? null,
-            flag: x.flag ?? null,
-            dwt: x.dwt ?? null,
-            engine: x.engine ?? null,
-            from_date: x.from_date ?? null,
-            to_date: x.to_date ?? null,
-          }));
-        if (rows.length) await supabase.from("sea_experience").insert(rows);
-      }
+      await importParsedCv(userId, parsed.profile);
 
       // Re-check what is still missing (e.g. the CV had no phone number).
       const [{ data: sf }, { count: expCount }] = await Promise.all([

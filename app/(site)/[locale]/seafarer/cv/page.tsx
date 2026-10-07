@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import {
   Download, ZoomIn, ZoomOut, ImageDown, FileText, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
   Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
+  Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -854,6 +855,13 @@ export default function CVPage() {
   const [cardVariant, setCardVariant] = useState<CardVariant>("dark");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  // Arrived from /maritime-cv with a profile the AI has just filled: say what
+  // happened and what to check, once. Read off location, like ?paid=1 below,
+  // so the page stays prerendered.
+  const [fromMaker, setFromMaker] = useState(false);
+  useEffect(() => {
+    setFromMaker(new URLSearchParams(window.location.search).get("from") === "maker");
+  }, []);
 
   // Auto-fit the CV onto a single A4 page WITHOUT losing the full page width.
   // A naive "scale down to fit one page" shrinks the width too (white strip on
@@ -1024,6 +1032,12 @@ export default function CVPage() {
       `}</style>
 
       <div className="p-5 sm:p-8">
+        {fromMaker && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-teal/30 bg-teal/10 px-4 py-3">
+            <Sparkles size={16} className="mt-0.5 shrink-0 text-teal" />
+            <p className="text-sm leading-relaxed text-foam">{(CV_WORD_COPY[lang] ?? CV_WORD_COPY.en).fromMaker}</p>
+          </div>
+        )}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold text-[#ffffff]">{t.cab_cv}</h1>

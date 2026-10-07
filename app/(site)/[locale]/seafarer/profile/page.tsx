@@ -219,9 +219,12 @@ export default function ProfilePage() {
 
     try {
       const fileBase64 = await readAsDataURL(file);
+      // The parser is for signed-in seafarers only — every call is a paid
+      // Claude request — so it is told who is asking.
+      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch("/api/cv-parse", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token ?? ""}` },
         body: JSON.stringify({ fileBase64, mediaType }),
       });
       const data = await res.json();

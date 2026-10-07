@@ -55,7 +55,7 @@ export default function Header() {
   const nav = [
     // Before the salary comparison on purpose: making a CV is the thing a
     // seafarer needs first, and it is free.
-    { label: t.nav_cv_builder, icon: FileText, href: "/cv-builder" },
+    { label: t.nav_cv_builder, icon: FileText, href: "/maritime-cv" },
     { label: t.nav_salaries, icon: TrendingUp, href: "/salaries" },
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },
     { label: t.nav_news,  icon: Newspaper,     href: "/news" },
@@ -343,7 +343,7 @@ export default function Header() {
               {/* The utility strip is desktop-only, so this is where a phone
                   reaches the CV distribution and the employers page. "About" is
                   in the footer. */}
-              <Link href="/cv-builder"
+              <Link href="/maritime-cv"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
                 <FileText size={18} /> {t.nav_cv_builder}
               </Link>

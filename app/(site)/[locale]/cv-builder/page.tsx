@@ -62,7 +62,7 @@ export default async function CvBuilderPage({
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-mist">{c.lede}</p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/seafarer/cv"
+              href="/maritime-cv"
               className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-6 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
             >
               <FileText size={16} /> {c.ctaPrimary}

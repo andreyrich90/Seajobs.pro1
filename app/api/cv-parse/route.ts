@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import mammoth from "mammoth";
+import { createClient } from "@supabase/supabase-js";
 import { askClaude, extractJson } from "@/lib/cvParse";
 
 export const runtime = "nodejs";
@@ -13,11 +14,28 @@ export const maxDuration = 60;
 // Reads a seafarer's CV into the profile fields. The prompt, the token ceiling
 // and the model call live in lib/cvParse.ts, where they can be exercised
 // without the network; this file is the request around them.
+//
+// Signed-in callers only. Every call is a paid Claude request on a document up
+// to several megabytes, and until /maritime-cv advertised an upload box to the
+// whole internet the open door went unnoticed. Everything that uses the result
+// writes it into a profile anyway, so there is never a reason to parse a CV for
+// someone who has none.
+async function signedIn(req: NextRequest): Promise<boolean> {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!token || !url || !key) return false;
+  const { data, error } = await createClient(url, key, { auth: { persistSession: false } }).auth.getUser(token);
+  return !error && !!data.user;
+}
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ ok: false, error: "missing_api_key" }, { status: 500 });
+  }
+  if (!(await signedIn(req))) {
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
   let body: { fileBase64?: string; mediaType?: string };
