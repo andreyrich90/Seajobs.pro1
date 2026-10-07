@@ -342,11 +342,7 @@ export default function Header() {
               ))}
               {/* The utility strip is desktop-only, so this is where a phone
                   reaches the CV distribution and the employers page. "About" is
-                  in the footer. */}
-              <Link href="/maritime-cv"
-                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
-                <FileText size={18} /> {t.nav_cv_builder}
-              </Link>
+                  in the footer. The CV page is already in `nav` above. */}
               <Link href="/cv-distribution"
                 className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-brassInk transition hover:bg-white/5">
                 <Mail size={18} /> {t.nav_cv_blast}
