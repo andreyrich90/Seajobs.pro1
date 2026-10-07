@@ -1029,7 +1029,10 @@ export default function CVPage() {
             <h1 className="font-display text-2xl font-semibold text-[#ffffff]">{t.cab_cv}</h1>
             <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {/* No shrink-0 here: a container that refuses to shrink sizes to its
+              content on one line, so flex-wrap never gets the chance to wrap
+              and the row runs off a phone screen. */}
+          <div className="flex min-w-0 max-w-full flex-wrap items-start gap-2">
             <button
               onClick={handleDownloadPng}
               disabled={exporting}
@@ -1159,20 +1162,34 @@ function WordButton({ lang }: { lang: string }) {
   // at someone who came back a day afterwards to look at their CV.
   const bought = useRef(false);
   const pulled = useRef(false);
+  // When this tab started waiting. A payment lands in seconds; a wait that has
+  // run for minutes means the checkout was closed unpaid, and the buy button
+  // should come back rather than the page saying "waiting" for ever.
+  const waitSince = useRef(0);
+  const [stale, setStale] = useState(false);
 
   const refresh = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+    // Any paid purchase, not the newest row: one payment opens the export for
+    // good, and the route that serves the file asks the same question. Reading
+    // only the latest row would lock a buyer out the day a newer unpaid row
+    // appeared beside the paid one.
     const { data, error } = await supabase
       .from("cv_word_purchases")
       .select("paid_at")
-      .order("created_at", { ascending: false })
+      .not("paid_at", "is", null)
       .limit(1);
     // A missing table means the migration has not been run yet: show the
     // product as simply not bought rather than breaking the page.
     if (error) { setState("locked"); return; }
-    const row = data?.[0] as { paid_at: string | null } | undefined;
-    setState(!row ? "locked" : row.paid_at ? "paid" : "waiting");
+    if (data?.length) { setState("paid"); return; }
+    // An unpaid row alone is not a payment in flight. It is what every
+    // abandoned checkout leaves behind — POST /api/cv/word opens it before
+    // the buyer reaches the till — so on its own it reads as "not bought",
+    // and the buy button stays, reusing that same row. Only a tab that sent
+    // the buyer to pay (or the checkout's ?paid=1 redirect) waits.
+    setState(bought.current ? "waiting" : "locked");
   }, []);
 
   useEffect(() => { void refresh(); }, [refresh]);
@@ -1190,6 +1207,7 @@ function WordButton({ lang }: { lang: string }) {
     if (typeof window === "undefined") return;
     if (new URLSearchParams(window.location.search).get("paid") !== "1") return;
     bought.current = true;
+    waitSince.current = Date.now();
     setState((s) => (s === "paid" ? s : "waiting"));
     void refresh();
   }, [refresh]);
@@ -1198,7 +1216,17 @@ function WordButton({ lang }: { lang: string }) {
   // lands a few seconds later. Poll gently rather than make the buyer reload.
   useEffect(() => {
     if (state !== "waiting") return;
-    const id = setInterval(() => { void refresh(); }, 4000);
+    const id = setInterval(() => {
+      if (Date.now() - waitSince.current > WORD_WAIT_MS) {
+        // Long past any real webhook: give the buy button back, and say
+        // where to turn if they did pay.
+        bought.current = false;
+        setStale(true);
+        setState("locked");
+        return;
+      }
+      void refresh();
+    }, 4000);
     return () => clearInterval(id);
   }, [state, refresh]);
 
@@ -1226,6 +1254,8 @@ function WordButton({ lang }: { lang: string }) {
       const json = await res.json().catch(() => null);
       if (json?.paid) { setState("paid"); return; }
       bought.current = true;
+      waitSince.current = Date.now();
+      setStale(false);
       setState("waiting");
       // A new tab, so this one stays open and keeps polling. When the webhook
       // lands, the buyer comes back to a page that has already unlocked.
@@ -1274,10 +1304,22 @@ function WordButton({ lang }: { lang: string }) {
   }
 
   if (state === "waiting") {
+    // A short badge in the row, the explanation under it. The full sentence
+    // used to sit inside the badge and pushed the whole row off a phone screen.
     return (
-      <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist" title={copy.trouble}>
-        <FileText size={16} /> {copy.waiting}
-      </span>
+      <div className="flex min-w-0 max-w-[18rem] flex-col gap-1">
+        <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist">
+          <FileText size={16} className="shrink-0 animate-pulse" /> {copy.waitingShort}
+        </span>
+        <p className="text-xs leading-snug text-mist">
+          {copy.waiting}{" "}
+          {CV_WORD.payUrl && (
+            <a href={CV_WORD.payUrl} target="_blank" rel="noopener" className="text-brassInk underline hover:text-brass">
+              {copy.reopen}
+            </a>
+          )}
+        </p>
+      </div>
     );
   }
 
@@ -1289,7 +1331,7 @@ function WordButton({ lang }: { lang: string }) {
     );
   }
 
-  return (
+  const buyButton = (
     <button
       onClick={buy}
       disabled={busy}
@@ -1299,4 +1341,18 @@ function WordButton({ lang }: { lang: string }) {
       <FileText size={16} /> {busy ? "…" : `${copy.buy} — ${cvWordPrice(lang)}`}
     </button>
   );
+  // A wait that ran out: the buy button is back, with the line for anyone who
+  // did pay and is still locked out — the admin ledger can open it by hand.
+  if (stale) {
+    return (
+      <div className="flex min-w-0 max-w-[18rem] flex-col gap-1">
+        {buyButton}
+        <p className="text-xs leading-snug text-mist">{copy.trouble}</p>
+      </div>
+    );
+  }
+  return buyButton;
 }
+
+/** How long a tab waits for the webhook before giving the buy button back. */
+const WORD_WAIT_MS = 15 * 60_000;
