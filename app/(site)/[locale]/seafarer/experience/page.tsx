@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Ship } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { cleanSeaExperience } from "@/lib/cvImport";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import type { SeaExperience } from "@/lib/supabase/types";
@@ -71,6 +72,7 @@ export default function ExperiencePage() {
       if (!session) return;
       setUserId(session.user.id);
 
+      await cleanSeaExperience(session.user.id);
       const { data } = await supabase
         .from("sea_experience")
         .select("*")

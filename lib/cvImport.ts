@@ -7,6 +7,7 @@
 // rather than writing straight to the database, so it keeps its own path.)
 
 import { supabase } from "@/lib/supabase/client";
+import { VOYAGE_FILL_FIELDS, dedupeVoyages, sameVoyage, type VoyageLike } from "@/lib/voyages";
 
 export const PDF_TYPE = "application/pdf";
 export const DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
@@ -65,7 +66,9 @@ const PROFILE_FIELDS = [
  *
  * Only fields the CV actually holds are overwritten, so importing a thin CV
  * never blanks a fuller profile. Certificates and sea service already on file
- * are skipped, so uploading the same CV twice never doubles them.
+ * are skipped, so uploading the same CV twice never doubles them — a voyage
+ * counts as on file when it is the same contract (`sameVoyage`), not only when
+ * every field was read identically.
  */
 export async function importParsedCv(userId: string, p: Record<string, unknown>): Promise<void> {
   const upd: { [K in (typeof PROFILE_FIELDS)[number]]?: string } = {};
@@ -76,14 +79,12 @@ export async function importParsedCv(userId: string, p: Record<string, unknown>)
 
   const [{ data: exCerts }, { data: exExp }] = await Promise.all([
     supabase.from("certificates").select("name, number").eq("seafarer_id", userId),
-    supabase.from("sea_experience").select("vessel_name, rank, from_date, to_date").eq("seafarer_id", userId),
+    supabase.from("sea_experience").select("vessel_name, from_date, to_date").eq("seafarer_id", userId),
   ]);
   const certKey = (name?: string | null, number?: string | null) =>
     `${(name ?? "").trim().toLowerCase()}|${(number ?? "").trim().toLowerCase()}`;
-  const expKey = (vessel?: string | null, rank?: string | null, from?: string | null, to?: string | null) =>
-    `${(vessel ?? "").trim().toLowerCase()}|${(rank ?? "").trim().toLowerCase()}|${from ?? ""}|${to ?? ""}`;
   const seenCerts = new Set((exCerts ?? []).map((c) => certKey(c.name, c.number)));
-  const seenExp = new Set((exExp ?? []).map((e) => expKey(e.vessel_name, e.rank, e.from_date, e.to_date)));
+  const seenExp: VoyageLike[] = [...(exExp ?? [])];
 
   if (Array.isArray(p.certificates)) {
     const rows = (p.certificates as Record<string, string | null>[])
@@ -109,9 +110,8 @@ export async function importParsedCv(userId: string, p: Record<string, unknown>)
     const rows = (p.experience as Record<string, string | null>[])
       .filter((x) => x?.vessel_name)
       .filter((x) => {
-        const k = expKey(x.vessel_name, x.rank, x.from_date, x.to_date);
-        if (seenExp.has(k)) return false;
-        seenExp.add(k);
+        if (seenExp.some((e) => sameVoyage(e, x))) return false;
+        seenExp.push(x);
         return true;
       })
       .map((x) => ({
@@ -127,5 +127,38 @@ export async function importParsedCv(userId: string, p: Record<string, unknown>)
         to_date: x.to_date ?? null,
       }));
     if (rows.length) await supabase.from("sea_experience").insert(rows);
+  }
+  // Pairs left over from imports before this rule existed.
+  await cleanSeaExperience(userId);
+}
+
+/**
+ * Merge the seafarer's duplicate voyages in the database, by the rule in
+ * `lib/voyages.ts`: the most complete copy stays, picks up what the others had,
+ * and the others are deleted. Runs when the CV screens open, so a profile
+ * cleans itself without anyone pressing anything. RLS lets the owner do both
+ * writes; for anyone else they are no-ops.
+ *
+ * Returns whether anything changed, so a caller that already read the rows
+ * knows to read them again.
+ */
+export async function cleanSeaExperience(userId: string): Promise<boolean> {
+  try {
+    const { data } = await supabase.from("sea_experience").select("*")
+      .eq("seafarer_id", userId).order("created_at", { ascending: true });
+    const { drop, patched } = dedupeVoyages(data ?? []);
+    if (!drop.length) return false;
+    // Fill in the kept copy before deleting the others, so a failure halfway
+    // loses a duplicate at worst, never the information it carried.
+    for (const r of patched) {
+      const fill: Partial<Record<(typeof VOYAGE_FILL_FIELDS)[number], string | null>> =
+        Object.fromEntries(VOYAGE_FILL_FIELDS.map((f) => [f, r[f]]));
+      const { error } = await supabase.from("sea_experience").update(fill).eq("id", r.id);
+      if (error) return false;
+    }
+    const { error } = await supabase.from("sea_experience").delete().in("id", drop.map((r) => r.id));
+    return !error;
+  } catch {
+    return false;
   }
 }

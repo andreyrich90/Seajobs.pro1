@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { dedupeVoyages } from "@/lib/voyages";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = SupabaseClient<any, any, any>;
@@ -70,7 +71,7 @@ export async function loadCvData(admin: Db, seafarerId: string, email: string | 
     admin.from("seafarers").select(CV_SEAFARER_COLUMNS).eq("id", seafarerId).single(),
     admin.from("sea_experience")
       .select("vessel_name, vessel_type, rank, company, dwt, engine, from_date, to_date")
-      .eq("seafarer_id", seafarerId).order("from_date", { ascending: false }).limit(10),
+      .eq("seafarer_id", seafarerId).order("from_date", { ascending: false }).limit(30),
     admin.from("certificates")
       .select("name, issuing_authority, expiry_date")
       .eq("seafarer_id", seafarerId).order("expiry_date", { ascending: false }).limit(20),
@@ -79,7 +80,10 @@ export async function loadCvData(admin: Db, seafarerId: string, email: string | 
   const seafarer = (sf ?? null) as CvSeafarer | null;
   return {
     seafarer,
-    experience: (experience ?? []) as CvVoyage[],
+    // Merged here too, for profiles whose owner has not opened the cabinet
+    // since the duplicates arrived: the agency must never read one contract
+    // twice. Read 30, keep ten — the same ten the cabinet's preview shows.
+    experience: dedupeVoyages((experience ?? []) as CvVoyage[]).rows.slice(0, 10),
     certificates: (certificates ?? []) as CvCertificate[],
     name: [seafarer?.first_name, seafarer?.last_name].filter(Boolean).join(" ") || "Seafarer",
     email,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { dedupeVoyages } from "@/lib/voyages";
 import { createClient } from "@supabase/supabase-js";
 
 // Returns the FULL CV (incl. contact data: phone + email) of a seafarer, but
@@ -61,7 +62,7 @@ export async function GET(req: Request) {
       ok: true,
       seafarer,
       email: authUser.data.user?.email ?? null,
-      experience: experience ?? [],
+      experience: dedupeVoyages(experience ?? []).rows,
       certificates: certificates ?? [],
     });
   } catch (err) {
