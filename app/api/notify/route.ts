@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { sendEmail } from "@/lib/email";
+import { emailQuotaExhausted, sendEmail } from "@/lib/email";
 import { buildCvHtml } from "@/lib/cvHtml";
 import { dispatchJobAlerts } from "@/lib/jobAlerts";
 import { postVacancyToChannel } from "@/lib/telegramFeed";
@@ -112,6 +112,13 @@ ${cv.html}
         .from("vacancies").select("title, contact_email").eq("id", vacancyId).single();
       if (!vacancy?.contact_email) return NextResponse.json({ ok: false }, { status: 404 });
 
+      // Today's allowance already spent: say so without calling the provider.
+      // The page then offers the seafarer's own mailbox, which costs us nothing
+      // and reaches the agency just the same.
+      if (await emailQuotaExhausted()) {
+        return NextResponse.json({ ok: false, error: "quota" }, { status: 429 });
+      }
+
       const { data: { user: sfUser } } = await admin.auth.admin.getUserById(seafarerId);
       const cv = await buildCvHtml(admin, seafarerId, sfUser?.email ?? caller.email ?? null, appExists.cover_letter);
 
@@ -122,9 +129,12 @@ ${cv.html}
         kind: "external_application",
       });
       // This one carries the seafarer's CV to the agency — report a failure so
-      // the client can tell them instead of pretending it was delivered.
+      // the client can tell them instead of pretending it was delivered. A spent
+      // quota gets its own answer, because it has its own way out.
       if (!sent.ok) {
-        return NextResponse.json({ ok: false, error: "email_failed" }, { status: 502 });
+        return sent.quota
+          ? NextResponse.json({ ok: false, error: "quota" }, { status: 429 })
+          : NextResponse.json({ ok: false, error: "email_failed" }, { status: 502 });
       }
 
       return NextResponse.json({ ok: true });

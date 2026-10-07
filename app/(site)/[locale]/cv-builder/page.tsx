@@ -5,8 +5,8 @@ import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { routing } from "@/i18n/routing";
-import { CV_MAKER_COPY } from "@/lib/cvMaker";
-import { CV_WORD } from "@/lib/cvWord";
+import { cvMakerCopy } from "@/lib/cvMaker";
+import { CV_WORD, cvWordPrice } from "@/lib/cvWord";
 import type { Lang } from "@/lib/langs";
 
 // The public page about making a CV on the site — and the page search engines
@@ -34,7 +34,7 @@ export default async function CvBuilderPage({
 }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
-  const c = CV_MAKER_COPY[locale as Lang] ?? CV_MAKER_COPY.en;
+  const c = cvMakerCopy(locale as Lang);
 
   // Google reads the FAQ block as structured data when it is marked up, and a
   // question people actually type is worth more as a rich result than as a
@@ -137,7 +137,7 @@ export default async function CvBuilderPage({
           >
             {c.ctaPrimary} <ArrowRight size={15} />
           </Link>
-          <p className="sr-only">{CV_WORD.usd} USD</p>
+          <p className="sr-only">{CV_WORD.usd.toFixed(2)} USD</p>
         </section>
 
         {/* FAQ — mirrored into the JSON-LD above */}

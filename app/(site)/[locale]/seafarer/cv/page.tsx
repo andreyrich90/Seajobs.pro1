@@ -12,7 +12,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
-import { CV_WORD, CV_WORD_COPY } from "@/lib/cvWord";
+import { CV_WORD, CV_WORD_COPY, cvWordPrice } from "@/lib/cvWord";
 
 // A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
 // on-screen preview so a full A4 page fits the phone's viewport width.
@@ -1296,7 +1296,7 @@ function WordButton({ lang }: { lang: string }) {
       title={`${copy.what} ${copy.why}`}
       className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
     >
-      <FileText size={16} /> {busy ? "…" : `${copy.buy} — $${CV_WORD.usd}`}
+      <FileText size={16} /> {busy ? "…" : `${copy.buy} — ${cvWordPrice(lang)}`}
     </button>
   );
 }
