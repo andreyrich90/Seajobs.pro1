@@ -8,6 +8,7 @@ import { slugId } from "@/lib/slug";
 import { RANK_LANDING_SLUGS } from "@/lib/rankLandings";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 import { COUNTRY_LANDING_SLUGS } from "@/lib/countryLandings";
+import { FLEET_IDS } from "@/lib/cvFleets";
 
 const BASE = "https://seajobs.pro";
 
@@ -117,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // The page that sells the CV ranks for the buying searches; the article above
     // stays for the "how is it built" ones.
     ...localizedEntries("/maritime-cv", { lastModified: now, changeFrequency: "weekly", priority: 0.8 }),
+    ...FLEET_IDS.flatMap((f) => localizedEntries(`/maritime-cv/${f}`, { lastModified: now, changeFrequency: "weekly", priority: 0.7 })),
     ...localizedEntries("/terms", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
     ...localizedEntries("/privacy", { lastModified: now, changeFrequency: "yearly", priority: 0.3 }),
   ];

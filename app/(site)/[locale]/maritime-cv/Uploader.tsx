@@ -8,6 +8,7 @@ import { MAX_CV_BYTES, cvMediaType, importParsedCv, parseCvFile } from "@/lib/cv
 import { cvParseError } from "@/lib/cvParseError";
 import { useT } from "@/components/DictProvider";
 import type { MaritimeCvUploadCopy } from "@/lib/maritimeCv";
+import type { FleetId } from "@/lib/cvFleets";
 
 // The one interactive part of /maritime-cv: drop the old CV, sign in, and the
 // profile fills itself.
@@ -66,7 +67,7 @@ async function clearPending() {
 
 type Phase = "idle" | "signin" | "reading" | "done" | "error";
 
-export default function Uploader({ copy, locale }: { copy: MaritimeCvUploadCopy; locale: string }) {
+export default function Uploader({ copy, locale, fleet = null }: { copy: MaritimeCvUploadCopy; locale: string; fleet?: FleetId | null }) {
   const t = useT();
   const router = useRouter();
   const input = useRef<HTMLInputElement | null>(null);
@@ -90,8 +91,9 @@ export default function Uploader({ copy, locale }: { copy: MaritimeCvUploadCopy;
     await importParsedCv(userId, parsed.profile);
     try { localStorage.removeItem("oauth_role"); } catch { /* fine */ }
     setPhase("done");
-    router.push("/seafarer/cv?from=maker");
-  }, [copy, router, t]);
+    // A fleet page hands its fleet on, so the Word template is already chosen.
+    router.push(`/seafarer/cv?from=maker${fleet ? `&fleet=${fleet}` : ""}`);
+  }, [copy, router, t, fleet]);
 
   // Back from sign-in — or just back — with a file still waiting: carry on.
   useEffect(() => {
@@ -127,7 +129,7 @@ export default function Uploader({ copy, locale }: { copy: MaritimeCvUploadCopy;
     // this page is a seafarer, so the question is answered for them — the
     // callback reads this and clears it.
     try { localStorage.setItem("oauth_role", "seafarer"); } catch { /* the question will be asked */ }
-    const back = `${locale === "en" ? "" : `/${locale}`}/maritime-cv`;
+    const back = `${locale === "en" ? "" : `/${locale}`}/maritime-cv${fleet ? `/${fleet}` : ""}`;
     window.location.href = `/auth/login?redirect=${encodeURIComponent(back)}`;
   }
 

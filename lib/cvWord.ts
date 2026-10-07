@@ -89,6 +89,16 @@ export type CvWordCopy = {
   reopen: string;
   /** Shown once on arrival from /maritime-cv, after the AI filled the profile. */
   fromMaker: string;
+  /** The fleet template picker for the Word file. */
+  fleetLabel: string;
+  fleetGeneral: string;
+  fleets: Record<"merchant" | "offshore" | "tanker" | "passenger" | "tug", string>;
+  /** Over the preview of what the chosen template puts at the top. */
+  fleetPreview: string;
+  /** `{time}` and `{types}` are filled in by the page. */
+  fleetSeaTime: string;
+  /** Nothing in the profile matches the chosen fleet yet. */
+  fleetEmpty: string;
   /** The "I paid but nothing happened" escape hatch. */
   trouble: string;
   /** Shown when no checkout link is configured yet. */
@@ -106,6 +116,12 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waitingShort: "Waiting for payment…",
     reopen: "Open the checkout again",
     fromMaker: "Your CV has been filled in from your file. Check the rank, documents and sea service — anything wrong is fixed in My profile, Certificates and Experience. The finished CV is below: PDF free, editable Word as a one-off.",
+    fleetLabel: "Word template",
+    fleetGeneral: "General",
+    fleets: { merchant: "Merchant fleet", offshore: "Offshore", tanker: "Tankers & gas carriers", passenger: "Cruise & passenger", tug: "Tugs & dredging" },
+    fleetPreview: "At the top of the Word file, under “Key qualifications”:",
+    fleetSeaTime: "{time} of sea service on {types}",
+    fleetEmpty: "Nothing in your profile matches this fleet yet — add its certificates and voyages, and they will lead the Word file.",
     trouble: "Paid and still locked? Tell us — we will open it by hand.",
     soon: "The Word export is not on sale yet. PDF and image stay free.",
     why: "PDF and image stay free. Word costs money because it is the one you can edit afterwards.",
@@ -118,6 +134,12 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waitingShort: "Ждём оплату…",
     reopen: "Открыть оплату ещё раз",
     fromMaker: "Анкета заполнена из вашего файла. Проверьте ранг, документы и стаж — поправить можно в разделах «Мой профиль», «Сертификаты» и «Опыт работы». Ниже готовая анкета: PDF бесплатно, редактируемый Word — один раз.",
+    fleetLabel: "Шаблон Word",
+    fleetGeneral: "Общий",
+    fleets: { merchant: "Торговый флот", offshore: "Офшор", tanker: "Танкеры и газовозы", passenger: "Пассажирский", tug: "Буксиры и дноуглубление" },
+    fleetPreview: "В начале Word-файла, в блоке «Key qualifications»:",
+    fleetSeaTime: "{time} стажа на {types}",
+    fleetEmpty: "В профиле пока нет ничего под этот флот — добавьте его сертификаты и суда, и они окажутся в начале Word-файла.",
     trouble: "Оплатили, а доступа нет? Напишите нам — откроем вручную.",
     soon: "Выгрузка в Word пока не продаётся. PDF и картинка остаются бесплатными.",
     why: "PDF и картинка остаются бесплатными. Word платный, потому что его можно редактировать.",
@@ -130,6 +152,12 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waitingShort: "Чекаємо оплату…",
     reopen: "Відкрити оплату ще раз",
     fromMaker: "Анкету заповнено з вашого файлу. Перевірте ранг, документи й стаж — виправити можна в розділах «Мій профіль», «Сертифікати» та «Досвід роботи». Нижче готова анкета: PDF безкоштовно, редагований Word — один раз.",
+    fleetLabel: "Шаблон Word",
+    fleetGeneral: "Загальний",
+    fleets: { merchant: "Торговий флот", offshore: "Офшор", tanker: "Танкери й газовози", passenger: "Пасажирський", tug: "Буксири й днопоглиблення" },
+    fleetPreview: "На початку Word-файлу, у блоці «Key qualifications»:",
+    fleetSeaTime: "{time} стажу на {types}",
+    fleetEmpty: "У профілі поки немає нічого під цей флот — додайте його сертифікати й судна, і вони опиняться на початку Word-файлу.",
     trouble: "Оплатили, а доступу немає? Напишіть нам — відкриємо вручну.",
     soon: "Вивантаження у Word поки не продається. PDF і зображення лишаються безкоштовними.",
     why: "PDF і зображення лишаються безкоштовними. Word платний, бо його можна редагувати.",
@@ -142,6 +170,12 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waitingShort: "Czekamy na płatność…",
     reopen: "Otwórz płatność ponownie",
     fromMaker: "CV zostało wypełnione z Twojego pliku. Sprawdź stopień, dokumenty i staż — poprawisz je w sekcjach „Mój profil”, „Certyfikaty” i „Doświadczenie”. Poniżej gotowe CV: PDF za darmo, edytowalny Word jednorazowo.",
+    fleetLabel: "Szablon Word",
+    fleetGeneral: "Ogólny",
+    fleets: { merchant: "Flota handlowa", offshore: "Offshore", tanker: "Tankowce i gazowce", passenger: "Pasażerskie", tug: "Holowniki i pogłębiarki" },
+    fleetPreview: "Na początku pliku Word, w bloku „Key qualifications”:",
+    fleetSeaTime: "{time} stażu na {types}",
+    fleetEmpty: "W profilu nie ma jeszcze nic pod tę flotę — dodaj jej certyfikaty i statki, a znajdą się na początku pliku Word.",
     trouble: "Zapłacone, a nadal zablokowane? Napisz do nas — otworzymy ręcznie.",
     soon: "Eksport do Worda nie jest jeszcze w sprzedaży. PDF i obraz pozostają darmowe.",
     why: "PDF i obraz pozostają darmowe. Word kosztuje, bo to ten, który możesz edytować.",
@@ -154,6 +188,12 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waitingShort: "Așteptăm plata…",
     reopen: "Deschide din nou plata",
     fromMaker: "CV-ul a fost completat din fișierul tău. Verifică rangul, actele și vechimea — corecturile se fac în «Profilul meu», «Certificate» și «Experiență». Mai jos e CV-ul gata: PDF gratuit, Word editabil o singură dată.",
+    fleetLabel: "Șablon Word",
+    fleetGeneral: "General",
+    fleets: { merchant: "Flota comercială", offshore: "Offshore", tanker: "Petroliere și gaziere", passenger: "Pasageri", tug: "Remorchere și drage" },
+    fleetPreview: "La începutul fișierului Word, în blocul «Key qualifications»:",
+    fleetSeaTime: "{time} de vechime pe {types}",
+    fleetEmpty: "Profilul nu are încă nimic pentru această flotă — adaugă-i certificatele și navele, și vor apărea la începutul fișierului Word.",
     trouble: "Ai plătit și tot e blocat? Scrie-ne — îl deschidem manual.",
     soon: "Exportul în Word nu este încă la vânzare. PDF și imaginea rămân gratuite.",
     why: "PDF și imaginea rămân gratuite. Word costă pentru că pe acesta îl poți edita.",
