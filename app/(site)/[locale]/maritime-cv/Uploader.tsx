@@ -91,8 +91,10 @@ export default function Uploader({ copy, locale, fleet = null }: { copy: Maritim
     await importParsedCv(userId, parsed.profile);
     try { localStorage.removeItem("oauth_role"); } catch { /* fine */ }
     setPhase("done");
-    // A fleet page hands its fleet on, so the Word template is already chosen.
-    router.push(`/seafarer/cv?from=maker${fleet ? `&fleet=${fleet}` : ""}`);
+    // Straight into the one-screen editor: an AI reading is checked before it
+    // is downloaded. A fleet page hands its fleet on, so the Word template is
+    // already chosen when the seafarer moves on to the CV.
+    router.push(`/seafarer/cv/edit?from=maker${fleet ? `&fleet=${fleet}` : ""}`);
   }, [copy, router, t, fleet]);
 
   // Back from sign-in — or just back — with a file still waiting: carry on.

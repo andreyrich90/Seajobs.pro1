@@ -87,8 +87,6 @@ export type CvWordCopy = {
   waitingShort: string;
   /** Re-opens the checkout for someone who closed it before paying. */
   reopen: string;
-  /** Shown once on arrival from /maritime-cv, after the AI filled the profile. */
-  fromMaker: string;
   /** The fleet template picker for the Word file. */
   fleetLabel: string;
   fleetGeneral: string;
@@ -115,7 +113,6 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Waiting for the payment to arrive. It usually takes a few seconds; this page unlocks by itself.",
     waitingShort: "Waiting for payment…",
     reopen: "Open the checkout again",
-    fromMaker: "Your CV has been filled in from your file. Check the rank, documents and sea service — anything wrong is fixed in My profile, Certificates and Experience. The finished CV is below: PDF free, editable Word as a one-off.",
     fleetLabel: "Word template",
     fleetGeneral: "General",
     fleets: { merchant: "Merchant fleet", offshore: "Offshore", tanker: "Tankers & gas carriers", passenger: "Cruise & passenger", tug: "Tugs & dredging" },
@@ -133,7 +130,6 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Ждём подтверждения оплаты. Обычно это несколько секунд, страница откроется сама.",
     waitingShort: "Ждём оплату…",
     reopen: "Открыть оплату ещё раз",
-    fromMaker: "Анкета заполнена из вашего файла. Проверьте ранг, документы и стаж — поправить можно в разделах «Мой профиль», «Сертификаты» и «Опыт работы». Ниже готовая анкета: PDF бесплатно, редактируемый Word — один раз.",
     fleetLabel: "Шаблон Word",
     fleetGeneral: "Общий",
     fleets: { merchant: "Торговый флот", offshore: "Офшор", tanker: "Танкеры и газовозы", passenger: "Пассажирский", tug: "Буксиры и дноуглубление" },
@@ -151,7 +147,6 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Чекаємо підтвердження оплати. Зазвичай це кілька секунд, сторінка відкриється сама.",
     waitingShort: "Чекаємо оплату…",
     reopen: "Відкрити оплату ще раз",
-    fromMaker: "Анкету заповнено з вашого файлу. Перевірте ранг, документи й стаж — виправити можна в розділах «Мій профіль», «Сертифікати» та «Досвід роботи». Нижче готова анкета: PDF безкоштовно, редагований Word — один раз.",
     fleetLabel: "Шаблон Word",
     fleetGeneral: "Загальний",
     fleets: { merchant: "Торговий флот", offshore: "Офшор", tanker: "Танкери й газовози", passenger: "Пасажирський", tug: "Буксири й днопоглиблення" },
@@ -169,7 +164,6 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Czekamy na potwierdzenie płatności. Zwykle kilka sekund, strona odblokuje się sama.",
     waitingShort: "Czekamy na płatność…",
     reopen: "Otwórz płatność ponownie",
-    fromMaker: "CV zostało wypełnione z Twojego pliku. Sprawdź stopień, dokumenty i staż — poprawisz je w sekcjach „Mój profil”, „Certyfikaty” i „Doświadczenie”. Poniżej gotowe CV: PDF za darmo, edytowalny Word jednorazowo.",
     fleetLabel: "Szablon Word",
     fleetGeneral: "Ogólny",
     fleets: { merchant: "Flota handlowa", offshore: "Offshore", tanker: "Tankowce i gazowce", passenger: "Pasażerskie", tug: "Holowniki i pogłębiarki" },
@@ -187,7 +181,6 @@ export const CV_WORD_COPY: Record<string, CvWordCopy> = {
     waiting: "Așteptăm confirmarea plății. De obicei durează câteva secunde, pagina se deblochează singură.",
     waitingShort: "Așteptăm plata…",
     reopen: "Deschide din nou plata",
-    fromMaker: "CV-ul a fost completat din fișierul tău. Verifică rangul, actele și vechimea — corecturile se fac în «Profilul meu», «Certificate» și «Experiență». Mai jos e CV-ul gata: PDF gratuit, Word editabil o singură dată.",
     fleetLabel: "Șablon Word",
     fleetGeneral: "General",
     fleets: { merchant: "Flota comercială", offshore: "Offshore", tanker: "Petroliere și gaziere", passenger: "Pasageri", tug: "Remorchere și drage" },

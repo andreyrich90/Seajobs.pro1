@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import {
   Download, ZoomIn, ZoomOut, ImageDown, FileText, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
   Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
-  Sparkles,
+  Pencil,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
+import { Link } from "@/i18n/navigation";
 import { CV_WORD, CV_WORD_COPY, cvWordPrice } from "@/lib/cvWord";
 import { FLEET_IDS, type FleetId, fleetHighlights, isFleetId } from "@/lib/cvFleets";
 
@@ -856,16 +857,11 @@ export default function CVPage() {
   const [cardVariant, setCardVariant] = useState<CardVariant>("dark");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
-  // Arrived from /maritime-cv with a profile the AI has just filled: say what
-  // happened and what to check, once. Read off location, like ?paid=1 below,
-  // so the page stays prerendered.
-  const [fromMaker, setFromMaker] = useState(false);
   // The Word template's fleet. A fleet page of /maritime-cv hands it over as
   // ?fleet=…; otherwise the seafarer's last choice, otherwise the general CV.
   const [fleet, setFleet] = useState<FleetId | null>(null);
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
-    setFromMaker(q.get("from") === "maker");
     let saved: string | null = null;
     try { saved = localStorage.getItem("cv_fleet"); } catch { /* fine */ }
     const pick = q.get("fleet") ?? saved;
@@ -1046,16 +1042,15 @@ export default function CVPage() {
       `}</style>
 
       <div className="p-5 sm:p-8">
-        {fromMaker && (
-          <div className="mb-5 flex items-start gap-3 rounded-xl border border-teal/30 bg-teal/10 px-4 py-3">
-            <Sparkles size={16} className="mt-0.5 shrink-0 text-teal" />
-            <p className="text-sm leading-relaxed text-foam">{(CV_WORD_COPY[lang] ?? CV_WORD_COPY.en).fromMaker}</p>
-          </div>
-        )}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold text-[#ffffff]">{t.cab_cv}</h1>
             <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
+            {/* Every field the CV is built from, on one screen — the place to
+                fix what the profile pages spread over four sections. */}
+            <Link href="/seafarer/cv/edit" className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-brassInk underline hover:text-brass">
+              <Pencil size={14} /> {t.cved_open_editor}
+            </Link>
           </div>
           {/* No shrink-0 here: a container that refuses to shrink sizes to its
               content on one line, so flex-wrap never gets the chance to wrap
