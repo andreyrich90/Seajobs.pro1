@@ -63,7 +63,7 @@ export default function Footer() {
     { label: t.footer_news, href: "/news" },
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
     { label: howToApplyLabel, href: "/how-to-apply" },
-    { label: t.nav_cv_builder, href: "/cv-builder" },
+    { label: t.nav_cv_builder, href: "/maritime-cv" },
     { label: cvBlastLabel, href: "/cv-distribution" },
   ];
 

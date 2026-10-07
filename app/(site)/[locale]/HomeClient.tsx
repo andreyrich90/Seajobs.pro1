@@ -257,7 +257,7 @@ export default function HomeClient({
           <div className="relative hidden min-w-0 lg:block">
             <div className="flex flex-col gap-4">
               {([
-                { t: tiles.cv, href: "/cv-builder", icon: FileText, accent: true },
+                { t: tiles.cv, href: "/maritime-cv", icon: FileText, accent: true },
                 { t: tiles.blast, href: "/cv-distribution", icon: Send, accent: false },
               ] as const).map(({ t: tile, href, icon: Icon, accent }) => (
                 <Link

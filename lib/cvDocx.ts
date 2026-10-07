@@ -4,6 +4,7 @@ import {
   Table, TableCell, TableRow, TextRun, WidthType,
 } from "docx";
 import { cvAvailability, cvDate, cvDocument, cvMonth, loadCvData, type CvData } from "@/lib/cvData";
+import { type FleetId, FLEETS, fleetHighlights, formatSeaTime, isFleetVoyage } from "@/lib/cvFleets";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = SupabaseClient<any, any, any>;
@@ -66,21 +67,25 @@ function table(rows: TableRow[]): Table {
 }
 
 /** A row of the sea-service table. `head` renders the column titles in bold. */
-function voyageRow(cells: string[], head = false): TableRow {
+function voyageRow(cells: string[], head = false, strong = false): TableRow {
   return new TableRow({
     tableHeader: head,
     children: cells.map((text) => new TableCell({
       margins: { top: 60, bottom: 60, left: 100, right: 100 },
       borders: cellBorders(),
-      children: [new Paragraph({ children: [new TextRun({ text, size: 18, bold: head, color: head ? MUTED : INK })] })],
+      children: [new Paragraph({ children: [new TextRun({ text, size: 18, bold: head || strong, color: head ? MUTED : INK })] })],
     })),
   });
 }
 
 /** Build the document. Exported separately from the loader so it can be exercised with fixture data. */
-export function cvDocument_(data: CvData): Document {
+export function cvDocument_(data: CvData, fleet: FleetId | null = null): Document {
   const sf = data.seafarer;
   const body: (Paragraph | Table)[] = [];
+  // A fleet turns the general CV into one aimed at that fleet's crewing desk:
+  // what they hire on goes to the top, and their vessel types stand out in the
+  // sea-service table. Built only from the seafarer's own data.
+  const hl = fleet ? fleetHighlights(fleet, data.certificates, data.experience) : null;
 
   body.push(new Paragraph({
     heading: HeadingLevel.TITLE,
@@ -110,6 +115,18 @@ export function cvDocument_(data: CvData): Document {
     }));
   }
 
+  if (hl && !hl.empty) {
+    body.push(heading(`Key qualifications — ${hl.label}`));
+    const rows: [string, string][] = [];
+    if (hl.months > 0) {
+      rows.push([`${hl.label} sea service`, `${formatSeaTime(hl.months)} on the voyages below${hl.vesselTypes.length ? ` (${hl.vesselTypes.join(", ")})` : ""}`]);
+    }
+    for (const c of hl.certs) {
+      rows.push([c.name ?? "—", [c.issuing_authority, cvMonth(c.expiry_date) ? `exp. ${cvMonth(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "valid"]);
+    }
+    body.push(table(rows.map(([l, v]) => line(l, v))));
+  }
+
   const personal = [
     ["Date of birth", cvDate(sf?.date_of_birth)],
     ["Citizenship", sf?.nationality],
@@ -123,26 +140,32 @@ export function cvDocument_(data: CvData): Document {
     body.push(table(personal.map(([l, v]) => line(l, v))));
   }
 
-  const documents = [
-    ["Foreign passport", cvDocument(sf?.passport_no, sf?.passport_expiry)],
-    ["Seaman's book", cvDocument(sf?.seamans_book, sf?.seamans_book_expiry)],
-    ["Medical certificate", cvDocument(sf?.medical, sf?.medical_expiry)],
-    ["Diploma / CoC", cvDocument(sf?.diploma, sf?.diploma_expiry)],
-    ["Schengen visa", sf?.schengen_visa],
-    ["US visa", sf?.us_visa],
-  ].filter(([, v]) => v) as [string, string][];
-  if (documents.length) {
-    body.push(heading("Identity documents & visas"));
-    body.push(table(documents.map(([l, v]) => line(l, v))));
-  }
-
-  if (data.certificates.length) {
-    body.push(heading("Competency & STCW certificates"));
-    body.push(table(data.certificates.map((c) => line(
-      c.name ?? "—",
-      [c.issuing_authority, cvMonth(c.expiry_date) ? `exp. ${cvMonth(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "—",
-    ))));
-  }
+  const pushDocuments = () => {
+    const documents = [
+      ["Foreign passport", cvDocument(sf?.passport_no, sf?.passport_expiry)],
+      ["Seaman's book", cvDocument(sf?.seamans_book, sf?.seamans_book_expiry)],
+      ["Medical certificate", cvDocument(sf?.medical, sf?.medical_expiry)],
+      ["Diploma / CoC", cvDocument(sf?.diploma, sf?.diploma_expiry)],
+      ["Schengen visa", sf?.schengen_visa],
+      ["US visa", sf?.us_visa],
+    ].filter(([, v]) => v) as [string, string][];
+    if (documents.length) {
+      body.push(heading("Identity documents & visas"));
+      body.push(table(documents.map(([l, v]) => line(l, v))));
+    }
+  };
+  const pushCertificates = () => {
+    if (data.certificates.length) {
+      body.push(heading("Competency & STCW certificates"));
+      body.push(table(data.certificates.map((c) => line(
+        c.name ?? "—",
+        [c.issuing_authority, cvMonth(c.expiry_date) ? `exp. ${cvMonth(c.expiry_date)}` : null].filter(Boolean).join(" · ") || "—",
+      ))));
+    }
+  };
+  // Where endorsements decide the hire, they are what is read first.
+  if (fleet && FLEETS[fleet].certsFirst) { pushCertificates(); pushDocuments(); }
+  else { pushDocuments(); pushCertificates(); }
 
   if (data.experience.length) {
     body.push(heading(`Sea service history — last ${data.experience.length} voyages`));
@@ -155,7 +178,7 @@ export function cvDocument_(data: CvData): Document {
         e.rank ?? "—",
         e.company ?? "—",
         e.from_date ? `${cvMonth(e.from_date)} – ${e.to_date ? cvMonth(e.to_date) : "present"}` : "—",
-      ])),
+      ], false, !!fleet && isFleetVoyage(fleet, e.vessel_type))),
     ]));
   }
 
@@ -167,7 +190,7 @@ export function cvDocument_(data: CvData): Document {
 
   return new Document({
     creator: "SeaJobs.pro",
-    title: `${data.name} — CV`,
+    title: `${data.name} — ${hl ? `${hl.label} CV` : "CV"}`,
     description: "Maritime CV generated on SeaJobs.pro",
     styles: { default: { document: { run: { font: "Calibri", size: 20 } } } },
     sections: [{
@@ -182,9 +205,10 @@ export async function buildCvDocx(
   admin: Db,
   seafarerId: string,
   email: string | null,
+  fleet: FleetId | null = null,
 ): Promise<{ buffer: Buffer; filename: string }> {
   const data = await loadCvData(admin, seafarerId, email);
-  const buffer = await Packer.toBuffer(cvDocument_(data));
+  const buffer = await Packer.toBuffer(cvDocument_(data, fleet));
   // The agency reads the filename before it opens anything, so it says who and
   // for what rather than "cv (3).docx".
   const safe = data.name.replace(/[^\p{L}\p{N} .-]/gu, "").trim() || "Seafarer";

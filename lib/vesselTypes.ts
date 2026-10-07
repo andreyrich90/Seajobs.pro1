@@ -1,0 +1,88 @@
+// The vessel types offered when a seafarer records a voyage — the experience
+// page's select and the one-screen CV editor's suggestions both read this, so
+// the two cannot offer different names for the same ship.
+export const VESSEL_TYPE_GROUPS: { label: string; types: string[] }[] = [
+  {
+    label: "Tankers",
+    types: [
+      "Oil Tanker (VLCC)",
+      "Oil Tanker (Suezmax)",
+      "Oil Tanker (Aframax)",
+      "Oil Tanker (MR/Handysize)",
+      "Chemical Tanker",
+      "Product Tanker",
+      "LNG Tanker",
+      "LPG Tanker",
+      "Crude Oil Tanker",
+      "Bitumen Tanker",
+    ],
+  },
+  {
+    label: "Dry Cargo",
+    types: [
+      "Bulk Carrier (Capesize)",
+      "Bulk Carrier (Panamax)",
+      "Bulk Carrier (Handymax)",
+      "Bulk Carrier (Handysize)",
+      "General Cargo",
+      "Container (Feeder)",
+      "Container (Panamax)",
+      "Container (Post-Panamax)",
+      "Reefer",
+      "Heavy Lift / Project Cargo",
+      "Coaster",
+    ],
+  },
+  {
+    label: "RoRo / Passenger",
+    types: [
+      "RoRo (Pure Car Carrier)",
+      "RoRo (PCTC)",
+      "RoRo Cargo",
+      "Cruise Ship",
+      "Ferry (Passenger/Vehicle)",
+      "High-Speed Craft",
+      "River Cruise",
+    ],
+  },
+  {
+    label: "Offshore",
+    types: [
+      "PSV (Platform Supply Vessel)",
+      "AHTS (Anchor Handling Tug Supply)",
+      "ERRV (Emergency Response)",
+      "Construction Support Vessel",
+      "Diving Support Vessel",
+      "Crane Vessel",
+      "Drill Ship",
+      "Semi-Submersible",
+      "Jack-Up Rig",
+      "FPSO",
+      "FSO",
+      "FLNG",
+      "Offshore Wind Installation Vessel",
+      "CTV (Crew Transfer Vessel)",
+    ],
+  },
+  {
+    label: "Specialized",
+    types: [
+      "Cable Layer",
+      "Pipe Layer",
+      "Dredger",
+      "Hopper Dredger",
+      "Research / Survey Vessel",
+      "Icebreaker",
+      "Tug",
+      "Salvage Vessel",
+      "Bunker Vessel",
+      "Livestock Carrier",
+      "Cement Carrier",
+      "Wood Chip Carrier",
+    ],
+  },
+  {
+    label: "Other",
+    types: ["Fishing Vessel", "Training Vessel", "Patrol Vessel", "Navy / Military", "Yacht / Superyacht", "Other"],
+  },
+];

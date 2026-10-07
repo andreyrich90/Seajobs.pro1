@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import {
   Download, ZoomIn, ZoomOut, ImageDown, FileText, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
   Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
+  Pencil,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -12,7 +13,9 @@ import { supabase } from "@/lib/supabase/client";
 import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
+import { Link } from "@/i18n/navigation";
 import { CV_WORD, CV_WORD_COPY, cvWordPrice } from "@/lib/cvWord";
+import { FLEET_IDS, type FleetId, fleetHighlights, isFleetId } from "@/lib/cvFleets";
 
 // A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
 // on-screen preview so a full A4 page fits the phone's viewport width.
@@ -854,6 +857,21 @@ export default function CVPage() {
   const [cardVariant, setCardVariant] = useState<CardVariant>("dark");
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  // The Word template's fleet. A fleet page of /maritime-cv hands it over as
+  // ?fleet=…; otherwise the seafarer's last choice, otherwise the general CV.
+  const [fleet, setFleet] = useState<FleetId | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("cv_fleet"); } catch { /* fine */ }
+    const pick = q.get("fleet") ?? saved;
+    if (isFleetId(pick)) setFleet(pick);
+  }, []);
+  function chooseFleet(v: string) {
+    const next = isFleetId(v) ? v : null;
+    setFleet(next);
+    try { if (next) localStorage.setItem("cv_fleet", next); else localStorage.removeItem("cv_fleet"); } catch { /* fine */ }
+  }
 
   // Auto-fit the CV onto a single A4 page WITHOUT losing the full page width.
   // A naive "scale down to fit one page" shrinks the width too (white strip on
@@ -1028,6 +1046,11 @@ export default function CVPage() {
           <div>
             <h1 className="font-display text-2xl font-semibold text-[#ffffff]">{t.cab_cv}</h1>
             <p className="mt-1 text-sm text-mist">{t.cv_page_subtitle}</p>
+            {/* Every field the CV is built from, on one screen — the place to
+                fix what the profile pages spread over four sections. */}
+            <Link href="/seafarer/cv/edit" className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-brassInk underline hover:text-brass">
+              <Pencil size={14} /> {t.cved_open_editor}
+            </Link>
           </div>
           {/* No shrink-0 here: a container that refuses to shrink sizes to its
               content on one line, so flex-wrap never gets the chance to wrap
@@ -1046,9 +1069,11 @@ export default function CVPage() {
             >
               <Download size={16} /> {t.cv_download_pdf}
             </button>
-            <WordButton lang={lang} />
+            <WordButton lang={lang} fleet={fleet} />
           </div>
         </div>
+
+        <FleetPanel lang={lang} fleet={fleet} onChange={chooseFleet} certificates={data.certificates} experience={data.experience} />
 
         {/* Template picker + zoom controls */}
         <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -1153,7 +1178,7 @@ export default function CVPage() {
  * Nothing here is a security boundary: hiding the button would not stop anyone,
  * and is not meant to. `api/cv/word` is where the gate is.
  */
-function WordButton({ lang }: { lang: string }) {
+function WordButton({ lang, fleet }: { lang: string; fleet: FleetId | null }) {
   const copy = CV_WORD_COPY[lang] ?? CV_WORD_COPY.en;
   const [state, setState] = useState<"loading" | "locked" | "waiting" | "paid">("loading");
   const [busy, setBusy] = useState(false);
@@ -1270,7 +1295,7 @@ function WordButton({ lang }: { lang: string }) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const res = await fetch("/api/cv/word", { headers: { Authorization: `Bearer ${session.access_token}` } });
+      const res = await fetch(`/api/cv/word${fleet ? `?fleet=${fleet}` : ""}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
       if (!res.ok) { await refresh(); return; }
       const blob = await res.blob();
       // The filename the route chose travels in Content-Disposition; read it
@@ -1356,3 +1381,82 @@ function WordButton({ lang }: { lang: string }) {
 
 /** How long a tab waits for the webhook before giving the buy button back. */
 const WORD_WAIT_MS = 15 * 60_000;
+
+/**
+ * Which fleet the Word file is aimed at, and a preview of what that puts at its
+ * top. The preview is computed by the same function the export uses
+ * (lib/cvFleets.ts), over the same voyages and certificates the export reads —
+ * the last ten voyages, twenty certificates — so it cannot promise a line the
+ * file will not have. The free PDF and image are not changed by the choice.
+ */
+function FleetPanel({
+  lang, fleet, onChange, certificates, experience,
+}: {
+  lang: string;
+  fleet: FleetId | null;
+  onChange: (v: string) => void;
+  certificates: { name: string | null; expiry_date?: string | null }[];
+  experience: { vessel_type: string | null; from_date: string | null; to_date: string | null }[];
+}) {
+  const copy = CV_WORD_COPY[lang] ?? CV_WORD_COPY.en;
+  // The export reads certificates newest expiry first, undated ones ahead of
+  // them (Postgres puts NULLs first in a descending sort), and keeps twenty.
+  const asExported = [...certificates]
+    .sort((a, b) => (a.expiry_date ? (b.expiry_date ? b.expiry_date.localeCompare(a.expiry_date) : 1) : (b.expiry_date ? -1 : 0)))
+    .slice(0, 20);
+  const hl = fleet ? fleetHighlights(fleet, asExported, experience.slice(0, 10)) : null;
+  return (
+    <div className="mb-5 flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 sm:flex-row sm:items-start">
+      <label className="flex shrink-0 items-center gap-2 text-sm font-semibold text-foam">
+        {copy.fleetLabel}
+        <select
+          id="cv-fleet"
+          value={fleet ?? ""}
+          onChange={(e) => onChange(e.target.value)}
+          className="rounded-lg border border-white/15 bg-navy2 px-3 py-1.5 text-sm text-foam outline-none focus:border-brass"
+        >
+          <option value="">{copy.fleetGeneral}</option>
+          {FLEET_IDS.map((id) => <option key={id} value={id}>{copy.fleets[id]}</option>)}
+        </select>
+      </label>
+      {hl && (
+        <div className="min-w-0 text-xs leading-relaxed text-mist">
+          {hl.empty ? (
+            <p>{copy.fleetEmpty}</p>
+          ) : (
+            <>
+              <p className="mb-1 font-semibold text-foam">{copy.fleetPreview}</p>
+              <ul className="list-disc space-y-0.5 pl-4">
+                {hl.months > 0 && (
+                  <li>{copy.fleetSeaTime.replace("{time}", seaTimeIn(lang, hl.months)).replace("{types}", hl.vesselTypes.join(", "))}</li>
+                )}
+                {hl.certs.map((c, i) => <li key={`${c.name}-${i}`}>{c.name}</li>)}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Sea time in the page's language. The Word file says "3y 2mo" because the CV
+ * is in English; the preview around it is not, so it says it the reader's way.
+ */
+const SEA_TIME_UNITS: Record<string, { y: [string, string]; m: [string, string] }> = {
+  en: { y: ["yr", "yrs"], m: ["mo", "mo"] },
+  ru: { y: ["г.", "г."], m: ["мес.", "мес."] },
+  ua: { y: ["р.", "р."], m: ["міс.", "міс."] },
+  pl: { y: ["r.", "l."], m: ["mies.", "mies."] },
+  ro: { y: ["an", "ani"], m: ["lună", "luni"] },
+};
+function seaTimeIn(lang: string, months: number): string {
+  const u = SEA_TIME_UNITS[lang] ?? SEA_TIME_UNITS.en;
+  const y = Math.floor(months / 12);
+  const m = months % 12;
+  return [
+    y ? `${y} ${u.y[y === 1 ? 0 : 1]}` : null,
+    m || !y ? `${m} ${u.m[m === 1 ? 0 : 1]}` : null,
+  ].filter(Boolean).join(" ");
+}

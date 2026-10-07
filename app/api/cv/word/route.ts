@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { buildCvDocx } from "@/lib/cvDocx";
 import { CV_WORD } from "@/lib/cvWord";
+import { isFleetId } from "@/lib/cvFleets";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -62,7 +63,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Not purchased" }, { status: 402 });
   }
 
-  const { buffer, filename } = await buildCvDocx(db, user.id, user.email ?? null);
+  // `?fleet=offshore` and the rest pick the fleet template; anything else —
+  // or nothing — is the general CV. One payment covers every template.
+  const fleet = new URL(req.url).searchParams.get("fleet");
+  const { buffer, filename } = await buildCvDocx(db, user.id, user.email ?? null, isFleetId(fleet) ? fleet : null);
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

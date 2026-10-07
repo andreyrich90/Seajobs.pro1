@@ -1,5 +1,5 @@
 import type { Lang } from "@/lib/langs";
-import { cvWordPrice } from "@/lib/cvWord";
+import { withPrice } from "@/lib/cvWord";
 
 /**
  * The public page about making a seafarer's CV on the site — the free builder
@@ -571,17 +571,6 @@ const ro: CvMakerCopy = {
 
 export const CV_MAKER_COPY: Record<Lang, CvMakerCopy> = { en, ru, ua, pl, ro };
 
-/** Put the real price wherever the copy wrote `{price}`. */
-function fill<T>(node: T, price: string): T {
-  if (typeof node === "string") return node.split("{price}").join(price) as T;
-  if (Array.isArray(node)) return node.map((v) => fill(v, price)) as T;
-  if (node && typeof node === "object") {
-    return Object.fromEntries(
-      Object.entries(node as Record<string, unknown>).map(([k, v]) => [k, fill(v, price)]),
-    ) as T;
-  }
-  return node;
-}
 
 /**
  * The copy for one language, with the price filled in.
@@ -594,7 +583,7 @@ function fill<T>(node: T, price: string): T {
  * it is what happened when the price moved from 6.49 to 6.50.
  */
 export function cvMakerCopy(lang: Lang): CvMakerCopy {
-  return fill(CV_MAKER_COPY[lang] ?? CV_MAKER_COPY.en, cvWordPrice(lang));
+  return withPrice(CV_MAKER_COPY[lang] ?? CV_MAKER_COPY.en, lang);
 }
 
 /** The two service tiles the home page shows in place of the salary widget. */
