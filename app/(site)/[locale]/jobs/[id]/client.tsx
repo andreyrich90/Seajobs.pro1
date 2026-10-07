@@ -117,6 +117,11 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "How to apply — step by step",
     share: "Share",
     views: "Views",
+    limitTitle: "Today's email limit is used up",
+    limitBody: "Send your application from your own mailbox instead: the letter to the crewing agency opens ready, with a link to your CV — just press Send.",
+    limitAfter: "The portal could not send your CV — today's email limit is used up. Your application is saved; send it from your own mailbox: the letter opens ready, just press Send.",
+    sendFailedAfter: "The portal could not deliver your CV to the agency. Your application is saved; send it from your own mailbox: the letter opens ready, just press Send.",
+    mailPrimary: "Send from my email",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -141,6 +146,11 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Как подать анкету — пошаговая инструкция",
     share: "Поделиться",
     views: "Просмотры",
+    limitTitle: "Лимит отправки через портал на сегодня исчерпан",
+    limitBody: "Отправьте отклик со своей почты: письмо крюингу откроется уже готовым, со ссылкой на ваше CV — останется нажать «Отправить».",
+    limitAfter: "Портал не смог отправить CV — дневной лимит писем исчерпан. Отклик сохранён; отправьте его со своей почты: письмо откроется готовым, останется нажать «Отправить».",
+    sendFailedAfter: "Портал не смог доставить CV в крюинг. Отклик сохранён; отправьте его со своей почты: письмо откроется готовым, останется нажать «Отправить».",
+    mailPrimary: "Отправить со своей почты",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -165,6 +175,11 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Як подати анкету — покрокова інструкція",
     share: "Поділитись",
     views: "Перегляди",
+    limitTitle: "Ліміт надсилання через портал на сьогодні вичерпано",
+    limitBody: "Надішліть відгук зі своєї пошти: лист крюїнгу відкриється вже готовим, з посиланням на ваше CV — залишиться натиснути «Надіслати».",
+    limitAfter: "Портал не зміг надіслати CV — денний ліміт листів вичерпано. Відгук збережено; надішліть його зі своєї пошти: лист відкриється готовим, залишиться натиснути «Надіслати».",
+    sendFailedAfter: "Портал не зміг доставити CV до крюїнгу. Відгук збережено; надішліть його зі своєї пошти: лист відкриється готовим, залишиться натиснути «Надіслати».",
+    mailPrimary: "Надіслати зі своєї пошти",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -189,6 +204,11 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Jak aplikować — krok po kroku",
     share: "Udostępnij",
     views: "Wyświetlenia",
+    limitTitle: "Dzienny limit wysyłki przez portal został wyczerpany",
+    limitBody: "Wyślij zgłoszenie ze swojej poczty: list do agencji otworzy się gotowy, z linkiem do Twojego CV — wystarczy kliknąć „Wyślij”.",
+    limitAfter: "Portal nie mógł wysłać CV — dzienny limit e-maili został wyczerpany. Zgłoszenie jest zapisane; wyślij je ze swojej poczty: list otworzy się gotowy, wystarczy kliknąć „Wyślij”.",
+    sendFailedAfter: "Portal nie mógł dostarczyć CV do agencji. Zgłoszenie jest zapisane; wyślij je ze swojej poczty: list otworzy się gotowy, wystarczy kliknąć „Wyślij”.",
+    mailPrimary: "Wyślij ze swojej poczty",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -213,6 +233,11 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Cum aplici — pas cu pas",
     share: "Distribuie",
     views: "Vizualizări",
+    limitTitle: "Limita zilnică de trimitere prin portal a fost atinsă",
+    limitBody: "Trimite aplicația de pe e-mailul tău: scrisoarea către agenție se deschide gata scrisă, cu link spre CV-ul tău — doar apeși „Trimite”.",
+    limitAfter: "Portalul nu a putut trimite CV-ul — limita zilnică de e-mailuri a fost atinsă. Aplicația este salvată; trimite-o de pe e-mailul tău: scrisoarea se deschide gata scrisă, doar apeși „Trimite”.",
+    sendFailedAfter: "Portalul nu a putut livra CV-ul către agenție. Aplicația este salvată; trimite-o de pe e-mailul tău: scrisoarea se deschide gata scrisă, doar apeși „Trimite”.",
+    mailPrimary: "Trimite de pe e-mailul meu",
   },
 };
 
@@ -385,6 +410,17 @@ export default function VacancyDetailClient({
   // bulk mail, and the agency lands on our CV page instead of reading a
   // signature line — see handleApplyByMail.
   const [mailing, setMailing] = useState(false);
+  // The portal sends the CV through Resend, whose free tier stops at 100 a
+  // day. `limitKnown` is set when the window opens and the day's mail is
+  // already spent, so the mailbox route is offered first; `mailFallback` is
+  // set when a portal send fails after the fact. Either way the seafarer is
+  // told and pointed at their own mailbox, rather than told "sent" while the
+  // agency receives nothing.
+  const [limitKnown, setLimitKnown] = useState(false);
+  const [mailFallback, setMailFallback] = useState<null | "limit" | "error">(null);
+  // Set once the portal attempt has written the application, so the mailbox
+  // route that follows does not write a second one.
+  const portalApplied = useRef(false);
   // Applying requires a phone number and at least one sea-service record, so
   // the crewing agency always receives contacts + a real CV. null = not loaded.
   const [profileGaps, setProfileGaps] = useState<{ phone: boolean; experience: boolean } | null>(null);
@@ -441,6 +477,18 @@ export default function VacancyDetailClient({
     loadAuth();
   }, [vacancy.id]);
 
+  // Only an agency address costs us a portal email the seafarer depends on, so
+  // only then is it worth asking whether today's allowance is gone.
+  useEffect(() => {
+    if (!showModal || !vacancy.contact_email) return;
+    let live = true;
+    fetch("/api/email-quota", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j: { exhausted?: boolean }) => { if (live) setLimitKnown(!!j.exhausted); })
+      .catch(() => { /* unknown — leave both routes as they are */ });
+    return () => { live = false; };
+  }, [showModal, vacancy.contact_email]);
+
   async function handleApply() {
     if (!userId) return;
     setApplying(true);
@@ -466,7 +514,17 @@ export default function VacancyDetailClient({
     }
 
     if (vacancy.contact_email) {
-      notify({ type: "external_application", vacancyId: vacancy.id, seafarerId: userId });
+      // Waited for, unlike the other notifications: this one *is* the
+      // application as far as the agency is concerned. If it did not go, the
+      // window stays open on the mailbox route instead of closing on a lie.
+      portalApplied.current = true;
+      const delivered = await sendCvToAgency();
+      if (delivered !== true) {
+        setMailFallback(delivered);
+        setApplicationStatus("pending");
+        setApplying(false);
+        return;
+      }
     } else {
       notify({ type: "application_received", vacancyId: vacancy.id, seafarerId: userId });
     }
@@ -474,6 +532,28 @@ export default function VacancyDetailClient({
     setShowModal(false);
     setCoverLetter("");
     setApplying(false);
+  }
+
+  /**
+   * Ask the server to email the CV to the agency, and say what happened:
+   * `true` when it went, `"limit"` when today's allowance is spent, `"error"`
+   * for anything else that kept it from going.
+   */
+  async function sendCvToAgency(): Promise<true | "limit" | "error"> {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return "error";
+      const res = await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ type: "external_application", vacancyId: vacancy.id, seafarerId: userId }),
+      });
+      if (res.ok) return true;
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      return json.error === "quota" ? "limit" : "error";
+    } catch {
+      return "error";
+    }
   }
 
   /**
@@ -515,13 +595,16 @@ export default function VacancyDetailClient({
         return;
       }
 
-      // Record it, so it appears among their applications like any other.
-      await supabase.from("applications").insert({
-        vacancy_id: vacancy.id,
-        seafarer_id: userId,
-        cover_letter: coverLetter.trim() || null,
-        status: "pending",
-      });
+      // Record it, so it appears among their applications like any other —
+      // unless the portal attempt that sent them here already did.
+      if (!portalApplied.current) {
+        await supabase.from("applications").insert({
+          vacancy_id: vacancy.id,
+          seafarer_id: userId,
+          cover_letter: coverLetter.trim() || null,
+          status: "pending",
+        });
+      }
 
       const subject = `${vacancy.rank || vacancy.title} — application`;
       const body = [
@@ -549,6 +632,7 @@ export default function VacancyDetailClient({
       setApplicationStatus("pending");
       setShowModal(false);
       setCoverLetter("");
+      setMailFallback(null);
     } catch {
       tab?.close();
       setApplyError("Could not open your mail app. Please try again.");
@@ -1025,7 +1109,7 @@ export default function VacancyDetailClient({
               Applying for: <span className="font-semibold text-foam">{vacancy.title}</span>
             </p>
 
-            {vacancy.contact_email && (
+            {vacancy.contact_email && !limitKnown && !mailFallback && (
               <p className="mb-4 text-xs text-mist">
                 Your profile (rank, experience, certificates, contacts) will be sent directly to the crewing agency&apos;s email.
               </p>
@@ -1035,6 +1119,22 @@ export default function VacancyDetailClient({
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-coral/30 bg-coral/10 px-4 py-3">
                 <AlertCircle size={16} className="mt-0.5 shrink-0 text-coral" />
                 <p className="text-sm text-coral">{applyError}</p>
+              </div>
+            )}
+
+            {vacancy.contact_email && (limitKnown || mailFallback) && (
+              <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
+                <Mail size={16} className="mt-0.5 shrink-0 text-brassInk" />
+                <div className="text-sm">
+                  {!mailFallback && <p className="mb-1 font-semibold text-foam">{(CTX[lang] ?? CTX.en).limitTitle}</p>}
+                  <p className="text-mist">
+                    {mailFallback === "limit"
+                      ? (CTX[lang] ?? CTX.en).limitAfter
+                      : mailFallback === "error"
+                        ? (CTX[lang] ?? CTX.en).sendFailedAfter
+                        : (CTX[lang] ?? CTX.en).limitBody}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -1122,14 +1222,19 @@ export default function VacancyDetailClient({
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <button
-                    onClick={handleApply}
-                    disabled={applying || mailing}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
-                  >
-                    <Send size={15} />
-                    {applying ? "Submitting..." : "Send from SeaJobs.pro"}
-                  </button>
+                  {/* With the day's mail spent — known up front, or learned
+                      from a failed send — the portal button would only fail
+                      again, so the mailbox route takes its place. */}
+                  {!(vacancy.contact_email && (limitKnown || mailFallback)) && (
+                    <button
+                      onClick={handleApply}
+                      disabled={applying || mailing}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
+                    >
+                      <Send size={15} />
+                      {applying ? "Submitting..." : "Send from SeaJobs.pro"}
+                    </button>
+                  )}
 
                   {/* Second route, offered only where there is an address to
                       write to. The letter arrives personally from the seafarer
@@ -1140,10 +1245,18 @@ export default function VacancyDetailClient({
                       <button
                         onClick={handleApplyByMail}
                         disabled={applying || mailing}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-5 py-3 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-50"
+                        className={
+                          limitKnown || mailFallback
+                            ? "flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-3 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
+                            : "flex w-full items-center justify-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-5 py-3 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-50"
+                        }
                       >
                         <Mail size={15} />
-                        {mailing ? "Preparing..." : "Write from my own email"}
+                        {mailing
+                          ? "Preparing..."
+                          : limitKnown || mailFallback
+                            ? (CTX[lang] ?? CTX.en).mailPrimary
+                            : "Write from my own email"}
                       </button>
                       <p className="-mt-1 text-xs leading-relaxed text-mist">
                         Opens your mail app with the letter ready. Your CV travels as a link that works for 30 days
