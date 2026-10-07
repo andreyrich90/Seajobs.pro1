@@ -1171,16 +1171,19 @@ function WordButton({ lang }: { lang: string }) {
   const refresh = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+    // Any paid purchase, not the newest row: one payment opens the export for
+    // good, and the route that serves the file asks the same question. Reading
+    // only the latest row would lock a buyer out the day a newer unpaid row
+    // appeared beside the paid one.
     const { data, error } = await supabase
       .from("cv_word_purchases")
       .select("paid_at")
-      .order("created_at", { ascending: false })
+      .not("paid_at", "is", null)
       .limit(1);
     // A missing table means the migration has not been run yet: show the
     // product as simply not bought rather than breaking the page.
     if (error) { setState("locked"); return; }
-    const row = data?.[0] as { paid_at: string | null } | undefined;
-    if (row?.paid_at) { setState("paid"); return; }
+    if (data?.length) { setState("paid"); return; }
     // An unpaid row alone is not a payment in flight. It is what every
     // abandoned checkout leaves behind — POST /api/cv/word opens it before
     // the buyer reaches the till — so on its own it reads as "not bought",
