@@ -25,7 +25,8 @@ export type EmailKind =
   | "referral_reminder"
   | "contact"
   | "outreach"
-  | "logo_reminder";
+  | "logo_reminder"
+  | "service_paid";
 
 /**
  * Resend's free tier: 100 emails a day across the whole account. Used to tell
