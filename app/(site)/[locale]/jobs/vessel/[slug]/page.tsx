@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
-import { COMBO_COPY, liveCombos, vesselOn } from "@/lib/rankVesselLandings";
+import { COMBO_COPY, liveCombos } from "@/lib/rankVesselLandings";
 import { rankName } from "@/lib/rankLandings";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
@@ -16,7 +16,7 @@ import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from 
 import type { Lang } from "@/lib/langs";
 import { money } from "@/lib/format";
 import {
-  VESSEL_LANDINGS, VESSEL_COPY, vesselLandingBySlug, vesselName, vacancyMatchesVessel,
+  VESSEL_LANDINGS, VESSEL_COPY, vesselLandingBySlug, vesselName, vesselOn, vesselSearchOn, vacancyMatchesVessel,
 } from "@/lib/vesselLandings";
 
 
@@ -79,7 +79,8 @@ export async function generateMetadata(
   if (!landing) return { title: "Not found — SeaJobs.pro" };
   const lang = locale as Lang;
   const copy = VESSEL_COPY[lang] ?? VESSEL_COPY.en;
-  const name = vesselName(landing, lang);
+  // Titles carry the English name too: "на балкере (Bulk Carrier)".
+  const name = vesselSearchOn(landing, lang);
   const path = `/jobs/vessel/${slug}`;
   const canonical = canonicalUrl(path, locale);
 
@@ -110,7 +111,7 @@ export default async function VesselLandingPage(
   const lang = locale as Lang;
   const copy = VESSEL_COPY[lang] ?? VESSEL_COPY.en;
   const sal = SAL[lang] ?? SAL.en;
-  const name = vesselName(landing, lang);
+  const name = vesselOn(landing, lang);
   const vacancies = await fetchVesselVacancies(landing.keywords);
 
   // Salary range: day rates → monthly equivalent, within the dominant currency.

@@ -1,4 +1,5 @@
 import type { Lang } from "@/lib/langs";
+import { slavic } from "@/lib/plural";
 
 // SEO landing pages for the most-searched vessel types, at /jobs/vessel/<slug>.
 // Unlike ranks (exact match), vessel_type values are free-form strings from many
@@ -161,6 +162,43 @@ export function vesselName(v: VesselLanding, lang: Lang): string {
   return v.names[lang] ?? v.names.en;
 }
 
+/** "on bulk carriers", "на балкере" — the vessel as the end of a phrase. */
+export const VESSEL_ON: Record<string, Record<Lang, string>> = {
+  "tanker": { en: "on tankers", ru: "на танкере", ua: "на танкері", pl: "na zbiornikowcu", ro: "pe tancuri petroliere" },
+  "chemical-tanker": { en: "on chemical tankers", ru: "на химовозе", ua: "на хімовозі", pl: "na chemikaliowcu", ro: "pe tancuri chimice" },
+  "bulk-carrier": { en: "on bulk carriers", ru: "на балкере", ua: "на балкері", pl: "na masowcu", ro: "pe vrachiere" },
+  "container-ship": { en: "on container ships", ru: "на контейнеровозе", ua: "на контейнеровозі", pl: "na kontenerowcu", ro: "pe portcontainere" },
+  "general-cargo": { en: "on general cargo / MPP vessels", ru: "на судах генерального груза / MPP", ua: "на суднах генерального вантажу / MPP", pl: "na drobnicowcu / MPP", ro: "pe nave de marfă generală / MPP" },
+  "gas-carrier": { en: "on gas carriers (LNG / LPG)", ru: "на газовозе (LNG / LPG)", ua: "на газовозі (LNG / LPG)", pl: "na gazowcu (LNG / LPG)", ro: "pe nave de gaz (LNG / LPG)" },
+  "car-carrier": { en: "on car carriers (PCTC)", ru: "на автовозе (PCTC)", ua: "на автовозі (PCTC)", pl: "na samochodowcu (PCTC)", ro: "pe nave auto (PCTC)" },
+  "offshore": { en: "on offshore vessels", ru: "на оффшорных судах", ua: "на офшорних суднах", pl: "na statkach offshore", ro: "pe nave offshore" },
+  "cruise-ship": { en: "on cruise ships", ru: "на круизных судах", ua: "на круїзних суднах", pl: "na wycieczkowcach", ro: "pe nave de croazieră" },
+  "ferry": { en: "on ferries (RoPax)", ru: "на пароме (RoPax)", ua: "на поромі (RoPax)", pl: "na promie (RoPax)", ro: "pe feriboturi (RoPax)" },
+  "tug": { en: "on tugs", ru: "на буксире", ua: "на буксирі", pl: "na holowniku", ro: "pe remorchere" },
+};
+
+export function vesselOn(v: VesselLanding, lang: Lang): string {
+  return VESSEL_ON[v.slug]?.[lang] ?? VESSEL_ON[v.slug]?.en ?? v.names.en;
+}
+
+// The English name seafarers search by, appended in titles where the local
+// phrase does not already carry it — see RANK_TERM in lib/rankLandings.ts.
+const VESSEL_TERM: Record<string, string> = {
+  "tanker": "Tanker", "chemical-tanker": "Chemical Tanker", "bulk-carrier": "Bulk Carrier",
+  "container-ship": "Container Ship", "general-cargo": "General Cargo", "gas-carrier": "LNG / LPG",
+  "car-carrier": "Car Carrier", "offshore": "Offshore", "cruise-ship": "Cruise Ship",
+  "ferry": "Ferry", "tug": "Tug",
+};
+
+/** "на балкере (Bulk Carrier)" — for titles. */
+export function vesselSearchOn(v: VesselLanding, lang: Lang): string {
+  const on = vesselOn(v, lang);
+  const term = VESSEL_TERM[v.slug];
+  if (lang === "en" || !term || on.toLowerCase().includes(term.toLowerCase())) return on;
+  // "на пароме (RoPax)" → "на пароме (RoPax, Ferry)", not two brackets in a row.
+  return on.endsWith(")") ? `${on.slice(0, -1)}, ${term})` : `${on} (${term})`;
+}
+
 /** Keyword match against "<vessel_type> <title>", mirroring lib/fleets.ts. */
 export function vacancyMatchesVessel(vesselType: string | null, title: string, keywords: string[]): boolean {
   const hay = `${vesselType ?? ""} ${title}`.toLowerCase();
@@ -183,85 +221,87 @@ type Copy = {
   noneYet: (name: string) => string;
 };
 
+// Every function takes `on` — "on bulk carriers", "на балкере" — rather than
+// the bare name: "Вакансии на Балкер" is what the nominative produced.
 export const VESSEL_COPY: Record<Lang, Copy> = {
   en: {
     home: "Home",
     jobsCrumb: "Vacancies",
-    metaTitle: (n) => `${n} jobs — maritime vacancies | SeaJobs.pro`,
-    metaDesc: (n) => `Current ${n} vacancies from verified crewing agencies. Rank, salary and joining date for every posting. Apply free on SeaJobs.pro.`,
-    h1: (n) => `${n} jobs`,
-    countLine: (num, n) => num > 0
-      ? `There ${num === 1 ? "is" : "are"} currently ${num} open ${n} ${num === 1 ? "vacancy" : "vacancies"} on SeaJobs.pro from verified crewing agencies.`
-      : `New ${n} vacancies from verified crewing agencies are added to SeaJobs.pro regularly — check back soon or set a job alert.`,
+    metaTitle: (on) => `Jobs ${on} — maritime vacancies | SeaJobs.pro`,
+    metaDesc: (on) => `Current vacancies ${on} from verified crewing agencies. Rank, salary and joining date for every posting. Apply free on SeaJobs.pro.`,
+    h1: (on) => `Jobs ${on}`,
+    countLine: (num, on) => num > 0
+      ? `There ${num === 1 ? "is" : "are"} currently ${num} open ${num === 1 ? "vacancy" : "vacancies"} ${on} on SeaJobs.pro from verified crewing agencies.`
+      : `New vacancies ${on} from verified crewing agencies are added to SeaJobs.pro regularly — check back soon or set a job alert.`,
     salaryLine: (min, max, cur) => `Salaries currently range from ${min} to ${max} ${cur} per month.`,
     rankLine: (r) => `Most in demand right now: ${r}.`,
     requirements: "Applicants usually need valid STCW certificates, a seafarer's medical and relevant sea-time. You can apply directly through SeaJobs.pro — your CV goes straight to the crewing manager.",
     relatedHeading: "Other vessel types",
     allJobs: "All maritime vacancies",
-    noneYet: (n) => `No open ${n} vacancies right now`,
+    noneYet: (on) => `No open vacancies ${on} right now`,
   },
   ru: {
     home: "Главная",
     jobsCrumb: "Вакансии",
-    metaTitle: (n) => `Вакансии на ${n} — работа в море | SeaJobs.pro`,
-    metaDesc: (n) => `Актуальные вакансии на ${n} от проверенных крюинговых агентств. Должность, зарплата и дата посадки в каждой. Отклик бесплатно на SeaJobs.pro.`,
-    h1: (n) => `Вакансии на ${n}`,
-    countLine: (num, n) => num > 0
-      ? `Сейчас на SeaJobs.pro открыто ${num} ${num === 1 ? "вакансия" : "вакансий"} на ${n} от проверенных крюинговых агентств.`
-      : `Новые вакансии на ${n} от проверенных крюингов появляются на SeaJobs.pro регулярно — загляните позже или включите оповещения.`,
+    metaTitle: (on) => `Работа ${on} — вакансии для моряков | SeaJobs.pro`,
+    metaDesc: (on) => `Работа ${on}: актуальные вакансии от проверенных крюинговых агентств. Должность, зарплата и дата посадки в каждой. Отклик бесплатно на SeaJobs.pro.`,
+    h1: (on) => `Работа ${on} — вакансии`,
+    countLine: (num, on) => num > 0
+      ? `Работа ${on}: сейчас на SeaJobs.pro ${slavic(num, "открыта", "открыто", "открыто")} ${num} ${slavic(num, "вакансия", "вакансии", "вакансий")} от проверенных крюинговых агентств.`
+      : `Новые вакансии ${on} от проверенных крюингов появляются на SeaJobs.pro регулярно — загляните позже или включите оповещения.`,
     salaryLine: (min, max, cur) => `Зарплата сейчас — от ${min} до ${max} ${cur} в месяц.`,
     rankLine: (r) => `Сейчас чаще всего требуются: ${r}.`,
     requirements: "Обычно требуются действующие сертификаты STCW, судовая медкомиссия и опыт работы. Откликнуться можно прямо на SeaJobs.pro — ваша анкета уходит напрямую крюинг-менеджеру.",
     relatedHeading: "Другие типы судов",
     allJobs: "Все вакансии",
-    noneYet: (n) => `Сейчас открытых вакансий на ${n} нет`,
+    noneYet: (on) => `Сейчас открытых вакансий ${on} нет`,
   },
   ua: {
     home: "Головна",
     jobsCrumb: "Вакансії",
-    metaTitle: (n) => `Вакансії на ${n} — робота в морі | SeaJobs.pro`,
-    metaDesc: (n) => `Актуальні вакансії на ${n} від перевірених крюїнгових агентств. Посада, зарплата й дата посадки в кожній. Відгук безкоштовно на SeaJobs.pro.`,
-    h1: (n) => `Вакансії на ${n}`,
-    countLine: (num, n) => num > 0
-      ? `Зараз на SeaJobs.pro відкрито ${num} ${num === 1 ? "вакансію" : "вакансій"} на ${n} від перевірених крюїнгових агентств.`
-      : `Нові вакансії на ${n} від перевірених крюїнгів з'являються на SeaJobs.pro регулярно — завітайте пізніше або увімкніть сповіщення.`,
+    metaTitle: (on) => `Робота ${on} — вакансії для моряків | SeaJobs.pro`,
+    metaDesc: (on) => `Робота ${on}: актуальні вакансії від перевірених крюїнгових агентств. Посада, зарплата й дата посадки в кожній. Відгук безкоштовно на SeaJobs.pro.`,
+    h1: (on) => `Робота ${on} — вакансії`,
+    countLine: (num, on) => num > 0
+      ? `Робота ${on}: зараз на SeaJobs.pro ${slavic(num, "відкрита", "відкрито", "відкрито")} ${num} ${slavic(num, "вакансія", "вакансії", "вакансій")} від перевірених крюїнгових агентств.`
+      : `Нові вакансії ${on} від перевірених крюїнгів з'являються на SeaJobs.pro регулярно — завітайте пізніше або увімкніть сповіщення.`,
     salaryLine: (min, max, cur) => `Зарплата зараз — від ${min} до ${max} ${cur} на місяць.`,
     rankLine: (r) => `Зараз найчастіше потрібні: ${r}.`,
     requirements: "Зазвичай потрібні чинні сертифікати STCW, суднова медкомісія та досвід роботи. Відгукнутися можна прямо на SeaJobs.pro — ваша анкета йде напряму крюїнг-менеджеру.",
     relatedHeading: "Інші типи суден",
     allJobs: "Усі вакансії",
-    noneYet: (n) => `Зараз відкритих вакансій на ${n} немає`,
+    noneYet: (on) => `Зараз відкритих вакансій ${on} немає`,
   },
   pl: {
     home: "Strona główna",
     jobsCrumb: "Oferty pracy",
-    metaTitle: (n) => `Praca na ${n} — oferty morskie | SeaJobs.pro`,
-    metaDesc: (n) => `Aktualne oferty pracy na ${n} od zweryfikowanych agencji crewingowych. Stanowisko, wynagrodzenie i data zaokrętowania. Aplikuj za darmo na SeaJobs.pro.`,
-    h1: (n) => `Praca na ${n}`,
-    countLine: (num, n) => num > 0
-      ? `Obecnie na SeaJobs.pro dostępnych jest ${num} ofert pracy na ${n} od zweryfikowanych agencji crewingowych.`
-      : `Nowe oferty pracy na ${n} od zweryfikowanych agencji pojawiają się na SeaJobs.pro regularnie — zajrzyj później lub ustaw powiadomienia.`,
+    metaTitle: (on) => `Praca ${on} — oferty dla marynarzy | SeaJobs.pro`,
+    metaDesc: (on) => `Praca ${on}: aktualne oferty od zweryfikowanych agencji crewingowych. Stanowisko, wynagrodzenie i data zaokrętowania. Aplikuj za darmo na SeaJobs.pro.`,
+    h1: (on) => `Praca ${on} — oferty`,
+    countLine: (num, on) => num > 0
+      ? `Praca ${on}: obecnie na SeaJobs.pro ${num === 1 ? "jest 1 oferta" : `${slavic(num, "jest", "są", "jest")} ${num} ${slavic(num, "ofert", "oferty", "ofert")}`} od zweryfikowanych agencji crewingowych.`
+      : `Nowe oferty pracy ${on} od zweryfikowanych agencji pojawiają się na SeaJobs.pro regularnie — zajrzyj później lub ustaw powiadomienia.`,
     salaryLine: (min, max, cur) => `Wynagrodzenie obecnie wynosi od ${min} do ${max} ${cur} miesięcznie.`,
     rankLine: (r) => `Obecnie najczęściej poszukiwani: ${r}.`,
     requirements: "Zwykle wymagane są ważne certyfikaty STCW, marynarskie badania lekarskie i doświadczenie. Możesz aplikować bezpośrednio przez SeaJobs.pro — Twoje CV trafia prosto do menedżera crewingu.",
     relatedHeading: "Inne typy statków",
     allJobs: "Wszystkie oferty pracy",
-    noneYet: (n) => `Obecnie brak ofert pracy na ${n}`,
+    noneYet: (on) => `Obecnie brak ofert pracy ${on}`,
   },
   ro: {
     home: "Acasă",
     jobsCrumb: "Posturi",
-    metaTitle: (n) => `Joburi pe ${n} — posturi maritime | SeaJobs.pro`,
-    metaDesc: (n) => `Posturi actuale pe ${n} de la agenții de crewing verificate. Funcție, salariu și data îmbarcării pentru fiecare. Aplică gratuit pe SeaJobs.pro.`,
-    h1: (n) => `Joburi pe ${n}`,
-    countLine: (num, n) => num > 0
-      ? `În prezent, pe SeaJobs.pro sunt ${num} posturi pe ${n} deschise de la agenții de crewing verificate.`
-      : `Posturi noi pe ${n} de la agenții verificate apar regulat pe SeaJobs.pro — revino mai târziu sau setează o alertă.`,
+    metaTitle: (on) => `Joburi ${on} — posturi maritime | SeaJobs.pro`,
+    metaDesc: (on) => `Joburi ${on}: posturi actuale de la agenții de crewing verificate. Funcție, salariu și data îmbarcării pentru fiecare. Aplică gratuit pe SeaJobs.pro.`,
+    h1: (on) => `Joburi ${on}`,
+    countLine: (num, on) => num > 0
+      ? `În prezent, pe SeaJobs.pro ${num === 1 ? "este 1 post deschis" : `sunt ${num} posturi deschise`} ${on}, de la agenții de crewing verificate.`
+      : `Posturi noi ${on} de la agenții verificate apar regulat pe SeaJobs.pro — revino mai târziu sau setează o alertă.`,
     salaryLine: (min, max, cur) => `Salariile variază în prezent între ${min} și ${max} ${cur} pe lună.`,
     rankLine: (r) => `Cele mai căutate acum: ${r}.`,
     requirements: "De obicei sunt necesare certificate STCW valabile, aviz medical maritim și experiență. Poți aplica direct prin SeaJobs.pro — CV-ul tău ajunge direct la managerul de crewing.",
     relatedHeading: "Alte tipuri de nave",
     allJobs: "Toate posturile maritime",
-    noneYet: (n) => `Momentan nu există posturi pe ${n}`,
+    noneYet: (on) => `Momentan nu există posturi ${on}`,
   },
 };
