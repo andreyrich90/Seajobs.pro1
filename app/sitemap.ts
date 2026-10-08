@@ -9,6 +9,7 @@ import { RANK_LANDING_SLUGS } from "@/lib/rankLandings";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 import { COUNTRY_LANDING_SLUGS } from "@/lib/countryLandings";
 import { FLEET_IDS } from "@/lib/cvFleets";
+import { liveCombos } from "@/lib/rankVesselLandings";
 
 const BASE = "https://seajobs.pro";
 
@@ -141,7 +142,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [{ data: vacancies }, { data: topics }, { data: companies }, { data: dbNews }] = await Promise.all([
       admin
         .from("vacancies")
-        .select("id, title, updated_at, created_at")
+        .select("id, title, rank, vessel_type, updated_at, created_at")
         .eq("is_active", true)
         .or(`joining_date.is.null,joining_date.gte.${new Date(now.getTime() - 14 * 864e5).toISOString().slice(0, 10)}`)
         .order("created_at", { ascending: false }),
@@ -209,7 +210,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       );
 
-    return [...staticRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes, ...dbNewsRoutes, ...guideRoutes];
+    // Rank × vessel pages, only while they clear the indexing bar — the same
+    // rule the pages apply to their own robots tag.
+    const comboRoutes: MetadataRoute.Sitemap = liveCombos(
+      (vacancies ?? []).map((v) => ({ rank: v.rank, vessel_type: v.vessel_type, title: locTitle(v.title) })),
+    ).flatMap((c) =>
+      localizedEntries(`/jobs/rank/${c.rank.slug}/${c.vessel.slug}`, {
+        lastModified: now,
+        changeFrequency: "daily",
+        priority: 0.7,
+      })
+    );
+
+    return [...staticRoutes, ...comboRoutes, ...newsRoutes, ...vacancyRoutes, ...forumRoutes, ...companyRoutes, ...dbNewsRoutes, ...guideRoutes];
   } catch {
     return [...staticRoutes, ...newsRoutes];
   }
