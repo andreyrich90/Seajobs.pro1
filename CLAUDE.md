@@ -261,6 +261,8 @@ The `@/` path alias resolves to the repository root (configured in `tsconfig.jso
 
 ### SEO
 
+**Rank × vessel pages** (`/jobs/rank/<rank>/<vessel>`, e.g. `/jobs/rank/chief-engineer/bulk-carrier`) answer the "chief engineer bulk carrier jobs" searches, which Search Console showed as the largest pool of impressions with no clicks. 19 ranks × 11 vessel types is 209 combinations, most of them empty on any given day, so **a combination is indexable only while it holds `MIN_COMBO_VACANCIES` (2) live postings** (`liveCombos()` in `lib/rankVesselLandings.ts`). Only those are prerendered, listed in the sitemap and linked from the parent rank and vessel pages. Any other combination still answers, but with `noindex`. An unknown rank or vessel slug is a 404. All of them read one cached query, `getLandingVacancies()` in `lib/landingVacancies.ts`, which throws on error rather than caching "no vacancies" — an outage must not noindex the lot. The vessel half of the heading comes from `VESSEL_ON` ("на балкере", "na masowcu"), and the rank comes first in ru/ua/pl/ro titles ("Старший механик на балкере — вакансии") so that no declension is needed.
+
 `lib/seo.ts` builds hreflang `alternates.languages` maps and OpenGraph locale codes per route, used in every `[locale]` layout's `generateMetadata`. `app/sitemap.ts` and `app/robots.ts` are dynamic route handlers (not static files). Job and news detail pages have dedicated `opengraph-image.tsx`/`twitter-image.tsx` route handlers for per-item social cards. URL slugs are `<slugified-title>-<uuid>` (`lib/slug.ts`); always look records up by the trailing UUID, never by the slug text, so old/edited-title links keep resolving.
 
 ### Caching

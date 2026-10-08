@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
+import { COMBO_COPY, liveCombos, vesselOn } from "@/lib/rankVesselLandings";
+import { rankName } from "@/lib/rankLandings";
 import { routing } from "@/i18n/routing";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
@@ -142,6 +144,9 @@ export default async function VesselLandingPage(
   };
 
   const relative = VESSEL_LANDINGS.filter((v) => v.slug !== slug);
+  // Indexable rank × vessel pages for this vessel type — see the rank page.
+  const byRank = liveCombos(vacancies).filter((c) => c.vessel.slug === slug);
+  const combo = COMBO_COPY[lang] ?? COMBO_COPY.en;
 
   const breadcrumbLd = {
     "@context": "https://schema.org",
@@ -200,7 +205,21 @@ export default async function VesselLandingPage(
           </Link>
         )}
 
-        <section className="mt-12 rounded-2xl border border-white/10 bg-card/40 p-5">
+        {byRank.length > 0 && (
+          <section className="mt-12 rounded-2xl border border-white/10 bg-card/40 p-5">
+            <h2 className="mb-3 font-display text-base font-semibold text-white">{combo.byRankHeading(vesselOn(landing, lang))}</h2>
+            <div className="flex flex-wrap gap-2">
+              {byRank.map((c) => (
+                <Link key={c.rank.slug} href={`/jobs/rank/${c.rank.slug}/${slug}`}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-mist transition hover:border-brass/40 hover:text-brassInk">
+                  {rankName(c.rank, lang)} · {c.count}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className={`${byRank.length > 0 ? "mt-4" : "mt-12"} rounded-2xl border border-white/10 bg-card/40 p-5`}>
           <h2 className="mb-3 font-display text-base font-semibold text-white">{copy.relatedHeading}</h2>
           <div className="flex flex-wrap gap-2">
             {relative.map((v) => (
