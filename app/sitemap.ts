@@ -10,6 +10,7 @@ import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 import { COUNTRY_LANDING_SLUGS } from "@/lib/countryLandings";
 import { FLEET_IDS } from "@/lib/cvFleets";
 import { liveCombos } from "@/lib/rankVesselLandings";
+import { guideAlternates, guideLocales, guideUrl } from "@/lib/guideUrls";
 
 const BASE = "https://seajobs.pro";
 
@@ -156,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .order("updated_at", { ascending: false }),
       admin
         .from("news_articles")
-        .select("id, title, published_at, created_at, category, cover_url")
+        .select("id, title, body, published_at, created_at, category, cover_url")
         .eq("is_published", true)
         .order("created_at", { ascending: false }),
     ]);
@@ -199,16 +200,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         })
       );
 
+    // One entry per language the guide really has, each at the URL that
+    // language's page declares canonical (its own title's slug) — see
+    // lib/guideUrls.ts. Untranslated pl/ro variants canonicalise to English,
+    // so they are not submitted.
     const guideRoutes: MetadataRoute.Sitemap = (dbNews ?? [])
       .filter((n) => n.category === "guide")
-      .flatMap((n) =>
-        localizedEntries(`/guides/${slugId(locTitle(n.title), n.id)}`, {
+      .flatMap((n) => {
+        const languages = guideAlternates(n.title, n.body, n.id);
+        return guideLocales(n.body).map((locale) => ({
+          url: guideUrl(n.title, n.id, locale),
           lastModified: new Date(n.published_at ?? n.created_at),
-          changeFrequency: "monthly",
+          changeFrequency: "monthly" as const,
           priority: 0.7,
-          images: n.cover_url ? [n.cover_url] : undefined,
-        })
-      );
+          alternates: { languages },
+          ...(n.cover_url ? { images: [n.cover_url] } : {}),
+        }));
+      });
 
     // Rank × vessel pages, only while they clear the indexing bar — the same
     // rule the pages apply to their own robots tag.
