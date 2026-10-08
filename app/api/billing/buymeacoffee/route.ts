@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { esc, adminChatIds, tgSendAdmins, SITE } from "@/lib/telegramBot";
+import { esc, adminChatIds, tgSendAdmins, tgSendAdminsDocument, SITE } from "@/lib/telegramBot";
+import { sendEmail } from "@/lib/email";
+import { REPLY_TO } from "@/lib/outreach";
+import { servicePaidEmail } from "@/lib/servicePaidEmail";
+import { contactLines, parseContact } from "@/lib/serviceContact";
 import { chooseWordMatch, classify, extraIds, readEvent, readState, refineKind, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
 import { CV_WORD, CV_WORD_EXTRA_ID } from "@/lib/cvWord";
 
@@ -110,11 +114,11 @@ export async function POST(req: NextRequest) {
   // Matching on e-mail is imperfect — people pay from a second mailbox — and an
   // unmatched event is a normal outcome, not an error. It is still recorded,
   // and still announced, so nobody has to notice it by hand.
-  let matched: { id: string; package_label: string; name: string | null; email: string } | null = null;
+  let matched: Matched | null = null;
   if (email) {
     const q = db
       .from("service_requests")
-      .select("id, package_label, name, email")
+      .select("id, package_label, name, email, phone, lang, user_id, cv_path, cv_name")
       .eq("email", email)
       .order("created_at", { ascending: false })
       .limit(1);
@@ -167,13 +171,37 @@ export async function POST(req: NextRequest) {
     if (error) console.error("[bmc] refund update", error.message);
   }
 
-  await announce({ matched, email, amount, currency, eventType, kind, status: state.status });
+  // The buyer's receipt: payment arrived, and when the mailing starts — on a
+  // Saturday or Sunday that is Monday. Sent once: a retried delivery returned
+  // above, at the duplicate event.
+  let receipt: boolean | null = null;
+  if (matched && kind === "paid") {
+    const mail = servicePaidEmail(matched.lang ?? "en", matched.package_label);
+    const res = await sendEmail({ to: matched.email, subject: mail.subject, html: mail.html, kind: "service_paid", replyTo: REPLY_TO });
+    receipt = res.ok;
+  }
+
+  await announce({ matched, email, amount, currency, eventType, kind, status: state.status, receipt, db });
   return NextResponse.json({ ok: true, kind, matched: !!matched });
 }
 
+type Db = NonNullable<ReturnType<typeof admin>>;
+
+type Matched = {
+  id: string;
+  package_label: string;
+  name: string | null;
+  email: string;
+  phone: string | null;
+  lang: string | null;
+  user_id: string | null;
+  cv_path: string | null;
+  cv_name: string | null;
+};
+
 /** Tell the operator, loudly. This is the message the work starts from. */
 async function announce(p: {
-  matched: { id: string; package_label: string; name: string | null; email: string } | null;
+  matched: Matched | null;
   email: string | null;
   amount: number | null;
   currency: string | null;
@@ -181,6 +209,9 @@ async function announce(p: {
   kind: "paid" | "refund" | "other";
   /** What the body said about the payment, when it said anything. */
   status?: string | null;
+  /** Whether the buyer's receipt went out; null when none was due. */
+  receipt?: boolean | null;
+  db: Db;
 }) {
   if (adminChatIds().length === 0) return;
 
@@ -205,13 +236,19 @@ async function announce(p: {
         : "Повернення не зіставилося з жодною оплаченою заявкою. Перевірте вручну.",
     ];
   } else if (p.kind === "paid" && p.matched) {
+    // Everything needed to get in touch at once: the "phone or Telegram" box
+    // as tappable links, and the account they connected to the bot, if any.
+    const linked = p.matched.user_id ? await linkedChat(p.db, p.matched.user_id) : null;
     lines = [
       "💰 <b>ОПЛАЧЕНО</b>",
       "",
       `<b>${esc(p.matched.package_label)}</b> — ${sum}`,
       ...who,
+      ...contactLines(parseContact(p.matched.phone), esc, linked),
       "",
       "Заявка позначена як <b>paid</b> — можна запускати розсилку.",
+      p.receipt === true ? "✅ Клієнту надіслано лист: оплату отримано, коли почнеться розсилка."
+        : p.receipt === false ? "⚠️ Лист клієнту не пішов — напишіть йому самі." : null,
     ];
   } else if (p.kind === "paid") {
     lines = [
@@ -247,9 +284,31 @@ async function announce(p: {
       buttonText: "Відкрити в адмінці",
       buttonUrl: `${SITE}/admin/service-requests`,
     });
+    // The CV again, under the payment, so the work starts from this one
+    // message instead of a search back through the chat for the request.
+    if (p.kind === "paid" && p.matched?.cv_path) {
+      const file = await cvFile(p.db, p.matched.cv_path, p.matched.cv_name);
+      if (file) await tgSendAdminsDocument(file, `CV — ${esc(p.matched.name ?? p.matched.email)} · оплачено`);
+    }
   } catch (e) {
     console.error("[bmc] telegram", e instanceof Error ? e.message : e);
   }
+}
+
+/** The chat id the seafarer connected to the bot from the cabinet, if any. */
+async function linkedChat(db: Db, userId: string): Promise<number | null> {
+  const { data } = await db.from("seafarer_telegram").select("chat_id").eq("seafarer_id", userId).maybeSingle();
+  return (data?.chat_id as number | undefined) ?? null;
+}
+
+/** The request's CV from the private bucket — only the service role reaches it. */
+async function cvFile(db: Db, path: string, name: string | null) {
+  const { data, error } = await db.storage.from("service-cv").download(path);
+  if (error || !data) {
+    console.error("[bmc] cv download", error?.message);
+    return null;
+  }
+  return { name: name || path.split("/").pop() || "cv", type: data.type || "application/octet-stream", bytes: await data.arrayBuffer() };
 }
 
 /**
