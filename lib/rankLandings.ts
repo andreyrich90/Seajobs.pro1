@@ -1,4 +1,5 @@
 import type { Lang } from "@/lib/langs";
+import { slavic } from "@/lib/plural";
 
 // SEO landing pages for the most-searched ranks, served at /jobs/rank/<slug>.
 // Each page is server-rendered with a localized <title>/<h1>/intro plus the
@@ -205,7 +206,7 @@ export const RANK_LANDINGS: RankLanding[] = [
   },
   {
     rank: "Deck Cadet", slug: "deck-cadet",
-    names: { en: "Deck Cadet", ru: "Кадет палубный", ua: "Кадет палубний", pl: "Praktykant pokładowy", ro: "Cadet punte" },
+    names: { en: "Deck Cadet", ru: "Палубный кадет", ua: "Палубний кадет", pl: "Praktykant pokładowy", ro: "Cadet punte" },
     blurb: {
       en: "The Deck Cadet is a trainee deck officer gaining the sea-time and skills needed to qualify as an officer.",
       ru: "Палубный кадет — стажёр палубной команды, набирает морской стаж и навыки для получения офицерского диплома.",
@@ -216,7 +217,7 @@ export const RANK_LANDINGS: RankLanding[] = [
   },
   {
     rank: "Engine Cadet", slug: "engine-cadet",
-    names: { en: "Engine Cadet", ru: "Кадет машинный", ua: "Кадет машинний", pl: "Praktykant maszynowy", ro: "Cadet mecanic" },
+    names: { en: "Engine Cadet", ru: "Машинный кадет", ua: "Машинний кадет", pl: "Praktykant maszynowy", ro: "Cadet mecanic" },
     blurb: {
       en: "The Engine Cadet is a trainee engineer gaining the sea-time and skills needed to qualify as an engineer officer.",
       ru: "Машинный кадет — стажёр машинной команды, набирает морской стаж и навыки для получения диплома механика.",
@@ -236,6 +237,28 @@ export function rankLandingBySlug(slug: string): RankLanding | undefined {
 
 export function rankName(r: RankLanding, lang: Lang): string {
   return r.names[lang] ?? r.names.en;
+}
+
+// The English term seafarers type whatever their language: Search Console
+// shows "deck cadet вакансии", "cook вакансии", "eto vacancies" from Ukraine
+// and "able seaman jobs poland", "oow jobs poland" from Poland. The local name
+// alone in a <title> misses all of those.
+const RANK_TERM: Record<string, string> = {
+  "master": "Master", "chief-officer": "Chief Officer", "2nd-officer": "2nd Officer",
+  "3rd-officer": "3rd Officer", "chief-engineer": "Chief Engineer", "2nd-engineer": "2nd Engineer",
+  "3rd-engineer": "3rd Engineer", "eto": "ETO", "electrician": "Electrician", "fitter": "Fitter",
+  "able-seaman": "AB", "ordinary-seaman": "OS", "bosun": "Bosun", "motorman": "Motorman",
+  "oiler": "Oiler", "cook": "Cook", "messman": "Messman", "deck-cadet": "Deck Cadet",
+  "engine-cadet": "Engine Cadet",
+};
+
+/** "Палубный кадет / Deck Cadet" — the local name plus the English term, for
+ *  titles. Left alone where the local name already carries the term. */
+export function rankSearchName(r: RankLanding, lang: Lang): string {
+  const name = rankName(r, lang);
+  const term = RANK_TERM[r.slug];
+  if (lang === "en" || !term || name.toLowerCase().includes(term.toLowerCase())) return name;
+  return `${name} / ${term}`;
 }
 
 /** Mirror of JobsClient's rank filter so the landing list matches the site. */
@@ -283,55 +306,55 @@ export const RANK_COPY: Record<Lang, Copy> = {
   ru: {
     home: "Главная",
     jobsCrumb: "Вакансии",
-    metaTitle: (n) => `Вакансии ${n} — работа в море | SeaJobs.pro`,
-    metaDesc: (n) => `Актуальные вакансии ${n} от проверенных крюинговых агентств. Зарплата, тип судна и дата посадки в каждой вакансии. Отклик бесплатно на SeaJobs.pro.`,
-    h1: (n) => `Вакансии ${n}`,
+    metaTitle: (n) => `${n} — вакансии для моряков | SeaJobs.pro`,
+    metaDesc: (n) => `${n}: актуальные вакансии от проверенных крюинговых агентств. Зарплата, тип судна и дата посадки в каждой вакансии. Отклик бесплатно на SeaJobs.pro.`,
+    h1: (n) => `${n} — вакансии`,
     countLine: (num, n) => num > 0
-      ? `Сейчас на SeaJobs.pro открыто ${num} ${num === 1 ? "вакансия" : "вакансий"} ${n} от проверенных крюинговых агентств.`
-      : `Новые вакансии ${n} от проверенных крюингов появляются на SeaJobs.pro регулярно — загляните позже или включите оповещения.`,
+      ? `${n}: сейчас на SeaJobs.pro ${slavic(num, "открыта", "открыто", "открыто")} ${num} ${slavic(num, "вакансия", "вакансии", "вакансий")} от проверенных крюинговых агентств.`
+      : `${n}: новые вакансии от проверенных крюингов появляются на SeaJobs.pro регулярно — загляните позже или включите оповещения.`,
     salaryLine: (min, max, cur) => `Зарплата сейчас — от ${min} до ${max} ${cur} в месяц.`,
     vesselLine: (v) => `Чаще всего вакансии на ${v}.`,
     requirements: "Обычно требуются действующие сертификаты STCW, судовая медкомиссия и опыт работы в должности. Откликнуться можно прямо на SeaJobs.pro — ваша анкета уходит напрямую крюинг-менеджеру.",
     relatedHeading: "Другие должности",
     allJobs: "Все вакансии",
-    noneYet: (n) => `Сейчас открытых вакансий ${n} нет`,
+    noneYet: (n) => `${n}: сейчас открытых вакансий нет`,
   },
   ua: {
     home: "Головна",
     jobsCrumb: "Вакансії",
-    metaTitle: (n) => `Вакансії ${n} — робота в морі | SeaJobs.pro`,
-    metaDesc: (n) => `Актуальні вакансії ${n} від перевірених крюїнгових агентств. Зарплата, тип судна й дата посадки в кожній вакансії. Відгук безкоштовно на SeaJobs.pro.`,
-    h1: (n) => `Вакансії ${n}`,
+    metaTitle: (n) => `${n} — вакансії для моряків | SeaJobs.pro`,
+    metaDesc: (n) => `${n}: актуальні вакансії від перевірених крюїнгових агентств. Зарплата, тип судна й дата посадки в кожній вакансії. Відгук безкоштовно на SeaJobs.pro.`,
+    h1: (n) => `${n} — вакансії`,
     countLine: (num, n) => num > 0
-      ? `Зараз на SeaJobs.pro відкрито ${num} ${num === 1 ? "вакансію" : "вакансій"} ${n} від перевірених крюїнгових агентств.`
-      : `Нові вакансії ${n} від перевірених крюїнгів з'являються на SeaJobs.pro регулярно — завітайте пізніше або увімкніть сповіщення.`,
+      ? `${n}: зараз на SeaJobs.pro ${slavic(num, "відкрита", "відкрито", "відкрито")} ${num} ${slavic(num, "вакансія", "вакансії", "вакансій")} від перевірених крюїнгових агентств.`
+      : `${n}: нові вакансії від перевірених крюїнгів з'являються на SeaJobs.pro регулярно — завітайте пізніше або увімкніть сповіщення.`,
     salaryLine: (min, max, cur) => `Зарплата зараз — від ${min} до ${max} ${cur} на місяць.`,
     vesselLine: (v) => `Найчастіше вакансії на ${v}.`,
     requirements: "Зазвичай потрібні чинні сертифікати STCW, суднова медкомісія та досвід роботи на посаді. Відгукнутися можна прямо на SeaJobs.pro — ваша анкета йде напряму крюїнг-менеджеру.",
     relatedHeading: "Інші посади",
     allJobs: "Усі вакансії",
-    noneYet: (n) => `Зараз відкритих вакансій ${n} немає`,
+    noneYet: (n) => `${n}: зараз відкритих вакансій немає`,
   },
   pl: {
     home: "Strona główna",
     jobsCrumb: "Oferty pracy",
-    metaTitle: (n) => `Praca ${n} na statku — oferty morskie | SeaJobs.pro`,
-    metaDesc: (n) => `Aktualne oferty pracy ${n} od zweryfikowanych agencji crewingowych. Wynagrodzenie, typ statku i data zaokrętowania w każdej ofercie. Aplikuj za darmo na SeaJobs.pro.`,
-    h1: (n) => `Praca: ${n}`,
+    metaTitle: (n) => `${n} — praca na statku, oferty | SeaJobs.pro`,
+    metaDesc: (n) => `${n}: aktualne oferty pracy od zweryfikowanych agencji crewingowych. Wynagrodzenie, typ statku i data zaokrętowania w każdej ofercie. Aplikuj za darmo na SeaJobs.pro.`,
+    h1: (n) => `${n} — oferty pracy`,
     countLine: (num, n) => num > 0
-      ? `Obecnie na SeaJobs.pro dostępnych jest ${num} ofert pracy ${n} od zweryfikowanych agencji crewingowych.`
-      : `Nowe oferty pracy ${n} od zweryfikowanych agencji pojawiają się na SeaJobs.pro regularnie — zajrzyj później lub ustaw powiadomienia.`,
+      ? `${n}: obecnie na SeaJobs.pro ${num === 1 ? "jest 1 oferta" : `${slavic(num, "jest", "są", "jest")} ${num} ${slavic(num, "ofert", "oferty", "ofert")}`} pracy od zweryfikowanych agencji crewingowych.`
+      : `${n}: nowe oferty pracy od zweryfikowanych agencji pojawiają się na SeaJobs.pro regularnie — zajrzyj później lub ustaw powiadomienia.`,
     salaryLine: (min, max, cur) => `Wynagrodzenie obecnie wynosi od ${min} do ${max} ${cur} miesięcznie.`,
     vesselLine: (v) => `Najwięcej ofert dotyczy jednostek typu ${v}.`,
     requirements: "Zwykle wymagane są ważne certyfikaty STCW, marynarskie badania lekarskie i doświadczenie na stanowisku. Możesz aplikować bezpośrednio przez SeaJobs.pro — Twoje CV trafia prosto do menedżera crewingu.",
     relatedHeading: "Inne stanowiska",
     allJobs: "Wszystkie oferty pracy",
-    noneYet: (n) => `Obecnie brak ofert pracy ${n}`,
+    noneYet: (n) => `${n}: obecnie brak ofert pracy`,
   },
   ro: {
     home: "Acasă",
     jobsCrumb: "Posturi",
-    metaTitle: (n) => `Joburi ${n} pe navă — posturi maritime | SeaJobs.pro`,
+    metaTitle: (n) => `${n} — joburi pe navă, posturi maritime | SeaJobs.pro`,
     metaDesc: (n) => `Posturi ${n} actuale de la agenții de crewing verificate. Salariu, tipul navei și data îmbarcării pentru fiecare anunț. Aplică gratuit pe SeaJobs.pro.`,
     h1: (n) => `Joburi ${n}`,
     countLine: (num, n) => num > 0

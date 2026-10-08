@@ -1,10 +1,14 @@
 import type { Lang } from "@/lib/langs";
+import { slavic } from "@/lib/plural";
 import {
   RANK_LANDINGS, vacancyMatchesRank, type RankLanding,
 } from "@/lib/rankLandings";
 import {
   VESSEL_LANDINGS, vacancyMatchesVessel, type VesselLanding,
+  vesselOn,
 } from "@/lib/vesselLandings";
+
+export { vesselOn };
 
 // Rank × vessel-type landing pages, at /jobs/rank/<rank>/<vessel> — the
 // "chief engineer bulk carrier jobs" searches. Search Console shows these as
@@ -20,25 +24,6 @@ import {
 // parent pages.
 
 export const MIN_COMBO_VACANCIES = 2;
-
-/** "on bulk carriers", "на балкере" — the vessel as the end of a phrase. */
-export const VESSEL_ON: Record<string, Record<Lang, string>> = {
-  "tanker": { en: "on tankers", ru: "на танкере", ua: "на танкері", pl: "na zbiornikowcu", ro: "pe tancuri petroliere" },
-  "chemical-tanker": { en: "on chemical tankers", ru: "на химовозе", ua: "на хімовозі", pl: "na chemikaliowcu", ro: "pe tancuri chimice" },
-  "bulk-carrier": { en: "on bulk carriers", ru: "на балкере", ua: "на балкері", pl: "na masowcu", ro: "pe vrachiere" },
-  "container-ship": { en: "on container ships", ru: "на контейнеровозе", ua: "на контейнеровозі", pl: "na kontenerowcu", ro: "pe portcontainere" },
-  "general-cargo": { en: "on general cargo / MPP vessels", ru: "на судах генерального груза / MPP", ua: "на суднах генерального вантажу / MPP", pl: "na drobnicowcu / MPP", ro: "pe nave de marfă generală / MPP" },
-  "gas-carrier": { en: "on gas carriers (LNG / LPG)", ru: "на газовозе (LNG / LPG)", ua: "на газовозі (LNG / LPG)", pl: "na gazowcu (LNG / LPG)", ro: "pe nave de gaz (LNG / LPG)" },
-  "car-carrier": { en: "on car carriers (PCTC)", ru: "на автовозе (PCTC)", ua: "на автовозі (PCTC)", pl: "na samochodowcu (PCTC)", ro: "pe nave auto (PCTC)" },
-  "offshore": { en: "on offshore vessels", ru: "на оффшорных судах", ua: "на офшорних суднах", pl: "na statkach offshore", ro: "pe nave offshore" },
-  "cruise-ship": { en: "on cruise ships", ru: "на круизных судах", ua: "на круїзних суднах", pl: "na wycieczkowcach", ro: "pe nave de croazieră" },
-  "ferry": { en: "on ferries (RoPax)", ru: "на пароме (RoPax)", ua: "на поромі (RoPax)", pl: "na promie (RoPax)", ro: "pe feriboturi (RoPax)" },
-  "tug": { en: "on tugs", ru: "на буксире", ua: "на буксирі", pl: "na holowniku", ro: "pe remorchere" },
-};
-
-export function vesselOn(v: VesselLanding, lang: Lang): string {
-  return VESSEL_ON[v.slug]?.[lang] ?? VESSEL_ON[v.slug]?.en ?? v.names.en;
-}
 
 type Matchable = { rank: string | null; vessel_type: string | null; title: string };
 
@@ -63,14 +48,6 @@ export function liveCombos(vacancies: Matchable[]): Combo[] {
 }
 
 // ── Localized copy ───────────────────────────────────────────────────────────
-
-/** Slavic plural: 1 / 21 → one; 2–4 / 22–24 → few; 5–20, 11–14 → many. */
-function slavic(n: number, one: string, few: string, many: string): string {
-  const d = n % 10, h = n % 100;
-  if (d === 1 && h !== 11) return one;
-  if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return few;
-  return many;
-}
 
 // `r` is the rank as named on its own landing, `on` the vessel phrase above.
 type Copy = {

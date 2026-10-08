@@ -15,7 +15,7 @@ import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from 
 import type { Lang } from "@/lib/langs";
 import { money } from "@/lib/format";
 import {
-  RANK_LANDINGS, RANK_COPY, rankLandingBySlug, rankName, vacancyMatchesRank,
+  RANK_LANDINGS, RANK_COPY, rankLandingBySlug, rankName, rankSearchName, vacancyMatchesRank,
 } from "@/lib/rankLandings";
 
 
@@ -78,7 +78,9 @@ export async function generateMetadata(
   if (!landing) return { title: "Not found — SeaJobs.pro" };
   const lang = locale as Lang;
   const copy = RANK_COPY[lang] ?? RANK_COPY.en;
-  const name = rankName(landing, lang);
+  // The title carries the English term as well ("Палубный кадет / Deck Cadet"):
+  // that is what most of the searches for this page are typed in.
+  const name = rankSearchName(landing, lang);
   const path = `/jobs/rank/${slug}`;
   const canonical = canonicalUrl(path, locale);
 
