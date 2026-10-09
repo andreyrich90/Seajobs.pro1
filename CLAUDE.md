@@ -88,6 +88,8 @@ Almost everything lives under `app/(site)/[locale]/`; only the auth screens and 
 | `/seafarers/[id]` | `app/[locale]/seafarers/[id]/` | public seafarer profile (shared with companies) |
 | `/forum`, `/forum/[id]` | `app/[locale]/forum/` | categories + topics/posts, all Supabase |
 | `/news`, `/news/[id]` | `app/[locale]/news/` | hybrid static (`lib/data.ts`) + `news_articles` table |
+| `/guides`, `/guides/[id]` | `app/[locale]/guides/` | career guides — `news_articles` rows with `category = 'guide'` |
+| `/handbook`, `/handbook/[id]` | `app/[locale]/handbook/` | the seafarer's handbook (MARPOL, ISGOTT, …) — `category = 'handbook'`, rendered by the guide pages (see **SEO**) |
 | `/seafarer/*` | `app/[locale]/seafarer/` | dashboard, profile, cv, cv/edit (the whole CV on one screen), certificates, experience, applications, saved, messages |
 | `/company/*` | `app/[locale]/company/` | dashboard, profile, vacancies, applications, seafarers search, messages |
 | `/cv-distribution` | `app/[locale]/cv-distribution/` | the paid CV-distribution service — packages, prices, request form (see **Paid services**) |
@@ -272,11 +274,13 @@ The `@/` path alias resolves to the repository root (configured in `tsconfig.jso
 
 **Guide URLs differ per language, and `lib/guideUrls.ts` is the one place that builds them.** A guide's slug comes from its title in that language, so `/ru/guides/…` and `/pl/guides/…` differ in more than the prefix. The guide page's canonical and hreflang and the sitemap's guide entries all use `guideCanonical()` / `guideAlternates()` / `guideUrl()`; when each built its own, the Russian page announced a Polish URL the Polish page did not consider canonical, and Google drops hreflang clusters like that. A language the guide has no body in (usually pl/ro) shows the English text, so it canonicalises to English and stays out of the cluster and the sitemap. Guide covers in `public/guides/` carry **no text**: one image serves every language, and the page's alt text (the localized title) tells Google the rest.
 
+**The handbook is the guide section run a second time.** `/handbook` holds conventions and codes (MARPOL, ISGOTT) written around what interviews and CES tests ask; guides hold careers and ranks. Both are `news_articles` rows told apart by `category`, and both render through the same files: `guides/guideIndex.tsx` and `guides/[id]/guidePage.tsx` take a `section`, and `GUIDE_SECTIONS` in `lib/guidesUi.ts` maps it to the base path and the chrome (`GUIDES_UI` / `HANDBOOK_UI`). The route files keep only their segment config, because `revalidate` and `generateStaticParams` must be written in the page itself. Every `lib/guideUrls.ts` helper takes the base path, so hreflang and the sitemap stay right under `/handbook` too. An article opened under the wrong section 404s. **The news feed and the home page exclude both categories** (`.not("category", "in", "(guide,handbook)")`), and so does the sitemap's news list. Add a third category and these need it as well, or its articles leak into the news. Handbook covers live in `public/handbook/`. The desktop header row has no width left, so the handbook is reached from a tab on both indexes, the footer and the mobile menu.
+
 `lib/seo.ts` builds hreflang `alternates.languages` maps and OpenGraph locale codes per route, used in every `[locale]` layout's `generateMetadata`. `app/sitemap.ts` and `app/robots.ts` are dynamic route handlers (not static files). Job and news detail pages have dedicated `opengraph-image.tsx`/`twitter-image.tsx` route handlers for per-item social cards. URL slugs are `<slugified-title>-<uuid>` (`lib/slug.ts`); always look records up by the trailing UUID, never by the slug text, so old/edited-title links keep resolving.
 
 ### Caching
 
-Public pages are cached and revalidated, not rendered per request. The numbers follow how fast each page's content actually changes: home and the rank/vessel/country landings **300s**, forum **60s** (a reply should appear while its author is still looking), news **600s**, salaries **1800s**, guides **3600s**, a company profile **600s**, a vacancy **300s**.
+Public pages are cached and revalidated, not rendered per request. The numbers follow how fast each page's content actually changes: home and the rank/vessel/country landings **300s**, forum **60s** (a reply should appear while its author is still looking), news **600s**, salaries **1800s**, guides and the handbook **3600s**, a company profile **600s**, a vacancy **300s**.
 
 Two rules worth keeping:
 
@@ -297,7 +301,7 @@ All are `"use client"`. The reused ones worth knowing:
 - `LangProvider.tsx` — provides `useLang()`; wrap-around for the whole locale tree (see i18n above).
 - `JobCard.tsx` / `PopularJobLinks.tsx` — vacancy card and the internal-linking block to rank/vessel SEO landing pages (same URLs the sitemap treats as landing pages).
 - `MessagesView.tsx` + `ChatPanel.tsx` — the shared company↔seafarer DM UI (`conversations`/`chat_messages`), rendered inside both dashboards' `messages` pages.
-- `MarkdownEditor.tsx` — toolbar textarea used for forum/news authoring; its output is rendered by `lib/markdown.tsx`, a small hand-rolled Markdown renderer (bold/italic/strike/links/images/lists), not a Markdown library.
+- `MarkdownEditor.tsx` — toolbar textarea used for forum/news authoring; its output is rendered by `lib/markdown.tsx`, a small hand-rolled Markdown renderer (bold/italic/strike/links/images/lists), not a Markdown library. Our own articles get three more blocks: `:: ` lines make a boxed summary, `!! value | label` lines a row of key-number cards, and `?? question` followed by `=> answer` a self-check whose answers fold open. All three are switched off under `{ ugc: true }`, so in comments those lines stay plain text.
 - `ApplicantCvModal.tsx` — company-facing applicant CV preview; `ContactForm.tsx`, `CookieBanner.tsx`.
 - `ShareBar.tsx` / `ArticleComments.tsx` — the share row and the comment thread under both news and guides. The share URL must be the page's canonical URL in the reader's language (guides get it from the server via `guideCanonical()`, because their slug differs per language). Comments live in `news_comments` under `article_id = db-<uuid>` for database rows. Anyone may post, so comments render with `renderMarkdown(text, { ugc: true })`: links become `nofollow ugc` and http(s)-only, images become links. Admins see a delete button; the `is_admin()` delete policy (`20261009000000_news_comments_admin_delete.sql`) is the actual gate.
 

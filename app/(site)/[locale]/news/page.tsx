@@ -37,7 +37,8 @@ export default async function NewsPage() {
     .from("news_articles")
     .select("id, title, body, tag, cover_gradient, cover_url, published_at, created_at")
     .eq("is_published", true)
-    .neq("category", "guide")
+    // Guides and the handbook have sections of their own.
+    .not("category", "in", "(guide,handbook)")
     .order("published_at", { ascending: false });
 
   return <NewsClient initialDbArticles={(data ?? []) as DbArticle[]} />;

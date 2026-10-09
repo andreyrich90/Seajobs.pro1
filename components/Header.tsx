@@ -7,9 +7,9 @@ import { usePathname } from "next/navigation";
 import {
   Anchor, Globe, ChevronDown, ChevronRight, LogIn, Briefcase, MessageSquare,
   Newspaper, LayoutDashboard, Menu, X, ShieldCheck, UserPlus, Sun, Moon,
-  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp, Mail, FileText } from "lucide-react";
+  Ship, Wind, Sailboat, Waves, Fish, BookOpen, TrendingUp, Mail, FileText, Library } from "lucide-react";
 import { LANGS } from "@/lib/langs";
-import { GUIDES_UI } from "@/lib/guidesUi";
+import { GUIDES_UI, HANDBOOK_UI } from "@/lib/guidesUi";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { useTheme } from "@/components/ThemeProvider";
@@ -340,6 +340,13 @@ export default function Header() {
                   <n.icon size={18} /> {n.label}
                 </Link>
               ))}
+              {/* The handbook has no room in the desktop row (see the width
+                  note there); on desktop it is a tab on /guides and in the
+                  footer. A phone has the room. */}
+              <Link href="/handbook"
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-foam transition hover:bg-white/5 hover:text-brassInk">
+                <Library size={18} /> {(HANDBOOK_UI[lang] ?? HANDBOOK_UI.en).h1}
+              </Link>
               {/* The utility strip is desktop-only, so this is where a phone
                   reaches the CV distribution and the employers page. "About" is
                   in the footer. The CV page is already in `nav` above. */}
