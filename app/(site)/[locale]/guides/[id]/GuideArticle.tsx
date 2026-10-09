@@ -8,6 +8,9 @@ import PopularJobLinks from "@/components/PopularJobLinks";
 import { useLang } from "@/components/LangProvider";
 import { GUIDES_UI } from "@/lib/guidesUi";
 import { renderMarkdown } from "@/lib/markdown";
+import { extractId } from "@/lib/slug";
+import ShareBar from "@/components/ShareBar";
+import ArticleComments from "@/components/ArticleComments";
 
 export type ResolvedGuide = {
   id: string;
@@ -19,7 +22,10 @@ export type ResolvedGuide = {
   date: string;
 };
 
-export default function GuideArticle({ guide }: { guide: ResolvedGuide }) {
+// `shareUrl` is the guide's canonical URL in the reader's language, worked out
+// on the server (lib/guideUrls.ts) — the slug differs per language, so the
+// client cannot rebuild it from the URL it was given.
+export default function GuideArticle({ guide, shareUrl }: { guide: ResolvedGuide; shareUrl: string }) {
   const { lang } = useLang();
   const ui = GUIDES_UI[lang] ?? GUIDES_UI.en;
 
@@ -67,8 +73,14 @@ export default function GuideArticle({ guide }: { guide: ResolvedGuide }) {
           {renderMarkdown(guide.body)}
         </article>
 
+        <ShareBar url={shareUrl} title={guide.title} />
+
         {/* Internal links to job landing pages */}
         <PopularJobLinks variant="section" />
+
+        {/* Guides are news_articles rows, so their comments use the same key
+            the news page would: db-<uuid>. */}
+        <ArticleComments commentKey={`db-${extractId(guide.id) ?? guide.id}`} />
       </div>
       <Footer />
     </div>

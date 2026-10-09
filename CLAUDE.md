@@ -299,6 +299,7 @@ All are `"use client"`. The reused ones worth knowing:
 - `MessagesView.tsx` + `ChatPanel.tsx` — the shared company↔seafarer DM UI (`conversations`/`chat_messages`), rendered inside both dashboards' `messages` pages.
 - `MarkdownEditor.tsx` — toolbar textarea used for forum/news authoring; its output is rendered by `lib/markdown.tsx`, a small hand-rolled Markdown renderer (bold/italic/strike/links/images/lists), not a Markdown library.
 - `ApplicantCvModal.tsx` — company-facing applicant CV preview; `ContactForm.tsx`, `CookieBanner.tsx`.
+- `ShareBar.tsx` / `ArticleComments.tsx` — the share row and the comment thread under both news and guides. The share URL must be the page's canonical URL in the reader's language (guides get it from the server via `guideCanonical()`, because their slug differs per language). Comments live in `news_comments` under `article_id = db-<uuid>` for database rows. Anyone may post, so comments render with `renderMarkdown(text, { ugc: true })`: links become `nofollow ugc` and http(s)-only, images become links. Admins see a delete button; the `is_admin()` delete policy (`20261009000000_news_comments_admin_delete.sql`) is the actual gate.
 
 ### Conventions / gotchas
 

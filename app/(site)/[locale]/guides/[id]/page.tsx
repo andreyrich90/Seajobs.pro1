@@ -137,7 +137,7 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
-      <GuideArticle guide={clientGuide} />
+      <GuideArticle guide={clientGuide} shareUrl={gCanonical} />
     </>
   );
 }

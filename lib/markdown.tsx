@@ -1,6 +1,15 @@
 import { Fragment, type ReactNode } from "react";
 
-function renderInline(text: string): ReactNode[] {
+// Options for content written by visitors rather than by us (comments).
+// `ugc` marks every link nofollow/ugc, so a spam comment cannot borrow the
+// page's standing with search engines; refuses any scheme but http(s); and
+// shows an image as a plain link instead of loading it from wherever the
+// visitor pointed it.
+export type MarkdownOptions = { ugc?: boolean };
+
+const SAFE_HREF = /^https?:\/\//i;
+
+function renderInline(text: string, opts: MarkdownOptions = {}): ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|~~[^~]+~~|!\[[^\]]*\]\([^)]+\)|\[[^\]]+\]\([^)]+\))/);
   return parts.map((part, i) => {
     if (!part) return null;
@@ -15,12 +24,21 @@ function renderInline(text: string): ReactNode[] {
     }
     const image = part.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (image) {
+      if (opts.ugc) {
+        if (!SAFE_HREF.test(image[2])) return <Fragment key={i}>{image[1]}</Fragment>;
+        return (
+          <a key={i} href={image[2]} target="_blank" rel="nofollow ugc noopener noreferrer" className="text-brassInk underline hover:text-brass">
+            {image[1] || image[2]}
+          </a>
+        );
+      }
       return <img key={i} src={image[2]} alt={image[1]} className="my-2 max-w-full rounded-lg" />;
     }
     const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (link) {
+      if (opts.ugc && !SAFE_HREF.test(link[2])) return <Fragment key={i}>{link[1]}</Fragment>;
       return (
-        <a key={i} href={link[2]} target="_blank" rel="noopener noreferrer" className="text-brassInk underline hover:text-brass">
+        <a key={i} href={link[2]} target="_blank" rel={opts.ugc ? "nofollow ugc noopener noreferrer" : "noopener noreferrer"} className="text-brassInk underline hover:text-brass">
           {link[1]}
         </a>
       );
@@ -29,11 +47,11 @@ function renderInline(text: string): ReactNode[] {
   });
 }
 
-function withLineBreaks(text: string): ReactNode[] {
+function withLineBreaks(text: string, opts: MarkdownOptions = {}): ReactNode[] {
   return text.split("\n").map((line, i) => (
     <Fragment key={i}>
       {i > 0 && <br />}
-      {renderInline(line)}
+      {renderInline(line, opts)}
     </Fragment>
   ));
 }
@@ -72,7 +90,7 @@ function normalizeBlocks(content: string): string {
 }
 
 /** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, "---" rules, **bold**, *italic*, ~~strike~~, [text](url), ![alt](url). */
-export function renderMarkdown(content: string): ReactNode[] {
+export function renderMarkdown(content: string, opts: MarkdownOptions = {}): ReactNode[] {
   const blocks = normalizeBlocks(content).split(/\n\n+/);
   return blocks.map((block, bi) => {
     const trimmed = block.trim();
@@ -92,27 +110,27 @@ export function renderMarkdown(content: string): ReactNode[] {
     if (lines.every((l) => l.startsWith("> "))) {
       return (
         <blockquote key={bi} className="mb-5 border-l-2 border-brass/40 pl-4 text-sm italic leading-7 text-mist last:mb-0">
-          {withLineBreaks(lines.map((l) => l.slice(2)).join("\n"))}
+          {withLineBreaks(lines.map((l) => l.slice(2)).join("\n"), opts)}
         </blockquote>
       );
     }
     if (lines.every((l) => /^[-*]\s/.test(l))) {
       return (
         <ul key={bi} className="mb-5 list-disc space-y-1 pl-5 text-sm leading-7 text-foam last:mb-0">
-          {lines.map((l, li) => <li key={li}>{renderInline(l.replace(/^[-*]\s/, ""))}</li>)}
+          {lines.map((l, li) => <li key={li}>{renderInline(l.replace(/^[-*]\s/, ""), opts)}</li>)}
         </ul>
       );
     }
     if (lines.every((l) => /^\d+\.\s/.test(l))) {
       return (
         <ol key={bi} className="mb-5 list-decimal space-y-1 pl-5 text-sm leading-7 text-foam last:mb-0">
-          {lines.map((l, li) => <li key={li}>{renderInline(l.replace(/^\d+\.\s/, ""))}</li>)}
+          {lines.map((l, li) => <li key={li}>{renderInline(l.replace(/^\d+\.\s/, ""), opts)}</li>)}
         </ol>
       );
     }
     return (
       <p key={bi} className="mb-5 text-sm leading-7 text-foam last:mb-0">
-        {withLineBreaks(trimmed)}
+        {withLineBreaks(trimmed, opts)}
       </p>
     );
   });
