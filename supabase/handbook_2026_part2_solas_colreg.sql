@@ -1,0 +1,1079 @@
+-- The seafarer's handbook, part 2 (category = 'handbook'): SOLAS and COLREG,
+-- in the same format as part 1 (MARPOL, ISGOTT) — "::" summary box, "!!"
+-- key-number cards, "??"/"=>" self-check.
+--
+-- Facts, SOLAS 1974 (in force 25 May 1980) with the LSA and FSS Codes:
+-- application (international voyages; cargo ships from 500 GT, chapter IV
+-- from 300 GT); chapters I–XV (XV, the IP Code, from 1 July 2024); III/19
+-- drills (monthly abandon ship and fire drill, the 25% / 24 h rule, on-board
+-- training within two weeks, lifeboat launched with crew every 3 months,
+-- rescue boat monthly / at least every 3 months, enclosed space drill every
+-- 2 months), III/30 weekly drills on passenger ships; general emergency
+-- alarm 7 + 1; launching within 10 min (cargo) / 30 min (passenger);
+-- lifejacket donned in 1 min, immersion suit in 2 min, 4.5 m jump;
+-- lifebuoys 8–14 by length, one line each side of at least 30 m; lifeboat
+-- water 3 l / liferaft 1.5 l per person, 4 rocket parachute flares, 6 hand
+-- flares, 2 smoke signals; 12 rocket flares on the bridge; EPIRB, SART /
+-- AIS-SART, 3 VHF from 500 GT; HRU at no more than 4 m; weekly 3-minute
+-- engine run, monthly checklist, annual thorough examination (MSC.402(96)),
+-- liferaft service 12 months, falls turned 30 months / renewed 5 years;
+-- hooks replaced by 1 July 2019 (III/1.5); two firefighter's outfits and two
+-- EEBDs on cargo ships; emergency generator within 45 s; PSSC 12 months.
+-- COLREG 1972 (in force 15 July 1977, Part F 2016): Rules 2, 5–10, 13–19,
+-- 22 (6/3 nm and 5/2 nm; 3 nm under 20 m), 21 arcs, 23–30 lights and shapes,
+-- 34–35 sound signals. No salary figures.
+--
+-- en + ru + ua + pl. Covers are set at the end — run after the deploy that
+-- adds public/handbook/{solas,colreg}.png.
+-- Idempotent — guarded by the English title.
+
+-- ── H1. SOLAS ─────────────────────────────────────────────────────────────────
+INSERT INTO news_articles (title, body, tag, category, cover_gradient, is_published, published_at)
+SELECT
+  jsonb_build_object(
+    'en', 'SOLAS in plain words: drills, life-saving appliances and interview questions',
+    'ru', 'SOLAS простыми словами: учения, спасательные средства и вопросы на собеседовании',
+    'ua', 'SOLAS простими словами: навчання, рятувальні засоби та питання на співбесіді',
+    'pl', 'SOLAS w prostych słowach: ćwiczenia, środki ratunkowe i pytania na rozmowie'),
+  jsonb_build_object(
+    'en', $en$SOLAS is the convention behind the muster list on the bulkhead, the lifejacket in your cabin and the alarm that calls you to a drill on a Sunday afternoon. It is the oldest and broadest of the maritime conventions, and the part every seafarer meets daily — life-saving appliances and drills — is also the part every crewing interview asks about. This page gives the structure of the convention, the numbers asked most often, what to do when the alarm sounds, the mistakes that hurt people during drills, and questions to test yourself.
+
+:: **In short**
+:: - SOLAS 1974 is the IMO convention on the safety of life at sea. Its chapters cover construction, fire, life-saving appliances, radio, navigation, cargoes, the ISM and ISPS Codes.
+:: - The general emergency alarm is seven or more short blasts followed by one long blast.
+:: - Every crew member takes part in an abandon ship drill and a fire drill every month.
+:: - A lifejacket goes on in one minute and an immersion suit in two — without help.
+
+## What SOLAS is
+
+The first SOLAS was adopted in 1914, two years after the Titanic. New versions followed in 1929, 1948 and 1960; the one in force today is the 1974 convention, in force since 25 May 1980 and amended almost every year since. Amendments enter into force by "tacit acceptance": they apply on a set date unless enough states object, which is why SOLAS keeps up with technology faster than most treaties.
+
+It applies to ships on international voyages: passenger ships of any size and cargo ships of 500 GT and above. Some chapters reach further — the radio chapter starts at 300 GT, and the navigation chapter applies to almost every ship on every voyage. Port state control checks it in every port.
+
+## The chapters
+
+- **I — General provisions:** surveys and certificates.
+- **II-1 — Construction:** subdivision and stability, machinery, electrical installations.
+- **II-2 — Fire protection, detection and extinction**, with the FSS Code.
+- **III — Life-saving appliances and arrangements**, with the LSA Code.
+- **IV — Radiocommunications:** the GMDSS.
+- **V — Safety of navigation:** bridge equipment, AIS, VDR, ECDIS, pilot ladders, manning.
+- **VI and VII — Cargoes and dangerous goods**, through the IMSBC, IMDG, IBC and IGC Codes.
+- **VIII — Nuclear ships.**
+- **IX — Management for the safe operation of ships:** the ISM Code.
+- **X — High-speed craft.**
+- **XI-1 and XI-2 — Special measures for safety and for security:** the IMO number, the Continuous Synopsis Record, the ISPS Code.
+- **XII — Additional measures for bulk carriers.**
+- **XIII and XIV — Verification of compliance, and ships in polar waters** (the Polar Code).
+- **XV — Ships carrying industrial personnel** (the IP Code, since 2024).
+
+## Key numbers
+
+!! 7 + 1 | short blasts and one long: the general emergency alarm
+!! monthly | abandon ship drill and fire drill for every crew member
+!! 24 h | to hold drills after sailing if over 25% of the crew are new
+!! 3 months | each lifeboat launched and manoeuvred with its crew
+!! 10 min | to launch every survival craft on a cargo ship (30 on a passenger ship)
+!! 2 months | enclosed space entry and rescue drill
+
+## Drills: what Chapter III requires
+
+- Every crew member with emergency duties must know them before the voyage begins.
+- Every crew member takes part in at least one abandon ship drill and one fire drill every month.
+- If more than 25% of the crew have not taken part in drills on that ship in the previous month, the drills are held within 24 hours of leaving port.
+- New crew receive on-board training in the ship's life-saving and fire-fighting appliances as soon as possible and no later than two weeks after joining.
+- Each lifeboat is launched with its assigned crew and manoeuvred in the water at least once every three months; free-fall lifeboats follow their own scheme.
+- Rescue boats are launched with their crew and manoeuvred in the water every month as far as is reasonable and practicable, and at least every three months.
+- An enclosed space entry and rescue drill is held at least every two months.
+- The emergency lighting for mustering and abandonment is tested at every abandon ship drill.
+
+On passenger ships an abandon ship drill and a fire drill take place every week. Every drill goes into the log book.
+
+## The alarm and the muster list
+
+The general emergency alarm is **seven or more short blasts followed by one long blast** on the ship's whistle, repeated on the alarm bells. When you hear it, you go to your muster station — not straight to the lifeboat — dressed warmly, with a hat, your lifejacket and, if one is assigned to you, your immersion suit. The order to abandon ship itself is given by the master, by voice.
+
+The **muster list** is posted on the bridge, in the engine room and in the crew accommodation before the ship sails. For every person it gives the station and the duty in each emergency, and who replaces whom if someone is missing. Most companies also put a card with your duties in your cabin. The first thing to do after joining a ship is to find your name on it.
+
+## Life-saving appliances you should know by heart
+
+- **Lifejackets:** one for every person on board, with extras at the watch stations, each with a light and a whistle. A lifejacket must be put on correctly within one minute without help and allow a jump into the water from at least 4.5 metres.
+- **Immersion suits:** on cargo ships, one for every person on board. It must be possible to put one on without help within two minutes.
+- **Lifebuoys:** from 8 to 14 on a cargo ship, depending on length. At least one on each side carries a buoyant line of at least 30 metres; at least half have self-igniting lights; at least two of those also have self-activating smoke signals and can be released quickly from the bridge — for a man overboard.
+- **Survival craft:** on a cargo ship they are counted twice over — lifeboats (or one free-fall boat at the stern) for everyone on board, and liferafts for everyone again. All of them must be launchable with their full complement within 10 minutes of the abandon ship signal; on a passenger ship, within 30 minutes.
+- **Lifeboat stores**, among other things: 3 litres of water per person (part may be replaced by a desalting apparatus), food rations, 4 rocket parachute flares, 6 hand flares and 2 buoyant smoke signals. A liferaft carries 1.5 litres of water per person and the same pyrotechnics.
+- **On or near the bridge:** at least 12 rocket parachute flares.
+- **Radio life-saving appliances:** a float-free EPIRB on 406 MHz; a radar transponder (SART) or AIS-SART on each side (one on cargo ships from 300 to 499 GT); at least three portable two-way VHF sets on ships of 500 GT and above.
+- **Liferaft release:** the hydrostatic release unit frees the raft at a depth of no more than 4 metres; the raft floats up, the painter pulls it open, and the weak link breaks so the sinking ship cannot drag it down.
+
+**Maintenance.** Weekly: a visual inspection of survival craft, rescue boats and launching gear, the lifeboat and rescue boat engines run ahead and astern for at least 3 minutes, and a test of the general alarm. Monthly: an inspection against a checklist, recorded in the log. Every year: a thorough examination of lifeboats, rescue boats, davits and release gear by an authorised service provider. Liferafts go ashore for service every 12 months; lifeboat falls are turned end for end at least every 30 months and renewed at least every 5 years.
+
+## Fire, emergency power and training in brief
+
+Fire drills are monthly, together with the abandon ship drills. The fire control plan hangs in the accommodation; a cargo ship carries at least two firefighter's outfits and at least two emergency escape breathing devices (EEBD) in the accommodation, with more in the engine room. The emergency generator must start by itself and take the load within 45 seconds of a blackout.
+
+Every seafarer holds STCW basic training — personal survival techniques, fire prevention and fire fighting, elementary first aid, personal safety and social responsibility — and refreshes the first two every five years. The crew of the lifeboats hold a certificate of proficiency in survival craft and rescue boats.
+
+## Certificates and documents port state control asks for
+
+- the Cargo Ship Safety Construction, Safety Equipment (with its record of equipment, Form E) and Safety Radio Certificates — or one combined Cargo Ship Safety Certificate; issued for up to five years and endorsed at annual and periodical surveys;
+- on passenger ships, the Passenger Ship Safety Certificate, valid for 12 months;
+- the Safety Management Certificate and the company's Document of Compliance (ISM), the International Ship Security Certificate (ISPS), the Minimum Safe Manning Document;
+- the muster list, the training manual (in the mess rooms and recreation rooms or in each cabin), the fire control plan, the LSA and fire-fighting maintenance records, drill entries in the log.
+
+Fire safety and life-saving appliances are consistently among the commonest deficiencies port state control finds. An inspector will often ask a crew member to start the lifeboat engine, put on an immersion suit or explain their duty from the muster list.
+
+## What they ask at the interview
+
+- **Ratings (AB, OS, motorman, cook):** the general alarm signal; your muster station and duty; putting on a lifejacket and an immersion suit; what is in a lifeboat; launching a liferaft; how the hydrostatic release works.
+- **Deck officers:** drill frequencies and the 25% / 24-hour rule; the LSA maintenance schedule; launch times; what Form E is; who looks after life-saving and fire-fighting equipment on board.
+- **Engineers:** the lifeboat engine and its weekly run, the emergency fire pump, the emergency generator and its 45 seconds.
+- **Cooks and stewards:** a galley fire (never water on burning fat); on passenger ships, guiding passengers to the muster stations.
+- **Everyone:** "What do you do when you hear seven short and one long?"
+
+## Common mistakes
+
+1. Not reading the muster list after joining. "What is your duty?" is the first thing an inspector asks.
+2. Treating drills as a box to tick. A real share of lifeboat accidents happen during drills, often with on-load release hooks that were wrongly reset; since 2014 hooks that did not meet the new requirements had to be replaced, by 2019 at the latest.
+3. The wrong immersion suit: wrong size, zip not closed, hood not on, or stored where you cannot reach it.
+4. A lifejacket with the ties left loose. In a jump from height it rides up into your face.
+5. A liferaft that cannot float free: an HRU painted over, extra lashings, the painter tied straight to the ship instead of through the weak link.
+6. Fire doors wedged open and escape routes blocked with stores.
+
+## Test yourself
+
+?? What is the general emergency alarm signal?
+=> Seven or more short blasts followed by one long blast on the ship's whistle and the alarm bells.
+?? How often does each crew member take part in an abandon ship drill and a fire drill?
+=> At least once a month. If more than 25% of the crew are new to the ship, drills are held within 24 hours of leaving port.
+?? How quickly must you be able to put on a lifejacket and an immersion suit?
+=> A lifejacket within one minute, an immersion suit within two — both without help.
+?? How often is a lifeboat launched with its crew and manoeuvred in the water?
+=> At least once every three months, during an abandon ship drill.
+?? At what depth does the hydrostatic release unit free the liferaft?
+=> At no more than 4 metres. The raft floats up, the painter pulls it open, and the weak link breaks.
+?? How many rocket parachute flares are carried on or near the bridge?
+=> At least 12.
+
+## Who on board needs this
+
+Everyone — from the [ordinary seaman](/jobs/rank/ordinary-seaman) and the [cook](/jobs/rank/cook) to the [master](/jobs/rank/master). The life-saving and fire-fighting equipment is usually looked after by the [third officer](/jobs/rank/3rd-officer) with the [bosun](/jobs/rank/bosun); the lifeboat engine and the emergency generator by the engine room, often the [third engineer](/jobs/rank/3rd-engineer). On [cruise ships](/jobs/vessel/cruise-ship) and [ferries](/jobs/vessel/ferry) drills are weekly and mustering passengers is a job in itself.
+
+Your basic training certificates and their expiry dates belong in your [maritime CV](/maritime-cv): crewing checks them first.
+
+*Source: SOLAS 1974, consolidated edition, with the LSA and FSS Codes and the amendments in force at the time of writing. Flag states and companies may require more; on board, the ship's muster list and training manual prevail. This page is a study aid, not a legal text.*$en$,
+    'ru', $ru$SOLAS — это конвенция, из-за которой на переборке висит расписание по тревогам, в каюте лежит спасательный жилет, а в воскресенье после обеда вас поднимает учебная тревога. Это самая старая и самая широкая из морских конвенций, и та её часть, с которой моряк сталкивается каждый день, — спасательные средства и учения — это то, о чём спрашивают на любом собеседовании в крюинге. Здесь — устройство конвенции, цифры, которые спрашивают чаще всего, что делать по тревоге, ошибки, из-за которых люди травмируются на учениях, и вопросы для самопроверки.
+
+:: **Коротко**
+:: - SOLAS 1974 — конвенция ИМО по охране человеческой жизни на море. Её главы — конструкция, пожарная безопасность, спасательные средства, радиосвязь, навигация, грузы, кодексы ISM и ISPS.
+:: - Общесудовая тревога — семь или больше коротких звуков и один продолжительный.
+:: - Каждый член экипажа раз в месяц участвует в учении по оставлению судна и в пожарном учении.
+:: - Спасательный жилет надевают за одну минуту, гидрокостюм — за две, без посторонней помощи.
+
+## Что такое SOLAS
+
+Первую SOLAS приняли в 1914 году, через два года после гибели «Титаника». Потом были версии 1929, 1948 и 1960 годов; действует конвенция 1974 года — в силе с 25 мая 1980 года, и поправки к ней принимают почти каждый год. Поправки вступают в силу по «молчаливому согласию»: они начинают действовать в назначенную дату, если против не возразило достаточно государств. Поэтому SOLAS успевает за техникой быстрее большинства договоров.
+
+Конвенция действует для судов в международных рейсах: для пассажирских судов любого размера и для грузовых от 500 GT. Некоторые главы шире — глава о радиосвязи начинается с 300 GT, а глава о безопасности мореплавания касается почти любого судна в любом рейсе. Портовый контроль проверяет её в каждом порту.
+
+## Главы конвенции
+
+- **I — Общие положения:** освидетельствования и свидетельства.
+- **II-1 — Конструкция:** деление на отсеки и остойчивость, механизмы, электрооборудование.
+- **II-2 — Противопожарная защита, обнаружение и тушение пожара**, вместе с Кодексом FSS.
+- **III — Спасательные средства и устройства**, вместе с Кодексом LSA.
+- **IV — Радиосвязь:** ГМССБ.
+- **V — Безопасность мореплавания:** оборудование мостика, АИС, РДП (VDR), ЭКНИС, лоцманские трапы, укомплектование экипажем.
+- **VI и VII — Грузы и опасные грузы**, через кодексы IMSBC, IMDG, IBC и IGC.
+- **VIII — Атомные суда.**
+- **IX — Управление безопасной эксплуатацией судов:** Кодекс ISM.
+- **X — Высокоскоростные суда.**
+- **XI-1 и XI-2 — Особые меры безопасности и охраны:** номер ИМО, журнал непрерывной регистрации истории судна, Кодекс ISPS.
+- **XII — Дополнительные меры для навалочных судов.**
+- **XIII и XIV — Проверка соблюдения и суда в полярных водах** (Полярный кодекс).
+- **XV — Суда, перевозящие производственный персонал** (Кодекс IP, с 2024 года).
+
+## Главные цифры
+
+!! 7 + 1 | коротких звуков и один продолжительный — общесудовая тревога
+!! ежемесячно | учения по оставлению судна и пожарное для каждого члена экипажа
+!! 24 ч | на учения после выхода, если больше 25% экипажа новые
+!! 3 месяца | каждую шлюпку спускают и маневрируют на воде с экипажем
+!! 10 мин | на спуск всех спасательных средств на грузовом судне (30 — на пассажирском)
+!! 2 месяца | учение по входу в замкнутое помещение и спасению
+
+## Учения: что требует глава III
+
+- Каждый член экипажа с обязанностями по тревогам должен знать их до начала рейса.
+- Каждый член экипажа не реже раза в месяц участвует в учении по оставлению судна и в пожарном учении.
+- Если больше 25% экипажа не участвовали в учениях на этом судне в предыдущем месяце, учения проводят в течение 24 часов после выхода из порта.
+- Новый член экипажа проходит на борту подготовку по спасательным и противопожарным средствам судна как можно скорее и не позже чем через две недели после прибытия.
+- Каждую спасательную шлюпку не реже раза в три месяца спускают на воду с назначенным экипажем и маневрируют на ней; у шлюпок свободного падения своя схема.
+- Дежурную шлюпку спускают с экипажем и маневрируют на воде ежемесячно, насколько это разумно и практически возможно, и не реже раза в три месяца.
+- Учение по входу в замкнутое помещение и спасению из него — не реже раза в два месяца.
+- Аварийное освещение мест сбора и посадки проверяют на каждом учении по оставлению судна.
+
+На пассажирских судах учение по оставлению судна и пожарное учение проводят каждую неделю. Каждое учение записывают в судовой журнал.
+
+## Тревога и расписание по тревогам
+
+Общесудовая тревога — **семь или больше коротких звуков и один продолжительный** судовым свистком и колоколами громкого боя. Услышав её, идите к своему месту сбора — а не сразу к шлюпке — тепло одетым, в шапке, со спасательным жилетом и, если он за вами закреплён, с гидрокостюмом. Саму команду оставить судно даёт капитан голосом.
+
+**Расписание по тревогам** вывешивают на мостике, в машинном отделении и в жилых помещениях экипажа до выхода судна в рейс. Для каждого человека в нём указано место и обязанности при каждой тревоге и кто кого заменяет, если человека нет. Большинство компаний кладёт в каюту ещё и карточку с вашими обязанностями. Первое, что нужно сделать, прибыв на судно, — найти в расписании свою фамилию.
+
+## Спасательные средства, которые нужно знать наизусть
+
+- **Спасательные жилеты:** на каждого человека на борту плюс запасные на вахтенных постах, у каждого — огонь и свисток. Жилет должен надеваться правильно за одну минуту без посторонней помощи и позволять прыгнуть в воду с высоты не меньше 4,5 метра.
+- **Гидрокостюмы:** на грузовых судах — на каждого человека на борту. Надеть его без посторонней помощи должно быть возможно за две минуты.
+- **Спасательные круги:** на грузовом судне от 8 до 14 в зависимости от длины. Минимум один с каждого борта — с плавучим линём длиной не меньше 30 метров; не меньше половины — с самозажигающимися огнями; минимум два из них — ещё и с самодействующими дымовыми шашками и быстрым сбросом с мостика, на случай «человек за бортом».
+- **Спасательные средства** на грузовом судне считают дважды: шлюпки (или одна шлюпка свободного падения на корме) — на всех, кто на борту, и плоты — ещё раз на всех. Все они должны спускаться с полным комплектом людей в течение 10 минут после сигнала оставить судно; на пассажирском — в течение 30 минут.
+- **Снабжение шлюпки**, среди прочего: 3 литра воды на человека (часть можно заменить опреснителем), пищевой рацион, 4 ракеты-парашюта, 6 фальшфейеров и 2 плавучих дымовых сигнала. В плоту — 1,5 литра воды на человека и та же пиротехника.
+- **На мостике или рядом:** не меньше 12 ракет-парашютов.
+- **Радиосредства:** свободно всплывающий АРБ на 406 МГц; радиолокационный ответчик (SART) или AIS-SART на каждом борту (на грузовых судах от 300 до 499 GT — один); не меньше трёх носимых УКВ-радиостанций на судах от 500 GT.
+- **Сброс плота:** гидростат освобождает плот на глубине не больше 4 метров; плот всплывает, фалинь раскрывает его, а слабое звено рвётся, чтобы тонущее судно не утянуло плот за собой.
+
+**Обслуживание.** Еженедельно: внешний осмотр спасательных и дежурных шлюпок и спусковых устройств, запуск двигателей шлюпок на передний и задний ход в сумме не меньше 3 минут, проверка общесудовой тревоги. Ежемесячно: осмотр по контрольному листу с записью в журнал. Ежегодно: тщательное освидетельствование шлюпок, дежурных шлюпок, шлюпбалок и разобщающих устройств уполномоченной сервисной компанией. Плоты сдают на берег на обслуживание каждые 12 месяцев; шлюпочные лопари переворачивают концами не реже раза в 30 месяцев и меняют не реже раза в 5 лет.
+
+## Пожар, аварийное питание и подготовка коротко
+
+Пожарные учения — ежемесячно, вместе с учениями по оставлению судна. План противопожарной защиты висит в жилых помещениях; на грузовом судне не меньше двух комплектов снаряжения пожарного и не меньше двух аварийных дыхательных устройств для эвакуации (EEBD) в жилых помещениях, плюс ещё в машинном отделении. Аварийный дизель-генератор должен запуститься сам и принять нагрузку в течение 45 секунд после обесточивания.
+
+У каждого моряка есть базовая подготовка по ПДНВ — выживание на море, предотвращение пожара и борьба с ним, элементарная первая помощь, личная безопасность и общественные обязанности, — и первые два курса нужно обновлять каждые пять лет. Шлюпочная команда имеет свидетельство о специальной подготовке по спасательным шлюпкам, плотам и дежурным шлюпкам.
+
+## Свидетельства и документы, которые спросит портовый контроль
+
+- свидетельства о безопасности грузового судна по конструкции, по оборудованию (с перечнем оборудования, форма E) и по радиооборудованию — или одно общее свидетельство о безопасности грузового судна; выдаются на срок до пяти лет и подтверждаются на ежегодных и периодических освидетельствованиях;
+- на пассажирских судах — свидетельство о безопасности пассажирского судна, действует 12 месяцев;
+- свидетельство об управлении безопасностью и документ о соответствии компании (ISM), международное свидетельство об охране судна (ISPS), свидетельство о минимальном составе экипажа;
+- расписание по тревогам, наставление по подготовке (в столовых и комнатах отдыха или в каждой каюте), план противопожарной защиты, записи об обслуживании спасательных и противопожарных средств, записи об учениях в журнале.
+
+Противопожарная защита и спасательные средства стабильно входят в число самых частых замечаний портового контроля. Инспектор нередко просит члена экипажа запустить двигатель шлюпки, надеть гидрокостюм или рассказать свои обязанности по расписанию.
+
+## Что спрашивают на собеседовании
+
+- **Рядовой состав (AB, OS, моторист, повар):** сигнал общесудовой тревоги; ваше место сбора и обязанности; как надеть жилет и гидрокостюм; что есть в шлюпке; как спустить плот; как работает гидростат.
+- **Палубные помощники:** периодичность учений и правило 25% / 24 часа; график обслуживания спасательных средств; время на спуск; что такое форма E; кто на судне отвечает за спасательные и противопожарные средства.
+- **Механики:** двигатель шлюпки и его еженедельный запуск, аварийный пожарный насос, аварийный дизель-генератор и его 45 секунд.
+- **Повара и стюарды:** пожар на камбузе (горящий жир никогда не тушат водой); на пассажирских судах — как проводить пассажиров к местам сбора.
+- **Все:** «Что вы делаете, когда слышите семь коротких и один длинный?»
+
+## Частые ошибки
+
+1. Не прочитать расписание по тревогам после прибытия. «Какие у вас обязанности?» — первый вопрос инспектора.
+2. Относиться к учениям как к галочке. Заметная часть несчастных случаев со шлюпками происходит именно на учениях, часто из-за неправильно взведённых гаков с отдачей под нагрузкой; с 2014 года гаки, не отвечающие новым требованиям, нужно было заменить, самое позднее к 2019-му.
+3. Не тот гидрокостюм: не по размеру, молния не застёгнута, капюшон не надет, или он лежит там, куда не добраться.
+4. Жилет с незатянутыми завязками. При прыжке с высоты он задирается в лицо.
+5. Плот, который не сможет всплыть: закрашенный гидростат, лишние найтовы, фалинь, привязанный прямо к судну, а не через слабое звено.
+6. Противопожарные двери, подпёртые клином, и аварийные выходы, заставленные снабжением.
+
+## Проверь себя
+
+?? Какой сигнал общесудовой тревоги?
+=> Семь или больше коротких звуков и один продолжительный судовым свистком и колоколами громкого боя.
+?? Как часто каждый член экипажа участвует в учении по оставлению судна и в пожарном учении?
+=> Не реже раза в месяц. Если больше 25% экипажа новые на этом судне, учения проводят в течение 24 часов после выхода из порта.
+?? За какое время нужно уметь надеть спасательный жилет и гидрокостюм?
+=> Жилет — за одну минуту, гидрокостюм — за две, оба без посторонней помощи.
+?? Как часто спасательную шлюпку спускают с экипажем и маневрируют на воде?
+=> Не реже раза в три месяца, во время учения по оставлению судна.
+?? На какой глубине гидростат освобождает плот?
+=> Не глубже 4 метров. Плот всплывает, фалинь раскрывает его, слабое звено рвётся.
+?? Сколько ракет-парашютов хранят на мостике или рядом с ним?
+=> Не меньше 12.
+
+## Кому на борту это нужно
+
+Всем — от [матроса OS](/ru/jobs/rank/ordinary-seaman) и [повара](/ru/jobs/rank/cook) до [капитана](/ru/jobs/rank/master). Спасательные и противопожарные средства обычно ведёт [третий помощник](/ru/jobs/rank/3rd-officer) вместе с [боцманом](/ru/jobs/rank/bosun); двигатель шлюпки и аварийный дизель-генератор — машинная команда, часто [третий механик](/ru/jobs/rank/3rd-engineer). На [круизных судах](/ru/jobs/vessel/cruise-ship) и [паромах](/ru/jobs/vessel/ferry) учения еженедельные, а сбор пассажиров — отдельная работа.
+
+Свидетельства базовой подготовки и сроки их действия впишите в [резюме моряка](/ru/maritime-cv): крюинг проверяет их первыми.
+
+*Источник: SOLAS 1974, сводное издание, с кодексами LSA и FSS и поправками, действующими на момент написания. Флаг и компания могут требовать больше; на борту действуют судовое расписание по тревогам и наставление по подготовке. Эта страница — пособие для подготовки, а не юридический текст.*$ru$,
+    'ua', $ua$SOLAS — це конвенція, через яку на перебірці висить розклад за тривогами, у каюті лежить рятувальний жилет, а в неділю після обіду вас піднімає навчальна тривога. Це найстаріша й найширша з морських конвенцій, і та її частина, з якою моряк стикається щодня, — рятувальні засоби й навчання — це те, про що питають на кожній співбесіді в крюїнгу. Тут — будова конвенції, цифри, про які питають найчастіше, що робити за тривогою, помилки, через які люди травмуються на навчаннях, і питання для самоперевірки.
+
+:: **Коротко**
+:: - SOLAS 1974 — конвенція ІМО з охорони людського життя на морі. Її розділи — конструкція, пожежна безпека, рятувальні засоби, радіозв'язок, навігація, вантажі, кодекси ISM та ISPS.
+:: - Загальносуднова тривога — сім або більше коротких звуків і один тривалий.
+:: - Кожен член екіпажу раз на місяць бере участь у навчанні з залишення судна й у пожежному навчанні.
+:: - Рятувальний жилет одягають за одну хвилину, гідрокостюм — за дві, без сторонньої допомоги.
+
+## Що таке SOLAS
+
+Першу SOLAS ухвалили в 1914 році, через два роки після загибелі «Титаніка». Потім були версії 1929, 1948 і 1960 років; чинна конвенція 1974 року — діє з 25 травня 1980 року, і поправки до неї ухвалюють майже щороку. Поправки набувають чинності за «мовчазною згодою»: вони починають діяти в призначену дату, якщо проти не заперечила достатня кількість держав. Тому SOLAS встигає за технікою швидше за більшість договорів.
+
+Конвенція діє для суден у міжнародних рейсах: для пасажирських суден будь-якого розміру й для вантажних від 500 GT. Деякі розділи ширші — розділ про радіозв'язок починається з 300 GT, а розділ про безпеку мореплавства стосується майже будь-якого судна в будь-якому рейсі. Портовий контроль перевіряє її в кожному порту.
+
+## Розділи конвенції
+
+- **I — Загальні положення:** огляди та свідоцтва.
+- **II-1 — Конструкція:** поділ на відсіки й остійність, механізми, електрообладнання.
+- **II-2 — Протипожежний захист, виявлення та гасіння пожежі**, разом із Кодексом FSS.
+- **III — Рятувальні засоби та пристрої**, разом із Кодексом LSA.
+- **IV — Радіозв'язок:** ГМЗЛБ.
+- **V — Безпека мореплавства:** обладнання містка, АІС, РДП (VDR), ЕКНІС, лоцманські трапи, комплектування екіпажу.
+- **VI та VII — Вантажі й небезпечні вантажі**, через кодекси IMSBC, IMDG, IBC та IGC.
+- **VIII — Атомні судна.**
+- **IX — Управління безпечною експлуатацією суден:** Кодекс ISM.
+- **X — Високошвидкісні судна.**
+- **XI-1 та XI-2 — Особливі заходи безпеки та охорони:** номер ІМО, журнал безперервної реєстрації історії судна, Кодекс ISPS.
+- **XII — Додаткові заходи для навалочних суден.**
+- **XIII та XIV — Перевірка дотримання й судна в полярних водах** (Полярний кодекс).
+- **XV — Судна, що перевозять виробничий персонал** (Кодекс IP, з 2024 року).
+
+## Головні цифри
+
+!! 7 + 1 | коротких звуків і один тривалий — загальносуднова тривога
+!! щомісяця | навчання з залишення судна й пожежне для кожного члена екіпажу
+!! 24 год | на навчання після виходу, якщо понад 25% екіпажу нові
+!! 3 місяці | кожну шлюпку спускають і маневрують на воді з екіпажем
+!! 10 хв | на спуск усіх рятувальних засобів на вантажному судні (30 — на пасажирському)
+!! 2 місяці | навчання з входу в замкнене приміщення та рятування
+
+## Навчання: що вимагає розділ III
+
+- Кожен член екіпажу з обов'язками за тривогами має знати їх до початку рейсу.
+- Кожен член екіпажу не рідше ніж раз на місяць бере участь у навчанні з залишення судна та в пожежному навчанні.
+- Якщо понад 25% екіпажу не брали участі в навчаннях на цьому судні попереднього місяця, навчання проводять протягом 24 годин після виходу з порту.
+- Новий член екіпажу проходить на борту підготовку з рятувальних і протипожежних засобів судна якомога швидше й не пізніше ніж через два тижні після прибуття.
+- Кожну рятувальну шлюпку не рідше ніж раз на три місяці спускають на воду з призначеним екіпажем і маневрують на ній; у шлюпок вільного падіння своя схема.
+- Чергову шлюпку спускають з екіпажем і маневрують на воді щомісяця, наскільки це розумно й практично можливо, і не рідше ніж раз на три місяці.
+- Навчання з входу в замкнене приміщення та рятування з нього — не рідше ніж раз на два місяці.
+- Аварійне освітлення місць збору та посадки перевіряють на кожному навчанні з залишення судна.
+
+На пасажирських суднах навчання з залишення судна й пожежне навчання проводять щотижня. Кожне навчання записують у судновий журнал.
+
+## Тривога й розклад за тривогами
+
+Загальносуднова тривога — **сім або більше коротких звуків і один тривалий** судновим свистком і дзвониками громового бою. Почувши її, йдіть до свого місця збору — а не одразу до шлюпки — тепло вдягненим, у шапці, з рятувальним жилетом і, якщо його закріплено за вами, з гідрокостюмом. Саму команду залишити судно дає капітан голосом.
+
+**Розклад за тривогами** вивішують на містку, у машинному відділенні та в житлових приміщеннях екіпажу до виходу судна в рейс. Для кожної людини в ньому вказано місце й обов'язки за кожною тривогою і хто кого заміняє, якщо людини немає. Більшість компаній кладе в каюту ще й картку з вашими обов'язками. Перше, що треба зробити, прибувши на судно, — знайти в розкладі своє прізвище.
+
+## Рятувальні засоби, які треба знати напам'ять
+
+- **Рятувальні жилети:** на кожну людину на борту плюс запасні на вахтових постах, у кожного — вогник і свисток. Жилет має одягатися правильно за одну хвилину без сторонньої допомоги й дозволяти стрибнути у воду з висоти не менше 4,5 метра.
+- **Гідрокостюми:** на вантажних суднах — на кожну людину на борту. Одягнути його без сторонньої допомоги має бути можливо за дві хвилини.
+- **Рятувальні круги:** на вантажному судні від 8 до 14 залежно від довжини. Щонайменше один з кожного борту — з плавучим лінем завдовжки не менше 30 метрів; не менше половини — із самозапальними вогнями; щонайменше два з них — ще й із самодіючими димовими шашками та швидким скиданням з містка, на випадок «людина за бортом».
+- **Рятувальні засоби** на вантажному судні рахують двічі: шлюпки (або одна шлюпка вільного падіння на кормі) — на всіх, хто на борту, і плоти — ще раз на всіх. Усі вони мають спускатися з повним комплектом людей протягом 10 хвилин після сигналу залишити судно; на пасажирському — протягом 30 хвилин.
+- **Постачання шлюпки**, серед іншого: 3 літри води на людину (частину можна замінити опріснювачем), харчовий раціон, 4 ракети-парашути, 6 фальшфеєрів і 2 плавучі димові сигнали. У плоті — 1,5 літра води на людину й та сама піротехніка.
+- **На містку або поруч:** не менше 12 ракет-парашутів.
+- **Радіозасоби:** АРБ на 406 МГц, що вільно спливає; радіолокаційний відповідач (SART) або AIS-SART на кожному борту (на вантажних суднах від 300 до 499 GT — один); не менше трьох носимих УКХ-радіостанцій на суднах від 500 GT.
+- **Скидання плота:** гідростат звільняє пліт на глибині не більше 4 метрів; пліт спливає, фалінь розкриває його, а слабка ланка рветься, щоб судно, що тоне, не потягло пліт за собою.
+
+**Обслуговування.** Щотижня: зовнішній огляд рятувальних і чергових шлюпок та спускових пристроїв, запуск двигунів шлюпок на передній і задній хід загалом не менше 3 хвилин, перевірка загальносуднової тривоги. Щомісяця: огляд за контрольним листом із записом у журнал. Щороку: ретельний огляд шлюпок, чергових шлюпок, шлюпбалок і роз'єднувальних пристроїв уповноваженою сервісною компанією. Плоти здають на берег на обслуговування кожні 12 місяців; шлюпкові лопарі перевертають кінцями не рідше ніж раз на 30 місяців і замінюють не рідше ніж раз на 5 років.
+
+## Пожежа, аварійне живлення й підготовка коротко
+
+Пожежні навчання — щомісяця, разом із навчаннями з залишення судна. План протипожежного захисту висить у житлових приміщеннях; на вантажному судні не менше двох комплектів спорядження пожежника й не менше двох аварійних дихальних пристроїв для евакуації (EEBD) у житлових приміщеннях, плюс ще в машинному відділенні. Аварійний дизель-генератор має запуститися сам і прийняти навантаження протягом 45 секунд після знеструмлення.
+
+У кожного моряка є базова підготовка за ПДНВ — виживання на морі, запобігання пожежі та боротьба з нею, елементарна перша допомога, особиста безпека й громадські обов'язки, — і перші два курси треба оновлювати кожні п'ять років. Шлюпкова команда має свідоцтво про спеціальну підготовку з рятувальних шлюпок, плотів і чергових шлюпок.
+
+## Свідоцтва й документи, які запитає портовий контроль
+
+- свідоцтва про безпеку вантажного судна за конструкцією, за обладнанням (з переліком обладнання, форма E) і за радіообладнанням — або одне загальне свідоцтво про безпеку вантажного судна; видаються на строк до п'яти років і підтверджуються на щорічних і періодичних оглядах;
+- на пасажирських суднах — свідоцтво про безпеку пасажирського судна, чинне 12 місяців;
+- свідоцтво про управління безпекою й документ про відповідність компанії (ISM), міжнародне свідоцтво про охорону судна (ISPS), свідоцтво про мінімальний склад екіпажу;
+- розклад за тривогами, посібник з підготовки (в їдальнях і кімнатах відпочинку або в кожній каюті), план протипожежного захисту, записи про обслуговування рятувальних і протипожежних засобів, записи про навчання в журналі.
+
+Протипожежний захист і рятувальні засоби стабільно входять до найчастіших зауважень портового контролю. Інспектор нерідко просить члена екіпажу запустити двигун шлюпки, одягнути гідрокостюм або розповісти свої обов'язки за розкладом.
+
+## Що питають на співбесіді
+
+- **Рядовий склад (AB, OS, моторист, кухар):** сигнал загальносуднової тривоги; ваше місце збору й обов'язки; як одягнути жилет і гідрокостюм; що є в шлюпці; як спустити пліт; як працює гідростат.
+- **Палубні помічники:** періодичність навчань і правило 25% / 24 години; графік обслуговування рятувальних засобів; час на спуск; що таке форма E; хто на судні відповідає за рятувальні й протипожежні засоби.
+- **Механіки:** двигун шлюпки та його щотижневий запуск, аварійний пожежний насос, аварійний дизель-генератор і його 45 секунд.
+- **Кухарі та стюарди:** пожежа на камбузі (палаючий жир ніколи не гасять водою); на пасажирських суднах — як провести пасажирів до місць збору.
+- **Усі:** «Що ви робите, коли чуєте сім коротких і один довгий?»
+
+## Типові помилки
+
+1. Не прочитати розклад за тривогами після прибуття. «Які у вас обов'язки?» — перше питання інспектора.
+2. Ставитися до навчань як до галочки. Помітна частина нещасних випадків зі шлюпками стається саме на навчаннях, часто через неправильно зведені гаки з віддачею під навантаженням; з 2014 року гаки, що не відповідають новим вимогам, треба було замінити, найпізніше до 2019-го.
+3. Не той гідрокостюм: не за розміром, блискавка не застебнута, каптур не вдягнутий, або він лежить там, куди не дістатися.
+4. Жилет із незатягнутими зав'язками. Під час стрибка з висоти він задирається в обличчя.
+5. Пліт, який не зможе спливти: зафарбований гідростат, зайві найтови, фалінь, прив'язаний просто до судна, а не через слабку ланку.
+6. Протипожежні двері, підперті клином, і аварійні виходи, заставлені постачанням.
+
+## Перевір себе
+
+?? Який сигнал загальносуднової тривоги?
+=> Сім або більше коротких звуків і один тривалий судновим свистком і дзвониками громового бою.
+?? Як часто кожен член екіпажу бере участь у навчанні з залишення судна та в пожежному навчанні?
+=> Не рідше ніж раз на місяць. Якщо понад 25% екіпажу нові на цьому судні, навчання проводять протягом 24 годин після виходу з порту.
+?? За який час треба вміти одягнути рятувальний жилет і гідрокостюм?
+=> Жилет — за одну хвилину, гідрокостюм — за дві, обидва без сторонньої допомоги.
+?? Як часто рятувальну шлюпку спускають з екіпажем і маневрують на воді?
+=> Не рідше ніж раз на три місяці, під час навчання з залишення судна.
+?? На якій глибині гідростат звільняє пліт?
+=> Не глибше 4 метрів. Пліт спливає, фалінь розкриває його, слабка ланка рветься.
+?? Скільки ракет-парашутів зберігають на містку або поруч із ним?
+=> Не менше 12.
+
+## Кому на борту це потрібно
+
+Усім — від [матроса OS](/ua/jobs/rank/ordinary-seaman) і [кухаря](/ua/jobs/rank/cook) до [капітана](/ua/jobs/rank/master). Рятувальні й протипожежні засоби зазвичай веде [третій помічник](/ua/jobs/rank/3rd-officer) разом із [боцманом](/ua/jobs/rank/bosun); двигун шлюпки й аварійний дизель-генератор — машинна команда, часто [третій механік](/ua/jobs/rank/3rd-engineer). На [круїзних суднах](/ua/jobs/vessel/cruise-ship) і [поромах](/ua/jobs/vessel/ferry) навчання щотижневі, а збір пасажирів — окрема робота.
+
+Свідоцтва базової підготовки та строки їхньої дії впишіть у [резюме моряка](/ua/maritime-cv): крюїнг перевіряє їх першими.
+
+*Джерело: SOLAS 1974, зведене видання, з кодексами LSA та FSS і поправками, чинними на момент написання. Прапор і компанія можуть вимагати більше; на борту діють судновий розклад за тривогами й посібник з підготовки. Ця сторінка — посібник для підготовки, а не юридичний текст.*$ua$,
+    'pl', $pl$SOLAS to konwencja, przez którą na grodzi wisi rozkład alarmowy, w kabinie leży pas ratunkowy, a w niedzielę po obiedzie podrywa cię alarm ćwiczebny. To najstarsza i najszersza z konwencji morskich, a ta jej część, z którą marynarz styka się codziennie — środki ratunkowe i ćwiczenia — jest tym, o co pytają na każdej rozmowie w agencji crewingowej. Tutaj znajdziesz budowę konwencji, liczby, o które pytają najczęściej, co robić po usłyszeniu alarmu, błędy, przez które ludzie odnoszą obrażenia na ćwiczeniach, oraz pytania do sprawdzenia się.
+
+:: **W skrócie**
+:: - SOLAS 1974 to konwencja IMO o bezpieczeństwie życia na morzu. Jej rozdziały to budowa, ochrona przeciwpożarowa, środki ratunkowe, łączność, nawigacja, ładunki, kodeksy ISM i ISPS.
+:: - Alarm ogólny to siedem lub więcej krótkich dźwięków i jeden długi.
+:: - Każdy członek załogi raz w miesiącu bierze udział w ćwiczeniu opuszczania statku i w ćwiczeniu przeciwpożarowym.
+:: - Pas ratunkowy zakłada się w minutę, ubranie zanurzeniowe w dwie — bez pomocy innych.
+
+## Czym jest SOLAS
+
+Pierwszą konwencję SOLAS przyjęto w 1914 roku, dwa lata po zatonięciu Titanica. Potem przyszły wersje z 1929, 1948 i 1960 roku; obowiązuje konwencja z 1974 roku — w mocy od 25 maja 1980 roku i zmieniana niemal co roku. Poprawki wchodzą w życie w trybie „milczącej akceptacji”: zaczynają obowiązywać w wyznaczonym dniu, jeśli nie sprzeciwi się dość państw. Dlatego SOLAS nadąża za techniką szybciej niż większość traktatów.
+
+Konwencja dotyczy statków w podróżach międzynarodowych: statków pasażerskich każdej wielkości i statków towarowych od 500 GT. Niektóre rozdziały sięgają dalej — rozdział o łączności zaczyna się od 300 GT, a rozdział o bezpieczeństwie żeglugi dotyczy niemal każdego statku w każdej podróży. Inspekcja państwa portu sprawdza ją w każdym porcie.
+
+## Rozdziały konwencji
+
+- **I — Postanowienia ogólne:** przeglądy i świadectwa.
+- **II-1 — Budowa:** podział na przedziały i stateczność, maszyny, urządzenia elektryczne.
+- **II-2 — Ochrona przeciwpożarowa, wykrywanie i gaszenie pożarów**, razem z Kodeksem FSS.
+- **III — Środki i urządzenia ratunkowe**, razem z Kodeksem LSA.
+- **IV — Łączność radiowa:** GMDSS.
+- **V — Bezpieczeństwo żeglugi:** wyposażenie mostka, AIS, VDR, ECDIS, sztormtrapy pilotowe, obsada.
+- **VI i VII — Ładunki i towary niebezpieczne**, przez kodeksy IMSBC, IMDG, IBC i IGC.
+- **VIII — Statki o napędzie jądrowym.**
+- **IX — Zarządzanie bezpieczną eksploatacją statków:** Kodeks ISM.
+- **X — Jednostki szybkie.**
+- **XI-1 i XI-2 — Szczególne środki bezpieczeństwa i ochrony:** numer IMO, zapis ciągłej historii statku, Kodeks ISPS.
+- **XII — Dodatkowe środki dla masowców.**
+- **XIII i XIV — Weryfikacja zgodności oraz statki na wodach polarnych** (Kodeks polarny).
+- **XV — Statki przewożące personel przemysłowy** (Kodeks IP, od 2024 roku).
+
+## Najważniejsze liczby
+
+!! 7 + 1 | krótkich dźwięków i jeden długi — alarm ogólny
+!! co miesiąc | ćwiczenie opuszczania statku i przeciwpożarowe dla każdego członka załogi
+!! 24 h | na ćwiczenia po wyjściu, jeśli ponad 25% załogi jest nowa
+!! 3 miesiące | każdą łódź opuszcza się i manewruje nią na wodzie z załogą
+!! 10 min | na opuszczenie wszystkich środków ratunkowych na statku towarowym (30 na pasażerskim)
+!! 2 miesiące | ćwiczenie wejścia do przestrzeni zamkniętej i ratowania
+
+## Ćwiczenia: czego wymaga rozdział III
+
+- Każdy członek załogi z obowiązkami alarmowymi musi je znać przed rozpoczęciem podróży.
+- Każdy członek załogi co najmniej raz w miesiącu bierze udział w ćwiczeniu opuszczania statku i w ćwiczeniu przeciwpożarowym.
+- Jeśli ponad 25% załogi nie brało udziału w ćwiczeniach na tym statku w poprzednim miesiącu, ćwiczenia przeprowadza się w ciągu 24 godzin od wyjścia z portu.
+- Nowy członek załogi przechodzi na statku szkolenie z obsługi środków ratunkowych i przeciwpożarowych jak najszybciej, nie później niż dwa tygodnie po zaokrętowaniu.
+- Każdą łódź ratunkową co najmniej raz na trzy miesiące opuszcza się na wodę z wyznaczoną załogą i manewruje nią; łodzie swobodnego spadania mają własny schemat.
+- Łódź ratowniczą opuszcza się z załogą i manewruje nią na wodzie co miesiąc, o ile jest to rozsądne i wykonalne, i co najmniej raz na trzy miesiące.
+- Ćwiczenie wejścia do przestrzeni zamkniętej i ratowania z niej — co najmniej raz na dwa miesiące.
+- Oświetlenie awaryjne miejsc zbiórki i zaokrętowania sprawdza się na każdym ćwiczeniu opuszczania statku.
+
+Na statkach pasażerskich ćwiczenie opuszczania statku i ćwiczenie przeciwpożarowe odbywają się co tydzień. Każde ćwiczenie wpisuje się do dziennika okrętowego.
+
+## Alarm i rozkład alarmowy
+
+Alarm ogólny to **siedem lub więcej krótkich dźwięków i jeden długi** na syrenie statkowej, powtórzone dzwonkami alarmowymi. Słysząc go, idziesz do swojego miejsca zbiórki — nie od razu do łodzi — ciepło ubrany, w czapce, z pasem ratunkowym i, jeśli jest do ciebie przypisane, z ubraniem zanurzeniowym. Sam rozkaz opuszczenia statku wydaje kapitan, głosem.
+
+**Rozkład alarmowy** wywiesza się na mostku, w maszynowni i w pomieszczeniach mieszkalnych załogi przed wyjściem statku w morze. Dla każdej osoby podaje miejsce i obowiązki przy każdym alarmie oraz kto kogo zastępuje, jeśli kogoś brakuje. Większość armatorów kładzie też w kabinie kartę z twoimi obowiązkami. Pierwsza rzecz po zaokrętowaniu — znaleźć w rozkładzie swoje nazwisko.
+
+## Środki ratunkowe, które trzeba znać na pamięć
+
+- **Pasy ratunkowe:** dla każdej osoby na statku plus zapasowe na stanowiskach wachtowych, każdy ze światełkiem i gwizdkiem. Pas musi dać się prawidłowo założyć w ciągu minuty bez pomocy i pozwalać na skok do wody z wysokości co najmniej 4,5 metra.
+- **Ubrania zanurzeniowe:** na statkach towarowych — dla każdej osoby na statku. Musi dać się je założyć bez pomocy w ciągu dwóch minut.
+- **Koła ratunkowe:** na statku towarowym od 8 do 14, zależnie od długości. Co najmniej jedno na każdej burcie ma pływającą linkę o długości co najmniej 30 metrów; co najmniej połowa ma samozapalające się światła; co najmniej dwa z nich mają też samoczynne sygnały dymne i szybkie zwalnianie z mostka — na wypadek „człowiek za burtą”.
+- **Środki ratunkowe** na statku towarowym liczy się podwójnie: łodzie (albo jedna łódź swobodnego spadania na rufie) dla wszystkich na statku i tratwy — jeszcze raz dla wszystkich. Wszystkie muszą dać się opuścić z pełną obsadą w ciągu 10 minut od sygnału opuszczenia statku; na statku pasażerskim — w ciągu 30 minut.
+- **Wyposażenie łodzi**, między innymi: 3 litry wody na osobę (część można zastąpić odsalarką), racje żywnościowe, 4 rakiety spadochronowe, 6 pochodni ręcznych i 2 pływające sygnały dymne. Tratwa ma 1,5 litra wody na osobę i tę samą pirotechnikę.
+- **Na mostku lub obok:** co najmniej 12 rakiet spadochronowych.
+- **Radiowe środki ratunkowe:** swobodnie wypływająca radiopława EPIRB 406 MHz; transponder radarowy (SART) lub AIS-SART na każdej burcie (na statkach towarowych od 300 do 499 GT — jeden); co najmniej trzy przenośne radiotelefony UKF na statkach od 500 GT.
+- **Zwalnianie tratwy:** zwalniak hydrostatyczny uwalnia tratwę na głębokości nie większej niż 4 metry; tratwa wypływa, fangalina ją otwiera, a słabe ogniwo pęka, żeby tonący statek nie pociągnął jej za sobą.
+
+**Obsługa.** Co tydzień: oględziny łodzi ratunkowych i ratowniczych oraz urządzeń do opuszczania, praca silników łodzi naprzód i wstecz łącznie co najmniej 3 minuty, próba alarmu ogólnego. Co miesiąc: przegląd według listy kontrolnej z wpisem do dziennika. Co rok: dokładne badanie łodzi, łodzi ratowniczych, żurawików i urządzeń zwalniających przez upoważniony serwis. Tratwy oddaje się na ląd do serwisu co 12 miesięcy; liny talii łodziowych odwraca się końcami co najmniej raz na 30 miesięcy i wymienia co najmniej raz na 5 lat.
+
+## Pożar, zasilanie awaryjne i szkolenia w skrócie
+
+Ćwiczenia przeciwpożarowe — co miesiąc, razem z ćwiczeniami opuszczania statku. Plan ochrony przeciwpożarowej wisi w części mieszkalnej; statek towarowy ma co najmniej dwa komplety ekwipunku strażackiego i co najmniej dwa awaryjne aparaty ucieczkowe (EEBD) w pomieszczeniach mieszkalnych, a kolejne w maszynowni. Awaryjny zespół prądotwórczy musi uruchomić się sam i przejąć obciążenie w ciągu 45 sekund od zaniku zasilania.
+
+Każdy marynarz ma podstawowe szkolenie STCW — indywidualne techniki ratunkowe, ochrona przeciwpożarowa i walka z pożarem, elementarna pierwsza pomoc, bezpieczeństwo własne i odpowiedzialność wspólna — i pierwsze dwa kursy odnawia co pięć lat. Załoga łodzi ma świadectwo przeszkolenia w zakresie łodzi i tratw ratunkowych oraz łodzi ratowniczych.
+
+## Świadectwa i dokumenty, o które zapyta inspekcja państwa portu
+
+- świadectwa bezpieczeństwa konstrukcji, wyposażenia (z wykazem wyposażenia, formularz E) i radiowe statku towarowego — albo jedno łączne świadectwo bezpieczeństwa statku towarowego; wydawane na okres do pięciu lat i potwierdzane na przeglądach corocznych i okresowych;
+- na statkach pasażerskich — świadectwo bezpieczeństwa statku pasażerskiego, ważne 12 miesięcy;
+- świadectwo zarządzania bezpieczeństwem i dokument zgodności armatora (ISM), międzynarodowe świadectwo ochrony statku (ISPS), certyfikat bezpiecznej obsady;
+- rozkład alarmowy, podręcznik szkoleniowy (w mesach i świetlicach albo w każdej kabinie), plan ochrony przeciwpożarowej, zapisy obsługi środków ratunkowych i przeciwpożarowych, wpisy o ćwiczeniach w dzienniku.
+
+Ochrona przeciwpożarowa i środki ratunkowe stale należą do najczęstszych uchybień wykrywanych przez inspekcję państwa portu. Inspektor często prosi członka załogi, by uruchomił silnik łodzi, założył ubranie zanurzeniowe albo powiedział, jakie ma obowiązki według rozkładu.
+
+## O co pytają na rozmowie
+
+- **Załoga szeregowa (AB, OS, motorzysta, kucharz):** sygnał alarmu ogólnego; twoje miejsce zbiórki i obowiązki; jak założyć pas i ubranie zanurzeniowe; co jest w łodzi; jak zwodować tratwę; jak działa zwalniak hydrostatyczny.
+- **Oficerowie pokładowi:** częstotliwość ćwiczeń i zasada 25% / 24 godziny; harmonogram obsługi środków ratunkowych; czas opuszczenia; czym jest formularz E; kto na statku odpowiada za środki ratunkowe i przeciwpożarowe.
+- **Mechanicy:** silnik łodzi i jego cotygodniowe uruchamianie, awaryjna pompa pożarowa, awaryjny zespół prądotwórczy i jego 45 sekund.
+- **Kucharze i stewardzi:** pożar w kambuzie (płonącego tłuszczu nigdy nie gasi się wodą); na statkach pasażerskich — jak poprowadzić pasażerów do miejsc zbiórki.
+- **Wszyscy:** „Co robisz, gdy słyszysz siedem krótkich i jeden długi?”
+
+## Typowe błędy
+
+1. Nieprzeczytanie rozkładu alarmowego po zaokrętowaniu. „Jakie masz obowiązki?” to pierwsze pytanie inspektora.
+2. Traktowanie ćwiczeń jak odhaczenia. Znaczna część wypadków z łodziami zdarza się właśnie na ćwiczeniach, często przez źle zamknięte haki zwalniane pod obciążeniem; od 2014 roku haki niespełniające nowych wymagań trzeba było wymienić, najpóźniej do 2019 roku.
+3. Niewłaściwe ubranie zanurzeniowe: zły rozmiar, niezapięty zamek, niezałożony kaptur albo schowane tam, gdzie nie da się sięgnąć.
+4. Pas z niezawiązanymi troczkami. Przy skoku z wysokości podjeżdża pod twarz.
+5. Tratwa, która nie wypłynie: zamalowany zwalniak, dodatkowe przewiązki, fangalina przywiązana wprost do statku, a nie przez słabe ogniwo.
+6. Drzwi przeciwpożarowe zablokowane klinem i drogi ucieczki zastawione zapasami.
+
+## Sprawdź się
+
+?? Jaki jest sygnał alarmu ogólnego?
+=> Siedem lub więcej krótkich dźwięków i jeden długi na syrenie statkowej i dzwonkach alarmowych.
+?? Jak często każdy członek załogi bierze udział w ćwiczeniu opuszczania statku i w ćwiczeniu przeciwpożarowym?
+=> Co najmniej raz w miesiącu. Jeśli ponad 25% załogi jest nowa na tym statku, ćwiczenia odbywają się w ciągu 24 godzin od wyjścia z portu.
+?? W jakim czasie trzeba umieć założyć pas ratunkowy i ubranie zanurzeniowe?
+=> Pas — w ciągu minuty, ubranie zanurzeniowe — w ciągu dwóch, oba bez pomocy.
+?? Jak często łódź ratunkową opuszcza się z załogą i manewruje nią na wodzie?
+=> Co najmniej raz na trzy miesiące, podczas ćwiczenia opuszczania statku.
+?? Na jakiej głębokości zwalniak hydrostatyczny uwalnia tratwę?
+=> Nie większej niż 4 metry. Tratwa wypływa, fangalina ją otwiera, słabe ogniwo pęka.
+?? Ile rakiet spadochronowych przechowuje się na mostku lub obok niego?
+=> Co najmniej 12.
+
+## Komu na statku to potrzebne
+
+Wszystkim — od [marynarza OS](/pl/jobs/rank/ordinary-seaman) i [kucharza](/pl/jobs/rank/cook) po [kapitana](/pl/jobs/rank/master). Środkami ratunkowymi i przeciwpożarowymi zwykle zajmuje się [trzeci oficer](/pl/jobs/rank/3rd-officer) razem z [bosmanem](/pl/jobs/rank/bosun); silnikiem łodzi i awaryjnym zespołem prądotwórczym — maszynownia, często [trzeci mechanik](/pl/jobs/rank/3rd-engineer). Na [wycieczkowcach](/pl/jobs/vessel/cruise-ship) i [promach](/pl/jobs/vessel/ferry) ćwiczenia są cotygodniowe, a zbiórka pasażerów to osobna praca.
+
+Świadectwa szkolenia podstawowego i ich daty ważności wpisz do [CV marynarza](/pl/maritime-cv): agencje crewingowe sprawdzają je najpierw.
+
+*Źródło: SOLAS 1974, wydanie skonsolidowane, z kodeksami LSA i FSS oraz poprawkami obowiązującymi w chwili pisania. Bandera i armator mogą wymagać więcej; na statku obowiązują rozkład alarmowy i podręcznik szkoleniowy. Ta strona to pomoc do nauki, a nie tekst prawny.*$pl$),
+  'SOLAS', 'handbook',
+  'linear-gradient(135deg,#0e2a45,#a9491f)',
+  true, '2026-10-09 12:00:00+00'
+WHERE NOT EXISTS (SELECT 1 FROM news_articles WHERE title->>'en' = 'SOLAS in plain words: drills, life-saving appliances and interview questions');
+
+-- ── H2. COLREG ────────────────────────────────────────────────────────────────
+INSERT INTO news_articles (title, body, tag, category, cover_gradient, is_published, published_at)
+SELECT
+  jsonb_build_object(
+    'en', 'COLREG in plain words: who gives way, lights, sound signals and interview questions',
+    'ru', 'МППСС (COLREG) простыми словами: кто уступает, огни, звуковые сигналы и вопросы на собеседовании',
+    'ua', 'МППЗС (COLREG) простими словами: хто поступається, вогні, звукові сигнали та питання на співбесіді',
+    'pl', 'MPZZM (COLREG) w prostych słowach: kto ustępuje, światła, sygnały dźwiękowe i pytania na rozmowie'),
+  jsonb_build_object(
+    'en', $en$COLREG — the International Regulations for Preventing Collisions at Sea — are the rules of the road at sea: who gives way, which lights and shapes a vessel shows, and what a blast on the whistle means. Every deck officer is examined on them for their certificate, and a master interviewing a new officer will often draw lights on a sheet of paper and ask what vessel that is. This page gives the structure of the rules, the rules that decide most encounters, the lights and sound signals asked most often, the traps, and questions to test yourself.
+
+:: **In short**
+:: - COLREG 1972: 41 rules in six parts and four annexes, in force since 15 July 1977.
+:: - The rules that decide most encounters: 5 (look-out), 6 (safe speed), 7 (risk of collision), 8 (action), 13–17 (who gives way) and 19 (restricted visibility).
+:: - In a crossing situation the vessel that has the other on her own starboard side gives way.
+:: - In restricted visibility there is no stand-on vessel: everyone acts.
+
+## What COLREG is
+
+The rules were adopted at IMO in 1972 and came into force on 15 July 1977, replacing the 1960 rules. They made traffic separation schemes part of the rules and have been amended several times since; the latest part, on verifying compliance, was added in 2016. They apply to all vessels on the high seas and in all waters connected to them that seagoing vessels can navigate. A state may have special rules for its harbours, rivers and inland waters, but those must follow COLREG as closely as possible.
+
+Rule 2 sets the tone for all the rest: nothing in the rules excuses neglect of any precaution required by the ordinary practice of seamen, and to avoid immediate danger a vessel may depart from the rules. The rules do not replace seamanship; they assume it.
+
+## How the rules are built
+
+- **Part A — General (Rules 1–3):** application, responsibility and definitions — power-driven and sailing vessel, vessel engaged in fishing, not under command, restricted in her ability to manoeuvre, constrained by her draught, underway, restricted visibility.
+- **Part B — Steering and sailing (Rules 4–19):** conduct in any visibility (4–10), vessels in sight of one another (11–18), restricted visibility (19).
+- **Part C — Lights and shapes (Rules 20–31).**
+- **Part D — Sound and light signals (Rules 32–37).**
+- **Part E — Exemptions (Rule 38).**
+- **Part F — Verification of compliance (Rules 39–41).**
+- **Annexes:** I — position and technical details of lights and shapes; II — additional signals for fishing vessels fishing close together; III — sound signal appliances; IV — distress signals.
+
+## Key numbers
+
+!! 41 | rules in six parts, plus four annexes
+!! 225° | arc of the masthead light; 112.5° for each sidelight, 135° for the sternlight
+!! 6 nm | range of the masthead light on a vessel of 50 metres or more
+!! 22.5° | abaft the beam: coming up from there, you are overtaking
+!! 2 min | the longest interval between fog signals when underway
+!! 5 + | short and rapid blasts: "I doubt your intentions"
+
+## The rules that decide most encounters
+
+- **Rule 5 — Look-out:** at all times, by sight and hearing and by all available means — radar, AIS, listening on VHF.
+- **Rule 6 — Safe speed:** a speed at which you can take proper and effective action and stop within an appropriate distance. It depends on visibility, traffic density, your manoeuvrability, background lights at night, wind, sea and current, draught and the limits of your radar.
+- **Rule 7 — Risk of collision:** if the compass bearing of an approaching vessel does not appreciably change, the risk exists. It may exist even when the bearing changes — with a very large vessel, a tow, or at close range. Do not draw conclusions from scanty information, especially scanty radar information.
+- **Rule 8 — Action to avoid collision:** positive, made in ample time and large enough to be readily apparent to the other vessel, by eye or on radar. Avoid a succession of small alterations. Check that the action works until the other vessel is finally past and clear.
+- **Rule 9 — Narrow channels:** keep as near to the outer limit on your starboard side as is safe and practicable. Vessels under 20 metres and sailing vessels must not impede a vessel that can navigate safely only within the channel.
+- **Rule 10 — Traffic separation schemes:** go with the general direction of traffic in your lane, join and leave at the ends, and if you must cross, do it on a heading as nearly as practicable at right angles to the traffic flow.
+- **Rule 13 — Overtaking:** the overtaking vessel keeps out of the way, whatever kind of vessel either one is. You are overtaking when you come up from more than 22.5° abaft the other vessel's beam — at night you would see only her sternlight. In doubt, assume you are overtaking.
+- **Rule 14 — Head-on:** two power-driven vessels meeting on reciprocal or nearly reciprocal courses each alter course to starboard and pass port to port.
+- **Rule 15 — Crossing:** of two power-driven vessels crossing, the one that has the other on her own starboard side keeps out of the way and, if circumstances admit, avoids crossing ahead of her.
+- **Rule 16 — Give-way vessel:** takes early and substantial action to keep well clear.
+- **Rule 17 — Stand-on vessel:** keeps her course and speed. She may act on her own as soon as it becomes apparent that the give-way vessel is not taking appropriate action, and she must act when collision can no longer be avoided by the give-way vessel alone. In a crossing situation a power-driven stand-on vessel should not alter course to port for a vessel on her own port side, if circumstances admit.
+- **Rule 18 — Responsibilities between vessels:** unless Rules 9, 10 and 13 require otherwise, a power-driven vessel keeps out of the way of a vessel not under command, a vessel restricted in her ability to manoeuvre, a vessel engaged in fishing and a sailing vessel; a sailing vessel keeps out of the way of the first three; a vessel engaged in fishing, as far as possible, of the first two. Every vessel except those two avoids impeding a vessel constrained by her draught.
+- **Rule 19 — Restricted visibility:** for vessels not in sight of one another. Proceed at a safe speed with the engines ready for immediate manoeuvre. There is no give-way or stand-on vessel here — everyone acts. If a vessel detected by radar alone is developing a close-quarters situation, act in ample time, but avoid altering course to port for a vessel forward of the beam (other than one being overtaken) and avoid altering towards a vessel abeam or abaft the beam. On hearing a fog signal apparently forward of the beam, reduce speed to the minimum at which you can keep your course, take all way off if necessary, and navigate with extreme caution until the danger is over.
+
+## Lights and shapes
+
+**Arcs:** masthead light — white, 225°, from right ahead to 22.5° abaft the beam on each side; sidelights — red to port and green to starboard, 112.5° each; sternlight — white, 135°; towing light — yellow, 135°; all-round lights — 360°.
+
+**Ranges** for a vessel of 50 metres or more: masthead light 6 nautical miles, sidelights, sternlight, towing and all-round lights 3 miles. Between 12 and 50 metres: masthead light 5 miles (3 under 20 metres), the others 2 miles. A power-driven vessel of 50 metres or more underway shows two masthead lights, the after one higher.
+
+The lights and shapes asked most (lights all-round unless stated):
+
+- **Not under command:** two red lights in a vertical line; by day two balls. When making way, sidelights and a sternlight as well.
+- **Restricted in her ability to manoeuvre:** red, white, red in a vertical line; by day ball, diamond, ball.
+- **Constrained by her draught:** three red lights in a vertical line, in addition to her normal lights; by day a cylinder.
+- **Engaged in trawling:** green over white. **Engaged in fishing other than trawling:** red over white. By day both show two cones with their points together. When making way, sidelights and a sternlight as well.
+- **Pilot vessel on duty:** white over red.
+- **At anchor:** a white light forward and a second, lower, white light aft (one white light under 50 metres); by day one ball forward.
+- **Aground:** the anchor lights plus two red lights in a vertical line; by day three balls.
+- **Sailing vessel underway:** sidelights and a sternlight, no masthead light; she may also show red over green at the masthead.
+- **Power-driven vessel towing:** two masthead lights in a vertical line (three when the tow is longer than 200 metres), sidelights, sternlight and a yellow towing light above the sternlight; a diamond by day if the tow is longer than 200 metres.
+
+## Sound signals
+
+A short blast lasts about one second, a prolonged blast four to six seconds.
+
+**Vessels in sight of one another:**
+
+- one short — "I am altering my course to starboard";
+- two short — "I am altering my course to port";
+- three short — "I am operating astern propulsion";
+- five or more short and rapid — doubt about the other vessel's intentions or actions;
+- one prolonged — approaching a bend or a stretch of channel where other vessels may be hidden;
+- in a narrow channel, two prolonged and one short — "I intend to overtake you on your starboard side", two prolonged and two short — "on your port side"; the vessel being overtaken agrees with prolonged, short, prolonged, short.
+
+**In restricted visibility**, at intervals of not more than two minutes:
+
+- power-driven vessel making way — one prolonged blast;
+- power-driven vessel underway but stopped — two prolonged blasts;
+- not under command, restricted in her ability to manoeuvre, constrained by her draught, sailing, fishing, towing or pushing — one prolonged and two short;
+- a manned vessel being towed — one prolonged and three short, right after the towing vessel's signal;
+- at anchor — rapid ringing of the bell for about five seconds at intervals of not more than one minute (over 100 metres, a bell forward and a gong aft); she may add one short, one prolonged and one short to warn an approaching vessel;
+- aground — the anchor signal, with three separate and distinct strokes on the bell before and after it.
+
+## What they ask at the interview
+
+- **Cadets and ABs on look-out:** what a look-out is for and how to report a light or a vessel ("light one point on the starboard bow"); the lights of a power-driven vessel; what red over white means; fog signals.
+- **Third and second officers:** Rules 7, 8 and 13–17; head-on and crossing situations recognised at night by lights alone; the difference between not under command, restricted in ability to manoeuvre and constrained by draught; rules for traffic separation schemes; CPA and TCPA from the radar; when to call the master.
+- **Chief officers and masters:** Rule 2, the actions under Rule 17, several targets in restricted visibility, agreeing a passing on VHF and why it is risky, local rules.
+- **CES and similar tests:** the COLREG section is a fixed part of every deck officer test.
+
+## Common mistakes
+
+1. Altering to port in a head-on or close crossing situation "to pass starboard to starboard". Two vessels turning towards each other is the classic collision.
+2. A succession of small alterations the other vessel cannot see on her radar. Rule 8 asks for one early, large and obvious action.
+3. Believing the stand-on vessel "has the right of way" and must hold on regardless. She must act when the give-way vessel alone can no longer avoid the collision.
+4. Applying the "in sight" rules in fog. In restricted visibility there is no stand-on vessel, and an alteration to port for a vessel forward of the beam is to be avoided.
+5. Arranging a passing over VHF instead of following the rules. It costs time, and the voice that answers may belong to another ship.
+6. Trusting AIS alone. Not every vessel transmits, and the data can be wrong; the look-out and the radar come first.
+7. Treating a vessel constrained by her draught as if she were not under command. Others avoid impeding her, but she herself must navigate with particular caution.
+
+## Test yourself
+
+?? Two power-driven vessels are crossing. Which one gives way?
+=> The one that has the other on her own starboard side (Rule 15). If circumstances admit, she avoids crossing ahead.
+?? At night you see a green light over a white light, both all-round. What is it?
+=> A vessel engaged in trawling. Red over white is a vessel engaged in fishing other than trawling.
+?? What do one, two and three short blasts mean?
+=> One — "I am altering my course to starboard", two — "to port", three — "I am operating astern propulsion".
+?? From what direction does a vessel become an overtaking vessel?
+=> When she comes up from more than 22.5° abaft the other vessel's beam. In doubt, assume you are overtaking.
+?? In fog you hear a fog signal apparently forward of your beam. What do you do?
+=> Reduce speed to the minimum at which you can keep your course, take all way off if necessary, and navigate with extreme caution until the danger is over.
+?? What is the range of the masthead light on a vessel of 50 metres or more?
+=> 6 nautical miles; sidelights, sternlight and all-round lights 3 miles.
+
+## Who on board needs this
+
+Deck officers first: the [master](/jobs/rank/master), the [chief officer](/jobs/rank/chief-officer), the [second](/jobs/rank/2nd-officer) and [third officer](/jobs/rank/3rd-officer) are examined on COLREG for their certificate and again at the interview. [Deck cadets](/jobs/rank/deck-cadet) learn it from their first voyage; an [able seaman](/jobs/rank/able-seaman) on look-out has to recognise lights and report them correctly.
+
+Put your watchkeeping certificate and the vessel types you have kept watch on into your [maritime CV](/maritime-cv): that is what a crewing manager reads first for a deck post.
+
+*Source: the International Regulations for Preventing Collisions at Sea, 1972, as amended. This page simplifies the wording of the rules; on the bridge, the full text of the rules and the master's standing orders prevail. It is a study aid, not a legal text.*$en$,
+    'ru', $ru$МППСС-72 (COLREG) — Международные правила предупреждения столкновений судов в море — это правила дорожного движения на море: кто уступает дорогу, какие огни и знаки несёт судно и что означает сигнал свистком. По ним экзаменуют каждого штурмана на диплом, а капитан на собеседовании нередко рисует на листе огни и спрашивает, что это за судно. Здесь — устройство правил, правила, которые решают большинство встреч, огни и звуковые сигналы, о которых спрашивают чаще всего, ловушки и вопросы для самопроверки.
+
+:: **Коротко**
+:: - МППСС-72: 41 правило в шести частях и четыре приложения, в силе с 15 июля 1977 года.
+:: - Большинство встреч решают правила 5 (наблюдение), 6 (безопасная скорость), 7 (опасность столкновения), 8 (действия), 13–17 (кто уступает) и 19 (ограниченная видимость).
+:: - При пересечении курсов уступает то судно, которое видит другое у себя справа.
+:: - При ограниченной видимости нет судна, которому уступают: действуют все.
+
+## Что такое МППСС
+
+Правила приняли в ИМО в 1972 году, в силу они вступили 15 июля 1977 года и заменили правила 1960 года. Они ввели в правила системы разделения движения, с тех пор в них несколько раз вносили поправки; последнюю часть — о проверке соблюдения — добавили в 2016 году. Правила действуют для всех судов в открытом море и в соединённых с ним водах, доступных для морских судов. Государство может установить особые правила для своих портов, рек и внутренних вод, но они должны как можно ближе следовать МППСС.
+
+Правило 2 задаёт тон всем остальным: ничто в правилах не оправдывает пренебрежения мерами, которых требует обычная морская практика, а чтобы избежать непосредственной опасности, судно может отступить от правил. Правила не заменяют хорошую морскую практику — они на неё опираются.
+
+## Как устроены правила
+
+- **Часть A — Общие положения (правила 1–3):** применение, ответственность и определения — судно с механическим двигателем и парусное, судно, занятое ловом рыбы, лишённое возможности управляться, ограниченное в возможности маневрировать, стеснённое своей осадкой, на ходу, ограниченная видимость.
+- **Часть B — Правила плавания и маневрирования (правила 4–19):** плавание при любой видимости (4–10), при нахождении судов в виду друг друга (11–18), при ограниченной видимости (19).
+- **Часть C — Огни и знаки (правила 20–31).**
+- **Часть D — Звуковые и световые сигналы (правила 32–37).**
+- **Часть E — Изъятия (правило 38).**
+- **Часть F — Проверка соблюдения (правила 39–41).**
+- **Приложения:** I — расположение и технические характеристики огней и знаков; II — дополнительные сигналы для судов, ведущих лов вблизи друг друга; III — устройства для подачи звуковых сигналов; IV — сигналы бедствия.
+
+## Главные цифры
+
+!! 41 | правило в шести частях, плюс четыре приложения
+!! 225° | сектор топового огня; 112,5° у каждого бортового, 135° у кормового
+!! 6 миль | дальность видимости топового огня у судна длиной 50 м и больше
+!! 22,5° | позади траверза: подходите оттуда — значит, обгоняете
+!! 2 мин | наибольший интервал между туманными сигналами на ходу
+!! 5 + | коротких частых звуков: «не понимаю ваших намерений»
+
+## Правила, которые решают большинство встреч
+
+- **Правило 5 — Наблюдение:** постоянно, зрительно и на слух, а также всеми доступными средствами — радар, АИС, прослушивание УКВ.
+- **Правило 6 — Безопасная скорость:** такая, при которой можно предпринять надлежащие и эффективные действия и остановиться на нужном расстоянии. Она зависит от видимости, плотности движения, маневренности судна, фоновых огней ночью, ветра, волнения и течения, осадки и ограничений радара.
+- **Правило 7 — Опасность столкновения:** если компасный пеленг приближающегося судна заметно не меняется, опасность существует. Она может существовать и при меняющемся пеленге — с очень большим судном, с буксиром или на близком расстоянии. Не делайте выводов по недостаточной информации, особенно радиолокационной.
+- **Правило 8 — Действия для предупреждения столкновения:** решительные, заблаговременные и достаточно большие, чтобы другое судно сразу их заметило — визуально или на радаре. Избегайте серии мелких изменений. Проверяйте результат, пока другое судно окончательно не пройдёт и не останется позади.
+- **Правило 9 — Узкости:** держитесь как можно ближе к внешней границе прохода с правой стороны, насколько это безопасно и практически возможно. Суда длиной меньше 20 метров и парусные не должны мешать судну, которое может безопасно идти только внутри прохода.
+- **Правило 10 — Системы разделения движения:** идите в общем направлении потока по своей полосе, входите и выходите на концах полосы, а если нужно пересечь — пересекайте курсом, как можно ближе к прямому углу к общему направлению потока.
+- **Правило 13 — Обгон:** обгоняющее судно уступает дорогу, каким бы ни было каждое из судов. Вы обгоняете, если подходите с направления больше 22,5° позади траверза другого судна — ночью вы видели бы только его кормовой огонь. Если сомневаетесь, считайте, что обгоняете.
+- **Правило 14 — Встречные курсы:** два судна с механическим двигателем, идущие прямо или почти прямо друг на друга, каждое отворачивает вправо и расходятся левыми бортами.
+- **Правило 15 — Пересечение курсов:** из двух судов с механическим двигателем, курсы которых пересекаются, уступает то, которое видит другое у себя справа, и, если позволяют обстоятельства, не пересекает курс у него по носу.
+- **Правило 16 — Судно, уступающее дорогу:** действует заблаговременно и решительно, чтобы чисто разойтись.
+- **Правило 17 — Судно, которому уступают:** сохраняет курс и скорость. Оно может действовать само, как только станет ясно, что уступающее судно не предпринимает надлежащих действий, и обязано действовать, когда столкновения уже не избежать действиями одного уступающего судна. При пересечении курсов судно с механическим двигателем, которому уступают, по возможности не должно отворачивать влево на судно, находящееся у него слева.
+- **Правило 18 — Взаимные обязанности судов:** кроме случаев, когда правила 9, 10 и 13 требуют иного, судно с механическим двигателем уступает дорогу судну, лишённому возможности управляться, ограниченному в возможности маневрировать, занятому ловом рыбы и парусному; парусное — первым трём; занятое ловом рыбы по возможности — первым двум. Все суда, кроме этих двух, не должны затруднять проход судну, стеснённому своей осадкой.
+- **Правило 19 — Ограниченная видимость:** для судов, не находящихся в виду друг друга. Безопасная скорость, двигатели готовы к немедленному маневру. Здесь нет ни уступающего судна, ни судна, которому уступают, — действуют все. Если судно, обнаруженное только радаром, создаёт ситуацию чрезмерного сближения, действуйте заблаговременно, но избегайте отворота влево на судно впереди траверза (кроме обгоняемого) и отворота в сторону судна на траверзе или позади него. Услышав туманный сигнал, по-видимому, впереди траверза, уменьшите скорость до минимальной, при которой судно слушается руля, при необходимости погасите инерцию и следуйте с крайней осторожностью, пока опасность не минует.
+
+## Огни и знаки
+
+**Секторы:** топовый огонь — белый, 225°, от прямо по носу до 22,5° позади траверза каждого борта; бортовые — красный слева и зелёный справа, по 112,5°; кормовой — белый, 135°; буксировочный — жёлтый, 135°; круговые огни — 360°.
+
+**Дальность видимости** у судна длиной 50 метров и больше: топовый огонь — 6 миль, бортовые, кормовой, буксировочный и круговые — 3 мили. От 12 до 50 метров: топовый — 5 миль (меньше 20 метров — 3), остальные — 2 мили. Судно с механическим двигателем длиной 50 метров и больше на ходу несёт два топовых огня, задний выше переднего.
+
+Огни и знаки, о которых спрашивают чаще всего (огни круговые, если не сказано иное):
+
+- **Лишённое возможности управляться:** два красных огня по вертикали; днём — два шара. Если имеет ход относительно воды — ещё бортовые и кормовой.
+- **Ограниченное в возможности маневрировать:** красный, белый, красный по вертикали; днём — шар, ромб, шар.
+- **Стеснённое своей осадкой:** три красных огня по вертикали в дополнение к обычным огням; днём — цилиндр.
+- **Занятое тралением:** зелёный над белым. **Занятое ловом рыбы, кроме траления:** красный над белым. Днём у обоих — два конуса, соединённых вершинами. На ходу относительно воды — ещё бортовые и кормовой.
+- **Лоцманское судно при исполнении обязанностей:** белый над красным.
+- **На якоре:** белый огонь в носовой части и второй, ниже, в кормовой (у судна меньше 50 метров — один белый); днём — один шар в носовой части.
+- **На мели:** якорные огни плюс два красных по вертикали; днём — три шара.
+- **Парусное судно на ходу:** бортовые и кормовой, без топового; может нести на топе мачты красный над зелёным.
+- **Судно с механическим двигателем, занятое буксировкой:** два топовых огня по вертикали (три, если длина буксира больше 200 метров), бортовые, кормовой и жёлтый буксировочный над кормовым; днём при буксире длиннее 200 метров — ромб.
+
+## Звуковые сигналы
+
+Короткий звук длится около секунды, продолжительный — от четырёх до шести секунд.
+
+**Суда в виду друг друга:**
+
+- один короткий — «Я изменяю свой курс вправо»;
+- два коротких — «Я изменяю свой курс влево»;
+- три коротких — «Мои движители работают на задний ход»;
+- пять и больше коротких частых — сомнение в намерениях или действиях другого судна;
+- один продолжительный — подход к изгибу или участку прохода, где другие суда могут быть не видны;
+- в узкости два продолжительных и один короткий — «Я намерен обогнать вас по вашему правому борту», два продолжительных и два коротких — «по вашему левому борту»; обгоняемое согласие подаёт так: продолжительный, короткий, продолжительный, короткий.
+
+**При ограниченной видимости**, с интервалами не больше двух минут:
+
+- судно с механическим двигателем, имеющее ход, — один продолжительный звук;
+- на ходу, но без хода относительно воды — два продолжительных;
+- лишённое возможности управляться, ограниченное в возможности маневрировать, стеснённое осадкой, парусное, занятое ловом, буксирующее или толкающее — один продолжительный и два коротких;
+- буксируемое судно с экипажем — один продолжительный и три коротких, сразу после сигнала буксировщика;
+- на якоре — частые удары в колокол около пяти секунд с интервалами не больше одной минуты (у судна длиннее 100 метров — колокол в носу, гонг в корме); может добавить один короткий, один продолжительный и один короткий, чтобы предупредить приближающееся судно;
+- на мели — сигнал судна на якоре и три отдельных отчётливых удара в колокол до и после него.
+
+## Что спрашивают на собеседовании
+
+- **Кадеты и матросы на впередсмотрящем:** зачем нужно наблюдение и как докладывать об огне или судне («огонь один румб справа по носу»); огни судна с механическим двигателем; что значит красный над белым; туманные сигналы.
+- **Третий и второй помощники:** правила 7, 8 и 13–17; встречные и пересекающиеся курсы ночью только по огням; разница между лишённым возможности управляться, ограниченным в возможности маневрировать и стеснённым осадкой; правила для систем разделения движения; ДКС и ВКС (CPA/TCPA) по радару; когда вызывать капитана.
+- **Старпомы и капитаны:** правило 2, действия по правилу 17, несколько целей при ограниченной видимости, договорённость о расхождении по УКВ и почему это рискованно, местные правила.
+- **CES и похожие тесты:** раздел по МППСС — обязательная часть любого теста для штурманов.
+
+## Частые ошибки
+
+1. Отворот влево на встречных или близких пересекающихся курсах, «чтобы разойтись правыми бортами». Два судна, отворачивающие навстречу друг другу, — классическое столкновение.
+2. Серия мелких изменений курса, которых другое судно не видит на радаре. Правило 8 требует одного заблаговременного, крупного и заметного действия.
+3. Уверенность, что судно, которому уступают, «имеет право дороги» и должно держать курс до конца. Оно обязано действовать, когда одного уступающего судна уже недостаточно, чтобы избежать столкновения.
+4. Правила для судов «в виду друг друга» в тумане. При ограниченной видимости нет судна, которому уступают, и отворота влево на судно впереди траверза нужно избегать.
+5. Договариваться о расхождении по УКВ вместо того, чтобы следовать правилам. Это отнимает время, и ответить может совсем другое судно.
+6. Доверять одной АИС. Не каждое судно её передаёт, и данные бывают неверными; первыми идут наблюдение и радар.
+7. Считать судно, стеснённое осадкой, тем же, что лишённое возможности управляться. Другие не должны затруднять ему проход, но само оно обязано следовать с особой осторожностью.
+
+## Проверь себя
+
+?? Курсы двух судов с механическим двигателем пересекаются. Кто уступает дорогу?
+=> То, которое видит другое у себя справа (правило 15). Если позволяют обстоятельства, оно не пересекает курс у другого по носу.
+?? Ночью вы видите зелёный огонь над белым, оба круговые. Что это?
+=> Судно, занятое тралением. Красный над белым — судно, занятое ловом рыбы другим способом.
+?? Что означают один, два и три коротких звука?
+=> Один — «Я изменяю свой курс вправо», два — «влево», три — «Мои движители работают на задний ход».
+?? С какого направления судно становится обгоняющим?
+=> Когда подходит с направления больше 22,5° позади траверза другого судна. Если сомневаетесь, считайте, что обгоняете.
+?? В тумане вы слышите туманный сигнал, по-видимому, впереди траверза. Ваши действия?
+=> Уменьшить скорость до минимальной, при которой судно слушается руля, при необходимости погасить инерцию и следовать с крайней осторожностью, пока опасность не минует.
+?? Какова дальность видимости топового огня у судна длиной 50 метров и больше?
+=> 6 морских миль; бортовых, кормового и круговых огней — 3 мили.
+
+## Кому на борту это нужно
+
+Прежде всего штурманам: [капитана](/ru/jobs/rank/master), [старпома](/ru/jobs/rank/chief-officer), [второго](/ru/jobs/rank/2nd-officer) и [третьего помощника](/ru/jobs/rank/3rd-officer) экзаменуют по МППСС на диплом и ещё раз — на собеседовании. [Палубные кадеты](/ru/jobs/rank/deck-cadet) учат их с первого рейса; [матрос AB](/ru/jobs/rank/able-seaman) на впередсмотрящем должен узнавать огни и правильно о них докладывать.
+
+Вахтенный диплом и типы судов, на которых вы несли вахту, впишите в [резюме моряка](/ru/maritime-cv): на палубную должность крюинг читает это первым.
+
+*Источник: Международные правила предупреждения столкновений судов в море 1972 года с поправками. Эта страница упрощает формулировки правил; на мостике действуют полный текст правил и постоянные распоряжения капитана. Это пособие для подготовки, а не юридический текст.*$ru$,
+    'ua', $ua$МППЗС-72 (COLREG) — Міжнародні правила запобігання зіткненню суден у морі — це правила дорожнього руху на морі: хто поступається дорогою, які вогні й знаки несе судно і що означає сигнал свистком. За ними екзаменують кожного штурмана на диплом, а капітан на співбесіді нерідко малює на аркуші вогні й питає, що це за судно. Тут — будова правил, правила, які вирішують більшість зустрічей, вогні та звукові сигнали, про які питають найчастіше, пастки й питання для самоперевірки.
+
+:: **Коротко**
+:: - МППЗС-72: 41 правило в шести частинах і чотири додатки, чинні з 15 липня 1977 року.
+:: - Більшість зустрічей вирішують правила 5 (спостереження), 6 (безпечна швидкість), 7 (небезпека зіткнення), 8 (дії), 13–17 (хто поступається) і 19 (обмежена видимість).
+:: - Коли курси перетинаються, поступається те судно, яке бачить інше праворуч від себе.
+:: - В умовах обмеженої видимості немає судна, якому поступаються: діють усі.
+
+## Що таке МППЗС
+
+Правила ухвалили в ІМО в 1972 році, чинності вони набули 15 липня 1977 року й замінили правила 1960 року. Вони внесли до правил системи розділення руху, відтоді до них кілька разів вносили поправки; останню частину — про перевірку дотримання — додали в 2016 році. Правила діють для всіх суден у відкритому морі та в з'єднаних із ним водах, доступних для морських суден. Держава може встановити особливі правила для своїх портів, річок і внутрішніх вод, але вони мають якомога ближче відповідати МППЗС.
+
+Правило 2 задає тон усім іншим: ніщо в правилах не виправдовує нехтування заходами, яких вимагає звичайна морська практика, а щоб уникнути безпосередньої небезпеки, судно може відступити від правил. Правила не замінюють добру морську практику — вони на неї спираються.
+
+## Як побудовані правила
+
+- **Частина A — Загальні положення (правила 1–3):** застосування, відповідальність і визначення — судно з механічним двигуном і парусне, судно, зайняте ловом риби, позбавлене можливості керуватися, обмежене в можливості маневрувати, обмежене своєю осадкою, на ходу, обмежена видимість.
+- **Частина B — Правила плавання й маневрування (правила 4–19):** плавання за будь-якої видимості (4–10), коли судна бачать одне одного (11–18), в умовах обмеженої видимості (19).
+- **Частина C — Вогні та знаки (правила 20–31).**
+- **Частина D — Звукові та світлові сигнали (правила 32–37).**
+- **Частина E — Винятки (правило 38).**
+- **Частина F — Перевірка дотримання (правила 39–41).**
+- **Додатки:** I — розташування й технічні характеристики вогнів і знаків; II — додаткові сигнали для суден, що ведуть лов поблизу одне одного; III — пристрої для подачі звукових сигналів; IV — сигнали лиха.
+
+## Головні цифри
+
+!! 41 | правило в шести частинах, плюс чотири додатки
+!! 225° | сектор топового вогню; 112,5° у кожного бортового, 135° у кормового
+!! 6 миль | дальність видимості топового вогню в судна завдовжки 50 м і більше
+!! 22,5° | позаду траверзу: підходите звідти — отже, обганяєте
+!! 2 хв | найбільший інтервал між туманними сигналами на ходу
+!! 5 + | коротких частих звуків: «не розумію ваших намірів»
+
+## Правила, які вирішують більшість зустрічей
+
+- **Правило 5 — Спостереження:** постійно, зором і на слух, а також усіма доступними засобами — радар, АІС, прослуховування УКХ.
+- **Правило 6 — Безпечна швидкість:** така, за якої можна вжити належних і ефективних дій і зупинитися на потрібній відстані. Вона залежить від видимості, щільності руху, маневреності судна, фонових вогнів уночі, вітру, хвилювання й течії, осадки та обмежень радара.
+- **Правило 7 — Небезпека зіткнення:** якщо компасний пеленг судна, що наближається, помітно не змінюється, небезпека існує. Вона може існувати й за змінного пеленга — з дуже великим судном, з буксиром або на близькій відстані. Не робіть висновків за недостатньою інформацією, особливо радіолокаційною.
+- **Правило 8 — Дії для запобігання зіткненню:** рішучі, завчасні й досить великі, щоб інше судно одразу їх помітило — візуально або на радарі. Уникайте серії дрібних змін. Перевіряйте результат, доки інше судно остаточно не пройде й не залишиться позаду.
+- **Правило 9 — Вузькості:** тримайтеся якомога ближче до зовнішньої межі проходу з правого боку, наскільки це безпечно й практично можливо. Судна завдовжки менше 20 метрів і парусні не повинні заважати судну, яке може безпечно йти лише всередині проходу.
+- **Правило 10 — Системи розділення руху:** ідіть у загальному напрямку потоку своєю смугою, входьте й виходьте на кінцях смуги, а якщо треба перетнути — перетинайте курсом якомога ближчим до прямого кута до загального напрямку потоку.
+- **Правило 13 — Обгін:** судно, що обганяє, поступається дорогою, яким би не було кожне з суден. Ви обганяєте, якщо підходите з напрямку понад 22,5° позаду траверзу іншого судна — уночі ви бачили б лише його кормовий вогонь. Якщо сумніваєтеся, вважайте, що обганяєте.
+- **Правило 14 — Зустрічні курси:** два судна з механічним двигуном, що йдуть прямо або майже прямо одне на одне, кожне відвертає праворуч, і вони розходяться лівими бортами.
+- **Правило 15 — Перетин курсів:** з двох суден з механічним двигуном, курси яких перетинаються, поступається те, яке бачить інше праворуч від себе, і, якщо дозволяють обставини, не перетинає курс у нього по носу.
+- **Правило 16 — Судно, що поступається дорогою:** діє завчасно й рішуче, щоб чисто розійтися.
+- **Правило 17 — Судно, якому поступаються:** зберігає курс і швидкість. Воно може діяти саме, щойно стане зрозуміло, що судно, яке поступається, не вживає належних дій, і зобов'язане діяти, коли зіткнення вже не уникнути діями одного судна, що поступається. Коли курси перетинаються, судно з механічним двигуном, якому поступаються, за можливості не повинно відвертати ліворуч на судно, що перебуває ліворуч від нього.
+- **Правило 18 — Взаємні обов'язки суден:** крім випадків, коли правила 9, 10 і 13 вимагають іншого, судно з механічним двигуном поступається дорогою судну, позбавленому можливості керуватися, обмеженому в можливості маневрувати, зайнятому ловом риби й парусному; парусне — першим трьом; зайняте ловом риби за можливості — першим двом. Усі судна, крім цих двох, не повинні утруднювати прохід судну, обмеженому своєю осадкою.
+- **Правило 19 — Обмежена видимість:** для суден, які не бачать одне одного. Безпечна швидкість, двигуни готові до негайного маневру. Тут немає ні судна, що поступається, ні судна, якому поступаються, — діють усі. Якщо судно, виявлене лише радаром, створює ситуацію надмірного зближення, дійте завчасно, але уникайте відвороту ліворуч на судно попереду траверзу (крім того, яке обганяють) і відвороту в бік судна на траверзі або позаду нього. Почувши туманний сигнал, імовірно, попереду траверзу, зменште швидкість до мінімальної, за якої судно слухається керма, за потреби погасіть інерцію та йдіть з крайньою обережністю, доки небезпека не мине.
+
+## Вогні та знаки
+
+**Сектори:** топовий вогонь — білий, 225°, від прямо по носу до 22,5° позаду траверзу кожного борту; бортові — червоний ліворуч і зелений праворуч, по 112,5°; кормовий — білий, 135°; буксирувальний — жовтий, 135°; кругові вогні — 360°.
+
+**Дальність видимості** в судна завдовжки 50 метрів і більше: топовий вогонь — 6 миль, бортові, кормовий, буксирувальний і кругові — 3 милі. Від 12 до 50 метрів: топовий — 5 миль (менше 20 метрів — 3), решта — 2 милі. Судно з механічним двигуном завдовжки 50 метрів і більше на ходу несе два топові вогні, задній вищий за передній.
+
+Вогні та знаки, про які питають найчастіше (вогні кругові, якщо не сказано інше):
+
+- **Позбавлене можливості керуватися:** два червоні вогні по вертикалі; удень — дві кулі. Якщо має хід відносно води — ще бортові й кормовий.
+- **Обмежене в можливості маневрувати:** червоний, білий, червоний по вертикалі; удень — куля, ромб, куля.
+- **Обмежене своєю осадкою:** три червоні вогні по вертикалі на додачу до звичайних вогнів; удень — циліндр.
+- **Зайняте тралінням:** зелений над білим. **Зайняте ловом риби, крім траління:** червоний над білим. Удень в обох — два конуси, з'єднані вершинами. На ходу відносно води — ще бортові й кормовий.
+- **Лоцманське судно під час виконання обов'язків:** білий над червоним.
+- **На якорі:** білий вогонь у носовій частині й другий, нижче, у кормовій (у судна менше 50 метрів — один білий); удень — одна куля в носовій частині.
+- **На мілині:** якірні вогні плюс два червоні по вертикалі; удень — три кулі.
+- **Парусне судно на ходу:** бортові й кормовий, без топового; може нести на топі щогли червоний над зеленим.
+- **Судно з механічним двигуном, зайняте буксируванням:** два топові вогні по вертикалі (три, якщо довжина буксира понад 200 метрів), бортові, кормовий і жовтий буксирувальний над кормовим; удень за буксира понад 200 метрів — ромб.
+
+## Звукові сигнали
+
+Короткий звук триває близько секунди, тривалий — від чотирьох до шести секунд.
+
+**Судна бачать одне одного:**
+
+- один короткий — «Я змінюю свій курс праворуч»;
+- два короткі — «Я змінюю свій курс ліворуч»;
+- три короткі — «Мої рушії працюють на задній хід»;
+- п'ять і більше коротких частих — сумнів у намірах або діях іншого судна;
+- один тривалий — підхід до згину або ділянки проходу, де інші судна можуть бути не видні;
+- у вузькості два тривалі й один короткий — «Я маю намір обігнати вас з вашого правого борту», два тривалі й два короткі — «з вашого лівого борту»; судно, яке обганяють, подає згоду так: тривалий, короткий, тривалий, короткий.
+
+**В умовах обмеженої видимості**, з інтервалами не більше двох хвилин:
+
+- судно з механічним двигуном, що має хід, — один тривалий звук;
+- на ходу, але без ходу відносно води — два тривалі;
+- позбавлене можливості керуватися, обмежене в можливості маневрувати, обмежене осадкою, парусне, зайняте ловом, що буксирує або штовхає — один тривалий і два короткі;
+- буксироване судно з екіпажем — один тривалий і три короткі, одразу після сигналу буксира;
+- на якорі — часті удари в дзвін близько п'яти секунд з інтервалами не більше однієї хвилини (у судна довшого за 100 метрів — дзвін у носі, гонг у кормі); може додати один короткий, один тривалий і один короткий, щоб попередити судно, що наближається;
+- на мілині — сигнал судна на якорі й три окремі чіткі удари в дзвін до й після нього.
+
+## Що питають на співбесіді
+
+- **Кадети й матроси на посту спостереження:** навіщо потрібне спостереження і як доповідати про вогонь чи судно («вогонь один румб праворуч по носу»); вогні судна з механічним двигуном; що означає червоний над білим; туманні сигнали.
+- **Третій і другий помічники:** правила 7, 8 і 13–17; зустрічні курси й перетин курсів уночі лише за вогнями; різниця між позбавленим можливості керуватися, обмеженим у можливості маневрувати й обмеженим осадкою; правила для систем розділення руху; CPA і TCPA за радаром; коли викликати капітана.
+- **Старпоми й капітани:** правило 2, дії за правилом 17, кілька цілей в умовах обмеженої видимості, домовленість про розходження по УКХ і чому це ризиковано, місцеві правила.
+- **CES і подібні тести:** розділ з МППЗС — обов'язкова частина будь-якого тесту для штурманів.
+
+## Типові помилки
+
+1. Відворот ліворуч на зустрічних або близьких курсах, що перетинаються, «щоб розійтися правими бортами». Два судна, що відвертають назустріч одне одному, — класичне зіткнення.
+2. Серія дрібних змін курсу, яких інше судно не бачить на радарі. Правило 8 вимагає однієї завчасної, великої й помітної дії.
+3. Упевненість, що судно, якому поступаються, «має право дороги» й мусить тримати курс до кінця. Воно зобов'язане діяти, коли одного судна, що поступається, уже недостатньо, щоб уникнути зіткнення.
+4. Правила для суден, що «бачать одне одного», у тумані. В умовах обмеженої видимості немає судна, якому поступаються, і відвороту ліворуч на судно попереду траверзу треба уникати.
+5. Домовлятися про розходження по УКХ замість того, щоб дотримуватися правил. Це забирає час, і відповісти може зовсім інше судно.
+6. Довіряти лише АІС. Не кожне судно її передає, і дані бувають хибними; першими йдуть спостереження й радар.
+7. Вважати судно, обмежене осадкою, тим самим, що позбавлене можливості керуватися. Інші не повинні утруднювати йому прохід, але саме воно зобов'язане йти з особливою обережністю.
+
+## Перевір себе
+
+?? Курси двох суден з механічним двигуном перетинаються. Хто поступається дорогою?
+=> Те, яке бачить інше праворуч від себе (правило 15). Якщо дозволяють обставини, воно не перетинає курс в іншого по носу.
+?? Уночі ви бачите зелений вогонь над білим, обидва кругові. Що це?
+=> Судно, зайняте тралінням. Червоний над білим — судно, зайняте ловом риби іншим способом.
+?? Що означають один, два й три короткі звуки?
+=> Один — «Я змінюю свій курс праворуч», два — «ліворуч», три — «Мої рушії працюють на задній хід».
+?? З якого напрямку судно стає таким, що обганяє?
+=> Коли підходить з напрямку понад 22,5° позаду траверзу іншого судна. Якщо сумніваєтеся, вважайте, що обганяєте.
+?? У тумані ви чуєте туманний сигнал, імовірно, попереду траверзу. Ваші дії?
+=> Зменшити швидкість до мінімальної, за якої судно слухається керма, за потреби погасити інерцію та йти з крайньою обережністю, доки небезпека не мине.
+?? Яка дальність видимості топового вогню в судна завдовжки 50 метрів і більше?
+=> 6 морських миль; бортових, кормового й кругових вогнів — 3 милі.
+
+## Кому на борту це потрібно
+
+Насамперед штурманам: [капітана](/ua/jobs/rank/master), [старпома](/ua/jobs/rank/chief-officer), [другого](/ua/jobs/rank/2nd-officer) і [третього помічника](/ua/jobs/rank/3rd-officer) екзаменують з МППЗС на диплом і ще раз — на співбесіді. [Палубні кадети](/ua/jobs/rank/deck-cadet) вчать їх з першого рейсу; [матрос AB](/ua/jobs/rank/able-seaman) на посту спостереження має впізнавати вогні й правильно про них доповідати.
+
+Вахтовий диплом і типи суден, на яких ви несли вахту, впишіть у [резюме моряка](/ua/maritime-cv): на палубну посаду крюїнг читає це першим.
+
+*Джерело: Міжнародні правила запобігання зіткненню суден у морі 1972 року з поправками. Ця сторінка спрощує формулювання правил; на містку діють повний текст правил і постійні розпорядження капітана. Це посібник для підготовки, а не юридичний текст.*$ua$,
+    'pl', $pl$MPZZM (COLREG) — Międzynarodowe przepisy o zapobieganiu zderzeniom na morzu — to przepisy drogowe na morzu: kto ustępuje z drogi, jakie światła i znaki niesie statek i co oznacza sygnał syreną. Zdaje się je na każdy dyplom oficera wachtowego, a kapitan na rozmowie często rysuje na kartce światła i pyta, jaki to statek. Tutaj znajdziesz budowę przepisów, prawidła, które rozstrzygają większość spotkań, światła i sygnały dźwiękowe, o które pytają najczęściej, pułapki oraz pytania do sprawdzenia się.
+
+:: **W skrócie**
+:: - MPZZM 1972: 41 prawideł w sześciu częściach i cztery załączniki, obowiązują od 15 lipca 1977 roku.
+:: - Większość spotkań rozstrzygają prawidła 5 (obserwacja), 6 (bezpieczna prędkość), 7 (ryzyko zderzenia), 8 (działanie), 13–17 (kto ustępuje) i 19 (ograniczona widzialność).
+:: - Gdy kursy się przecinają, ustępuje statek, który ma drugi po swojej prawej burcie.
+:: - Przy ograniczonej widzialności nie ma statku uprzywilejowanego: działają wszyscy.
+
+## Czym są MPZZM
+
+Przepisy przyjęto w IMO w 1972 roku, weszły w życie 15 lipca 1977 roku i zastąpiły przepisy z 1960 roku. Wprowadziły do przepisów systemy rozgraniczenia ruchu i od tego czasu były kilka razy zmieniane; ostatnią część — o weryfikacji zgodności — dodano w 2016 roku. Obowiązują wszystkie statki na morzu pełnym i na połączonych z nim wodach dostępnych dla statków morskich. Państwo może ustanowić szczególne przepisy dla swoich portów, rzek i wód śródlądowych, ale muszą one być jak najbliższe MPZZM.
+
+Prawidło 2 nadaje ton wszystkim pozostałym: nic w przepisach nie usprawiedliwia zaniedbania środków ostrożności, jakich wymaga zwykła praktyka morska, a dla uniknięcia bezpośredniego niebezpieczeństwa statek może odstąpić od przepisów. Przepisy nie zastępują dobrej praktyki morskiej — opierają się na niej.
+
+## Jak zbudowane są przepisy
+
+- **Część A — Postanowienia ogólne (prawidła 1–3):** zastosowanie, odpowiedzialność i definicje — statek o napędzie mechanicznym i żaglowy, statek zajęty połowem, statek niekierujący się, statek o ograniczonej zdolności manewrowej, statek ograniczony swoim zanurzeniem, w drodze, ograniczona widzialność.
+- **Część B — Zasady manewrowania i żeglowania (prawidła 4–19):** postępowanie przy każdej widzialności (4–10), statki widzące się wzajemnie (11–18), ograniczona widzialność (19).
+- **Część C — Światła i znaki (prawidła 20–31).**
+- **Część D — Sygnały dźwiękowe i świetlne (prawidła 32–37).**
+- **Część E — Zwolnienia (prawidło 38).**
+- **Część F — Weryfikacja zgodności (prawidła 39–41).**
+- **Załączniki:** I — rozmieszczenie i dane techniczne świateł i znaków; II — dodatkowe sygnały dla statków rybackich łowiących blisko siebie; III — urządzenia do sygnałów dźwiękowych; IV — sygnały niebezpieczeństwa.
+
+## Najważniejsze liczby
+
+!! 41 | prawideł w sześciu częściach, plus cztery załączniki
+!! 225° | sektor światła masztowego; 112,5° każdego burtowego, 135° rufowego
+!! 6 Mm | zasięg światła masztowego na statku o długości 50 m i więcej
+!! 22,5° | za trawersem: podchodzisz stamtąd — więc wyprzedzasz
+!! 2 min | najdłuższy odstęp między sygnałami mgłowymi w drodze
+!! 5 + | krótkich, szybkich dźwięków: „nie rozumiem twoich zamiarów”
+
+## Prawidła, które rozstrzygają większość spotkań
+
+- **Prawidło 5 — Obserwacja:** stale, wzrokiem i słuchem oraz wszystkimi dostępnymi środkami — radar, AIS, nasłuch UKF.
+- **Prawidło 6 — Bezpieczna prędkość:** taka, przy której można podjąć właściwe i skuteczne działanie i zatrzymać się na odpowiedniej odległości. Zależy od widzialności, natężenia ruchu, zdolności manewrowej, świateł tła w nocy, wiatru, fali i prądu, zanurzenia oraz ograniczeń radaru.
+- **Prawidło 7 — Ryzyko zderzenia:** jeśli namiar kompasowy zbliżającego się statku wyraźnie się nie zmienia, ryzyko istnieje. Może istnieć także przy zmieniającym się namiarze — przy bardzo dużym statku, holu albo na małej odległości. Nie wyciągaj wniosków z niepełnych informacji, zwłaszcza radarowych.
+- **Prawidło 8 — Działanie dla uniknięcia zderzenia:** zdecydowane, podjęte w porę i na tyle duże, żeby drugi statek od razu je zauważył — wzrokowo lub na radarze. Unikaj serii drobnych zmian. Sprawdzaj skutek, aż drugi statek ostatecznie minie i zostanie z tyłu.
+- **Prawidło 9 — Wąskie przejścia:** trzymaj się jak najbliżej zewnętrznej granicy przejścia po swojej prawej stronie, na ile jest to bezpieczne i wykonalne. Statki krótsze niż 20 metrów i żaglowe nie mogą utrudniać przejścia statkowi, który może bezpiecznie płynąć tylko w obrębie przejścia.
+- **Prawidło 10 — Systemy rozgraniczenia ruchu:** płyń w ogólnym kierunku ruchu na swoim pasie, wchodź i wychodź na końcach pasa, a jeśli musisz go przeciąć — przecinaj kursem możliwie najbliższym kątowi prostemu do ogólnego kierunku ruchu.
+- **Prawidło 13 — Wyprzedzanie:** statek wyprzedzający ustępuje z drogi, bez względu na to, jakie to statki. Wyprzedzasz, jeśli podchodzisz z kierunku więcej niż 22,5° za trawersem drugiego statku — w nocy widziałbyś tylko jego światło rufowe. W razie wątpliwości przyjmij, że wyprzedzasz.
+- **Prawidło 14 — Statki idące na wprost siebie:** dwa statki o napędzie mechanicznym na kursach przeciwnych lub prawie przeciwnych zmieniają kurs w prawo i mijają się lewymi burtami.
+- **Prawidło 15 — Przecinanie się kursów:** z dwóch statków o napędzie mechanicznym, których kursy się przecinają, ustępuje ten, który ma drugi po swojej prawej burcie, i jeśli okoliczności pozwalają, nie przecina mu kursu przed dziobem.
+- **Prawidło 16 — Statek ustępujący z drogi:** działa wcześnie i zdecydowanie, żeby minąć się w bezpiecznej odległości.
+- **Prawidło 17 — Statek uprzywilejowany:** utrzymuje kurs i prędkość. Może działać sam, gdy tylko stanie się jasne, że statek ustępujący nie podejmuje właściwego działania, a musi działać, gdy samo działanie statku ustępującego nie pozwoli już uniknąć zderzenia. Przy przecinających się kursach statek o napędzie mechanicznym, który jest uprzywilejowany, w miarę możliwości nie zmienia kursu w lewo w stronę statku znajdującego się po jego lewej burcie.
+- **Prawidło 18 — Wzajemne obowiązki statków:** poza przypadkami, w których prawidła 9, 10 i 13 wymagają inaczej, statek o napędzie mechanicznym ustępuje z drogi statkowi niekierującemu się, statkowi o ograniczonej zdolności manewrowej, statkowi zajętemu połowem i żaglowemu; żaglowy — pierwszym trzem; zajęty połowem w miarę możliwości — pierwszym dwóm. Wszystkie statki poza tymi dwoma unikają utrudniania przejścia statkowi ograniczonemu swoim zanurzeniem.
+- **Prawidło 19 — Ograniczona widzialność:** dla statków, które się wzajemnie nie widzą. Bezpieczna prędkość, maszyny gotowe do natychmiastowego manewru. Nie ma tu statku ustępującego ani uprzywilejowanego — działają wszyscy. Jeśli statek wykryty tylko radarem tworzy sytuację nadmiernego zbliżenia, działaj w porę, ale unikaj zmiany kursu w lewo w stronę statku przed trawersem (poza statkiem wyprzedzanym) i zmiany kursu w stronę statku na trawersie lub za nim. Słysząc sygnał mgłowy, który wydaje się dochodzić sprzed trawersu, zmniejsz prędkość do najmniejszej, przy której statek utrzymuje kurs, w razie potrzeby całkowicie wytrać drogę i płyń z najwyższą ostrożnością, aż niebezpieczeństwo minie.
+
+## Światła i znaki
+
+**Sektory:** światło masztowe — białe, 225°, od kierunku wprost przed dziobem do 22,5° za trawersem każdej burty; światła burtowe — czerwone na lewej i zielone na prawej, po 112,5°; światło rufowe — białe, 135°; światło holownicze — żółte, 135°; światła widoczne dookoła widnokręgu — 360°.
+
+**Zasięg** na statku o długości 50 metrów i więcej: światło masztowe 6 mil morskich, burtowe, rufowe, holownicze i widoczne dookoła widnokręgu — 3 mile. Od 12 do 50 metrów: masztowe 5 mil (poniżej 20 metrów — 3), pozostałe 2 mile. Statek o napędzie mechanicznym o długości 50 metrów i więcej w drodze niesie dwa światła masztowe, tylne wyżej niż przednie.
+
+Światła i znaki, o które pytają najczęściej (światła widoczne dookoła widnokręgu, jeśli nie podano inaczej):
+
+- **Statek niekierujący się:** dwa czerwone światła w linii pionowej; w dzień dwie kule. Gdy ma szybkość po wodzie — także burtowe i rufowe.
+- **Statek o ograniczonej zdolności manewrowej:** czerwone, białe, czerwone w linii pionowej; w dzień kula, romb, kula.
+- **Statek ograniczony swoim zanurzeniem:** trzy czerwone światła w linii pionowej oprócz zwykłych świateł; w dzień walec.
+- **Statek trałujący:** zielone nad białym. **Statek zajęty połowem innym niż trałowanie:** czerwone nad białym. W dzień oba — dwa stożki złączone wierzchołkami. Gdy mają szybkość po wodzie — także burtowe i rufowe.
+- **Statek pilotowy na służbie:** białe nad czerwonym.
+- **Na kotwicy:** białe światło na dziobie i drugie, niżej, na rufie (statek poniżej 50 metrów — jedno białe); w dzień jedna kula na dziobie.
+- **Na mieliźnie:** światła kotwiczne plus dwa czerwone w linii pionowej; w dzień trzy kule.
+- **Statek żaglowy w drodze:** burtowe i rufowe, bez masztowego; może też nieść na szczycie masztu czerwone nad zielonym.
+- **Statek o napędzie mechanicznym holujący:** dwa światła masztowe w linii pionowej (trzy, gdy hol jest dłuższy niż 200 metrów), burtowe, rufowe i żółte holownicze nad rufowym; w dzień przy holu dłuższym niż 200 metrów — romb.
+
+## Sygnały dźwiękowe
+
+Krótki dźwięk trwa około sekundy, długi — od czterech do sześciu sekund.
+
+**Statki widzące się wzajemnie:**
+
+- jeden krótki — „Zmieniam kurs w prawo”;
+- dwa krótkie — „Zmieniam kurs w lewo”;
+- trzy krótkie — „Pracuję wstecz”;
+- pięć lub więcej krótkich, szybkich — wątpliwość co do zamiarów lub działań drugiego statku;
+- jeden długi — podejście do zakrętu lub odcinka przejścia, za którym mogą być niewidoczne inne statki;
+- w wąskim przejściu dwa długie i jeden krótki — „Zamierzam wyprzedzić cię z twojej prawej burty”, dwa długie i dwa krótkie — „z twojej lewej burty”; statek wyprzedzany zgadza się sygnałem: długi, krótki, długi, krótki.
+
+**Przy ograniczonej widzialności**, w odstępach nie dłuższych niż dwie minuty:
+
+- statek o napędzie mechanicznym mający szybkość po wodzie — jeden długi dźwięk;
+- w drodze, ale bez szybkości po wodzie — dwa długie;
+- niekierujący się, o ograniczonej zdolności manewrowej, ograniczony zanurzeniem, żaglowy, zajęty połowem, holujący lub pchający — jeden długi i dwa krótkie;
+- holowany statek z załogą — jeden długi i trzy krótkie, zaraz po sygnale holownika;
+- na kotwicy — szybkie dzwonienie dzwonem przez około pięć sekund w odstępach nie dłuższych niż minuta (powyżej 100 metrów — dzwon na dziobie i gong na rufie); może dodać jeden krótki, jeden długi i jeden krótki, żeby ostrzec zbliżający się statek;
+- na mieliźnie — sygnał statku na kotwicy oraz trzy oddzielne, wyraźne uderzenia w dzwon przed nim i po nim.
+
+## O co pytają na rozmowie
+
+- **Kadeci i marynarze na obserwacji:** po co jest obserwacja i jak meldować światło lub statek („światło jeden rumb w prawo od dziobu”); światła statku o napędzie mechanicznym; co oznacza czerwone nad białym; sygnały mgłowe.
+- **Trzeci i drugi oficerowie:** prawidła 7, 8 i 13–17; sytuacje na wprost i przy przecinaniu kursów rozpoznane w nocy tylko po światłach; różnica między statkiem niekierującym się, o ograniczonej zdolności manewrowej i ograniczonym zanurzeniem; zasady w systemach rozgraniczenia ruchu; CPA i TCPA z radaru; kiedy wezwać kapitana.
+- **Starsi oficerowie i kapitanowie:** prawidło 2, działania według prawidła 17, kilka celów przy ograniczonej widzialności, uzgadnianie mijania przez UKF i dlaczego jest to ryzykowne, przepisy lokalne.
+- **CES i podobne testy:** dział MPZZM to stała część każdego testu dla oficerów pokładowych.
+
+## Typowe błędy
+
+1. Zmiana kursu w lewo na kursach przeciwnych lub przy bliskim przecinaniu się kursów, „żeby minąć się prawymi burtami”. Dwa statki skręcające ku sobie to klasyczne zderzenie.
+2. Seria drobnych zmian kursu, których drugi statek nie widzi na radarze. Prawidło 8 wymaga jednego, wczesnego, dużego i wyraźnego działania.
+3. Przekonanie, że statek uprzywilejowany „ma pierwszeństwo” i musi trzymać kurs do końca. Musi działać, gdy samo działanie statku ustępującego nie wystarczy już do uniknięcia zderzenia.
+4. Stosowanie we mgle zasad dla statków „widzących się wzajemnie”. Przy ograniczonej widzialności nie ma statku uprzywilejowanego, a zmiany kursu w lewo w stronę statku przed trawersem należy unikać.
+5. Uzgadnianie mijania przez UKF zamiast stosowania przepisów. Traci się czas, a odpowiedzieć może zupełnie inny statek.
+6. Poleganie wyłącznie na AIS. Nie każdy statek nadaje, a dane bywają błędne; najpierw obserwacja i radar.
+7. Traktowanie statku ograniczonego zanurzeniem jak niekierującego się. Inni unikają utrudniania mu przejścia, ale on sam musi płynąć ze szczególną ostrożnością.
+
+## Sprawdź się
+
+?? Kursy dwóch statków o napędzie mechanicznym się przecinają. Który ustępuje z drogi?
+=> Ten, który ma drugi po swojej prawej burcie (prawidło 15). Jeśli okoliczności pozwalają, nie przecina mu kursu przed dziobem.
+?? W nocy widzisz zielone światło nad białym, oba widoczne dookoła widnokręgu. Co to jest?
+=> Statek trałujący. Czerwone nad białym — statek zajęty połowem innym niż trałowanie.
+?? Co oznaczają jeden, dwa i trzy krótkie dźwięki?
+=> Jeden — „Zmieniam kurs w prawo”, dwa — „w lewo”, trzy — „Pracuję wstecz”.
+?? Z jakiego kierunku statek staje się wyprzedzającym?
+=> Gdy podchodzi z kierunku więcej niż 22,5° za trawersem drugiego statku. W razie wątpliwości przyjmij, że wyprzedzasz.
+?? We mgle słyszysz sygnał mgłowy, który wydaje się dochodzić sprzed trawersu. Co robisz?
+=> Zmniejszam prędkość do najmniejszej, przy której statek utrzymuje kurs, w razie potrzeby całkowicie wytracam drogę i płynę z najwyższą ostrożnością, aż niebezpieczeństwo minie.
+?? Jaki jest zasięg światła masztowego na statku o długości 50 metrów i więcej?
+=> 6 mil morskich; burtowych, rufowego i widocznych dookoła widnokręgu — 3 mile.
+
+## Komu na statku to potrzebne
+
+Przede wszystkim oficerom pokładowym: [kapitan](/pl/jobs/rank/master), [starszy oficer](/pl/jobs/rank/chief-officer), [drugi](/pl/jobs/rank/2nd-officer) i [trzeci oficer](/pl/jobs/rank/3rd-officer) zdają MPZZM na dyplom i jeszcze raz — na rozmowie. [Kadeci pokładowi](/pl/jobs/rank/deck-cadet) uczą się ich od pierwszego rejsu; [marynarz AB](/pl/jobs/rank/able-seaman) na obserwacji musi rozpoznawać światła i prawidłowo je meldować.
+
+Dyplom oficera wachtowego i typy statków, na których pełniłeś wachtę, wpisz do [CV marynarza](/pl/maritime-cv): na stanowisko pokładowe agencja crewingowa czyta to najpierw.
+
+*Źródło: Międzynarodowe przepisy o zapobieganiu zderzeniom na morzu z 1972 roku wraz z poprawkami. Ta strona upraszcza brzmienie przepisów; na mostku obowiązują pełny tekst przepisów i stałe polecenia kapitana. To pomoc do nauki, a nie tekst prawny.*$pl$),
+  'COLREG', 'handbook',
+  'linear-gradient(135deg,#0e2a45,#13647a)',
+  true, '2026-10-09 12:30:00+00'
+WHERE NOT EXISTS (SELECT 1 FROM news_articles WHERE title->>'en' = 'COLREG in plain words: who gives way, lights, sound signals and interview questions');
+
+-- ── Covers ───────────────────────────────────────────────────────────────────
+UPDATE news_articles SET cover_url = v.url FROM (VALUES
+ ('SOLAS in plain words: drills, life-saving appliances and interview questions', 'https://seajobs.pro/handbook/solas.png?v=1'),
+ ('COLREG in plain words: who gives way, lights, sound signals and interview questions', 'https://seajobs.pro/handbook/colreg.png?v=1')
+) AS v(t, url)
+WHERE news_articles.title->>'en' = v.t AND coalesce(news_articles.cover_url, '') = '';
