@@ -215,6 +215,8 @@ export const T: Record<Lang, Dict> = {
     news_posting: "Se publică…",
     news_no_comments: "Fii primul care comentează",
     news_comment_error: "Publicarea a eșuat. Încearcă din nou.",
+    news_comment_delete: "Șterge comentariul",
+    news_comment_delete_confirm: "Ștergi acest comentariu?",
     home_seo_title: "De ce SeaJobs.pro?",
     home_seo_p1: "SeaJobs.pro este un job board maritim gratuit, creat exclusiv pentru marinari și companii de crewing. Fie că ești Comandant, Șef mecanic, Ofițer de punte sau alt profesionist maritim, vei găsi mii de posturi verificate de la agenții de crewing certificate din toată Europa. Creează-ți CV-ul, încarcă certificatele, setează data disponibilității și primește alerte când apar posturi potrivite.",
     home_seo_p2: "Companiile de crewing publică posturi gratuit și ajung instant la peste 32.000 de marinari înregistrați. Fiecare post este structurat automat pentru Google for Jobs — vizibilitate maximă fără efort sau costuri suplimentare. Alătură-te celor peste 180 de companii de crewing care au deja încredere în SeaJobs.pro.",
@@ -894,6 +896,8 @@ export const T: Record<Lang, Dict> = {
     news_posting: "Posting…",
     news_no_comments: "Be the first to comment",
     news_comment_error: "Failed to post. Try again.",
+    news_comment_delete: "Delete comment",
+    news_comment_delete_confirm: "Delete this comment?",
     // Home SEO section
     home_seo_title: "Why SeaJobs.pro?",
     home_seo_p1: "SeaJobs.pro is a free maritime job board built exclusively for seafarers and crewing companies. Whether you are a Captain, Chief Engineer, Deck Officer or any other maritime professional, you will find thousands of verified vacancies from certified crewing agencies across Europe. Create your CV, upload certificates, set your readiness date and receive alerts when matching vacancies appear.",
@@ -1082,6 +1086,8 @@ const COMMENTS_UA: Record<string, string> = {
   news_posting: "Надсилання…",
   news_no_comments: "Станьте першим коментатором",
   news_comment_error: "Помилка. Спробуйте ще раз.",
+  news_comment_delete: "Видалити коментар",
+  news_comment_delete_confirm: "Видалити цей коментар?",
 };
 
 const COMMENTS_PL: Record<string, string> = {
@@ -1095,6 +1101,8 @@ const COMMENTS_PL: Record<string, string> = {
   news_posting: "Wysyłanie…",
   news_no_comments: "Bądź pierwszym komentatorem",
   news_comment_error: "Błąd. Spróbuj ponownie.",
+  news_comment_delete: "Usuń komentarz",
+  news_comment_delete_confirm: "Usunąć ten komentarz?",
 };
 
 const COMMENTS_RU: Record<string, string> = {
@@ -1108,6 +1116,8 @@ const COMMENTS_RU: Record<string, string> = {
   news_posting: "Отправка…",
   news_no_comments: "Станьте первым комментатором",
   news_comment_error: "Ошибка. Попробуйте ещё раз.",
+  news_comment_delete: "Удалить комментарий",
+  news_comment_delete_confirm: "Удалить этот комментарий?",
 };
 
 Object.assign(T.ua, COMMENTS_UA);
