@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PopularJobLinks from "@/components/PopularJobLinks";
 import { useLang } from "@/components/LangProvider";
-import { GUIDES_UI } from "@/lib/guidesUi";
+import { GUIDE_SECTIONS, type GuideSection } from "@/lib/guidesUi";
 import { renderMarkdown } from "@/lib/markdown";
 import { extractId } from "@/lib/slug";
 import ShareBar from "@/components/ShareBar";
@@ -24,10 +24,12 @@ export type ResolvedGuide = {
 
 // `shareUrl` is the guide's canonical URL in the reader's language, worked out
 // on the server (lib/guideUrls.ts) — the slug differs per language, so the
-// client cannot rebuild it from the URL it was given.
-export default function GuideArticle({ guide, shareUrl }: { guide: ResolvedGuide; shareUrl: string }) {
+// client cannot rebuild it from the URL it was given. `section` picks the
+// chrome and the breadcrumb: the handbook renders through this same component.
+export default function GuideArticle({ guide, shareUrl, section = "guide" }: { guide: ResolvedGuide; shareUrl: string; section?: GuideSection }) {
   const { lang } = useLang();
-  const ui = GUIDES_UI[lang] ?? GUIDES_UI.en;
+  const { path, ui: uiMap } = GUIDE_SECTIONS[section];
+  const ui = uiMap[lang] ?? uiMap.en;
 
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString(
@@ -43,7 +45,7 @@ export default function GuideArticle({ guide, shareUrl }: { guide: ResolvedGuide
         <nav className="mb-8 flex flex-wrap items-center gap-1.5 text-xs text-mist" aria-label="Breadcrumb">
           <Link href="/" className="hover:text-brassInk">{ui.home}</Link>
           <ChevronRight size={12} />
-          <Link href="/guides" className="hover:text-brassInk">{ui.crumb}</Link>
+          <Link href={path} className="hover:text-brassInk">{ui.crumb}</Link>
           <ChevronRight size={12} />
           <span className="truncate text-foam max-w-[60vw] sm:max-w-none">{guide.title}</span>
         </nav>

@@ -6,7 +6,7 @@ import { Calendar, Clock, ArrowRight, BookOpen } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLang } from "@/components/LangProvider";
-import { GUIDES_UI } from "@/lib/guidesUi";
+import { GUIDE_SECTIONS, type GuideSection } from "@/lib/guidesUi";
 import { slugId } from "@/lib/slug";
 
 export type GuideCard = {
@@ -21,16 +21,19 @@ export type GuideCard = {
 };
 
 function excerpt(text: string, max = 140): string {
-  const clean = text.replace(/^#{1,6}\s.*$/gm, "").replace(/[#*_>`]/g, "").replace(/\s+/g, " ").trim();
+  const clean = text.replace(/^#{1,6}\s.*$/gm, "").replace(/^(::|!!|\?\?|=>)\s?/gm, "").replace(/[#*_>`]/g, "").replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max).replace(/\s+\S*$/, "") + "…" : clean;
 }
 function readMins(text: string): number {
   return Math.max(1, Math.round(text.trim().split(/\s+/).filter(Boolean).length / 200));
 }
 
-export default function GuidesClient({ initialGuides }: { initialGuides: GuideCard[] }) {
+// Serves /guides and /handbook: the same cards over a different category,
+// with a switch between the two at the top.
+export default function GuidesClient({ initialGuides, section = "guide" }: { initialGuides: GuideCard[]; section?: GuideSection }) {
   const { lang } = useLang();
-  const ui = GUIDES_UI[lang] ?? GUIDES_UI.en;
+  const { path, ui: uiMap } = GUIDE_SECTIONS[section];
+  const ui = uiMap[lang] ?? uiMap.en;
   const ukKey = lang === "ua" ? "uk" : lang;
   const minLabel = lang === "ua" ? "хв" : lang === "pl" ? "min" : lang === "ru" ? "мин" : lang === "ro" ? "min" : "min";
 
@@ -66,6 +69,21 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideCa
         <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight text-white md:text-4xl">{ui.h1}</h1>
         <p className="mt-2 max-w-2xl text-[15px] text-mist">{ui.metaDesc}</p>
 
+        <div className="mt-5 flex flex-wrap gap-2">
+          {(Object.keys(GUIDE_SECTIONS) as GuideSection[]).map((k) => {
+            const s = GUIDE_SECTIONS[k];
+            const active = k === section;
+            return (
+              <Link key={k} href={s.path} aria-current={active ? "page" : undefined}
+                className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
+                  active ? "border-brass/50 bg-brass/15 text-brassInk" : "border-white/10 text-mist hover:border-brass/40 hover:text-brassInk"
+                }`}>
+                {(s.ui[lang] ?? s.ui.en).h1}
+              </Link>
+            );
+          })}
+        </div>
+
         {items.length === 0 ? (
           <div className="mt-10 rounded-2xl border border-white/10 bg-card px-5 py-16 text-center">
             <BookOpen size={28} className="mx-auto mb-3 text-mist/40" />
@@ -74,7 +92,7 @@ export default function GuidesClient({ initialGuides }: { initialGuides: GuideCa
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((n) => (
-              <Link key={n.id} href={`/guides/${n.id}`}
+              <Link key={n.id} href={`${path}/${n.id}`}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-card transition hover:border-white/20">
                 <div className="relative h-40 overflow-hidden" style={{ background: n.coverUrl ? undefined : n.gradient }}>
                   {n.coverUrl && <Image src={n.coverUrl} alt={n.title} fill sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />}

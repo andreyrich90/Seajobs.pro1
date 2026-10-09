@@ -56,14 +56,26 @@ function withLineBreaks(text: string, opts: MarkdownOptions = {}): ReactNode[] {
   ));
 }
 
-type LineKind = "blank" | "h" | "q" | "ul" | "ol" | "p";
+type LineKind = "blank" | "h" | "q" | "ul" | "ol" | "box" | "stat" | "quiz" | "p";
 
-function lineKind(l: string): LineKind {
+// Three blocks for our own articles (the handbook), never for comments — in
+// `ugc` mode these lines are plain paragraphs:
+//   ":: …"            a boxed summary; its lines are rendered as markdown
+//   "!! 15 ppm | …"   a row of key-number cards: value | what it means
+//   "?? …" + "=> …"   self-check questions, the answer folded under each
+const BOX = /^::( |$)/;
+const STAT = /^!! /;
+const QUIZ = /^(\?\?|=>) /;
+
+function lineKind(l: string, rich: boolean): LineKind {
   if (l.trim() === "") return "blank";
   if (l.startsWith("## ")) return "h";
   if (l.startsWith("> ")) return "q";
   if (/^[-*]\s/.test(l)) return "ul";
   if (/^\d+\.\s/.test(l)) return "ol";
+  if (rich && BOX.test(l)) return "box";
+  if (rich && STAT.test(l)) return "stat";
+  if (rich && QUIZ.test(l)) return "quiz";
   return "p";
 }
 
@@ -71,12 +83,12 @@ function lineKind(l: string): LineKind {
 // previous line with a single newline. The block splitter below needs blank
 // lines, so insert one wherever two adjacent non-blank lines belong to
 // different block types (a heading always starts its own block).
-function normalizeBlocks(content: string): string {
+function normalizeBlocks(content: string, rich: boolean): string {
   const lines = content.split("\n");
   const out: string[] = [];
   let prev: LineKind | null = null; // last emitted non-blank line, null after a blank
   for (const line of lines) {
-    const kind = lineKind(line);
+    const kind = lineKind(line, rich);
     if (kind === "blank") {
       out.push(line);
       prev = null;
@@ -89,13 +101,59 @@ function normalizeBlocks(content: string): string {
   return out.join("\n");
 }
 
-/** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, "---" rules, **bold**, *italic*, ~~strike~~, [text](url), ![alt](url). */
+/** Renders a small markdown subset: "## " headings, "> " quotes, "- "/"1. " lists, "---" rules, **bold**, *italic*, ~~strike~~, [text](url), ![alt](url) — plus, outside `ugc`, the "::", "!!" and "??"/"=>" blocks described above. */
 export function renderMarkdown(content: string, opts: MarkdownOptions = {}): ReactNode[] {
-  const blocks = normalizeBlocks(content).split(/\n\n+/);
+  const rich = !opts.ugc;
+  const blocks = normalizeBlocks(content, rich).split(/\n\n+/);
   return blocks.map((block, bi) => {
     const trimmed = block.trim();
     if (!trimmed) return null;
     const lines = trimmed.split("\n");
+
+    if (rich && lines.every((l) => BOX.test(l))) {
+      return (
+        <div key={bi} className="mb-5 rounded-2xl border border-brass/30 bg-brass/5 px-5 py-4 last:mb-0">
+          {renderMarkdown(lines.map((l) => l.replace(BOX, "")).join("\n"), opts)}
+        </div>
+      );
+    }
+    if (rich && lines.every((l) => STAT.test(l))) {
+      return (
+        <div key={bi} className={`mb-5 grid grid-cols-2 gap-3 last:mb-0 ${lines.length % 3 === 0 ? "sm:grid-cols-3" : ""}`}>
+          {lines.map((l, li) => {
+            const [value, ...label] = l.slice(3).split("|");
+            return (
+              <div key={li} className="rounded-xl border border-brass/25 bg-brass/5 px-4 py-3">
+                <div className="font-display text-xl font-semibold leading-tight text-brassInk sm:text-2xl">{value.trim()}</div>
+                <div className="mt-1 text-xs leading-5 text-mist">{renderInline(label.join("|").trim(), opts)}</div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+    if (rich && lines.every((l) => QUIZ.test(l))) {
+      const items: { q: string; a: string[] }[] = [];
+      for (const l of lines) {
+        if (l.startsWith("?? ")) items.push({ q: l.slice(3), a: [] });
+        else if (items.length) items[items.length - 1].a.push(l.slice(3));
+      }
+      return (
+        <div key={bi} className="mb-5 space-y-2 last:mb-0">
+          {items.map((it, ii) => (
+            <details key={ii} className="group rounded-xl border border-white/10 bg-card px-4 py-3">
+              <summary className="flex cursor-pointer list-none items-start gap-3 text-sm font-semibold leading-6 text-white [&::-webkit-details-marker]:hidden">
+                <span className="flex-1">{renderInline(it.q, opts)}</span>
+                <span aria-hidden className="shrink-0 text-lg leading-6 text-brassInk transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <div className="mt-2 border-t border-white/10 pt-2 text-sm leading-7 text-foam">
+                {withLineBreaks(it.a.join("\n"), opts)}
+              </div>
+            </details>
+          ))}
+        </div>
+      );
+    }
 
     if (trimmed === "---" || trimmed === "***") {
       return <hr key={bi} className="my-6 border-white/10" />;

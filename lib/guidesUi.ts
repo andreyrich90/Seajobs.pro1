@@ -3,7 +3,7 @@ import type { Lang } from "@/lib/langs";
 // Localized chrome for the /guides section (blog). Guide articles themselves
 // live in the news_articles table with category = 'guide'; their title/body are
 // already multilingual jsonb (admin-authored + auto-translated).
-export const GUIDES_UI: Record<Lang, {
+export type GuideUi = {
   nav: string;
   h1: string;
   metaTitle: string;
@@ -12,7 +12,9 @@ export const GUIDES_UI: Record<Lang, {
   crumb: string;
   empty: string;
   readMore: string;
-}> = {
+};
+
+export const GUIDES_UI: Record<Lang, GuideUi> = {
   en: {
     nav: "Guides",
     h1: "Maritime career guides",
@@ -63,4 +65,68 @@ export const GUIDES_UI: Record<Lang, {
     empty: "Ghidurile vor apărea în curând.",
     readMore: "Citește ghidul",
   },
+};
+
+// The seafarer's handbook (/handbook): conventions, codes and onboard rules,
+// written around what an interview or a CES test asks. Same table, category
+// 'handbook', same pages — only the chrome and the base path differ.
+export const HANDBOOK_UI: Record<Lang, GuideUi> = {
+  en: {
+    nav: "Handbook",
+    h1: "Seafarer's handbook",
+    metaTitle: "Seafarer's handbook — MARPOL, ISGOTT and other codes explained | SeaJobs.pro",
+    metaDesc: "Conventions, codes and onboard rules explained the way interviews and CES tests ask about them — key numbers, common traps, self-check questions.",
+    home: "Home",
+    crumb: "Handbook",
+    empty: "Handbook articles are coming soon.",
+    readMore: "Read",
+  },
+  ru: {
+    nav: "Справочник",
+    h1: "Справочник моряка",
+    metaTitle: "Справочник моряка — MARPOL, ISGOTT и другие кодексы простыми словами | SeaJobs.pro",
+    metaDesc: "Конвенции, кодексы и правила на борту так, как о них спрашивают на собеседовании и в CES: ключевые цифры, частые ошибки, вопросы для самопроверки.",
+    home: "Главная",
+    crumb: "Справочник",
+    empty: "Статьи справочника скоро появятся.",
+    readMore: "Читать",
+  },
+  ua: {
+    nav: "Довідник",
+    h1: "Довідник моряка",
+    metaTitle: "Довідник моряка — MARPOL, ISGOTT та інші кодекси простими словами | SeaJobs.pro",
+    metaDesc: "Конвенції, кодекси та правила на борту так, як про них питають на співбесіді й у CES: ключові цифри, типові помилки, питання для самоперевірки.",
+    home: "Головна",
+    crumb: "Довідник",
+    empty: "Статті довідника скоро з'являться.",
+    readMore: "Читати",
+  },
+  pl: {
+    nav: "Kompendium",
+    h1: "Kompendium marynarza",
+    metaTitle: "Kompendium marynarza — MARPOL, ISGOTT i inne kodeksy w prostych słowach | SeaJobs.pro",
+    metaDesc: "Konwencje, kodeksy i zasady na statku tak, jak pytają o nie na rozmowie i w teście CES: kluczowe liczby, typowe pułapki, pytania kontrolne.",
+    home: "Strona główna",
+    crumb: "Kompendium",
+    empty: "Artykuły kompendium wkrótce.",
+    readMore: "Czytaj",
+  },
+  ro: {
+    nav: "Manual",
+    h1: "Manualul marinarului",
+    metaTitle: "Manualul marinarului — MARPOL, ISGOTT și alte coduri pe înțeles | SeaJobs.pro",
+    metaDesc: "Convenții, coduri și reguli de la bord explicate așa cum sunt întrebate la interviu și la testul CES: cifre cheie, capcane frecvente, întrebări de verificare.",
+    home: "Acasă",
+    crumb: "Manual",
+    empty: "Articolele manualului vor apărea în curând.",
+    readMore: "Citește",
+  },
+};
+
+/** `news_articles.category` → where it lives and what its chrome says. */
+export type GuideSection = "guide" | "handbook";
+
+export const GUIDE_SECTIONS: Record<GuideSection, { path: string; ui: Record<Lang, GuideUi> }> = {
+  guide: { path: "/guides", ui: GUIDES_UI },
+  handbook: { path: "/handbook", ui: HANDBOOK_UI },
 };

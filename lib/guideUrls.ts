@@ -17,6 +17,9 @@ import { slugId } from "@/lib/slug";
 // /ro/ prefix: a duplicate, not a translation. Those URLs canonicalise to the
 // English page and stay out of the hreflang cluster, so a Polish reader is
 // sent to a Polish version only when one exists.
+//
+// The handbook (/handbook) is built the same way from the same table, so every
+// function takes the section's base path; it defaults to /guides.
 
 const BASE = "https://seajobs.pro";
 
@@ -37,29 +40,29 @@ export function guideLocales(body: Localized): string[] {
   return have.length ? have : [routing.defaultLocale];
 }
 
-export function guidePath(title: Localized, uuid: string, locale: string): string {
-  return `/guides/${slugId(pick(title, locale), uuid)}`;
+export function guidePath(title: Localized, uuid: string, locale: string, base = "/guides"): string {
+  return `${base}/${slugId(pick(title, locale), uuid)}`;
 }
 
-export function guideUrl(title: Localized, uuid: string, locale: string): string {
-  return `${BASE}${getPathname({ locale, href: guidePath(title, uuid, locale) })}`;
+export function guideUrl(title: Localized, uuid: string, locale: string, base = "/guides"): string {
+  return `${BASE}${getPathname({ locale, href: guidePath(title, uuid, locale, base) })}`;
 }
 
 /** hreflang map over the languages the guide really has, each at its own canonical. */
-export function guideAlternates(title: Localized, body: Localized, uuid: string): Record<string, string> {
+export function guideAlternates(title: Localized, body: Localized, uuid: string, base = "/guides"): Record<string, string> {
   const locales = guideLocales(body);
   const languages: Record<string, string> = {};
-  for (const l of locales) languages[HREFLANG[l] ?? l] = guideUrl(title, uuid, l);
+  for (const l of locales) languages[HREFLANG[l] ?? l] = guideUrl(title, uuid, l, base);
   const fallback = locales.includes(routing.defaultLocale) ? routing.defaultLocale : locales[0];
-  languages["x-default"] = guideUrl(title, uuid, fallback);
+  languages["x-default"] = guideUrl(title, uuid, fallback, base);
   return languages;
 }
 
 /** The page's own URL when it has its own text; otherwise the English one. */
-export function guideCanonical(title: Localized, body: Localized, uuid: string, locale: string): string {
+export function guideCanonical(title: Localized, body: Localized, uuid: string, locale: string, base = "/guides"): string {
   const locales = guideLocales(body);
   const target = locales.includes(locale)
     ? locale
     : locales.includes(routing.defaultLocale) ? routing.defaultLocale : locales[0];
-  return guideUrl(title, uuid, target);
+  return guideUrl(title, uuid, target, base);
 }

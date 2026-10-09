@@ -5,7 +5,7 @@ import NextLink from "next/link";
 import { Anchor, Linkedin } from "lucide-react";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
-import { GUIDES_UI } from "@/lib/guidesUi";
+import { GUIDES_UI, HANDBOOK_UI } from "@/lib/guidesUi";
 import PopularJobLinks from "@/components/PopularJobLinks";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
 
@@ -62,6 +62,7 @@ export default function Footer() {
     { label: t.footer_forum, href: "/forum" },
     { label: t.footer_news, href: "/news" },
     { label: (GUIDES_UI[lang] ?? GUIDES_UI.en).nav, href: "/guides" },
+    { label: (HANDBOOK_UI[lang] ?? HANDBOOK_UI.en).h1, href: "/handbook" },
     { label: howToApplyLabel, href: "/how-to-apply" },
     { label: t.nav_cv_builder, href: "/maritime-cv" },
     { label: cvBlastLabel, href: "/cv-distribution" },

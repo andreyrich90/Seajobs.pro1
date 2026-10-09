@@ -108,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...localizedEntries("/forum", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/news", { lastModified: now, changeFrequency: "daily", priority: 0.7 }),
     ...localizedEntries("/guides", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
+    ...localizedEntries("/handbook", { lastModified: now, changeFrequency: "weekly", priority: 0.7 }),
     ...localizedEntries("/salaries", { lastModified: now, changeFrequency: "daily", priority: 0.6 }),
     ...localizedEntries("/how-to-apply", { lastModified: now, changeFrequency: "monthly", priority: 0.6 }),
     ...localizedEntries("/about", { lastModified: now, changeFrequency: "monthly", priority: 0.5 }),
@@ -188,9 +189,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     );
 
     // DB articles (created via the admin) — addressed by "<slug>-<uuid>".
-    // Guides go under /guides, everything else under /news.
+    // Guides go under /guides, the handbook under /handbook, everything else
+    // under /news.
     const dbNewsRoutes: MetadataRoute.Sitemap = (dbNews ?? [])
-      .filter((n) => n.category !== "guide")
+      .filter((n) => n.category !== "guide" && n.category !== "handbook")
       .flatMap((n) =>
         localizedEntries(`/news/${slugId(locTitle(n.title), n.id)}`, {
           lastModified: new Date(n.published_at ?? n.created_at),
@@ -204,12 +206,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // language's page declares canonical (its own title's slug) — see
     // lib/guideUrls.ts. Untranslated pl/ro variants canonicalise to English,
     // so they are not submitted.
+    // The handbook is built the same way under /handbook.
     const guideRoutes: MetadataRoute.Sitemap = (dbNews ?? [])
-      .filter((n) => n.category === "guide")
+      .filter((n) => n.category === "guide" || n.category === "handbook")
       .flatMap((n) => {
-        const languages = guideAlternates(n.title, n.body, n.id);
+        const base = n.category === "handbook" ? "/handbook" : "/guides";
+        const languages = guideAlternates(n.title, n.body, n.id, base);
         return guideLocales(n.body).map((locale) => ({
-          url: guideUrl(n.title, n.id, locale),
+          url: guideUrl(n.title, n.id, locale, base),
           lastModified: new Date(n.published_at ?? n.created_at),
           changeFrequency: "monthly" as const,
           priority: 0.7,

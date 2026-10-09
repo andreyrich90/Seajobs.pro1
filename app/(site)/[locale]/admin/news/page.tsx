@@ -279,8 +279,9 @@ export default function AdminNewsPage() {
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass">
                 <option value="news">News article</option>
                 <option value="guide">Guide (blog)</option>
+                <option value="handbook">Handbook (conventions, codes)</option>
               </select>
-              <p className="text-xs text-mist">News shows under /news; Guides show under /guides.</p>
+              <p className="text-xs text-mist">News shows under /news; Guides under /guides; Handbook under /handbook.</p>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
