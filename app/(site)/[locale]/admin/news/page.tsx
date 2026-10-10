@@ -20,11 +20,14 @@ const GRADIENTS = [
   { label: "Gold",    value: "linear-gradient(135deg,#713f12,#92400e)" },
 ];
 
+// All five site languages. RO used to be missing here, so the Romanian text the
+// "Translate existing" button writes could be neither seen nor corrected.
 const LANGS = [
   { code: "en", label: "EN" },
   { code: "ua", label: "UA" },
   { code: "pl", label: "PL" },
   { code: "ru", label: "RU" },
+  { code: "ro", label: "RO" },
 ];
 
 type ArticleForm = {
@@ -38,8 +41,8 @@ type ArticleForm = {
 };
 
 const EMPTY_FORM: ArticleForm = {
-  title: { en: "", ua: "", pl: "", ru: "" },
-  body:  { en: "", ua: "", pl: "", ru: "" },
+  title: { en: "", ua: "", pl: "", ru: "", ro: "" },
+  body:  { en: "", ua: "", pl: "", ru: "", ro: "" },
   tag:   "Industry",
   category: "news",
   cover_gradient: GRADIENTS[0].value,
@@ -113,8 +116,8 @@ export default function AdminNewsPage() {
     const title = a.title as Record<string, string>;
     const body = a.body as Record<string, string>;
     setForm({
-      title: { en: "", ua: title?.ua ?? "", pl: "", ru: "", ...title },
-      body:  { en: "", ua: body?.ua ?? "", pl: "", ru: "", ...body },
+      title: { en: "", ua: title?.ua ?? "", pl: "", ru: "", ro: "", ...title },
+      body:  { en: "", ua: body?.ua ?? "", pl: "", ru: "", ro: "", ...body },
       tag:   a.tag ?? "Industry",
       category: a.category ?? "news",
       cover_gradient: a.cover_gradient ?? GRADIENTS[0].value,
@@ -134,6 +137,11 @@ export default function AdminNewsPage() {
     if (!form.body.en?.trim())  { setMsg({ type: "error", text: "English body is required." }); return; }
     setSubmitting(true); setMsg(null);
 
+    // Editing a published article keeps its date: resetting it to "now" on every
+    // correction re-dated the article on the site and in its structured data.
+    const prev = editingId ? articles.find((a) => a.id === editingId) : undefined;
+    const keepDate = prev?.is_published && prev.published_at ? prev.published_at : null;
+
     const payload = {
       title: form.title,
       body:  form.body,
@@ -142,7 +150,7 @@ export default function AdminNewsPage() {
       cover_gradient: form.cover_gradient,
       cover_url: form.cover_url.trim() || null,
       is_published:   form.is_published,
-      published_at:   form.is_published ? new Date().toISOString() : null,
+      published_at:   form.is_published ? keepDate ?? new Date().toISOString() : null,
       updated_at:     new Date().toISOString(),
     };
 
@@ -201,7 +209,7 @@ export default function AdminNewsPage() {
         <div className="flex flex-col items-end gap-1">
           <div className="flex gap-2">
             <button onClick={translateExisting} disabled={translating}
-              title="Translate every article into all 4 languages (fills empty ones)"
+              title="Translate every article into all 5 languages (fills empty titles and bodies; never overwrites)"
               className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50">
               <Languages size={16} /> {translating ? "Translating…" : "Translate existing"}
             </button>

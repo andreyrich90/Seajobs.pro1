@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { LANGS, type Lang, asText, normObj, translateText } from "@/lib/forumI18n";
+import { localizeLinks } from "@/lib/localizeLinks";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -15,6 +16,12 @@ function getAdmin() {
 // English is the source the admin always fills in for news.
 const src = (obj: Record<string, string>) =>
   asText(obj.en) || asText(obj.ru) || Object.values(obj).find(asText) || "";
+
+// A language is missing when either half is: a title with no body behind it
+// renders the English text under that language's prefix, and used to count as
+// translated because only the title was checked.
+const missingLangs = (title: Record<string, string>, body: Record<string, string>) =>
+  LANGS.filter((l) => !asText(title[l]) || !asText(body[l]));
 
 export async function POST(req: Request) {
   try {
@@ -40,7 +47,7 @@ export async function POST(req: Request) {
 
       const titleObj = normObj(a.title);
       const bodyObj = normObj(a.body);
-      const missing = LANGS.filter((l) => !asText(titleObj[l]));
+      const missing = missingLangs(titleObj, bodyObj);
       if (missing.length === 0) return NextResponse.json({ ok: true, translated: 0 });
 
       const srcTitle = src(titleObj);
@@ -48,35 +55,44 @@ export async function POST(req: Request) {
       const results = await Promise.all(
         missing.map(async (l) => ({ l, ...(await translateText(apiKey, l, srcTitle, srcBody)) })),
       );
+      // Only the empty half is filled: a title or body someone wrote by hand stays.
+      const incomplete: Lang[] = [];
       for (const r of results) {
-        titleObj[r.l] = r.title;
-        bodyObj[r.l] = r.content;
+        if (!r.complete) { incomplete.push(r.l); continue; }
+        if (!asText(titleObj[r.l])) titleObj[r.l] = r.title;
+        if (!asText(bodyObj[r.l])) bodyObj[r.l] = await localizeLinks(admin, r.content, r.l);
       }
       const { error } = await admin
         .from("news_articles").update({ title: titleObj, body: bodyObj }).eq("id", articleId);
       if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
-      return NextResponse.json({ ok: true, translated: missing.length });
+      return NextResponse.json({ ok: true, translated: missing.length - incomplete.length, incomplete });
     }
 
     // ── Backfill mode: translate one (article, language) per call, report remaining ──
-    const { data: articles } = await admin.from("news_articles").select("id, title");
+    const { data: articles } = await admin.from("news_articles").select("id, title, body");
     let remaining = 0;
     let target: { id: string; lang: Lang } | null = null;
     for (const art of articles ?? []) {
-      const titleObj = normObj(art.title);
-      const missing = LANGS.filter((l) => !asText(titleObj[l]));
+      const missing = missingLangs(normObj(art.title), normObj(art.body));
       remaining += missing.length;
       if (!target && missing.length) target = { id: art.id, lang: missing[0] };
     }
     if (!target) return NextResponse.json({ ok: true, remaining: 0, done: true });
 
-    const { data: full } = await admin
-      .from("news_articles").select("title, body").eq("id", target.id).single();
+    const { id: targetId } = target;
+    const full = (articles ?? []).find((a) => a.id === targetId);
     const titleObj = normObj(full?.title);
     const bodyObj = normObj(full?.body);
-    const { title, content } = await translateText(apiKey, target.lang, src(titleObj), src(bodyObj));
-    const newTitle = { ...titleObj, [target.lang]: title };
-    const newBody = { ...bodyObj, [target.lang]: content };
+    const { title, content, complete } = await translateText(apiKey, target.lang, src(titleObj), src(bodyObj));
+    if (!complete) {
+      // Stop rather than save a cut-off text as "translated" — saved, it would never be retried.
+      return NextResponse.json(
+        { ok: false, error: `The ${target.lang.toUpperCase()} translation came back incomplete; press again to retry.` },
+        { status: 502 },
+      );
+    }
+    const newTitle = { ...titleObj, [target.lang]: asText(titleObj[target.lang]) || title };
+    const newBody = { ...bodyObj, [target.lang]: asText(bodyObj[target.lang]) || (await localizeLinks(admin, content, target.lang)) };
     const { error } = await admin
       .from("news_articles").update({ title: newTitle, body: newBody }).eq("id", target.id);
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });

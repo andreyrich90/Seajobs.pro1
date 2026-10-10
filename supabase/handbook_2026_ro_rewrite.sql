@@ -1,0 +1,1296 @@
+-- The Romanian text of the ten handbook articles, rewritten.
+--
+-- The "Translate existing" button filled Romanian with a fast machine model,
+-- and the result read badly: wrong terms ("cargou" — a cargo ship — for the
+-- cargo, "apă de canal" for sewage, "gresieri" for oilers), grammar slips, and
+-- every link pointing at the English pages. These are written from the English
+-- originals with the site's own Romanian terms (Ofițer secund, Șef mecanic,
+-- Vrachier…), addressed with "tu" like the rest of the site, and with every
+-- internal link at its /ro/ address: ranks and vessels with the prefix, guides
+-- and handbook articles at their Romanian canonical URLs.
+--
+-- Only the "ro" key of title and body changes; the other languages are left
+-- as they are. Safe to run twice.
+
+-- ── MARPOL ──────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('MARPOL pe înțelesul tuturor: cele șase anexe, cifrele-cheie și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$MARPOL este convenția din spatele separatorului de santină, al containerelor de gunoi colorate și al schimbării combustibilului înainte de intrarea într-o zonă de control al emisiilor. Fiecare navigator lucrează după ea în fiecare zi, iar aproape orice interviu la o agenție de crewing pentru un post la mașini sau la punte ajunge la ea. Aici găsești cele șase anexe, cifrele care se cer cel mai des, greșelile din cauza cărora navele sunt reținute și navigatorii ajung în instanță, plus întrebări cu care să te verifici înainte de interviu.
+
+:: **Pe scurt**
+:: - MARPOL 73/78 este convenția IMO pentru prevenirea poluării de către nave. Șase anexe: hidrocarburi, substanțe lichide nocive, mărfuri ambalate, ape uzate, gunoi, aer.
+:: - Cifrele cerute cel mai des: 15 ppm, 3 și 12 mile marine, 0,50% și 0,10% sulf.
+:: - Plasticul nu ajunge niciodată peste bord — nicăieri și sub nicio formă.
+:: - Registrele sunt probe: Registrul de hidrocarburi se păstrează 3 ani, Registrul de gunoi 2 ani.
+
+## Ce este MARPOL
+
+Convenția internațională pentru prevenirea poluării de către nave a fost adoptată la IMO în 1973. Nu a intrat în vigoare singură: după o serie de accidente cu petroliere i s-a adăugat în 1978 un Protocol, iar cele două texte funcționează ca un singur instrument, în vigoare din 2 octombrie 1983 — de aici „MARPOL 73/78”. Se aplică navelor care arborează pavilionul unui stat parte, iar controlul statului portului o verifică în porturile fiecărui stat parte, indiferent de pavilion.
+
+Convenția propriu-zisă este scurtă; substanța este în cele șase anexe. Fiecare anexă are propriul certificat, propriul registru sau plan și propria listă de zone speciale, unde regulile sunt mai stricte.
+
+## Cele șase anexe
+
+1. **Anexa I — Hidrocarburi.** Apele uleioase din compartimentul mașini, reziduurile de marfă de pe petroliere, Registrul de hidrocarburi, SOPEP și Certificatul IOPP. În vigoare din 1983.
+2. **Anexa II — Substanțe lichide nocive transportate în vrac.** Tancurile chimice: mărfurile sunt clasificate X, Y, Z și OS după pericol; Registrul de marfă și Manualul P&A.
+3. **Anexa III — Substanțe dăunătoare transportate ambalat.** Ambalare, marcare, etichetare și documente — în practică prin Codul IMDG.
+4. **Anexa IV — Ape uzate.** Instalația de tratare, tancul de colectare, distanțele față de uscat; Certificatul ISPP.
+5. **Anexa V — Gunoi.** O interdicție generală de deversare, cu excepții înguste, afișe, un Plan de gestionare a gunoiului și Registrul de gunoi.
+6. **Anexa VI — Poluarea aerului.** Sulful din combustibil, NOx de la motoare, substanțele care distrug stratul de ozon și eficiența energetică (EEXI, CII); Certificatele IAPP și IEE.
+
+## Cifrele-cheie
+
+!! 15 ppm | hidrocarburi în apă: maximul permis la o deversare din compartimentul mașini
+!! 50 mile | de la uscat: minimul pentru deversarea din zona de marfă a unui petrolier
+!! 30 l/milă | debitul instantaneu maxim de deversare a hidrocarburilor pentru un petrolier
+!! 3 / 12 mile | resturi alimentare mărunțite / nemărunțite, în afara zonelor speciale
+!! 0,50% | limita globală de sulf în combustibil din 1 ianuarie 2020
+!! 0,10% | limita de sulf în zonele de control al emisiilor (ECA)
+
+## Anexa I: ce trebuie să știe compartimentul mașini
+
+Apa de santină din compartimentul mașini poate fi deversată peste bord doar când sunt îndeplinite toate condițiile în același timp: nava este în marș; conținutul de hidrocarburi al efluentului este de cel mult 15 ppm fără diluare; apa trece printr-un echipament de filtrare aprobat — separatorul de santină cu alarmă de 15 ppm și dispozitiv de oprire automată; iar pe un petrolier nu provine din santinele camerei pompelor de marfă și nu este amestecată cu reziduuri de marfă. În zona Antarcticii nu se deversează nimic. Ce nu poate merge peste bord — sludge, reziduuri petroliere — se arde în incinerator sau se predă la țărm, iar fiecare mișcare se înregistrează.
+
+**Registrul de hidrocarburi, Partea I** acoperă operațiunile din compartimentul mașini și se ține pe orice navă de 400 GT și peste și pe orice petrolier de 150 GT și peste; **Partea a II-a** acoperă operațiunile de marfă și balast și se ține doar pe petroliere. Înscrierile se fac sub coduri-literă de la A la I — de exemplu C pentru colectarea și eliminarea reziduurilor petroliere (sludge), D pentru deversarea sau eliminarea neautomată a apei de santină, H pentru bunkerare. Ofițerul responsabil de operațiune semnează fiecare înscriere, comandantul semnează fiecare pagină completată, iar registrul rămâne la bord trei ani după ultima înscriere.
+
+Pe petroliere, regulile pentru zona de marfă sunt altele. În afara zonelor speciale, apa uleioasă din tancurile de marfă poate fi deversată doar la peste 50 de mile marine de cel mai apropiat uscat, în marș, cu cel mult 30 de litri de hidrocarburi pe milă marină, cu un total de cel mult 1/30 000 din ultima marfă pentru petrolierele construite după 1979 și cu sistemul de monitorizare a deversării hidrocarburilor (ODME) și tancurile slop în funcțiune. În zonele speciale — nimic. Zonele speciale ale Anexei I sunt Marea Mediterană, Marea Baltică, Marea Neagră și Marea Roșie, zona Golfurilor, Golful Aden, apele din nord-vestul Europei, zona Oman a Mării Arabiei, apele sudice ale Africii de Sud și Antarctica.
+
+> O „țeavă magică” — un furtun sau o bucată de tubulatură care ocolește separatorul — este calea clasică prin care navigatorii ajung în instanță. În Statele Unite, astfel de cazuri se încheie cu amenzi de milioane pentru companie și acuzații penale pentru șeful mecanic și pentru oricine a semnat înscrieri false. „Mi s-a ordonat” nu este o apărare. Ce e corect: refuzi și raportezi — comandantului, DPA-ului companiei sau statului de pavilion.
+
+## Anexa V: ce trebuie să știe toată lumea de la bord
+
+Din 2013, Anexa V funcționează ca o interdicție generală: tot ce nu este permis în mod expres este interzis. Niciodată peste bord: plastic de orice fel (inclusiv parâme sintetice, plase de pescuit, saci de gunoi și cenușa rezultată din arderea lor), ulei de gătit, cenușă de la incinerator, deșeuri menajere și operaționale, deșeuri electronice.
+
+Ce este permis în afara zonelor speciale, cu nava în marș și cât mai departe de uscat:
+
+- resturi alimentare mărunțite la cel mult 25 mm — la cel puțin 3 mile marine de uscat; resturi alimentare nemărunțite — la cel puțin 12 mile;
+- reziduuri de marfă care nu sunt dăunătoare mediului marin — la cel puțin 12 mile;
+- cadavre de animale — cât mai departe de uscat.
+
+În zonele speciale ale Anexei V — Marea Mediterană, Marea Baltică, Marea Neagră și Marea Roșie, zona Golfurilor, Marea Nordului, Antarctica și zona extinsă a Caraibilor — se pot deversa doar resturi alimentare mărunțite și doar la 12 mile sau mai mult, plus câteva cazuri înguste pentru reziduurile de marfă. În raza de 500 de metri de o platformă offshore nu se deversează nimic în afară de resturi alimentare mărunțite și numai când platforma se află la peste 12 mile de uscat. Când se amestecă gunoaie de tipuri diferite, regula mai strictă se aplică întregii cantități.
+
+**Registrul de gunoi** împarte gunoiul pe categorii: A plastic, B resturi alimentare, C deșeuri menajere, D ulei de gătit, E cenușă de la incinerator, F deșeuri operaționale, G cadavre de animale, H unelte de pescuit, I deșeuri electronice, J reziduuri de marfă nedăunătoare mediului marin, K reziduuri de marfă dăunătoare. Fiecare deversare, incinerare și predare la țărm primește un rând: data, ora, poziția, categoria, volumul estimat, semnătura. Registrul se păstrează doi ani. Navele de 12 metri și mai lungi afișează afișe; navele de 100 GT și peste, sau certificate să transporte 15 persoane sau mai multe, au un Plan de gestionare a gunoiului.
+
+## Anexele IV și VI pe scurt
+
+**Ape uzate.** Efluentul dintr-o instalație de tratare aprobată poate fi deversat oriunde, cu condiția să nu lase solide plutitoare vizibile și să nu decoloreze apa. Ape uzate mărunțite și dezinfectate — la cel puțin 3 mile de uscat. Ape uzate netratate dintr-un tanc de colectare — la cel puțin 12 mile, în marș cu cel puțin 4 noduri și cu un debit moderat. Marea Baltică este zonă specială, cu reguli stricte pentru navele de pasageri.
+
+**Aer.** Sulful din combustibil este limitat la 0,50% la nivel mondial și la 0,10% în zonele de control al emisiilor: Marea Baltică, Marea Nordului, zona nord-americană și zona Caraibilor americani, iar din 1 mai 2025 și Marea Mediterană. O navă fără scrubber nici măcar nu are voie să transporte combustibil neconform pentru consumul propriu. Înainte de intrarea într-o ECA, nava trece pe combustibil conform după o procedură scrisă, iar ora, poziția și cantitatea din fiecare tanc se înregistrează. Nota de livrare a combustibilului rămâne la bord trei ani, proba de combustibil MARPOL cel puțin douăsprezece luni. NOx Tier III se aplică în zonele de control al emisiilor de NOx motoarelor de pe navele mai noi — din 2016 în America de Nord și în Caraibii americani, din 2021 în Marea Nordului și Marea Baltică.
+
+## Certificatele și documentele cerute de controlul statului portului
+
+- Certificatul IOPP (Anexa I) cu Suplimentul — Formularul A pentru alte nave decât petrolierele, Formularul B pentru petroliere;
+- Certificatul NLS (Anexa II) pe tancurile chimice;
+- Certificatul ISPP (Anexa IV), Certificatele IAPP și IEE (Anexa VI), câte un Certificat EIAPP pentru fiecare motor diesel de peste 130 kW;
+- Registrul de hidrocarburi, Părțile I și II, Registrul de marfă, Registrul de gunoi, registrul substanțelor care distrug stratul de ozon, jurnalul de schimbare a combustibilului;
+- SOPEP (sau SMPEP pe navele care transportă lichide nocive) pe comandă, cu lista de contacte la zi, și dulapul cu materiale de intervenție la poluare pe punte;
+- Planul de gestionare a gunoiului și afișele.
+
+Majoritatea certificatelor se emit pentru cel mult cinci ani și se vizează la inspecțiile anuale și intermediare.
+
+## Ce se întreabă la interviu
+
+Întrebările depind de funcție, dar acestea revin mereu:
+
+- **Personalul nebrevetat de la mașini și ofițerii mecanici juniori:** cum funcționează separatorul și ce se întâmplă când sună alarma de 15 ppm (dispozitivul de oprire automată oprește deversarea peste bord — de obicei o valvă cu trei căi trimite apa înapoi în tancul de santină); cum sondezi tancurile de santină și de sludge; cine face înscrieri în Registrul de hidrocarburi.
+- **Șefii mecanici și secunzii mecanici:** codurile ORB; bilanțul de sludge — cât s-a produs, cât s-a ars și cât s-a predat la țărm, pe care controlul statului portului îl compară cu chitanțele și cu capacitatea incineratorului; trecerea pe combustibil conform la intrarea în ECA; registrul ODS; ce verifică un inspector în compartimentul mașini.
+- **Ofițerii de punte:** regulile pentru gunoi și zonele speciale, ce se trece în Registrul de gunoi, ce conține SOPEP și cum se desfășoară exercițiul; pe petroliere — criteriile de deversare din zona de marfă și ODME.
+- **Toată lumea:** „Ce faci dacă vezi un bypass în jurul separatorului?” Singurul răspuns corect: oprești, raportezi comandantului și DPA-ului companiei și refuzi să semnezi o înscriere falsă.
+
+## Greșeli frecvente
+
+1. Să crezi că 15 ppm înseamnă „pompezi oriunde”. Nava trebuie să fie în marș, echipamentul aprobat și funcțional, iar Antarctica este închisă complet.
+2. Saci „biodegradabili” peste bord. Plasticul e plastic: interdicția nu are excepții după tip.
+3. Resturi alimentare aproape de coastă sau nemărunțite într-o zonă specială.
+4. Corector sau pagini rupte într-un registru. O înscriere greșită se taie cu o singură linie, se scrie cea corectă și se semnează. Paginile lipsă și cifrele care nu se potrivesc cu sondajele tancurilor sunt primul lucru pe care îl caută un inspector.
+5. Să semnezi o înscriere pentru o operațiune pe care nu ai făcut-o sau nu ai văzut-o.
+6. Nicio înregistrare a schimbării combustibilului la limita ECA — ora, poziția și cantitățile din tancuri trebuie să existe.
+
+## Testează-te
+
+?? Care este conținutul maxim de hidrocarburi la deversarea apei de santină din compartimentul mașini?
+=> 15 ppm, fără diluare, prin echipament de filtrare aprobat, cu alarmă și dispozitiv de oprire automată, cu nava în marș.
+?? Se pot deversa resturi alimentare mărunțite în Marea Mediterană?
+=> Da — dacă sunt mărunțite la cel mult 25 mm, la cel puțin 12 mile marine de uscat, cu nava în marș. Resturile nemărunțite, nu.
+?? Cât timp se păstrează la bord Registrul de hidrocarburi? Dar Registrul de gunoi?
+=> Trei ani după ultima înscriere pentru ORB, doi ani pentru Registrul de gunoi.
+?? Care este limita de sulf în combustibil în afara și în interiorul unei ECA?
+=> 0,50% din masă în afara, 0,10% în zonele de control al emisiilor.
+?? Ce anexă se ocupă de apele uzate și ce anexă de poluarea aerului?
+=> Anexa IV se ocupă de apele uzate, Anexa VI de poluarea aerului.
+?? La ce categorie din Registrul de gunoi se trece uleiul de gătit uzat?
+=> Categoria D.
+
+## Cine are nevoie de asta la bord
+
+Toată lumea — dar mai ales compartimentul mașini: [șefii mecanici](/ro/jobs/rank/chief-engineer), [secunzii mecanici](/ro/jobs/rank/2nd-engineer), [ofițerii III mecanici](/ro/jobs/rank/3rd-engineer), [motoriștii](/ro/jobs/rank/motorman) și [ungătorii](/ro/jobs/rank/oiler). Pe [tancurile petroliere](/ro/jobs/vessel/tanker) și [tancurile chimice](/ro/jobs/vessel/chemical-tanker), ofițerii de punte care se ocupă de marfă au nevoie de Anexele I și II în detaliu — în primul rând [ofițerul secund](/ro/jobs/rank/chief-officer).
+
+Trece instruirea de mediu și experiența din compartimentul mașini în [CV-ul tău maritim](/ro/maritime-cv): agențiile de crewing caută amândouă.
+
+*Sursa: MARPOL 73/78, ediția consolidată, cu amendamentele în vigoare la data redactării. Regulile de deversare au condiții care nu sunt enumerate aici; la bord prevalează planurile navei și textul în vigoare al convenției. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = 'd385b029-cdd7-48d0-aced-44f9a9c8f893';
+
+-- ── ISGOTT ──────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('ISGOTT pe înțelesul tuturor: gazele, electricitatea statică, lista de verificare navă–țărm și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$ISGOTT — Ghidul internațional de siguranță pentru petroliere și terminale (International Safety Guide for Oil Tankers and Terminals) — este cartea după care lucrează fiecare petrolier și fiecare terminal petrolier. Nu este o convenție, dar un inspector de vetting, un terminal și o companie de tancuri îl tratează ca și cum ar fi. Dacă mergi pe un tanc, așteaptă-te la întrebări din el la interviu. Aici găsești părțile cerute cel mai des: ce este ghidul, gazele petroliere și cifrele lor, electricitatea statică, lista de verificare a siguranței navă–țărm și spațiile închise — iar la final, întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - ISGOTT este publicat de OCIMF împreună cu ICS și IAPH. Ediția în vigoare, a șasea, a apărut în 2020.
+:: - Este un ghid, nu o lege — dar terminalele, vettingul companiilor petroliere (SIRE) și sistemele de siguranță ale companiilor îl fac obligatoriu în practică.
+:: - Cifre-cheie: cel mult 8% oxigen în tancurile inertate; 21% oxigen și cel mult 1% din LFL pentru intrarea în tanc; 1 m/s la începutul încărcării.
+:: - Lista de verificare navă–țărm se completează împreună cu terminalul și se reverifică cât timp marfa este în mișcare.
+
+## Ce este ISGOTT și de ce contează
+
+Prima ediție a apărut în 1978. Ghidul este scris de OCIMF (Oil Companies International Marine Forum) împreună cu Camera Internațională a Navigației (ICS) și Asociația Internațională a Porturilor (IAPH). Nu este un instrument IMO și nu are, prin el însuși, putere de lege. În practică, asta nu schimbă nimic: un terminal nu începe operațiunea de marfă fără lista de verificare navă–țărm, un inspector de vetting SIRE compară practica navei cu el, iar sistemul de management al siguranței al companiei trimite la el aproape la fiecare pagină despre tancuri. La bordul unui tanc, ISGOTT este obligatoriu în toate privințele, mai puțin cu numele.
+
+Ediția a șasea (2020) a reorganizat cartea și a extins recomandările despre detectarea gazelor, despre substanțele toxice precum hidrogenul sulfurat și benzenul și despre intrarea în spațiile închise. A fost restructurată și lista de verificare navă–țărm.
+
+## Gazele petroliere: de ce explodează tancurile
+
+Gazele de hidrocarburi ard doar într-un interval îngust — aproximativ între 1% și 10% în volum în aer. Sub limita inferioară de inflamabilitate (LFL) amestecul este prea sărac, peste limita superioară (UFL) prea bogat; dar dacă ventilezi cu aer un tanc „prea bogat”, îl treci direct prin zona inflamabilă. Cealaltă latură a triunghiului este oxigenul: sub aproximativ 11% oxigen în volum, niciun amestec de gaze de hidrocarburi și aer nu mai poate arde. La asta folosește instalația de gaz inert:
+
+- instalația trebuie să livreze gaz inert cu cel mult 5% oxigen în volum;
+- tancurile de marfă se mențin la cel mult 8% oxigen și sub presiune pozitivă;
+- înainte de degazare, tancurile se purjează cu gaz inert până când hidrocarburile scad sub 2% în volum — abia apoi se introduce aer, astfel încât amestecul să nu devină inflamabil pe parcurs.
+
+SOLAS cere gaz inert pe petrolierele și tancurile chimice noi de 8 000 DWT și peste. Gazele de hidrocarburi sunt mai grele decât aerul: stau pe punte, în camera pompelor și în orice spațiu jos — de aceea vaporii nu „au dispărut” doar pentru că s-a oprit vântul.
+
+!! 1–10% | domeniul de inflamabilitate al gazelor de hidrocarburi în aer, în volum
+!! ≈11% | oxigen, sub care gazele de hidrocarburi nu pot arde
+!! ≤5% | oxigen în gazul inert livrat de instalație
+!! ≤8% | oxigen în tancurile de marfă inertate, sub presiune pozitivă
+!! <2% | hidrocarburi după purjare, înainte de introducerea aerului
+!! 21% | oxigen pentru intrarea în tanc, cu hidrocarburile la cel mult 1% din LFL
+
+## Electricitatea statică
+
+Produsul petrolier care curge prin tubulaturi și filtre se încarcă electric. Unele produse — acumulatorii de sarcină statică, de obicei produsele albe precum motorina, kerosenul și benzina — păstrează sarcina mult timp; țițeiul, de regulă, nu. O singură scânteie în spațiul de vapori al unui tanc neinertat este de ajuns. Regulile din ISGOTT:
+
+- la începutul încărcării, viteza în tubulatura spre fiecare tanc se ține la 1 m/s până când gura de intrare este acoperită și produsul nu mai stropește; apoi debitul poate crește (până la cel mult 7 m/s);
+- după încărcarea unui acumulator de sarcină statică într-un tanc neinertat, aștepți 30 de minute înainte de sondare, de măsurarea golului sau de prelevarea de probe cu echipament metalic;
+- tot ce coboară în tanc este legat electric; fără parâmă sintetică la prelevare, fără obiecte metalice libere;
+- racordul de marfă are o flanșă izolatoare sau o singură secțiune de furtun neconductoare, care oprește curenții vagabonzi dintre navă și țărm — cablul de legătură electrică navă–țărm nu mai este recomandat.
+
+## Lista de verificare a siguranței navă–țărm
+
+Lista se completează împreună de ofițerul responsabil al navei și de reprezentantul terminalului înainte de începerea operațiunii de marfă. În ediția a șasea este împărțită pe etape: ce verifică fiecare parte înainte de sosire, verificările după legare, conferința dinaintea transferului, cu planul convenit, și verificările repetate în timpul operațiunii. Unele puncte au un cod:
+
+- **R** — se reverifică în timpul operațiunii, la intervalul convenit în listă;
+- **A** — înțelegerea sau procedura trebuie să fie în scris;
+- **P** — dacă răspunsul este „nu”, operațiunea poate continua doar cu permisiunea autorității competente.
+
+Puncte tipice: legarea și apărătorile, accesul sigur, comunicațiile și semnalul de oprire, oprirea de urgență (ESD) convenită și testată, nările de punte astupate, racordurile de marfă și de combustibil nefolosite obturate, instalația de gaz inert în funcțiune și presiunea înregistrată, furtunurile de incendiu și stingătoarele pregătite, regulile pentru fumat și flacără deschisă, nava capabilă să se deplaseze cu propriile mijloace. O semnătură aici nu este o formalitate: dacă un punct nu este îndeplinit, marfa nu pornește, iar dacă se schimbă condițiile, marfa se oprește.
+
+## Spațiile închise și gazele toxice
+
+Tancurile de marfă, camera pompelor, coferdamurile, spațiile goale și tancurile de balast sunt toate spații închise. Intrarea se face doar cu permis, după ventilare și măsurători la mai multe niveluri: 21% oxigen în volum, hidrocarburi la cel mult 1% din LFL, gaze toxice sub 50% din limita de expunere profesională. La intrare stă o persoană de veghe, comunicațiile sunt convenite, echipamentul de salvare este pregătit, iar fiecare om dinăuntru poartă un detector de gaze personal. Atmosfera se schimbă: măsori imediat înainte de intrare și monitorizezi tot timpul cât sunt oameni înăuntru.
+
+O mare parte dintre cei care mor în spații închise sunt cei care s-au repezit să ajute. Salvarea începe cu alarma și cu aparatul de respirat — niciodată cu o fugă în tanc.
+
+Două gaze merită un cuvânt aparte. **Hidrogenul sulfurat (H2S)** vine cu țițeiul sulfuros și cu unele produse; la concentrații mari anesteziază simțul mirosului, așa că „nu-l mai simt” înseamnă pericol, nu siguranță. **Benzenul** este cancerigen și se găsește în benzină, nafta și unele țițeiuri; expunerea se limitează prin operațiuni închise și echipament de protecție.
+
+## Ce se întreabă la interviu
+
+- **Personalul nebrevetat de pe tancuri (AB, pompagiu, OS):** ce sunt LFL și UFL, ce echipament de protecție se poartă la operațiunile de marfă, ce este lista de verificare navă–țărm, ce faci dacă simți miros de gaz pe punte, cum se organizează intrarea într-un spațiu închis.
+- **Ofițerii juniori:** limitele de oxigen pentru gazul inert, ordinea purjării și a degazării, debitul inițial de încărcare și de ce există, regula celor 30 de minute, cine semnează lista și ce înseamnă R, A și P.
+- **Ofițerii secunzi:** planul de marfă și conferința dinaintea transferului, oprirea de urgență și ESD, finalizarea încărcării (topping off), ce mărfuri sunt acumulatori de sarcină statică, controlul emisiilor de vapori, observațiile de vetting legate de ISGOTT.
+- **Ofițerii mecanici de pe tancuri:** instalația de gaz inert (gaze de ardere sau generator), închiderea hidraulică de pe punte (deck water seal) și clapeta de reținere — ele împiedică vaporii de marfă să se întoarcă spre compartimentul mașini — și supapa de presiune/vacuum.
+
+## Greșeli frecvente
+
+1. Să tratezi ISGOTT ca pe o teorie pentru birou. Terminalele și inspectorii de vetting îi întreabă pe cei de cart pe punte, nu doar pe ofițeri.
+2. Să bifezi lista fără să verifici. Fiecare „da” este răspunderea personală a celui care semnează.
+3. Să măsori golul imediat după încărcarea kerosenului într-un tanc neinertat — uitând de cele 30 de minute.
+4. Să intri într-un tanc „degazat” pe baza unei măsurători de dimineață.
+5. Să intri după un coleg căzut fără aparat de respirat.
+6. Să confunzi % din LFL cu % în volum. 1% din LFL este a suta parte din limita inferioară — pentru gazele de hidrocarburi obișnuite, aproximativ 0,01% în volum, de o sută de ori mai puțin decât „1%”.
+
+## Testează-te
+
+?? Cine publică ISGOTT și ce ediție este în vigoare?
+=> OCIMF împreună cu ICS și IAPH. Ediția a șasea, apărută în 2020.
+?? Ce conținut de oxigen trebuie menținut în tancurile de marfă inertate?
+=> Cel mult 8% în volum, sub presiune pozitivă. Gazul inert în sine se livrează cu cel mult 5% oxigen.
+?? De ce se ține debitul de încărcare la 1 m/s la început?
+=> Ca să limiteze sarcina statică cât timp gura de intrare este descoperită și produsul stropește — faza cea mai periculoasă într-un tanc neinertat.
+?? Ce atmosferă se cere înainte de intrarea într-un tanc de marfă?
+=> 21% oxigen în volum, hidrocarburi la cel mult 1% din LFL, gaze toxice sub 50% din limita de expunere — măsurate la mai multe niveluri, cu permis și cu o persoană de veghe la intrare.
+?? Ce înseamnă litera R în lista de verificare a siguranței navă–țărm?
+=> Punctul se reverifică în timpul operațiunii, la intervalul convenit în listă.
+?? Un coleg a căzut în camera pompelor. Ce faci?
+=> Dai alarma, nu intri fără aparat de respirat, începi salvarea cu echipa conform planului navei și lași ventilația pornită.
+
+## Cine are nevoie de asta la bord
+
+Toți cei de pe un [tanc petrolier](/ro/jobs/vessel/tanker) sau un [tanc chimic](/ro/jobs/vessel/chemical-tanker) — de la [marinarul AB](/ro/jobs/rank/able-seaman) și [șeful de echipaj](/ro/jobs/rank/bosun) până la [ofițerul secund](/ro/jobs/rank/chief-officer) și [comandant](/ro/jobs/rank/master); pentru ofițerii mecanici, precum [secundul mecanic](/ro/jobs/rank/2nd-engineer), mai ales instalația de gaz inert. ISGOTT nu înlocuiește atestatele de tanc — pregătirea de bază și avansată pentru operațiunile de marfă pe petroliere, conform STCW V/1-1, rămâne obligatorie; este cartea din care se învață practica.
+
+*Sursa: ISGOTT, ediția a șasea (OCIMF, ICS, IAPH, 2020), și capitolul II-2 SOLAS pentru gazul inert. Cifrele sunt date așa cum le prevede ghidul; la bord se aplică procedurile companiei și regulile terminalului. Această pagină este un material de studiu, nu un înlocuitor al cărții.*$ro$::text))
+WHERE id = '1498a516-82e0-4e93-94d4-28cafe38ace1';
+
+-- ── SOLAS ───────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('SOLAS pe înțelesul tuturor: exerciții, mijloace de salvare și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$SOLAS este convenția din spatele rolului de alarmă de pe perete, al vestei de salvare din cabina ta și al alarmei care te cheamă la exercițiu duminică după-amiază. Este cea mai veche și cea mai cuprinzătoare dintre convențiile maritime, iar partea cu care se întâlnește zilnic orice navigator — mijloacele de salvare și exercițiile — este și partea despre care întreabă orice interviu de crewing. Aici găsești structura convenției, cifrele cerute cel mai des, ce faci când sună alarma, greșelile din cauza cărora oamenii se rănesc la exerciții și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - SOLAS 1974 este convenția IMO pentru ocrotirea vieții omenești pe mare. Capitolele ei acoperă construcția, incendiul, mijloacele de salvare, radiocomunicațiile, navigația, mărfurile, Codurile ISM și ISPS.
+:: - Semnalul general de alarmă înseamnă șapte sau mai multe sunete scurte urmate de unul lung.
+:: - Fiecare membru al echipajului participă lunar la un exercițiu de abandonare a navei și la un exercițiu de incendiu.
+:: - Vesta de salvare se îmbracă într-un minut, costumul de imersiune în două — fără ajutor.
+
+## Ce este SOLAS
+
+Prima convenție SOLAS a fost adoptată în 1914, la doi ani după Titanic. Au urmat versiuni noi în 1929, 1948 și 1960; cea în vigoare astăzi este convenția din 1974, aplicabilă din 25 mai 1980 și amendată aproape în fiecare an de atunci. Amendamentele intră în vigoare prin „acceptare tacită”: se aplică de la o dată stabilită, dacă nu obiectează suficiente state — de aceea SOLAS ține pasul cu tehnologia mai repede decât majoritatea tratatelor.
+
+Se aplică navelor în voiaje internaționale: navelor de pasageri de orice mărime și navelor de marfă de 500 GT și peste. Unele capitole merg mai departe — capitolul de radiocomunicații începe de la 300 GT, iar cel de navigație se aplică aproape oricărei nave, în orice voiaj. Controlul statului portului o verifică în fiecare port.
+
+## Capitolele
+
+- **I — Dispoziții generale:** inspecții și certificate.
+- **II-1 — Construcția:** compartimentare și stabilitate, mașini, instalații electrice.
+- **II-2 — Protecția, detectarea și stingerea incendiilor**, împreună cu Codul FSS.
+- **III — Mijloace și dispozitive de salvare**, împreună cu Codul LSA.
+- **IV — Radiocomunicații:** GMDSS.
+- **V — Siguranța navigației:** echipamentul de pe comandă, AIS, VDR, ECDIS, scările de pilot, echipajul minim.
+- **VI și VII — Mărfuri și mărfuri periculoase**, prin Codurile IMSBC, IMDG, IBC și IGC.
+- **VIII — Nave nucleare.**
+- **IX — Managementul exploatării în siguranță a navelor:** Codul ISM.
+- **X — Ambarcațiuni de mare viteză.**
+- **XI-1 și XI-2 — Măsuri speciale pentru siguranță și pentru securitate:** numărul IMO, Fișa sinoptică continuă, Codul ISPS.
+- **XII — Măsuri suplimentare pentru vrachiere.**
+- **XIII și XIV — Verificarea conformității și navele în ape polare** (Codul Polar).
+- **XV — Nave care transportă personal industrial** (Codul IP, din 2024).
+
+## Cifrele-cheie
+
+!! 7 + 1 | sunete scurte și unul lung: semnalul general de alarmă
+!! lunar | exercițiu de abandonare și de incendiu pentru fiecare membru al echipajului
+!! 24 h | pentru exerciții după plecare, dacă peste 25% din echipaj sunt noi
+!! 3 luni | fiecare barcă de salvare lansată și manevrată cu echipajul ei
+!! 10 min | pentru lansarea tuturor ambarcațiunilor de salvare pe o navă de marfă (30 pe una de pasageri)
+!! 2 luni | exercițiu de intrare și salvare din spații închise
+
+## Exercițiile: ce cere Capitolul III
+
+- Fiecare membru al echipajului cu atribuții în caz de urgență trebuie să le cunoască înainte de începerea voiajului.
+- Fiecare membru al echipajului participă lunar la cel puțin un exercițiu de abandonare a navei și la un exercițiu de incendiu.
+- Dacă peste 25% din echipaj nu au participat la exerciții pe nava respectivă în luna precedentă, exercițiile se fac în cel mult 24 de ore de la plecarea din port.
+- Echipajul nou primește instruire la bord privind mijloacele de salvare și de stingere a incendiilor ale navei cât mai curând posibil și cel târziu la două săptămâni de la îmbarcare.
+- Fiecare barcă de salvare este lansată cu echipajul ei și manevrată pe apă cel puțin o dată la trei luni; bărcile cu cădere liberă au propria schemă.
+- Bărcile de urgență (rescue boat) sunt lansate cu echipajul lor și manevrate pe apă lunar, în măsura în care este rezonabil și posibil, și cel puțin o dată la trei luni.
+- Un exercițiu de intrare și salvare din spații închise se face cel puțin o dată la două luni.
+- Iluminatul de urgență pentru adunare și abandonare se testează la fiecare exercițiu de abandonare a navei.
+
+Pe navele de pasageri, exercițiul de abandonare și cel de incendiu se fac în fiecare săptămână. Fiecare exercițiu se trece în jurnalul de bord.
+
+## Alarma și rolul de alarmă
+
+Semnalul general de alarmă înseamnă **șapte sau mai multe sunete scurte urmate de un sunet lung** cu sirena navei, repetate de soneriile de alarmă. Când îl auzi, mergi la postul tău de adunare — nu direct la barca de salvare — în haine călduroase, cu căciulă, vesta de salvare și, dacă ți s-a repartizat, costumul de imersiune. Ordinul de abandonare a navei îl dă comandantul, verbal.
+
+**Rolul de alarmă** se afișează pe comandă, în compartimentul mașini și în spațiile de locuit ale echipajului înainte ca nava să plece. Pentru fiecare persoană arată postul și atribuția în fiecare situație de urgență și cine pe cine înlocuiește dacă cineva lipsește. Majoritatea companiilor pun și o fișă cu atribuțiile tale în cabină. Primul lucru pe care îl faci după îmbarcare este să-ți găsești numele pe el.
+
+## Mijloacele de salvare pe care trebuie să le știi pe de rost
+
+- **Vestele de salvare:** una pentru fiecare persoană de la bord, plus suplimentare la posturile de cart, fiecare cu lumină și fluier. O vestă trebuie să poată fi îmbrăcată corect într-un minut, fără ajutor, și să permită o săritură în apă de la cel puțin 4,5 metri.
+- **Costumele de imersiune:** pe navele de marfă, câte unul pentru fiecare persoană de la bord. Trebuie să poată fi îmbrăcat fără ajutor în două minute.
+- **Colacii de salvare:** între 8 și 14 pe o navă de marfă, în funcție de lungime. Cel puțin câte unul pe fiecare bord are o saulă plutitoare de cel puțin 30 de metri; cel puțin jumătate au lumini cu aprindere automată; cel puțin doi dintre aceștia au și semnale de fum cu declanșare automată și pot fi eliberați rapid de pe comandă — pentru om la apă.
+- **Ambarcațiunile de salvare:** pe o navă de marfă se socotesc de două ori — bărci de salvare (sau o barcă cu cădere liberă la pupa) pentru toți cei de la bord și, încă o dată, plute de salvare pentru toți. Toate trebuie să poată fi lansate cu numărul complet de persoane în 10 minute de la semnalul de abandonare; pe o navă de pasageri, în 30 de minute.
+- **Inventarul bărcii de salvare**, printre altele: 3 litri de apă de persoană (o parte poate fi înlocuită cu un desalinizator), rații de hrană, 4 rachete cu parașută, 6 facle de mână și 2 semnale de fum plutitoare. O plută de salvare are 1,5 litri de apă de persoană și aceleași mijloace pirotehnice.
+- **Pe comandă sau lângă ea:** cel puțin 12 rachete cu parașută.
+- **Mijloacele radio de salvare:** un EPIRB pe 406 MHz care se eliberează singur; un transponder radar (SART) sau un AIS-SART pe fiecare bord (unul pe navele de marfă de 300–499 GT); cel puțin trei stații VHF portabile bidirecționale pe navele de 500 GT și peste.
+- **Eliberarea plutei:** dispozitivul de eliberare hidrostatică (HRU) eliberează pluta la o adâncime de cel mult 4 metri; pluta iese la suprafață, bosa o trage și o deschide, iar veriga slabă se rupe, ca nava care se scufundă să n-o tragă după ea.
+
+**Întreținerea.** Săptămânal: inspecția vizuală a ambarcațiunilor de salvare, a bărcilor de urgență și a dispozitivelor de lansare, motoarele bărcilor pornite înainte și înapoi cel puțin 3 minute și testarea alarmei generale. Lunar: o inspecție după o listă de verificare, înregistrată în jurnal. Anual: o examinare amănunțită a bărcilor de salvare, a bărcilor de urgență, a gruielor și a dispozitivelor de declanșare de către un furnizor de service autorizat. Plutele merg la service la țărm o dată la 12 luni; talpacurile bărcilor se întorc cap la cap cel puțin o dată la 30 de luni și se înlocuiesc cel puțin o dată la 5 ani.
+
+## Incendiul, energia de avarie și instruirea, pe scurt
+
+Exercițiile de incendiu sunt lunare, împreună cu cele de abandonare. Planul de protecție împotriva incendiilor este afișat în spațiile de locuit; o navă de marfă are cel puțin două echipamente de pompier și cel puțin două aparate de respirat pentru evacuare de urgență (EEBD) în spațiile de locuit, plus altele în compartimentul mașini. Generatorul de avarie trebuie să pornească singur și să preia sarcina în 45 de secunde de la căderea tensiunii.
+
+Fiecare navigator are pregătirea de bază STCW — tehnici individuale de supraviețuire, prevenirea și stingerea incendiilor, prim ajutor elementar, siguranță personală și responsabilități sociale — și le reîmprospătează pe primele două o dată la cinci ani. Echipajele bărcilor de salvare au certificat de competență pentru ambarcațiuni de salvare și bărci de urgență.
+
+## Certificatele și documentele cerute de controlul statului portului
+
+- certificatele de siguranță pentru construcție, pentru echipament (cu inventarul echipamentului, Formularul E) și radio ale navei de marfă — sau un singur Certificat de siguranță combinat; emise pentru cel mult cinci ani și vizate la inspecțiile anuale și periodice;
+- pe navele de pasageri, Certificatul de siguranță pentru navă de pasageri, valabil 12 luni;
+- Certificatul de management al siguranței și Documentul de conformitate al companiei (ISM), Certificatul internațional de securitate a navei (ISPS), Documentul privind echipajul minim de siguranță;
+- rolul de alarmă, manualul de instruire (în careuri și în sălile de recreere sau în fiecare cabină), planul de protecție împotriva incendiilor, evidențele de întreținere LSA și de stingere a incendiilor, înscrierile despre exerciții în jurnal.
+
+Siguranța la incendiu și mijloacele de salvare sunt constant printre cele mai frecvente deficiențe găsite de controlul statului portului. Un inspector îi cere adesea unui membru al echipajului să pornească motorul bărcii de salvare, să îmbrace un costum de imersiune sau să-și explice atribuția din rolul de alarmă.
+
+## Ce se întreabă la interviu
+
+- **Personalul nebrevetat (AB, OS, motorist, bucătar):** semnalul general de alarmă; postul tău de adunare și atribuția ta; îmbrăcarea vestei de salvare și a costumului de imersiune; ce se află într-o barcă de salvare; lansarea unei plute; cum funcționează dispozitivul de eliberare hidrostatică.
+- **Ofițerii de punte:** frecvența exercițiilor și regula 25% / 24 de ore; programul de întreținere LSA; timpii de lansare; ce este Formularul E; cine răspunde la bord de mijloacele de salvare și de stingere a incendiilor.
+- **Ofițerii mecanici:** motorul bărcii de salvare și pornirea lui săptămânală, pompa de incendiu de avarie, generatorul de avarie și cele 45 de secunde ale lui.
+- **Bucătarii și ospătarii:** un incendiu în bucătărie (niciodată apă pe grăsime aprinsă); pe navele de pasageri, îndrumarea pasagerilor spre posturile de adunare.
+- **Toată lumea:** „Ce faci când auzi șapte scurte și unul lung?”
+
+## Greșeli frecvente
+
+1. Să nu citești rolul de alarmă după îmbarcare. „Care este atribuția ta?” este primul lucru pe care îl întreabă un inspector.
+2. Să tratezi exercițiile ca pe o bifă. O parte reală din accidentele cu bărci de salvare se petrec la exerciții, adesea cu cârlige de declanșare sub sarcină armate greșit; din 2014 cârligele care nu îndeplineau noile cerințe au trebuit înlocuite, cel târziu până în 2019.
+3. Costumul de imersiune greșit: mărime nepotrivită, fermoar neînchis, glugă netrasă sau depozitat unde nu ajungi la el.
+4. Vesta de salvare cu legăturile lăsate libere. La o săritură de la înălțime îți urcă în față.
+5. O plută care nu se poate elibera singură: HRU vopsit, legături suplimentare, bosa legată direct de navă în loc să treacă prin veriga slabă.
+6. Uși de incendiu blocate deschise și căi de evacuare blocate cu provizii.
+
+## Testează-te
+
+?? Care este semnalul general de alarmă?
+=> Șapte sau mai multe sunete scurte urmate de un sunet lung, cu sirena navei și cu soneriile de alarmă.
+?? Cât de des participă fiecare membru al echipajului la un exercițiu de abandonare a navei și la unul de incendiu?
+=> Cel puțin o dată pe lună. Dacă peste 25% din echipaj sunt noi pe navă, exercițiile se fac în cel mult 24 de ore de la plecarea din port.
+?? În cât timp trebuie să poți îmbrăca o vestă de salvare și un costum de imersiune?
+=> Vesta într-un minut, costumul în două — amândouă fără ajutor.
+?? Cât de des se lansează o barcă de salvare cu echipajul ei și se manevrează pe apă?
+=> Cel puțin o dată la trei luni, în timpul unui exercițiu de abandonare a navei.
+?? La ce adâncime eliberează dispozitivul hidrostatic pluta de salvare?
+=> La cel mult 4 metri. Pluta iese la suprafață, bosa o trage și o deschide, iar veriga slabă se rupe.
+?? Câte rachete cu parașută se păstrează pe comandă sau lângă ea?
+=> Cel puțin 12.
+
+## Cine are nevoie de asta la bord
+
+Toată lumea — de la [marinarul stagiar OS](/ro/jobs/rank/ordinary-seaman) și [bucătar](/ro/jobs/rank/cook) până la [comandant](/ro/jobs/rank/master). De mijloacele de salvare și de stingere a incendiilor se ocupă de obicei [ofițerul III punte](/ro/jobs/rank/3rd-officer) împreună cu [șeful de echipaj](/ro/jobs/rank/bosun); de motorul bărcii și de generatorul de avarie — compartimentul mașini, adesea [ofițerul III mecanic](/ro/jobs/rank/3rd-engineer). Pe [navele de croazieră](/ro/jobs/vessel/cruise-ship) și pe [feriboturi](/ro/jobs/vessel/ferry), exercițiile sunt săptămânale, iar adunarea pasagerilor este o meserie în sine.
+
+Certificatele de pregătire de bază și datele lor de expirare își au locul în [CV-ul tău maritim](/ro/maritime-cv): agențiile de crewing le verifică primele.
+
+*Sursa: SOLAS 1974, ediția consolidată, cu Codurile LSA și FSS și amendamentele în vigoare la data redactării. Statele de pavilion și companiile pot cere mai mult; la bord prevalează rolul de alarmă și manualul de instruire ale navei. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '2cbdb6d6-b0fa-498a-9c32-68bd9b95e096';
+
+-- ── COLREG ──────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('COLREG pe înțelesul tuturor: cine se ferește, lumini, semnale sonore și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$COLREG — Regulamentul internațional pentru prevenirea abordajelor pe mare — este codul rutier al mării: cine manevrează pentru a se feri, ce lumini și semnale de zi arată o navă și ce înseamnă un sunet de sirenă. Fiecare ofițer de punte este examinat pe el pentru brevet, iar un comandant care intervievează un ofițer nou desenează adesea lumini pe o foaie și întreabă ce navă este. Aici găsești structura regulilor, regulile care decid majoritatea întâlnirilor, luminile și semnalele sonore cerute cel mai des, capcanele și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - COLREG 1972: 41 de reguli în șase părți și patru anexe, în vigoare din 15 iulie 1977.
+:: - Regulile care decid majoritatea întâlnirilor: 5 (veghea), 6 (viteza de siguranță), 7 (riscul de abordaj), 8 (manevra), 13–17 (cine se ferește) și 19 (vizibilitatea redusă).
+:: - Când drumurile se încrucișează, se ferește nava care o are pe cealaltă în tribordul ei.
+:: - În vizibilitate redusă nu există navă care își menține drumul: manevrează toată lumea.
+
+## Ce este COLREG
+
+Regulile au fost adoptate la IMO în 1972 și au intrat în vigoare la 15 iulie 1977, înlocuind regulile din 1960. Ele au inclus schemele de separare a traficului în reguli și au fost amendate de mai multe ori de atunci; ultima parte, despre verificarea conformității, a fost adăugată în 2016. Se aplică tuturor navelor în marea liberă și în toate apele legate de aceasta, navigabile pentru navele maritime. Un stat poate avea reguli speciale pentru porturile, râurile și apele sale interioare, dar acestea trebuie să urmeze COLREG cât mai îndeaproape.
+
+Regula 2 dă tonul pentru tot restul: nimic din reguli nu scuză neglijarea vreunei precauții cerute de practica marinărească obișnuită, iar pentru a evita un pericol imediat o navă se poate abate de la reguli. Regulile nu înlocuiesc marinăria; o presupun.
+
+## Cum sunt construite regulile
+
+- **Partea A — Generalități (Regulile 1–3):** aplicare, răspundere și definiții — navă cu propulsie mecanică și navă cu vele, navă angajată în pescuit, navă fără guvernare, navă cu capacitate de manevră restrânsă, navă stânjenită de pescajul său, în marș, vizibilitate redusă.
+- **Partea B — Reguli de guvernare și de navigație (Regulile 4–19):** conduita în orice condiții de vizibilitate (4–10), navele care se văd una pe alta (11–18), vizibilitatea redusă (19).
+- **Partea C — Lumini și semnale de zi (Regulile 20–31).**
+- **Partea D — Semnale sonore și luminoase (Regulile 32–37).**
+- **Partea E — Scutiri (Regula 38).**
+- **Partea F — Verificarea conformității (Regulile 39–41).**
+- **Anexe:** I — poziționarea și detaliile tehnice ale luminilor și semnalelor de zi; II — semnale suplimentare pentru navele care pescuiesc aproape una de alta; III — aparatura pentru semnale sonore; IV — semnalele de pericol.
+
+## Cifrele-cheie
+
+!! 41 | de reguli în șase părți, plus patru anexe
+!! 225° | sectorul luminii de catarg; 112,5° fiecare lumină de bordaj, 135° lumina de pupă
+!! 6 mile | bătaia luminii de catarg la o navă de 50 de metri sau mai lungă
+!! 22,5° | înapoia traversului: dacă vii de acolo, depășești
+!! 2 min | intervalul maxim dintre semnalele de ceață când nava este în marș
+!! 5 + | sunete scurte și rapide: „nu înțeleg intențiile tale”
+
+## Regulile care decid majoritatea întâlnirilor
+
+- **Regula 5 — Veghea:** în permanență, vizual și auditiv și prin toate mijloacele disponibile — radar, AIS, ascultarea pe VHF.
+- **Regula 6 — Viteza de siguranță:** o viteză la care poți lua măsuri corecte și eficiente și te poți opri pe o distanță potrivită. Depinde de vizibilitate, de densitatea traficului, de capacitatea ta de manevră, de luminile de fond noaptea, de vânt, mare și curent, de pescaj și de limitele radarului.
+- **Regula 7 — Riscul de abordaj:** dacă relevmentul la compas al unei nave care se apropie nu se schimbă apreciabil, riscul există. Poate exista chiar și când relevmentul se schimbă — la o navă foarte mare, la un convoi remorcat sau la distanță mică. Nu trage concluzii din informații insuficiente, mai ales din informații radar insuficiente.
+- **Regula 8 — Manevra pentru evitarea abordajului:** hotărâtă, făcută din timp și destul de mare pentru a fi ușor observată de cealaltă navă, vizual sau pe radar. Evită o succesiune de schimbări mici. Verifică eficiența manevrei până când cealaltă navă a trecut definitiv și este degajată.
+- **Regula 9 — Șenalele înguste:** ține-te cât mai aproape de limita exterioară a șenalului din tribordul tău, cât este sigur și posibil. Navele sub 20 de metri și navele cu vele nu trebuie să stânjenească o navă care poate naviga în siguranță doar în interiorul șenalului.
+- **Regula 10 — Schemele de separare a traficului:** mergi în direcția generală a traficului de pe culoarul tău, intră și ieși pe la capete, iar dacă trebuie să traversezi, fă-o cu un drum cât mai aproape de unghiul drept față de direcția traficului.
+- **Regula 13 — Depășirea:** nava care depășește se ferește, indiferent ce fel de nave sunt amândouă. Depășești când vii dintr-o direcție de peste 22,5° înapoia traversului celeilalte nave — noaptea i-ai vedea doar lumina de pupă. Dacă ai îndoieli, consideră că depășești.
+- **Regula 14 — Drumuri opuse:** două nave cu propulsie mecanică care se întâlnesc pe drumuri opuse sau aproape opuse își schimbă fiecare drumul la tribord și trec babord la babord.
+- **Regula 15 — Drumuri care se încrucișează:** dintre două nave cu propulsie mecanică ale căror drumuri se încrucișează, se ferește cea care o are pe cealaltă în tribordul ei și, dacă împrejurările permit, evită să-i taie prova.
+- **Regula 16 — Nava care trebuie să se ferească:** ia din timp măsuri hotărâte pentru a se ține bine la distanță.
+- **Regula 17 — Nava care își menține drumul:** își păstrează drumul și viteza. Poate manevra singură de îndată ce devine evident că nava care trebuie să se ferească nu ia măsurile potrivite și trebuie să manevreze când abordajul nu mai poate fi evitat doar de manevra celeilalte. La drumuri care se încrucișează, o navă cu propulsie mecanică ce își menține drumul nu ar trebui să schimbe drumul la babord pentru o navă aflată în babordul ei, dacă împrejurările permit.
+- **Regula 18 — Responsabilitățile între nave:** dacă Regulile 9, 10 și 13 nu cer altfel, o navă cu propulsie mecanică se ferește de o navă fără guvernare, de o navă cu capacitate de manevră restrânsă, de o navă angajată în pescuit și de o navă cu vele; o navă cu vele se ferește de primele trei; o navă angajată în pescuit, pe cât posibil, de primele două. Orice navă, în afară de acestea două, evită să stânjenească o navă stânjenită de pescajul său.
+- **Regula 19 — Vizibilitatea redusă:** pentru navele care nu se văd una pe alta. Mergi cu viteză de siguranță, cu mașinile gata de manevră imediată. Aici nu există navă care se ferește și navă care își menține drumul — manevrează toată lumea. Dacă o navă detectată doar pe radar creează o situație de apropiere excesivă, manevrează din timp, dar evită schimbarea drumului la babord pentru o navă aflată înaintea traversului (în afară de una pe care o depășești) și evită să schimbi drumul spre o navă aflată în travers sau înapoia traversului. Dacă auzi un semnal de ceață care pare să vină dinaintea traversului, reduce viteza la minimul la care poți ține drumul, oprește complet nava dacă e nevoie și navighează cu extremă prudență până trece pericolul.
+
+## Luminile și semnalele de zi
+
+**Sectoarele:** lumina de catarg — albă, 225°, din prova până la 22,5° înapoia traversului în fiecare bord; luminile de bordaj — roșie în babord și verde în tribord, câte 112,5°; lumina de pupă — albă, 135°; lumina de remorcare — galbenă, 135°; luminile vizibile de jur împrejur — 360°.
+
+**Bătaia luminilor** la o navă de 50 de metri sau mai lungă: lumina de catarg 6 mile marine; luminile de bordaj, lumina de pupă, cea de remorcare și cele de jur împrejur 3 mile. Între 12 și 50 de metri: lumina de catarg 5 mile (3 sub 20 de metri), celelalte 2 mile. O navă cu propulsie mecanică de 50 de metri sau mai lungă, în marș, arată două lumini de catarg, cea de la pupa mai sus.
+
+Luminile și semnalele de zi cerute cel mai des (luminile sunt vizibile de jur împrejur, dacă nu se spune altfel):
+
+- **Navă fără guvernare:** două lumini roșii pe verticală; ziua, două bule. Când are viteză față de apă, și luminile de bordaj și lumina de pupă.
+- **Navă cu capacitate de manevră restrânsă:** roșu, alb, roșu pe verticală; ziua bulă, romb, bulă.
+- **Navă stânjenită de pescajul său:** trei lumini roșii pe verticală, pe lângă luminile obișnuite; ziua, un cilindru.
+- **Navă angajată în pescuit cu traulul:** verde deasupra albului. **Navă angajată în alt fel de pescuit:** roșu deasupra albului. Ziua, amândouă arată două conuri cu vârfurile unite. Când au viteză față de apă, și luminile de bordaj și lumina de pupă.
+- **Navă-pilot în serviciu:** alb deasupra roșului.
+- **La ancoră:** o lumină albă la prova și a doua, mai jos, albă, la pupa (o singură lumină albă sub 50 de metri); ziua, o bulă la prova.
+- **Eșuată:** luminile de ancoră plus două lumini roșii pe verticală; ziua, trei bule.
+- **Navă cu vele în marș:** lumini de bordaj și lumină de pupă, fără lumină de catarg; poate arăta în plus roșu deasupra verdelui în vârful catargului.
+- **Navă cu propulsie mecanică ce remorchează:** două lumini de catarg pe verticală (trei când remorca depășește 200 de metri), lumini de bordaj, lumină de pupă și o lumină galbenă de remorcare deasupra celei de pupă; ziua, un romb dacă remorca depășește 200 de metri.
+
+## Semnalele sonore
+
+Un sunet scurt durează aproximativ o secundă, un sunet prelungit între patru și șase secunde.
+
+**Navele care se văd una pe alta:**
+
+- un sunet scurt — „îmi schimb drumul la tribord”;
+- două sunete scurte — „îmi schimb drumul la babord”;
+- trei sunete scurte — „mașinile mele merg înapoi”;
+- cinci sau mai multe sunete scurte și rapide — îndoială privind intențiile sau acțiunile celeilalte nave;
+- un sunet prelungit — apropierea de o cotitură sau de o porțiune de șenal unde pot fi nave ascunse;
+- într-un șenal îngust, două prelungite și unul scurt — „intenționez să te depășesc prin tribordul tău”, două prelungite și două scurte — „prin babordul tău”; nava depășită își dă acordul cu prelungit, scurt, prelungit, scurt.
+
+**În vizibilitate redusă**, la intervale de cel mult două minute:
+
+- navă cu propulsie mecanică ce are viteză față de apă — un sunet prelungit;
+- navă cu propulsie mecanică în marș, dar oprită — două sunete prelungite;
+- navă fără guvernare, cu capacitate de manevră restrânsă, stânjenită de pescajul său, cu vele, angajată în pescuit, care remorchează sau împinge — un sunet prelungit și două scurte;
+- o navă remorcată cu echipaj la bord — un sunet prelungit și trei scurte, imediat după semnalul navei care remorchează;
+- la ancoră — clopotul sunat rapid timp de aproximativ cinci secunde, la intervale de cel mult un minut (peste 100 de metri, clopot la prova și gong la pupa); poate adăuga un scurt, un prelungit și un scurt pentru a avertiza o navă care se apropie;
+- eșuată — semnalul de ancoră, cu trei lovituri de clopot separate și distincte înainte și după el.
+
+## Ce se întreabă la interviu
+
+- **Cadeții și marinarii AB de veghe:** la ce folosește veghea și cum raportezi o lumină sau o navă („lumină la un cart în prova tribord”); luminile unei nave cu propulsie mecanică; ce înseamnă roșu deasupra albului; semnalele de ceață.
+- **Ofițerii III și II punte:** Regulile 7, 8 și 13–17; recunoașterea noaptea, doar după lumini, a drumurilor opuse și a celor care se încrucișează; diferența dintre navă fără guvernare, cu capacitate de manevră restrânsă și stânjenită de pescaj; regulile din schemele de separare a traficului; CPA și TCPA de pe radar; când chemi comandantul.
+- **Ofițerii secunzi și comandanții:** Regula 2, manevrele conform Regulii 17, mai multe ținte în vizibilitate redusă, înțelegerile de trecere pe VHF și de ce sunt riscante, regulile locale.
+- **CES și testele similare:** secțiunea COLREG este o parte fixă a oricărui test pentru ofițerii de punte.
+
+## Greșeli frecvente
+
+1. Să schimbi drumul la babord la drumuri opuse sau la o încrucișare apropiată, „ca să treci tribord la tribord”. Două nave care virează una spre cealaltă sunt abordajul clasic.
+2. O serie de schimbări mici pe care cealaltă navă nu le vede pe radar. Regula 8 cere o singură manevră din timp, mare și evidentă.
+3. Să crezi că nava care își menține drumul „are prioritate” și trebuie să țină drumul orice ar fi. Trebuie să manevreze când nava care se ferește nu mai poate evita singură abordajul.
+4. Să aplici în ceață regulile pentru navele care se văd. În vizibilitate redusă nu există navă care își menține drumul, iar schimbarea drumului la babord pentru o navă aflată înaintea traversului trebuie evitată.
+5. Să negociezi trecerea pe VHF în loc să urmezi regulile. Costă timp, iar vocea care răspunde poate fi a altei nave.
+6. Să te bazezi doar pe AIS. Nu orice navă transmite, iar datele pot fi greșite; veghea și radarul vin primele.
+7. Să tratezi o navă stânjenită de pescaj ca pe una fără guvernare. Ceilalți evită s-o stânjenească, dar ea însăși trebuie să navigheze cu deosebită prudență.
+
+## Testează-te
+
+?? Două nave cu propulsie mecanică au drumuri care se încrucișează. Care se ferește?
+=> Cea care o are pe cealaltă în tribordul ei (Regula 15). Dacă împrejurările permit, evită să-i taie prova.
+?? Noaptea vezi o lumină verde deasupra uneia albe, amândouă vizibile de jur împrejur. Ce este?
+=> O navă angajată în pescuit cu traulul. Roșu deasupra albului înseamnă o navă angajată în alt fel de pescuit.
+?? Ce înseamnă unul, două și trei sunete scurte?
+=> Unul — „îmi schimb drumul la tribord”, două — „la babord”, trei — „mașinile mele merg înapoi”.
+?? Din ce direcție o navă devine navă care depășește?
+=> Când vine dintr-o direcție de peste 22,5° înapoia traversului celeilalte nave. Dacă ai îndoieli, consideră că depășești.
+?? Pe ceață auzi un semnal de ceață care pare să vină dinaintea traversului. Ce faci?
+=> Reduci viteza la minimul la care poți ține drumul, oprești complet nava dacă e nevoie și navighezi cu extremă prudență până trece pericolul.
+?? Care este bătaia luminii de catarg la o navă de 50 de metri sau mai lungă?
+=> 6 mile marine; luminile de bordaj, lumina de pupă și cele de jur împrejur — 3 mile.
+
+## Cine are nevoie de asta la bord
+
+Mai întâi ofițerii de punte: [comandantul](/ro/jobs/rank/master), [ofițerul secund](/ro/jobs/rank/chief-officer), [ofițerul II](/ro/jobs/rank/2nd-officer) și [ofițerul III punte](/ro/jobs/rank/3rd-officer) sunt examinați pe COLREG pentru brevet și încă o dată la interviu. [Cadeții de punte](/ro/jobs/rank/deck-cadet) îl învață din primul voiaj; un [marinar AB](/ro/jobs/rank/able-seaman) de veghe trebuie să recunoască luminile și să le raporteze corect.
+
+Trece brevetul de ofițer de cart și tipurile de nave pe care ai ținut cart în [CV-ul tău maritim](/ro/maritime-cv): asta citește primul o agenție de crewing pentru un post la punte.
+
+*Sursa: Regulamentul internațional pentru prevenirea abordajelor pe mare, 1972, cu amendamentele ulterioare. Această pagină simplifică formularea regulilor; pe comandă prevalează textul complet al regulilor și ordinele permanente ale comandantului. Este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '1ef5af8e-ada3-4d3c-b9ea-367755c196f6';
+
+-- ── STCW ────────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('STCW pe înțelesul tuturor: regulile II/1–VI/6, stagiul de îmbarcare, revalidarea și orele de odihnă'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$Fiecare certificat din dosarul unui navigator poartă un număr de regulă — II/1, III/2, VI/1 — iar un om de la crewing citește aceste numere mai repede decât denumirile. STCW este convenția din spatele lor: stabilește pregătirea minimă, stagiul de îmbarcare și aptitudinea pentru fiecare funcție de pe o navă maritimă, precum și orele de odihnă și limitele de alcool pentru toți cei de cart. Această pagină este documentarea din spatele certificatelor: ce înseamnă fiecare număr de regulă, ce stagiu cere, cum funcționează revalidarea și vizele statului de pavilion, regulile despre odihnă și alcool și întrebările care apar la interviu. Pentru o prezentare mai scurtă a certificatelor de care are nevoie un începător, vezi [STCW și certificatele pentru marinari explicate](/ro/guides/stcw-si-certificatele-pentru-marinari-explicate-bb83cf27-0208-4252-9f27-f220b592ead6).
+
+:: **Pe scurt**
+:: - STCW 1978 (în vigoare din 1984, rescrisă în 1995, amendată la Manila în 2010) stabilește standardele minime de pregătire, brevetare și efectuare a serviciului de cart.
+:: - Numărul regulii este certificatul: II pentru punte, III pentru mașini, IV pentru radio, V pentru tipuri speciale de nave, VI pentru siguranță și securitate.
+:: - Un certificat de competență se revalidează la fiecare cinci ani: 12 luni de stagiu de îmbarcare în acești cinci ani sau 3 luni în ultimele șase.
+:: - Odihnă: cel puțin 10 ore în orice 24 și 77 de ore în orice 7 zile. Alcool în serviciu: cel mult 0,05% în sânge.
+
+## Ce este STCW
+
+Convenția internațională privind standardele de pregătire a navigatorilor, brevetare și efectuare a serviciului de cart a fost adoptată la IMO în 1978 și a intrat în vigoare la 28 aprilie 1984 — prima convenție care a stabilit la nivel internațional calificări minime pentru navigatori. Până atunci, fiecare stat pregătea și breveta după propriile reguli.
+
+O rescriere majoră în 1995 (în vigoare din 1 februarie 1997) a adăugat Codul STCW — Partea A obligatorie, Partea B recomandări — și lista IMO a statelor care aplică pe deplin convenția, cunoscută drept „Lista albă”. Amendamentele de la Manila din 2010 (în vigoare din 1 ianuarie 2012, cu o perioadă de tranziție până la 1 ianuarie 2017) au aliniat regulile despre orele de odihnă cu Convenția privind munca în domeniul maritim, au stabilit limite de alcool, au creat certificate pentru ofițerii electricieni și pentru personalul nebrevetat și au adăugat pregătirea de securitate, cursurile de reîmprospătare la cinci ani, leadershipul și lucrul în echipă și pregătirea ECDIS. Acum IMO face o revizuire cuprinzătoare a convenției.
+
+STCW stabilește minimuri. Un stat de pavilion poate cere mai mult: stagiu mai lung, propriile examene, propriile cerințe de limbă.
+
+## Capitolele și nivelurile
+
+- **I — Dispoziții generale:** certificate și vize, aptitudinea medicală (I/9), recunoașterea certificatelor străine (I/10), revalidarea (I/11), standardele de calitate.
+- **II — Comandantul și departamentul punte.**
+- **III — Departamentul mașini.**
+- **IV — Radiocomunicații și operatori radio.**
+- **V — Pregătire specială pentru anumite tipuri de nave:** tancuri petroliere, nave de gaz, nave de pasageri, nave care folosesc combustibili cu punct de aprindere scăzut, nave în ape polare.
+- **VI — Situații de urgență, securitatea muncii, securitate, asistență medicală și supraviețuire.**
+- **VII — Brevetare alternativă.**
+- **VIII — Serviciul de cart:** aptitudinea pentru serviciu, orele de odihnă, organizarea cartului.
+
+Competența se stabilește pe trei niveluri: **management** (comandant, ofițer secund, șef mecanic și secund mecanic), **operațional** (ofițerii de cart) și **suport** (personalul nebrevetat). Comandanții, ofițerii și operatorii radio au un **certificat de competență** (CoC); personalul nebrevetat și pregătirile speciale — pregătirea de bază, cursurile de tanc — sunt acoperite de **certificate de calificare** (CoP).
+
+## Cifrele-cheie
+
+!! 12 / 5 | luni de stagiu în cinci ani pentru revalidarea unui CoC (sau 3 în ultimele 6)
+!! 10 h | odihnă minimă în orice 24 de ore
+!! 77 h | odihnă minimă în orice 7 zile
+!! 0,05% | limita de alcool în sânge în serviciu (0,25 mg/l în aerul expirat)
+!! 3 luni | de serviciu sub pavilion străin cât timp viza lui este în curs
+!! 5 ani | intervalul de reîmprospătare pentru supraviețuire și stingerea incendiilor
+
+## Certificatele, după numărul regulii
+
+**Punte**
+
+- **II/1** — ofițer responsabil cu cartul de navigație (OOW), nave de 500 GT sau mai mari. Vârsta de cel puțin 18 ani; 12 luni de stagiu de îmbarcare în cadrul unui program de pregătire aprobat, cu registru de pregătire la bord, sau 36 de luni în celelalte cazuri, inclusiv cel puțin șase luni de cart pe comandă sub supraveghere.
+- **II/2** — comandant și ofițer secund, nave de 3 000 GT sau mai mari (cu limite separate pentru 500–3 000 GT). Ofițer secund: cel puțin 12 luni ca OOW. Comandant: 36 de luni ca OOW sau 24 de luni dacă cel puțin 12 dintre ele au fost ca ofițer secund.
+- **II/3** — OOW și comandant pe nave sub 500 GT în voiaje costiere apropiate.
+- **II/4** — personal nebrevetat care face parte dintr-un cart de navigație.
+- **II/5** — marinar calificat de punte (AB).
+
+**Mașini**
+
+- **III/1** — ofițer responsabil cu cartul în compartimentul mașini, propulsie principală de 750 kW sau mai mult.
+- **III/2** — șef mecanic și secund mecanic, 3 000 kW sau mai mult. Secund mecanic: cel puțin 12 luni ca ofițer mecanic de cart. Șef mecanic: 36 de luni sau 24 de luni dacă cel puțin 12 dintre ele au fost ca secund mecanic.
+- **III/3** — șef mecanic și secund mecanic, 750–3 000 kW.
+- **III/4** — personal nebrevetat care face parte dintr-un cart în compartimentul mașini; **III/5** — marinar calificat de mașini.
+- **III/6** — ofițer electrician (ETO); **III/7** — electrician nebrevetat.
+
+**Radio**
+
+- **IV/2** — operator radio GMDSS.
+
+**Tipuri speciale de nave**
+
+- **V/1-1** — tancuri petroliere și chimice: pregătire de bază și pregătire avansată pentru petroliere sau pentru tancuri chimice.
+- **V/1-2** — nave pentru gaze lichefiate: de bază și avansată.
+- **V/2** — nave de pasageri: gestionarea mulțimilor, gestionarea crizelor și comportamentul uman.
+- **V/3** — nave care folosesc gaze sau alți combustibili cu punct de aprindere scăzut (Codul IGF).
+- **V/4** — nave care operează în ape polare.
+
+**Siguranță și securitate**
+
+- **VI/1** — pregătirea de bază: tehnici individuale de supraviețuire, prevenirea și stingerea incendiilor, prim ajutor elementar, siguranță personală și responsabilități sociale.
+- **VI/2** — ambarcațiuni de salvare și bărci de urgență, precum și bărci de urgență rapide.
+- **VI/3** — stingerea incendiilor, nivel avansat.
+- **VI/4** — prim ajutor medical și îngrijire medicală.
+- **VI/5** — ofițer de securitate al navei.
+- **VI/6** — conștientizarea securității pentru toți și atribuții desemnate de securitate pentru cei care le au.
+
+## Revalidarea și vizele
+
+**Revalidarea (regula I/11).** Orice comandant, ofițer și operator radio care navighează sau intenționează să se întoarcă pe mare trebuie să dovedească, la intervale de cel mult cinci ani, aptitudinea medicală și menținerea competenței profesionale. Dovada obișnuită este un stagiu de îmbarcare aprobat într-o funcție relevantă de cel puțin 12 luni în total în ultimii cinci ani sau de cel puțin 3 luni în ultimele șase luni. Fără el, alternativele sunt un test sau un curs aprobat ori trei luni pe mare ca ofițer supranumerar sau într-o funcție inferioară. Certificatele de tanc au nevoie de propria dovadă: cel puțin 3 luni de serviciu pe tancuri în ultimii cinci ani sau un curs aprobat.
+
+**Viza statului de pavilion (regula I/10).** Un certificat emis de un stat trebuie recunoscut de statul de pavilion, printr-o viză, înainte ca titularul să poată servi pe navele acelui pavilion ca comandant, ofițer sau operator radio. Cât timp viza se emite, pavilionul poate permite serviciul timp de cel mult trei luni pe baza dovezii scrise că cererea a fost depusă.
+
+**Cursurile de reîmprospătare.** Tehnicile individuale de supraviețuire și prevenirea și stingerea incendiilor din pregătirea de bază se reîmprospătează la fiecare cinci ani, la fel ca ambarcațiunile de salvare și bărcile de urgență și stingerea incendiilor la nivel avansat. Primul ajutor elementar și siguranța personală și responsabilitățile sociale nu au nevoie de reîmprospătare.
+
+Agențiile de crewing verifică certificatele online la administrația care le-a emis. Un certificat cumpărat sau falsificat este o faptă penală și sfârșitul carierei.
+
+## Orele de odihnă și alcoolul (capitolul VIII)
+
+- Cel puțin **10 ore de odihnă în orice perioadă de 24 de ore** și **77 de ore în orice perioadă de 7 zile**.
+- Odihna poate fi împărțită în cel mult două perioade, dintre care una de cel puțin șase ore; între două perioade consecutive de odihnă nu pot trece mai mult de 14 ore.
+- Exercițiile se fac astfel încât să deranjeze odihna cât mai puțin; un navigator chemat în timpul odihnei primește odihnă compensatorie.
+- La bord se afișează un tabel cu programul de lucru; orele de odihnă se înregistrează, iar fiecare navigator primește o copie semnată de comandant.
+- Un pavilion poate permite excepții în limite stricte — de exemplu 70 de ore pe săptămână timp de cel mult două săptămâni consecutive. O situație de urgență are întâietate față de orice.
+- **Alcoolul:** pentru comandanți, ofițeri și navigatorii cu atribuții de siguranță, securitate și protecția mediului, cel mult 0,05% alcool în sânge sau 0,25 mg/l în aerul expirat. Multe companii merg mai departe și nu permit deloc alcool.
+- **Cartul:** ofițerul de cart poate fi singura veghe doar ziua și doar când este sigur; noaptea există întotdeauna o veghe separată.
+
+## Ce se întreabă la interviu
+
+- **Toată lumea:** limitele orelor de odihnă; ce include pregătirea de bază și când îți expiră; limita de alcool.
+- **Ofițerii:** după ce regulă este emis certificatul tău și ce limite are (tonaj, kilowați, voiaje costiere); când și cum îl revalidezi; dacă ai viză pentru acest pavilion și regula celor trei luni; atestatele de tanc conform V/1-1 sau V/1-2 și câte luni ai pe tancuri.
+- **Comandanții, ofițerii secunzi și șefii mecanici:** organizarea cartului, evidența orelor de odihnă și ce faci când arată o neconformitate, familiarizarea echipajului nou înainte de preluarea atribuțiilor.
+- **CES și testele similare:** întrebările despre cart și orele de odihnă fac parte regulat din ele.
+
+## Greșeli frecvente
+
+1. Să lași să expire reîmprospătările pregătirii de bază în mijlocul contractului. O companie nu te poate ține la bord cu un certificat expirat.
+2. Să te îmbarci pe o navă sub alt pavilion fără viză și fără dovada că ai cerut-o.
+3. Să pierzi evidența stagiului. Revalidarea ia în calcul serviciul într-o funcție relevantă, dovedit prin înscrierile din carnetul de marinar și adeverințele de stagiu — păstrează-le pe toate.
+4. Să completezi evidența orelor de odihnă după foaia de pontaj și nu după realitate. După un accident, o evidență falsă este o probă împotriva celui care a semnat-o.
+5. Să cumperi un certificat. Va fi verificat și va fi descoperit.
+6. Să faci un curs pentru o ofertă de angajare. Un centru de pregătire vinde pregătire; niciun curs nu garantează un contract.
+
+## Testează-te
+
+?? Ce îți permite un certificat conform regulii II/1?
+=> Să fii ofițer responsabil cu cartul de navigație pe nave de 500 GT sau mai mari.
+?? Ce stagiu de îmbarcare îți trebuie pentru a revalida un certificat de competență?
+=> Cel puțin 12 luni în total în ultimii cinci ani sau 3 luni în ultimele șase luni, într-o funcție relevantă. Altfel, un test sau un curs aprobat ori trei luni ca supranumerar.
+?? Care sunt orele minime de odihnă?
+=> 10 ore în orice 24 și 77 de ore în orice 7 zile, în cel mult două perioade, una de cel puțin 6 ore, cu cel mult 14 ore între ele.
+?? Cât timp poți servi sub pavilion străin cât viza lui este în curs?
+=> Cel mult trei luni, cu dovada scrisă că cererea a fost depusă — dacă pavilionul permite.
+?? Ce părți ale pregătirii de bază (VI/1) se reîmprospătează la fiecare cinci ani?
+=> Tehnicile individuale de supraviețuire și prevenirea și stingerea incendiilor.
+?? Care este limita de alcool pentru un navigator în serviciu?
+=> Cel mult 0,05% alcool în sânge sau 0,25 mg/l în aerul expirat.
+
+## Cine are nevoie de asta la bord
+
+Toată lumea — de la [marinarul stagiar OS](/ro/jobs/rank/ordinary-seaman) și [marinarul AB](/ro/jobs/rank/able-seaman), conform II/4 și II/5, și [motoristul](/ro/jobs/rank/motorman), conform III/4, până la [ofițerul III punte](/ro/jobs/rank/3rd-officer) și [ofițerul secund](/ro/jobs/rank/chief-officer), conform II/1 și II/2, [secundul mecanic](/ro/jobs/rank/2nd-engineer) și [șeful mecanic](/ro/jobs/rank/chief-engineer), conform III/1 și III/2, și [ofițerul electrician (ETO)](/ro/jobs/rank/eto), conform III/6. Pe [tancurile petroliere](/ro/jobs/vessel/tanker) se adaugă V/1-1, pe [navele de gaz](/ro/jobs/vessel/gas-carrier) V/1-2.
+
+Trece fiecare certificat cu numărul regulii și data de expirare în [CV-ul tău maritim](/ro/maritime-cv): este primul lucru pe care îl verifică o agenție de crewing.
+
+*Sursa: Convenția STCW 1978, cu amendamentele ulterioare, inclusiv amendamentele de la Manila din 2010, și Codul STCW. Statele de pavilion pot cere mai mult; prevalează regulile administrației care ți-a emis certificatul. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '09ed56ce-402e-40a5-9885-180e01f44c8f';
+
+-- ── MLC ─────────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('MLC 2006 pe înțelesul tuturor: contract, salariu, odihnă, concediu, repatriere și plângeri'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$Convenția privind munca în domeniul maritim este carta drepturilor navigatorului: contractul pe care îl semnezi, salariul, orele de odihnă, concediul, drumul spre casă și dreptul de a face plângere se sprijină toate pe ea. Controlul statului portului o verifică pe fiecare navă și este convenția pe care un navigator ar trebui s-o cunoască cel mai bine, pentru că este cea care îl protejează. Aici găsești ce garantează, cifrele care merită ținute minte, ce verifici înainte să semnezi, ce faci când ceva nu merge și întrebările pe care le primesc ofițerii la interviu. Pentru contractul propriu-zis — salariu, ore suplimentare și concediu — vezi [ghidul nostru despre contractul de marinar](/ro/guides/intelegerea-contractului-dvs-de-marinar-salariu-ore-suplimentare-concediu-si-dre-2f1a36ee-03f0-4b33-a6a1-6d91f50b4673).
+
+:: **Pe scurt**
+:: - MLC 2006 este convenția OIM privind condițiile de muncă și de viață ale navigatorilor, în vigoare din 20 august 2013.
+:: - Nicio agenție de crewing nu are voie să-ți ceară bani pentru un loc de muncă. Plătești doar propriul certificat medical, carnetul de marinar și pașaportul.
+:: - Salariul se plătește cel puțin lunar, concediul este de cel puțin 2,5 zile pe lună, iar o perioadă de serviciu la bord este mai scurtă de 12 luni.
+:: - Dacă armatorul abandonează echipajul, un asigurător plătește până la patru luni de salariu și drumul spre casă.
+
+## Ce este MLC
+
+Convenția privind munca în domeniul maritim a fost adoptată de Organizația Internațională a Muncii în 2006 și a intrat în vigoare la 20 august 2013, după ratificarea de către 30 de state care reprezintă o treime din tonajul mondial. A reunit aproape 70 de instrumente maritime mai vechi ale OIM într-unul singur și de atunci a fost ratificată de peste o sută de state, care acoperă cea mai mare parte a flotei mondiale. Este numită adesea al patrulea pilon al dreptului maritim, alături de SOLAS, MARPOL și STCW.
+
+Este construită pe trei niveluri: Articolele, Regulile și Codul — Partea A, standarde obligatorii, și Partea B, recomandări. O navă a unui stat care nu a ratificat-o nu primește un tratament mai blând: în portul unui stat care a ratificat-o este inspectată după aceleași standarde.
+
+Cele cinci titluri:
+
+1. **Cerințe minime pentru munca pe o navă:** vârsta, certificatul medical, pregătirea, recrutarea și plasarea.
+2. **Condiții de angajare:** contractul, salariul, programul de lucru și de odihnă, concediul, repatrierea, despăgubirea la pierderea navei, echipajul, dezvoltarea carierei.
+3. **Cazare, spații de recreere, hrană și servicii de masă.**
+4. **Protecția sănătății, îngrijirea medicală, bunăstarea și securitatea socială.**
+5. **Conformitate și aplicare:** inspecțiile pavilionului, certificatele, plângerile, controlul statului portului.
+
+## Cifrele-cheie
+
+!! 16 | vârsta minimă pentru munca pe mare (18 pentru munca de noapte și cea periculoasă)
+!! < 12 luni | cea mai lungă perioadă de serviciu înainte să ai dreptul să mergi acasă
+!! 2,5 zile | de concediu anual plătit pentru fiecare lună de angajare
+!! 1 lună | intervalul maxim dintre plățile salariului
+!! 4 luni | de salariu neplătit acoperite de asigurarea pentru abandon
+!! 2 ani | valabilitatea maximă a certificatului medical (1 an sub 18 ani)
+
+## Înainte să urci la bord (titlul 1)
+
+- **Vârsta:** cel puțin 16 ani. Sub 18 ani — fără muncă de noapte și fără muncă ce poate pune în pericol sănătatea sau siguranța.
+- **Certificatul medical:** valabil cel mult doi ani (un an sub 18 ani); partea despre vederea culorilor, cel mult șase ani. Dacă expiră în timpul voiajului, rămâne valabil până în următorul port cu un medic recunoscut, dar cel mult trei luni. Mai multe în [ghidul nostru despre examenul medical al navigatorului](/ro/guides/certificatul-medical-pentru-marinari-eng1-cum-sa-l-obtii-si-ce-te-poate-duce-la-d212ee97-96fd-44c9-8983-a5efc2e4562e).
+- **Recrutarea și plasarea (regula 1.4):** o agenție trebuie să fie licențiată sau reglementată, să nu țină liste negre și să nu-i ceară navigatorului **nimic** pentru recrutare, plasare sau un loc de muncă. Singurele costuri pe care le poți suporta sunt certificatul medical național, carnetul de marinar și pașaportul; vizele le plătește armatorul. Agenția trebuie să aibă și o asigurare sau un sistem echivalent care să-i despăgubească pe navigatori dacă ea sau armatorul nu își îndeplinesc obligațiile.
+
+## Contractul, salariul, programul, concediul și drumul spre casă (titlul 2)
+
+**Contractul de angajare al navigatorului.** Îl semnezi tu și armatorul sau reprezentantul acestuia. Trebuie să ai posibilitatea să-l citești și să ceri sfaturi înainte de semnare și păstrezi un original semnat. Trebuie să cuprindă cel puțin: numele complet, data și locul nașterii; numele și adresa armatorului; locul și data semnării; funcția; salariul sau modul de calcul; concediul anual plătit; cum și când se încheie, inclusiv preavizul; prestațiile de sănătate și de securitate socială; dreptul la repatriere; și contractul colectiv la care trimite, dacă există. Preavizul pentru încetarea anticipată nu poate fi mai scurt de șapte zile. La final primești o adeverință de serviciu, care nu trebuie să conțină nicio apreciere despre calitatea muncii sau despre salariu.
+
+**Salariul** se plătește la intervale de cel mult o lună, cu un decont lunar care arată ce s-a plătit, ce s-a reținut și la ce curs de schimb. Poți cere ca o parte din salariu să fie trimisă acasă (allotment). OIM recomandă un salariu de bază minim pentru un marinar calificat și îl revizuiește la câțiva ani.
+
+**Programul de lucru și de odihnă.** Pavilionul alege una dintre două limite: cel mult 14 ore de muncă în orice 24 de ore și 72 de ore în orice 7 zile sau cel puțin 10 ore de odihnă în orice 24 de ore și 77 de ore în orice 7 zile. Odihna poate fi împărțită în cel mult două perioade, una de cel puțin șase ore, cu cel mult 14 ore între ele. Se ține evidența, iar tu primești o copie semnată de comandant.
+
+**Concediul.** Cel puțin 2,5 zile calendaristice de concediu anual plătit pentru fiecare lună de angajare. O înțelegere prin care renunți la concediul minim plătit nu este permisă, cu excepția cazurilor prevăzute de autoritate. Permisia la țărm se acordă pentru sănătatea și bunăstarea ta.
+
+**Repatrierea (regula 2.5).** Ai dreptul să mergi acasă fără niciun cost pentru tine când contractul expiră în străinătate, când este încheiat de armator — sau de tine, din motive întemeiate — și când nu-ți mai poți îndeplini atribuțiile, de exemplu din cauza unei boli sau a unei accidentări. Cea mai lungă perioadă de serviciu la bord înainte să ai dreptul la repatriere este **mai mică de 12 luni**. Armatorul plătește călătoria, cazarea și masa pe drum, salariul până ajungi, transportul bagajelor personale și tratamentul medical până poți călători. Armatorul nu poate cere o plată în avans și nu poate reține costul din salariu, decât dacă s-a constatat că ți-ai încălcat grav obligațiile.
+
+**Abandonul.** Din 2017, fiecare navă trebuie să aibă o garanție financiară pentru cazurile de abandon. Un echipaj este abandonat când armatorul nu plătește repatrierea, îi lasă pe navigatori fără întreținerea și sprijinul necesare — hrană, apă, combustibil, îngrijire medicală — sau rupe în alt fel legătura cu ei, inclusiv prin neplata salariului cel puțin două luni. Atunci asigurătorul acoperă până la **patru luni** de salarii și drepturi restante, repatrierea și nevoile esențiale. Un certificat al acestei garanții financiare trebuie afișat la bord, unde echipajul îl poate vedea. Din amendamentele din 2018, un navigator ținut captiv de pirați își păstrează contractul și salariul pe toată durata captivității.
+
+**Pierderea navei.** Dacă nava se pierde sau se scufundă, fiecare navigator primește o indemnizație pentru fiecare zi de șomaj care urmează; ea poate fi limitată la două salarii lunare.
+
+## La bord (titlurile 3 și 4)
+
+- **Hrana și apa potabilă** sunt gratuite pe toată durata angajării; bucătarul navei este instruit și are cel puțin 18 ani. Comandantul sau persoana desemnată de acesta inspectează periodic proviziile de hrană și apă și consemnează inspecția.
+- **Cazarea** pe navele construite după intrarea în vigoare a convenției: cabine de o persoană de cel puțin 4,5 m² pe navele sub 3 000 GT, 5,5 m² între 3 000 și 10 000 GT și 7 m² peste 10 000 GT; înălțime liberă de cel puțin 203 cm; grupuri sanitare separate, careu, spații de recreere.
+- **Comunicațiile:** acces rezonabil la telefon, e-mail și internet navă–țărm, acolo unde există, la un cost rezonabil.
+- **Îngrijirea medicală** la bord este gratuită; în port poți merge la un medic sau la un dentist fără întârziere, când este posibil. O navă cu 100 de persoane sau mai multe la bord, într-un voiaj internațional de peste trei zile, are medic; celelalte nave au o persoană instruită care răspunde de îngrijirea medicală.
+- **Boala și accidentarea (regula 4.2):** armatorul plătește îngrijirea medicală și salariul cât timp ești la bord. Dacă trebuie să cobori de pe navă, salariul complet până la repatriere, apoi salariul integral sau parțial timp de cel puțin 16 săptămâni. Din 2017 fiecare navă are și o garanție financiară pentru despăgubiri în caz de deces sau invaliditate de lungă durată cauzate de muncă.
+- **Securitatea și sănătatea în muncă:** evaluarea riscurilor, raportarea accidentelor și, din amendamentele din 2016, recomandări împotriva hărțuirii și a intimidării la bord.
+
+Amendamentele în vigoare din 23 decembrie 2024 au precizat explicit gratuitatea apei potabile și au adăugat, printre altele, dreptul la comunicațiile descrise mai sus.
+
+## Certificatele și plângerile (titlul 5)
+
+**Certificatul de muncă în domeniul maritim** — valabil cel mult cinci ani, cu o inspecție intermediară — și **Declarația de conformitate a muncii în domeniul maritim** (DMLC) sunt obligatorii pe navele de 500 GT sau mai mari în voiaje internaționale. Partea I a DMLC este întocmită de pavilion și enumeră cerințele naționale; partea a II-a este întocmită de armator și arată cum le îndeplinește nava. Se inspectează șaisprezece domenii: vârsta minimă, certificatele medicale, calificările, contractele de angajare, folosirea serviciilor de recrutare, programul de lucru și de odihnă, echipajul, cazarea, spațiile de recreere, hrana și serviciile de masă, siguranța și prevenirea accidentelor, îngrijirea medicală, procedurile de plângere, plata salariilor și cele două garanții financiare — pentru repatriere și pentru răspunderea armatorului.
+
+**Plângerea la bord (regula 5.1.5).** Fiecare navă are o procedură de soluționare a plângerilor la bord, iar fiecare navigator primește o copie a ei, cu datele de contact ale pavilionului și ale statului de reședință. Te poți plânge șefului de departament sau comandantului, dar și direct pavilionului sau altor autorități. Poți avea pe cineva care să te însoțească sau să te reprezinte și **nu poți primi nicio sancțiune** pentru că ai făcut plângere.
+
+**Plângerea la țărm (regula 5.2.2).** În orice port al unui stat care a ratificat MLC te poți plânge inspectorului controlului statului portului. O plângere poate duce la o inspecție, iar pentru încălcări grave, la reținerea navei. Sindicatele și centrele de asistență pentru navigatori din port pot ajuta și ele.
+
+Păstrează dovezile: copia ta a contractului, decontările lunare de salariu, evidențele orelor de odihnă, datele și sumele.
+
+## Ce se întreabă la interviu
+
+- **Comandanții, ofițerii secunzi și șefii mecanici:** cele două părți ale DMLC; procedura de plângere la bord; evidența orelor de odihnă și ce faci cu o neconformitate; decontările de salariu și allotment-urile; organizarea unei repatrieri; inspecțiile de hrană și apă; ce verifică un inspector în baza MLC.
+- **Personalul nebrevetat și ofițerii juniori:** limitele orelor de odihnă; ce trebuie să cuprindă contractul tău; concediul tău și când ai dreptul să mergi acasă; cum faci o plângere.
+- **CES și testele de nivel managerial:** întrebările despre MLC apar în testele pentru ofițerii superiori.
+
+## Greșeli frecvente
+
+1. Să plătești o agenție pentru un loc de muncă. MLC interzice asta; cine cere bani pentru o plasare încalcă regulile, și este o cale frecventă spre un post fals. Pe SeaJobs.pro aplicarea la un post este gratuită.
+2. Să semnezi un contract pe care nu l-ai citit sau care diferă de ce ți s-a promis. Citește-l înainte de zbor și păstrează-ți copia.
+3. Să nu păstrezi decontările de salariu și copiile evidenței orelor de odihnă. Ele sunt probele tale.
+4. Să aștepți prea mult când nu mai vin banii. Două luni fără salariu sunt unul dintre cazurile care declanșează acoperirea pentru abandon — contactează din timp pavilionul, controlul statului portului sau un sindicat.
+5. Să crezi că o plângere trebuie să treacă prin comandant. Poți merge direct la pavilion sau la un inspector al controlului statului portului și nu ți se poate aplica nicio pedeapsă pentru asta.
+6. Să accepți „informal” să rămâi peste perioada de serviciu. Fiecare lună peste data convenită trebuie consemnată în scris, iar limita este mai mică de 12 luni la bord.
+
+## Testează-te
+
+?? Poate o agenție de crewing să-ți ceară bani pentru un loc de muncă?
+=> Nu. MLC interzice taxele pentru recrutare sau plasare. Plătești doar propriul certificat medical, carnetul de marinar și pașaportul; vizele le plătește armatorul.
+?? Cât de des trebuie plătit salariul?
+=> La intervale de cel mult o lună, cu un decont lunar al plăților și reținerilor.
+?? Cât concediu plătit garantează MLC?
+=> Cel puțin 2,5 zile calendaristice pentru fiecare lună de angajare.
+?? Care este cea mai lungă perioadă de serviciu înainte să ai dreptul la repatriere?
+=> Mai puțin de 12 luni.
+?? Când este considerat abandonat un echipaj și ce acoperă asigurarea?
+=> Când armatorul nu plătește repatrierea, îi lasă pe navigatori fără întreținerea și sprijinul necesare sau rupe legătura cu ei — inclusiv prin neplata salariului cel puțin două luni. Asigurătorul acoperă până la patru luni de salarii restante, repatrierea și nevoile esențiale.
+?? Unde te poți plânge dacă îți sunt încălcate drepturile?
+=> La bord, prin procedura de plângere a navei — până la comandant și direct la pavilion — iar la țărm, la inspectorul controlului statului portului în orice port al unui stat care a ratificat MLC. Plângerea nu poate fi motiv de pedeapsă.
+
+## Cine are nevoie de asta la bord
+
+Toată lumea — [marinarul AB](/ro/jobs/rank/able-seaman), [marinarul stagiar OS](/ro/jobs/rank/ordinary-seaman), [bucătarul](/ro/jobs/rank/cook) și [ospătarul](/ro/jobs/rank/messman) la fel de mult ca ofițerii. [Comandantul](/ro/jobs/rank/master), [ofițerul secund](/ro/jobs/rank/chief-officer) și [șeful mecanic](/ro/jobs/rank/chief-engineer) răspund în plus de ea la bord: ei țin evidențele pe care le citește un inspector.
+
+Ține datele contractelor și stagiul de îmbarcare în [CV-ul tău maritim](/ro/maritime-cv): când sunt într-un singur loc, o lună de salariu lipsă sau un contract prea lung se dovedesc ușor.
+
+*Sursa: Convenția privind munca în domeniul maritim, 2006, cu amendamentele din 2014, 2016, 2018 și 2022. Legislația națională și contractele colective îți pot da mai mult; nu îți pot da mai puțin. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '67676b1b-42fa-4dfe-a4cc-f8c31408a138';
+
+-- ── ISM ─────────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('Codul ISM pe înțelesul tuturor: sistemul de management al siguranței, DPA, neconformitățile și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$Codul ISM este motivul pentru care fiecare navă are un manual gros de management al siguranței, o listă de verificare pentru aproape orice lucrare și o persoană la țărm, numită DPA, pe care o poate suna oricine de la bord. El transformă siguranța dintr-o chestiune de noroc și de obiceiuri personale într-un sistem pe care compania îl pune pe hârtie, echipajul îl urmează, iar auditorii îl verifică. Ofițerii superiori sunt întrebați despre el aproape la fiecare interviu, iar personalul nebrevetat îl întâlnește zilnic în permisele de lucru, în instructajele dinaintea lucrului și în rapoartele despre incidente evitate la limită. Aici găsești ce cere Codul, cifrele și termenii care apar cel mai des, ce este o neconformitate, greșelile care transformă o constatare mică într-o reținere a navei și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - Codul ISM este Codul internațional de management pentru exploatarea în siguranță a navelor și pentru prevenirea poluării, obligatoriu prin capitolul IX SOLAS din 1998.
+:: - Compania scrie un sistem de management al siguranței; nava are un Certificat de management al siguranței (SMC), compania un Document de conformitate (DOC) — ambele valabile cel mult cinci ani.
+:: - DPA este persoana de la țărm cu acces direct la conducerea de vârf, pe care o poate contacta oricine de la bord.
+:: - Comandantul are autoritatea supremă de a lua orice decizie pentru siguranță și prevenirea poluării.
+
+## Ce este Codul ISM și de unde vine
+
+La sfârșitul anilor 1980, o serie de catastrofe au arătat că navele se scufundau nu din lipsă de reguli, ci din lipsă de management. Feribotul Herald of Free Enterprise s-a răsturnat în 1987 după ce a ieșit din port cu porțile de la prova deschise; ancheta nu a găsit un sistem clar, nici la țărm, nici la bord, care să asigure că sunt închise. Incendiul de pe Scandinavian Star din 1990 a scos la iveală aceleași lipsuri de pregătire și de organizare.
+
+IMO a adoptat Codul ISM în 1993 și l-a făcut obligatoriu prin capitolul IX SOLAS: de la 1 iulie 1998 pentru navele de pasageri, tancurile petroliere, navele de gaz, vrachierele și ambarcațiunile de marfă de mare viteză de 500 GT și peste, iar de la 1 iulie 2002 pentru toate celelalte nave de marfă și unitățile mobile de foraj offshore de 500 GT și peste. Codul este scurt — șaisprezece secțiuni — pentru că nu îi spune unei companii ce să facă la bord. Îi spune să decidă, să scrie, să-și instruiască oamenii, să verifice că funcționează și să îmbunătățească.
+
+## Obiectivele
+
+Codul cere fiecărei companii:
+
+- să asigure practici sigure în exploatarea navei și un mediu de lucru sigur;
+- să evalueze toate riscurile identificate pentru navele sale, pentru personal și pentru mediu și să stabilească măsuri de protecție potrivite;
+- să îmbunătățească continuu competențele de management al siguranței ale personalului de la țărm și de la bord, inclusiv pregătirea pentru situații de urgență.
+
+## Cele șaisprezece secțiuni
+
+1. **Generalități:** definiții și obiective.
+2. **Politica de siguranță și de protecție a mediului.**
+3. **Responsabilitățile și autoritatea companiei:** cine din companie răspunde pentru navă.
+4. **Persoana (persoanele) desemnată(e) la țărm** — DPA.
+5. **Responsabilitatea și autoritatea comandantului.**
+6. **Resurse și personal:** echipaj calificat, familiarizare, instruire, o limbă de lucru.
+7. **Operațiunile de la bord:** proceduri, planuri și instrucțiuni pentru operațiunile-cheie.
+8. **Pregătirea pentru situații de urgență:** proceduri, exerciții și antrenamente.
+9. **Rapoarte și analiza neconformităților, accidentelor și incidentelor periculoase** — inclusiv incidentele evitate la limită.
+10. **Întreținerea navei și a echipamentelor:** întreținere planificată, echipamente critice.
+11. **Documentația:** controlul manualelor și formularelor.
+12. **Verificarea, analiza și evaluarea de către companie:** auditurile interne.
+13. **Certificarea și verificarea periodică.**
+14. **Certificarea provizorie.**
+15. **Verificarea.**
+16. **Modelele certificatelor.**
+
+## Cifrele-cheie
+
+!! 1998 / 2002 | obligatoriu: întâi tancuri, vrachiere, nave de pasageri, apoi toate celelalte de 500 GT și peste
+!! 5 ani | valabilitatea DOC și a SMC
+!! 12 luni | intervalul maxim dintre auditurile interne la bord și la țărm
+!! 3 luni | fereastra de o parte și de alta a datei aniversare pentru verificarea anuală a DOC
+!! 6 luni | valabilitatea unui SMC provizoriu (12 luni pentru un DOC provizoriu)
+!! 16 | secțiuni ale Codului
+
+## DPA și comandantul
+
+**Persoana desemnată la țărm (secțiunea 4)** este legătura dintre companie și oamenii de la bord. DPA are acces direct la cel mai înalt nivel de conducere și urmărește partea de siguranță și de prevenire a poluării a fiecărei nave. Oricine de la bord — nu doar comandantul — poate contacta DPA, iar datele de contact sunt afișate pe navă. Dacă vezi ceva periculos de care nu se ocupă nimeni la bord, DPA este omul pe care îl suni.
+
+**Comandantul (secțiunea 5)** aplică la bord politica companiei, motivează echipajul, dă ordine și instrucțiuni, verifică respectarea cerințelor, analizează sistemul și raportează companiei deficiențele lui. Mai presus de toate, sistemul trebuie să precizeze clar că acesta are **autoritatea supremă** și responsabilitatea de a lua decizii privind siguranța și prevenirea poluării și de a cere sprijinul companiei când este nevoie. Niciun navlositor, niciun program și nicio instrucțiune de la birou nu stau mai presus de asta.
+
+## Certificatele și auditurile
+
+- **Documentul de conformitate (DOC)** — emis companiei pentru tipurile de nave pe care le operează; valabil cel mult cinci ani și verificat anual, în cel mult trei luni înainte sau după data aniversară. O copie se păstrează la bord.
+- **Certificatul de management al siguranței (SMC)** — emis navei; valabil cel mult cinci ani, cu o verificare intermediară între a doua și a treia dată aniversară.
+- **Certificatele provizorii** — un DOC provizoriu de cel mult 12 luni pentru o companie nouă sau un tip nou de navă; un SMC provizoriu de cel mult 6 luni pentru o navă nouă sau o navă care și-a schimbat operatorul.
+- **Auditurile interne** — la bord și la țărm, la intervale de cel mult 12 luni, făcute de persoane independente de domeniul auditat.
+
+## Neconformitățile și observațiile
+
+Sunt termenii folosiți de auditori, iar ofițerii superiori trebuie să-i cunoască exact:
+
+- **Observație** — o constatare de fapt făcută în timpul unui audit și susținută de dovezi obiective. Nu este în sine o abatere, ci un avertisment.
+- **Neconformitate** — o situație în care dovezi obiective arată că o cerință specificată nu este îndeplinită: o procedură nerespectată, o evidență lipsă, un exercițiu neefectuat.
+- **Neconformitate majoră** — o abatere identificabilă care reprezintă o amenințare serioasă pentru siguranța personalului sau a navei ori un risc serios pentru mediu și care cere acțiune corectivă imediată, sau lipsa aplicării efective și sistematice a unei cerințe a Codului. O neconformitate majoră poate împiedica emiterea unui certificat sau poate ține nava în port.
+
+Pentru fiecare constatare, nava și compania convin o acțiune corectivă și un termen, iar auditul următor verifică dacă a funcționat. Aceeași logică funcționează zilnic la bord: incidentele evitate la limită și incidentele periculoase se raportează și se analizează, pentru că incidentul evitat de ieri este accidentul de mâine.
+
+## Cum arată sistemul la bord
+
+- manualul de management al siguranței în limba de lucru, cu proceduri pentru fiecare operațiune-cheie — legare, bunkerare, marfă, intrarea în spații închise, lucrul cu foc deschis, lucrul la înălțime și peste bord;
+- **evaluări de risc** și **permise de lucru** pentru lucrările periculoase, precedate de **instructaje de lucru** (toolbox talks);
+- **familiarizarea** fiecărui membru nou al echipajului înainte de preluarea atribuțiilor și a oricui este mutat pe o nouă funcție legată de siguranță;
+- **întreținerea planificată**, cu echipamentele critice — cele a căror defectare bruscă poate crea o situație periculoasă — identificate și testate periodic, inclusiv sistemele de rezervă;
+- procedurile de urgență și un program de exerciții;
+- rapoartele despre incidente evitate la limită și accidente, ședințele comitetului de siguranță, analiza sistemului de către comandant.
+
+## Ce se întreabă la interviu
+
+- **Comandanții și ofițerii secunzi:** ce este DPA și când l-ai suna; autoritatea supremă a comandantului — dă un exemplu; diferența dintre observație, neconformitate și neconformitate majoră; valabilitatea și verificările DOC și SMC; cât de des se fac auditurile interne; ce faci cu o neconformitate găsită de controlul statului portului; cum faci analiza sistemului de către comandant.
+- **Șefii mecanici și secunzii mecanici:** echipamentele critice și cum le tratează sistemul de întreținere planificată; testarea echipamentelor de rezervă; permisele de lucru pentru lucrul cu foc deschis și pentru izolarea mașinilor.
+- **Ofițerii juniori și personalul nebrevetat:** sistemul de permise de lucru; un instructaj de lucru; cum raportezi un incident evitat la limită și de ce; familiarizarea după îmbarcare; dreptul tău de a opri o lucrare pe care o consideri nesigură — majoritatea companiilor scriu acest drept în sistemul lor.
+
+## Greșeli frecvente
+
+1. Să tratezi sistemul ca pe o hârțogărie: liste bifate după lucrare, nu înainte. Un auditor compară orele din evidențe cu jurnalul de bord.
+2. Să nu raportezi incidentele evitate la limită de teama vinovăției. Codul există ca lecțiile să fie învățate înainte să se rănească cineva; o navă fără niciun raport arată ca o navă care le ascunde.
+3. Să începi lucrul cu foc deschis, intrarea într-un spațiu închis sau lucrul la înălțime fără permis și fără instructaj, pentru că „e o treabă de cinci minute”.
+4. Să nu știi numărul DPA sau să crezi că doar comandantul îl poate suna.
+5. Să faci o acțiune corectivă doar pe hârtie. Auditul următor verifică dacă problema a dispărut cu adevărat.
+6. Să urmezi o instrucțiune a companiei sau a navlositorului care pune nava în pericol. Autoritatea supremă a comandantului există ca să fie folosită.
+
+## Testează-te
+
+?? Ce este DPA și cine îl poate contacta?
+=> Persoana desemnată la țărm: legătura dintre navă și companie, cu acces direct la cel mai înalt nivel de conducere. Oricine de la bord îl poate contacta.
+?? Care este diferența dintre o neconformitate și o neconformitate majoră?
+=> O neconformitate este o cerință neîndeplinită, dovedită prin dovezi obiective. Una majoră reprezintă o amenințare serioasă pentru oameni, navă sau mediu și cere acțiune imediată sau arată că sistemul nu este aplicat efectiv și sistematic.
+?? Cât sunt valabile DOC și SMC?
+=> Cel mult cinci ani. DOC se verifică anual; SMC are o verificare intermediară între a doua și a treia dată aniversară.
+?? Cât de des trebuie făcute auditurile interne?
+=> La intervale de cel mult 12 luni, la bord și la țărm.
+?? Cine are ultimul cuvânt la bord în privința siguranței și a prevenirii poluării?
+=> Comandantul, în baza autorității supreme pe care trebuie să i-o dea sistemul de management al siguranței.
+?? Ce sunt echipamentele critice din secțiunea 10?
+=> Echipamentele și sistemele a căror defectare bruscă poate crea o situație periculoasă. Compania le identifică și le testează periodic, inclusiv sistemele de rezervă.
+
+## Cine are nevoie de asta la bord
+
+Mai ales cei care conduc sistemul: [comandantul](/ro/jobs/rank/master), [ofițerul secund](/ro/jobs/rank/chief-officer) și [șeful mecanic](/ro/jobs/rank/chief-engineer), care sunt întrebați despre ISM la orice interviu pentru o funcție superioară. [Secundul mecanic](/ro/jobs/rank/2nd-engineer) răspunde de întreținerea planificată; fiecare [marinar AB](/ro/jobs/rank/able-seaman) și [șef de echipaj](/ro/jobs/rank/bosun) lucrează zilnic cu permisele lui. Cadrul legal este capitolul IX SOLAS — vezi [SOLAS pe înțelesul tuturor](/ro/handbook/solas-pe-intelesul-tuturor-exercitii-mijloace-de-salvare-si-intrebari-de-intervi-2cbdb6d6-b0fa-498a-9c32-68bd9b95e096).
+
+Trece tipurile de nave și companiile cu care ai navigat în [CV-ul tău maritim](/ro/maritime-cv): o agenție de crewing apreciază cât de bine cunoști un sistem de management al siguranței după locurile în care ai lucrat.
+
+*Sursa: Codul internațional de management al siguranței (ISM), cu amendamentele ulterioare, și capitolul IX SOLAS. Sistemul de management al siguranței al fiecărei companii adaugă detaliile; la bord se aplică acel sistem. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = 'c0e84e98-bd2c-43b7-b828-6fc75a8fd92f';
+
+-- ── ISPS ────────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('Codul ISPS pe înțelesul tuturor: niveluri de securitate, ofițerul de securitate, cartul la scara de bord și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$Codul ISPS este motivul pentru care la scara de bord stă mereu cineva cu registrul vizitatorilor, ușile comenzii și ale compartimentului mașini sunt încuiate în port, iar nava are un ofițer de securitate și un plan pe care majoritatea echipajului nu l-a văzut niciodată în întregime. A intrat în vigoare în 2004, în urma atentatelor din 2001, și se aplică azi fiecărei nave de marfă de 500 GT și peste în voiaje internaționale și fiecărei nave de pasageri. Ofițerii sunt întrebați despre el la interviu, iar personalul nebrevetat îl întâlnește zilnic la cartul de la scara de bord. Aici găsești cum funcționează Codul, nivelurile de securitate, rolurile și documentele, ce trebuie să facă de fapt cartul de la scara de bord, greșelile prin care urcă la bord omul greșit și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - Codul ISPS (Codul internațional pentru securitatea navelor și a facilităților portuare) este în vigoare din 1 iulie 2004, prin capitolul XI-2 SOLAS.
+:: - Trei niveluri de securitate: 1 normal, 2 ridicat, 3 excepțional. Pavilionul stabilește nivelul navei, statul portului pe cel al facilității portuare.
+:: - Fiecare navă are un ofițer de securitate al navei (SSO), fiecare companie un ofițer de securitate al companiei (CSO), fiecare facilitate portuară un PFSO.
+:: - Sistemul de alertă de securitate a navei trimite o alarmă silențioasă la țărm — la bord nu sună nimic și nu alertează alte nave.
+
+## Ce este Codul ISPS
+
+După atentatele din 11 septembrie 2001, IMO a analizat cum ar putea deveni o navă o țintă, o armă sau o cale de a transporta ilegal oameni și mărfuri. În decembrie 2002, o conferință diplomatică a adăugat capitolul XI-2 la SOLAS și a adoptat Codul ISPS; amândouă au intrat în vigoare la 1 iulie 2004. Partea A a Codului este obligatorie; Partea B conține recomandări, deși multe state aplică o mare parte din ea ca și cum ar fi obligatorie.
+
+Codul se aplică navelor de pasageri, inclusiv ambarcațiunilor de pasageri de mare viteză, în voiaje internaționale; navelor de marfă, inclusiv celor de mare viteză, de 500 GT și peste, în voiaje internaționale; unităților mobile de foraj offshore; și facilităților portuare care le deservesc. Abordarea lui este gestionarea riscului: evaluezi amenințarea, planifici măsurile, stabilești nivelul, exersezi.
+
+Alături de el, capitolul XI-1 dă fiecărei nave un număr IMO și o Fișă sinoptică continuă — istoria navei, ținută la bord, cu numele, pavilioanele, proprietarii și operatorii ei.
+
+## Cifrele-cheie
+
+!! 3 | niveluri de securitate: normal, ridicat, excepțional
+!! 2004 | Codul ISPS în vigoare (1 iulie)
+!! 3 luni | intervalul maxim dintre antrenamentele de securitate
+!! 18 luni | intervalul maxim dintre exercițiile de securitate (ținute în fiecare an calendaristic)
+!! 2 | puncte de activare a SSAS, cel puțin: comanda și încă unul
+!! 500 GT | navele de marfă în voiaje internaționale de la această mărime intră sub incidența Codului
+
+## Cele trei niveluri de securitate
+
+- **Nivelul 1 — normal:** măsurile minime de protecție menținute în permanență.
+- **Nivelul 2 — ridicat:** măsuri suplimentare pentru o perioadă, pentru că riscul unui incident de securitate a crescut.
+- **Nivelul 3 — excepțional:** măsuri suplimentare, specifice, pentru o perioadă limitată, când un incident este probabil sau iminent, chiar dacă ținta exactă nu poate fi identificată. Instrucțiunile pot veni direct de la autorități.
+
+Statul de pavilion stabilește nivelul pentru navele sale, statul portului pentru facilitățile sale portuare. Înainte de intrarea în port, nava compară nivelurile: dacă nivelul portului este mai mare, nava își ridică nivelul la același; dacă nivelul navei este mai mare, nu îl coboară, iar cele două părți convin măsurile.
+
+## Rolurile și documentele
+
+- **Ofițerul de securitate al companiei (CSO)** — la țărm; organizează evaluarea securității navei, elaborează planul și îl supune aprobării, organizează auditurile și ține legătura cu navele.
+- **Ofițerul de securitate al navei (SSO)** — la bord, subordonat comandantului; aplică și menține planul, inspectează regulat nava, instruiește echipajul, organizează antrenamentele, raportează incidentele de securitate și menține în funcțiune echipamentele de securitate. Adesea este ofițerul secund; certificatul este STCW VI/5.
+- **Ofițerul de securitate al facilității portuare (PFSO)** — la țărm, pentru fiecare facilitate portuară; omologul SSO în port.
+- **Evaluarea securității navei (SSA)** — studiul vulnerabilităților navei făcut de CSO înainte de scrierea planului.
+- **Planul de securitate al navei (SSP)** — aprobat de pavilion și păstrat la bord. Acoperă controlul accesului, zonele restricționate, manipularea mărfii și a proviziilor, supravegherea, răspunsul la amenințări și încălcări și SSAS. Unele părți sunt confidențiale: se arată unui inspector al controlului statului portului doar cu acordul pavilionului.
+- **Certificatul internațional de securitate a navei (ISSC)** — valabil cel mult cinci ani, cu o verificare intermediară; un ISSC provizoriu se emite pentru cel mult șase luni.
+- **Declarația de securitate (DoS)** — o înțelegere între navă și facilitatea portuară sau o altă navă despre măsurile de securitate pe care le ia fiecare parte. Se întocmește când nava are un nivel mai mare decât facilitatea portuară sau cealaltă navă, când una dintre părți nu intră sub incidența Codului, după o amenințare sau un incident de securitate, când o cer autoritățile sau când o cere oricare dintre părți.
+
+## Sistemul de alertă de securitate a navei
+
+**SSAS** este o alarmă ascunsă cerută de capitolul XI-2 SOLAS. Când este activată, trimite o alertă la țărm — autorității desemnate de pavilion, de obicei inclusiv companiei — cu identitatea și poziția navei și cu mesajul că securitatea ei este amenințată. Nu sună la bord și nu alertează alte nave, astfel încât cine amenință nava să nu știe că alarma a pornit. Poate fi activată de pe comandă și din cel puțin încă un loc, iar aceste locuri le cunosc doar cei care trebuie să le cunoască. Se testează conform planului, iar un test se anunță în prealabil destinatarilor, ca să nu fie confundat cu o alertă reală.
+
+## Cartul la scara de bord și controlul accesului
+
+La nivelul 1, planul cere de obicei:
+
+- verificarea identității **tuturor** celor care urcă la bord și a motivului vizitei — inclusiv agenți, inspectori, furnizori, schimburi de echipaj, piloți și reprezentanți ai autorităților;
+- un registru al vizitatorilor, cu nume, organizații, orele de urcare și de coborâre, și ecusoane de vizitator;
+- percheziționarea persoanelor, a bagajelor și a vehiculelor în măsura stabilită de plan, mai mult la nivelurile superioare;
+- zonele restricționate — comanda, compartimentul mașini, compartimentul mașinii cârmei, camera de control al mărfii și altele — încuiate sau păzite;
+- supravegherea punții și a apei din jurul navei, mai ales noaptea;
+- verificarea proviziilor și a mărfii față de documente și căutarea pasagerilor clandestini înainte de plecare.
+
+La nivelul 2, măsurile se înăspresc — mai puține puncte de acces, mai multe percheziții, vizitatori însoțiți, patrule suplimentare. La nivelul 3, accesul poate fi limitat doar la persoanele autorizate, iar nava urmează instrucțiunile autorităților.
+
+## Antrenamentele, exercițiile și instruirea
+
+- **Antrenamente de securitate** cel puțin o dată la trei luni și în cel mult o săptămână dacă peste un sfert din echipaj s-a schimbat cu oameni care nu au participat la un antrenament pe nava respectivă în ultimele trei luni.
+- **Exerciții de securitate** — cu CSO, cu facilitățile portuare și cu autoritățile — cel puțin o dată în fiecare an calendaristic, cu cel mult 18 luni între ele.
+- **Instruirea:** conștientizarea securității pentru fiecare navigator și atribuții desemnate de securitate pentru cei care le au (STCW VI/6); SSO are STCW VI/5.
+- **Evidențele** păstrate la bord: instruirea, antrenamentele și exercițiile, amenințările și incidentele, încălcările, schimbările nivelului de securitate, comunicările privind securitatea navei, auditurile interne, întreținerea echipamentelor de securitate și declarațiile de securitate.
+
+În zonele cu risc ridicat de piraterie, companiile adaugă la măsurile din planul de securitate al navei Bunele practici de management ale industriei (BMP) — citadela, barierele, veghea și raportarea către centrele regionale.
+
+## Ce se întreabă la interviu
+
+- **Ofițerii secunzi și comandanții:** cele trei niveluri și cine le stabilește; ce faci când nivelul portului este mai mare decât al navei; când e nevoie de o declarație de securitate; ce face SSAS și de ce este silențios; atribuțiile SSO; intervalele dintre antrenamente și exerciții; ce poate și ce nu poate vedea din plan un inspector al controlului statului portului.
+- **Ofițerii juniori:** procedurile de la scara de bord; zonele restricționate; căutarea pasagerilor clandestini înainte de plecare; ce faci când găsești un pachet neidentificat.
+- **Personalul nebrevetat:** verificarea actelor la scara de bord și registrul vizitatorilor; cine poate urca la bord fără verificare (nimeni); raportarea oricărui lucru suspect ofițerului de cart sau SSO.
+
+## Greșeli frecvente
+
+1. Să lași pe cineva să urce fără să-i verifici actele pentru că „arată a agent” sau se grăbește. Toată lumea se verifică, de fiecare dată.
+2. Să lași zonele restricționate deschise în port — ușa compartimentului mașini proptită pentru aerisire, comanda descuiată.
+3. Să le spui străinilor unde sunt butoanele SSAS sau să le arăți planul. Părțile confidențiale sunt confidențiale față de oricine nu are nevoie să le cunoască.
+4. Să postezi pe rețelele sociale fotografii și programul navei. Rutele, marfa și listele de echipaj sunt informații pe care altcineva le poate folosi.
+5. Să sari peste căutarea pasagerilor clandestini înainte de plecare pentru că escala a fost scurtă. Un clandestin găsit pe mare devine problema navei pentru săptămâni.
+6. Să confunzi SSAS cu o alertă de pericol. O alertă de pericol cheamă ajutor de la toată lumea; SSAS avertizează țărmul și tace la bord.
+
+## Testează-te
+
+?? Care sunt cele trei niveluri de securitate și cine le stabilește?
+=> Nivelul 1 normal, nivelul 2 ridicat, nivelul 3 excepțional. Pavilionul stabilește nivelul navei, statul portului pe cel al facilității portuare.
+?? Facilitatea portuară este la nivelul 2, iar nava ta la nivelul 1. Ce faci?
+=> Ridici nava la nivelul 2 înainte de intrarea în port sau înainte de orice interacțiune cu facilitatea și îl informezi pe PFSO.
+?? Ce este o declarație de securitate și când se întocmește?
+=> O înțelegere între navă și facilitatea portuară (sau o altă navă) despre măsurile de securitate pe care le ia fiecare. Se întocmește când nava are un nivel mai mare decât cealaltă parte, când una dintre părți nu intră sub incidența Codului, după o amenințare sau un incident, când o cer autoritățile sau când o cere oricare dintre părți.
+?? Ce face SSAS?
+=> Trimite o alertă ascunsă la țărm — autorității desemnate de pavilion, de obicei inclusiv companiei — cu identitatea și poziția navei. Nu sună la bord și nu alertează alte nave.
+?? Cât de des trebuie ținute antrenamentele de securitate?
+=> Cel puțin o dată la trei luni și în cel mult o săptămână dacă peste 25% din echipaj este nou pentru antrenamentele de pe navă.
+?? Cine poate urca la bord fără verificarea actelor la nivelul 1?
+=> Nimeni. Se verifică identitatea și motivul vizitei pentru oricine urcă la bord.
+
+## Cine are nevoie de asta la bord
+
+Toți cei care fac cart în port — [marinarul AB](/ro/jobs/rank/able-seaman) și [marinarul stagiar OS](/ro/jobs/rank/ordinary-seaman) la scara de bord, [șeful de echipaj](/ro/jobs/rank/bosun) care organizează cartul — și mai ales [ofițerul secund](/ro/jobs/rank/chief-officer), care de obicei este SSO, și [comandantul](/ro/jobs/rank/master). [Ofițerul II](/ro/jobs/rank/2nd-officer) și [ofițerul III punte](/ro/jobs/rank/3rd-officer) sunt ofițerii de cart cărora le raportează cartul de la scara de bord. Certificatele de pregătire sunt STCW VI/5 și VI/6 — vezi [STCW pe înțelesul tuturor](/ro/handbook/stcw-pe-intelesul-tuturor-regulile-ii-1-vi-6-stagiul-de-imbarcare-revalidarea-si-09ed56ce-402e-40a5-9885-180e01f44c8f); cadrul legal este capitolul XI-2 SOLAS — vezi [SOLAS pe înțelesul tuturor](/ro/handbook/solas-pe-intelesul-tuturor-exercitii-mijloace-de-salvare-si-intrebari-de-intervi-2cbdb6d6-b0fa-498a-9c32-68bd9b95e096).
+
+Trece certificatele de securitate — VI/6 și, pentru ofițeri, VI/5 — cu datele lor în [CV-ul tău maritim](/ro/maritime-cv).
+
+*Sursa: Codul internațional pentru securitatea navelor și a facilităților portuare (ISPS) și capitolul XI-2 SOLAS. Detaliile despre ce face nava ta se află în planul ei de securitate; la bord prevalează planul și instrucțiunile SSO. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '0b416357-eab1-41c9-b419-48d06088e176';
+
+-- ── GMDSS ───────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('GMDSS pe înțelesul tuturor: zone maritime, DSC, EPIRB și SART, alerte false și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$GMDSS este motivul pentru care o navă în pericol nu mai depinde de faptul că cineva aude un manipulator Morse. Un singur buton de pe comandă trimite identitatea navei, poziția și natura pericolului tuturor stațiilor din raza de acțiune, iar o baliză care se eliberează singură când nava se scufundă îi spune unui satelit unde s-a întâmplat. Orice navă SOLAS îl are, orice ofițer de punte are un certificat de operator, iar subiectul apare aproape la fiecare interviu. Aici găsești zonele maritime, echipamentele și frecvențele, cum transmiți și cum primești o alertă de pericol, ce faci după o alarmă falsă, cum funcționează în practică EPIRB, SART și NAVTEX, verificările de rutină, greșelile care produc necazuri și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - Sistemul mondial maritim de pericol și siguranță (GMDSS) este prevăzut în capitolul IV SOLAS și se aplică integral din 1 februarie 1999.
+:: - Echipamentul unei nave depinde de zona maritimă: A1 (stații de coastă VHF), A2 (MF), A3 (satelit), A4 (restul — regiunile polare).
+:: - Alertele de pericol se transmit prin apel selectiv digital (DSC): canalul 70 VHF, 2187,5 kHz pe MF și cinci frecvențe HF.
+:: - O alertă transmisă din greșeală se anulează prin voce pe canalul de pericol corespunzător — oprirea stației nu anulează nimic.
+
+## Ce este GMDSS
+
+Înainte de GMDSS, o navă în pericol depindea de un ofițer radio care făcea cart în Morse și de faptul că alte nave se întâmplau să audă. În 1988, IMO a amendat SOLAS pentru a înlocui acest lucru cu un sistem automatizat construit pe două idei: autoritățile de la țărm, nu doar navele din apropiere, sunt alertate imediat, iar alerta conține identitatea și poziția navei fără ca cineva să trebuiască să le citească. Sistemul a fost introdus treptat din 1992 și a devenit integral obligatoriu la 1 februarie 1999, ziua în care navele au încetat cartul de pericol în Morse.
+
+Se aplică navelor SOLAS: navelor de pasageri și navelor de marfă de 300 GT și peste în voiaje internaționale. Capitolul IV a fost modernizat de la 1 ianuarie 2024 și se referă acum la orice serviciu mobil prin satelit recunoscut, nu la un singur furnizor: lângă Inmarsat a apărut Iridium, recunoscut de IMO în 2018.
+
+Sistemul are nouă funcții: alertarea de pericol navă–țărm, țărm–navă și navă–navă; comunicațiile de coordonare a căutării și salvării; comunicațiile la locul incidentului; semnalele de localizare; informațiile privind siguranța maritimă; radiocomunicațiile generale; și comunicațiile între comenzi (bridge-to-bridge).
+
+## Cifrele-cheie
+
+!! 4 | zone maritime: A1, A2, A3 și A4
+!! can. 70 | apel selectiv digital pe VHF — alerte de pericol, urgență și siguranță
+!! 2187,5 kHz | frecvența de pericol DSC pe MF (voce pe 2182 kHz)
+!! 406 MHz | frecvența EPIRB, recepționată de sateliții COSPAS-SARSAT
+!! 518 kHz | NAVTEX internațional, transmis în engleză
+!! 12 puncte | semnalul unui SART pe ecranul unui radar în banda X
+
+## Cele patru zone maritime
+
+- **A1** — în raza de acțiune a cel puțin unei stații de coastă VHF cu veghe DSC permanentă; de obicei 20–30 de mile de stația de coastă.
+- **A2** — în afara A1, în raza de acțiune a cel puțin unei stații de coastă MF cu veghe DSC permanentă; de obicei până la aproximativ 150 de mile.
+- **A3** — în afara A1 și A2, în aria de acoperire a unui serviciu mobil prin satelit recunoscut. Sateliții geostaționari Inmarsat acoperă aproximativ de la 70° N la 70° S; Iridium acoperă și polii.
+- **A4** — tot ce se află în afara A1, A2 și A3: în practică regiunile polare, unde ajunge doar HF.
+
+Zonele maritime sunt declarate de statele riverane, așa că aceeași distanță față de uscat poate fi A1 în largul unei coaste și A2 în largul alteia. Echipamentul radio al unei nave este instalat pentru zonele în care navighează și este trecut în certificatul ei de siguranță radio.
+
+## Echipamentul de la bord
+
+**Pe orice navă SOLAS**, oriunde ar naviga:
+
+- o **stație radio VHF** cu DSC pe canalul 70 și radiotelefonie pe canalele 16, 13 și 6, care face veghe DSC permanentă pe canalul 70;
+- un **receptor NAVTEX** pentru informațiile privind siguranța maritimă și un receptor de apel de grup extins (EGC) acolo unde NAVTEX nu ajunge;
+- un **EPIRB prin satelit** pe 406 MHz, care se eliberează singur;
+- **SART-uri** — transpondere radar sau AIS pentru căutare și salvare: cel puțin câte unul pe fiecare bord pe navele de 500 GT și peste, unul pe navele de marfă mai mici;
+- **radiotelefoane VHF portabile bidirecționale** pentru ambarcațiunile de salvare: cel puțin trei pe navele de pasageri și pe navele de marfă de 500 GT și peste, două pe navele de marfă de 300–500 GT.
+
+**În plus, după zona maritimă:**
+
+- **A2** — o instalație radio MF cu DSC pe 2187,5 kHz și radiotelefonie pe 2182 kHz.
+- **A3** — fie o stație de navă a unui serviciu prin satelit recunoscut, împreună cu instalația MF, fie o instalație MF/HF cu DSC.
+- **A4** — o instalație MF/HF cu DSC pe toate frecvențele de pericol și siguranță.
+
+Navele din A1 și A2 mențin echipamentul în funcțiune printr-una dintre trei metode — dublarea echipamentului, întreținerea la țărm sau întreținerea pe mare; navele din A3 și A4 prin cel puțin două dintre ele. Instalația radio funcționează și de la o sursă de energie de rezervă, nu doar de la rețeaua navei.
+
+## Frecvențele de pericol
+
+- **VHF:** canalul 70 pentru DSC; canalul 16 (156,8 MHz) pentru traficul vocal de pericol, urgență și siguranță; canalul 6 pentru comunicațiile la locul incidentului cu aeronavele; canalul 13 pentru siguranța navigației între comenzi.
+- **MF:** 2187,5 kHz DSC, 2182 kHz voce.
+- **HF DSC:** 4207,5, 6312, 8414,5, 12577 și 16804,5 kHz.
+- **HF voce:** 4125, 6215, 8291, 12290 și 16420 kHz.
+- **EPIRB:** 406 MHz către sateliți, cu un semnal de radiogoniometrie pe 121,5 MHz pentru salvatori.
+- **SART:** 9 GHz — răspunde impulsurilor unui radar în banda X (3 cm).
+
+Fiecare stație DSC este programată cu MMSI-ul navei — un număr de identitate în serviciul mobil maritim, din nouă cifre, ale cărui primele trei cifre identifică țara. MMSI-urile stațiilor de coastă încep cu 00.
+
+## Cum transmiți o alertă de pericol
+
+Comandantul hotărăște că nava este într-un pericol grav și iminent și are nevoie de ajutor imediat. Apoi:
+
+1. **Verifici poziția** pe controlerul DSC. Cu GNSS conectat și funcțional este automată; fără el trebuie introdusă manual, altfel alerta pleacă cu o poziție veche.
+2. **Selectezi natura pericolului**, dacă ai timp — incendiu sau explozie, inundare, abordaj, eșuare, înclinare, scufundare, navă imobilizată în derivă, abandonarea navei, piraterie, om la apă. Dacă nu ai timp, alerta pleacă „nedesemnată”.
+3. **Ridici capacul și ții apăsat butonul DISTRESS** câteva secunde — majoritatea stațiilor cer în jur de cinci — până când stația confirmă că alerta a plecat.
+4. **Treci pe canalul de voce** — 16 pe VHF, 2182 kHz pe MF — și faci apelul și mesajul MAYDAY: MAYDAY de trei ori, „this is” și numele navei de trei ori, indicativul și MMSI-ul; apoi MAYDAY, numele, indicativul și MMSI-ul, poziția, natura pericolului, ajutorul necesar, numărul de persoane de la bord și orice altceva ajută, și OVER.
+5. **Aștepți confirmarea.** Până când o stație de coastă confirmă, stația DSC repetă automat alerta la câteva minute.
+
+O navă poate transmite alerta și prin terminalul de satelit, iar în ultimă instanță EPIRB-ul o transmite singur.
+
+## Cum primești o alertă de pericol
+
+Pe VHF sau MF:
+
+1. Nu confirmi alerta prin DSC și nu o retransmiți prin DSC, decât dacă îți cere un RCC sau o stație de coastă.
+2. Asculți canalul 16 (sau 2182 kHz) pentru confirmarea stației de coastă și traficul de pericol — în jur de cinci minute.
+3. Dacă nicio stație de coastă nu a confirmat, iar nava în pericol este destul de aproape ca să poți ajuta, îi confirmi prin voce pe canalul 16 și informezi RCC-ul sau o stație de coastă prin orice mijloc.
+4. Treci totul în jurnalul radio, îl anunți pe comandant și ești gata să mergi spre locul incidentului.
+
+Pe HF, navele nu confirmă; confirmă stația de coastă. Dacă după aproximativ cinci minute niciuna nu a confirmat, informezi RCC-ul.
+
+Motivul regulii e simplu: în primii ani, navele care confirmau și retransmiteau prin DSC alertele altora au aglomerat canalul cu trafic automat și au acoperit alerta originală.
+
+## Alarma falsă: ce faci
+
+Alertele false sunt una dintre cele mai mari probleme ale GMDSS — cineva apasă butonul la un exercițiu, la curățenie sau din curiozitate, iar sistemul de salvare pornește. Contează să anulezi imediat:
+
+1. **Nu oprești stația.** Alerta a plecat deja; oprind stația doar nu mai auzi confirmările.
+2. **Oprești repetarea** — resetezi controlerul sau folosești funcția lui de anulare, dacă o are.
+3. **Anulezi prin voce** pe canalul de pericol al benzii folosite — canalul 16 pe VHF, 2182 kHz pe MF: „ALL STATIONS, ALL STATIONS, ALL STATIONS, THIS IS (numele, indicativul, MMSI), POSITION (...), CANCEL MY DISTRESS ALERT OF (data și ora) UTC — MASTER (numele)”.
+4. **Înregistrezi** totul în jurnalul radio și anunți compania.
+
+Pentru un EPIRB pornit din greșeală: îl oprești și anunți imediat cel mai apropiat RCC sau stație de coastă. O alertă falsă anulată prompt e o chestiune de rutină; una lăsată neanulată trimite oameni și avioane pe mare degeaba.
+
+## EPIRB, SART și NAVTEX în practică
+
+- **EPIRB** — stă într-un suport care permite eliberarea liberă, cu un dispozitiv de eliberare hidrostatică (HRU). Dacă nava se scufundă, HRU-ul îl eliberează la o adâncime de cel mult patru metri, baliza iese la suprafață, pornește singură și transmite identitatea navei — și poziția, dacă are receptor GNSS — către sateliții COSPAS-SARSAT. Poate fi pornit și manual și luat în pluta de salvare. Saula lui nu se leagă niciodată de navă.
+- **SART** — se ia în ambarcațiunea de salvare și se pornește acolo. Când radarul în banda X al unei nave sau al unei aeronave îl baleiază, pe ecran apare o linie de 12 puncte care pleacă din poziția SART-ului; pe măsură ce salvatorul se apropie, punctele devin arcuri și apoi cercuri concentrice. Montat la cel puțin un metru deasupra apei, o navă îl vede de la aproximativ cinci mile, o aeronavă de mult mai departe. În așteptare bateria ține 96 de ore, apoi 8 ore de transmisie. Un AIS-SART apare în schimb ca țintă specială pe AIS și pe ECDIS.
+- **NAVTEX** — tipărește avertizări de navigație și meteorologice, informații de căutare și salvare și prognoze pe 518 kHz, în engleză (pe 490 kHz se transmite în limbile naționale), până la aproximativ 400 de mile. Stațiile și tipurile de mesaje pot fi selectate, dar avertizările de navigație (A), avertizările meteorologice (B), informațiile de căutare și salvare (D) și avertizările de navigație suplimentare (L) nu pot fi dezactivate.
+
+## Verificările și jurnalul radio
+
+- **Zilnic:** testul intern DSC fără emisie; încărcarea bateriilor de rezervă; imprimanta NAVTEX și hârtia.
+- **Săptămânal:** un apel DSC de test către o stație de coastă pe MF sau HF, unde se poate.
+- **Lunar:** autotestul EPIRB și datele de expirare ale HRU-ului și bateriei; autotestul SART; stațiile VHF portabile ale ambarcațiunilor de salvare și bateriile lor — testate pe un canal de lucru, niciodată pe 16 sau 70.
+- **La fiecare 12 luni:** testarea EPIRB; iar la intervale de cel mult cinci ani, întreținerea la o unitate aprobată de la țărm.
+
+Totul se trece în jurnalul radio GMDSS: traficul de pericol, urgență și siguranță primit și transmis, verificările și rezultatele lor, poziția cel puțin o dată pe zi și orice defecțiune și reparația ei.
+
+## Certificatele: GOC și ROC
+
+- **GOC** — certificatul general de operator conform regulii STCW IV/2: operator radio în toate zonele maritime. Ofițerii de punte de pe navele SOLAS îl au.
+- **ROC** — certificatul restrâns de operator: doar zona maritimă A1.
+- **SRC și LRC** — certificate pentru rază scurtă și lungă pentru ambarcațiunile non-SOLAS, cum ar fi iahturile. Nu înlocuiesc GOC.
+
+Ca și celelalte certificate STCW, GOC se revalidează la fiecare cinci ani. Rolul de alarmă al navei îl numește pe ofițerul cu responsabilitatea principală pentru comunicațiile radio în caz de pericol — de obicei comandantul sau unul dintre ofițeri.
+
+## Ce se întreabă la interviu
+
+- **Comandanții și ofițerii secunzi:** zonele maritime și echipamentul pentru fiecare; metodele de menținere a echipamentului în funcțiune; cine confirmă o alertă de pericol și când; alertele false; ce acoperă certificatul de siguranță radio.
+- **Ofițerii II și III punte:** procedura de alertă DSC pas cu pas; mesajul MAYDAY; frecvențele de pericol; verificările zilnice, săptămânale și lunare; setările NAVTEX; cum arată un SART pe radar.
+- **Personalul nebrevetat:** unde sunt EPIRB-ul, SART-urile și stațiile VHF portabile și cine le duce la bărci; cum pornești un SART și unde îl ții; că saula EPIRB-ului nu se leagă niciodată.
+
+## Greșeli frecvente
+
+1. Să oprești stația după o alertă transmisă din greșeală în loc s-o anulezi prin voce.
+2. Să transmiți o alertă cu o poziție veche pentru că a căzut GNSS-ul și nimeni nu s-a uitat.
+3. Să legi saula EPIRB-ului de suport sau de balustradă — nava îl trage la fund.
+4. Un HRU sau o baterie expirate la EPIRB.
+5. Să testezi stațiile VHF ale ambarcațiunilor de salvare pe canalul 16.
+6. Să deselectezi stații sau mesaje NAVTEX „pentru că oricum ECDIS-ul arată avertizările”.
+7. Să ții SART-ul pe fundul plutei — jos, radarul îl vede doar de la o mică parte din distanță.
+
+## Testează-te
+
+?? Ce este zona maritimă A3?
+=> Zona din afara A1 și A2 aflată în aria de acoperire a unui serviciu mobil prin satelit recunoscut — pentru Inmarsat, aproximativ de la 70° N la 70° S.
+?? Pe ce frecvențe se transmit alertele de pericol DSC?
+=> Canalul 70 VHF, 2187,5 kHz pe MF și pe HF 4207,5, 6312, 8414,5, 12577 și 16804,5 kHz.
+?? Ai apăsat din greșeală DISTRESS pe VHF. Ce faci?
+=> Nu oprești stația. Oprești repetarea, apoi transmiți pe canalul 16 către toate stațiile: numele navei, indicativul, MMSI și poziția, „cancel my distress alert of” cu data și ora UTC. Treci totul în jurnalul radio.
+?? Cum apare un SART pe ecranul radarului?
+=> Ca o linie de 12 puncte care pleacă din poziția SART-ului; pe măsură ce nava se apropie, devin arcuri și apoi cercuri concentrice. Doar un radar în banda X (3 cm) îl declanșează.
+?? Ce se întâmplă cu EPIRB-ul dacă nava se scufundă?
+=> Dispozitivul de eliberare hidrostatică îl eliberează la o adâncime de cel mult patru metri; iese la suprafață, pornește singur și transmite pe 406 MHz către sateliții COSPAS-SARSAT.
+?? Care este diferența dintre GOC și ROC?
+=> GOC acoperă toate zonele maritime, de la A1 la A4; ROC acoperă doar zona maritimă A1.
+
+## Cine are nevoie de asta la bord
+
+Fiecare ofițer de punte — [comandantul](/ro/jobs/rank/master), [ofițerul secund](/ro/jobs/rank/chief-officer), [ofițerul II](/ro/jobs/rank/2nd-officer) și [ofițerul III punte](/ro/jobs/rank/3rd-officer), care de obicei țin jurnalul radio și fac verificările — are GOC. [Ofițerul electrician (ETO)](/ro/jobs/rank/eto) se ocupă adesea de echipamente, iar [marinarul AB](/ro/jobs/rank/able-seaman) și [cadetul de punte](/ro/jobs/rank/deck-cadet) trebuie să știe unde sunt EPIRB-ul, SART-urile și stațiile VHF portabile și ce se face cu ele la abandonarea navei. Certificatul radio în sine este STCW IV/2 — vezi [STCW pe înțelesul tuturor](/ro/handbook/stcw-pe-intelesul-tuturor-regulile-ii-1-vi-6-stagiul-de-imbarcare-revalidarea-si-09ed56ce-402e-40a5-9885-180e01f44c8f); exercițiile și mijloacele de salvare care merg împreună cu el sunt în [SOLAS pe înțelesul tuturor](/ro/handbook/solas-pe-intelesul-tuturor-exercitii-mijloace-de-salvare-si-intrebari-de-intervi-2cbdb6d6-b0fa-498a-9c32-68bd9b95e096), iar cuvintele mesajului MAYDAY în [SMCP pe înțelesul tuturor](/ro/handbook/smcp-pe-intelesul-tuturor-mayday-si-pan-pan-marcatorii-de-mesaj-comenzile-la-car-210d240d-f93c-4c9f-b1a2-aa48b5000c4b).
+
+Trece GOC-ul, cu numărul și data de expirare, în [CV-ul tău maritim](/ro/maritime-cv).
+
+*Sursa: capitolul IV SOLAS, Regulamentul radiocomunicațiilor UIT și recomandările IMO privind alertele de pericol și anularea lor. La bord prevalează instalația radio a navei, manualele ei și instrucțiunile comandantului. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '8bda0946-1e5d-4e0c-9369-896823d11b2b';
+
+-- ── SMCP ────────────────────────────────────────────────────────────────────
+UPDATE news_articles SET
+  title = jsonb_set(title, '{ro}', to_jsonb('SMCP pe înțelesul tuturor: Mayday și Pan-Pan, marcatorii de mesaj, comenzile la cârmă și la mașină și întrebări de interviu'::text)),
+  body  = jsonb_set(body,  '{ro}', to_jsonb($ro$SMCP este engleza pe care merge de fapt o navă: frazele pe care pilotul, operatorul VTS și ofițerul de cart le folosesc ca un timonier filipinez, un ofițer secund ucrainean și un centru de trafic olandez să se înțeleagă din prima, pe o legătură VHF proastă. STCW cere ca orice ofițer de cart să le cunoască, testele Marlins și CES le verifică, iar un comandant le testează adesea în primele minute de la bord. Această pagină este o referință de fraze, nu un curs de engleză: cum e construit SMCP, marcatorii de mesaj, numerele, pozițiile și orele, MAYDAY, PAN-PAN și SÉCURITÉ, comenzile standard la cârmă și la mașină, frazele pentru acostare și ancorare, greșelile care produc neînțelegeri și întrebări cu care să te verifici.
+
+:: **Pe scurt**
+:: - Frazele standard IMO pentru comunicații maritime (SMCP) au fost adoptate în 2001 și au înlocuit Vocabularul standard de navigație maritimă din 1977.
+:: - STCW cere ca ofițerii responsabili cu cartul de navigație să le folosească și să le înțeleagă.
+:: - Opt marcatori de mesaj — instruction, advice, warning, information, question, answer, request, intention — îi spun ascultătorului ce fel de mesaj urmează.
+:: - Numerele se spun cifră cu cifră, drumurile și relevmentele întotdeauna cu trei cifre, orele în UTC.
+
+## Ce este SMCP
+
+Adunarea IMO a adoptat Frazele standard pentru comunicații maritime în noiembrie 2001, prin rezoluția A.918(22), înlocuind Vocabularul standard de navigație maritimă din 1977. Ideea este cea pe care aviația a adoptat-o cu mult înainte: o engleză simplificată, cu fraze fixe, un singur sens pentru fiecare frază, fără sinonime și fără forme contrase, făcută pentru oameni a căror limbă maternă este alta și pentru legături radio care pierd jumătate din silabe.
+
+STCW o face obligatorie. Tabelul de competențe pentru ofițerii responsabili cu cartul de navigație (A-II/1) cere o engleză suficientă pentru a folosi hărțile și publicațiile, pentru a înțelege mesajele meteorologice și de siguranță, pentru a comunica cu alte nave, cu stațiile de coastă și cu centrele VTS și cu un echipaj multinațional — „inclusiv capacitatea de a folosi și de a înțelege Frazele standard IMO pentru comunicații maritime”. Personalul nebrevetat care face parte dintr-un cart trebuie să înțeleagă ordinele și să se facă înțeles în chestiunile de cart, ceea ce pe majoritatea navelor înseamnă în engleză.
+
+SMCP are două părți:
+
+- **Partea A** — ce cere STCW: comunicațiile externe (traficul de pericol, urgență și siguranță, căutarea și salvarea, VTS) și frazele de la bord folosite cu pilotul pe comandă, inclusiv comenzile standard la cârmă și la mașină.
+- **Partea B** — restul vieții de la bord: acostarea și ancorarea, remorcherele, exercițiile, avariile și incendiul, marfa, îngrijirea pasagerilor.
+
+O secțiune generală, înaintea ambelor, stabilește procedura — ortografierea, numerele, pozițiile, marcatorii de mesaj și răspunsurile standard.
+
+## Cifrele-cheie
+
+!! 2001 | SMCP adoptate de IMO, rezoluția A.918(22)
+!! 8 | marcatori de mesaj
+!! 3 ori | MAYDAY, PAN-PAN sau SÉCURITÉ se spune înaintea mesajului
+!! 3 cifre | pentru orice drum și relevment, de la 000 la 359
+!! 26 | de litere în alfabetul fonetic, de la Alfa la Zulu
+!! 10 | cabluri într-o milă marină
+
+## Marcatorii de mesaj
+
+În traficul navă–țărm, și mai ales cu VTS, un mesaj poate începe cu un marcator care spune ce fel de mesaj este. Se spune întâi marcatorul, apoi mesajul:
+
+- **INSTRUCTION** — „Instruction. Do not overtake.” Vine de la o autoritate, cum ar fi un centru VTS sau o navă militară. Destinatarul trebuie să o urmeze, cu excepția cazului în care motive de siguranță se opun — iar atunci le raportează expeditorului.
+- **ADVICE** — „Advice. Stand by on VHF channel one-two.” Nu este obligatoriu, dar trebuie cântărit foarte atent.
+- **WARNING** — „Warning. Obstruction in the fairway.” Informație despre un pericol; ascultătorul ia notă imediat.
+- **INFORMATION** — „Information. My present speed is one-two knots.” Doar fapte.
+- **QUESTION** — „Question. What is your present draft?”
+- **ANSWER** — „Answer. My present draft is one-one decimal five metres.” Răspunsul la o întrebare.
+- **REQUEST** — „Request. I require two tugs.” Cere o acțiune sau ajutor — nu informații; pentru asta e question.
+- **INTENTION** — „Intention. I will reduce my speed.” Anunță propria manevră de navigație.
+
+## Răspunsurile standard
+
+- **Yes / No** — niciodată singure: „Yes, I will reduce speed.” „No, I will not enter the fairway.” O propoziție întreagă, pentru că pe o legătură proastă un „yes” singur nu-i spune nimănui la ce s-a convenit.
+- **Stand by** — informația nu e încă gata; spune și timpul: „Stand by — five minutes.”
+- **No information** — informația nu poate fi obținută.
+- **Unable to comply** — și motivul: „Unable to comply. Engine broken down.”
+- **Say again** — mesajul nu s-a auzit bine. **Message not understood** — s-a auzit, dar nu s-a înțeles.
+- **Mistake … correction** — ca să te corectezi: „My present speed is one-four knots — mistake. Correction: my present speed is one-two, one-two knots.”
+- **Repeat** — ca să accentuezi o parte vitală: „Do not overtake — repeat — do not overtake.”
+- **Over** — am terminat și aștept răspuns. **Out** — conversația s-a încheiat. „Over and out” se contrazice singur.
+
+SMCP evită și „may” și „can”, care amestecă permisiunea cu posibilitatea. În loc de „May I enter the fairway?”: „Question. Do I have permission to enter the fairway?” — „Answer. Yes, you have permission to enter the fairway.”
+
+## Numere, poziții și ore
+
+- **Numerele** se spun cifră cu cifră: 150 este „one-five-zero”, 2,5 este „two decimal five” (sau „two point five”). Singura excepție este unghiul cârmei în comenzile la cârmă: „starboard fifteen”, nu „one-five”.
+- **Pronunția:** ZEERO, WUN, TOO, TREE, FOWER, FIFE, SIX, SEVEN, AIT, NINER. TREE, FIFE și NINER există pentru că „three”, „five” și „nine” sunt cifrele auzite greșit cel mai des.
+- **Drumurile și relevmentele** — întotdeauna trei cifre, în sistemul de 360 de grade de la nord, adevărate dacă nu se spune altfel: „course zero-four-five”. Relevmentele relative se dau de la prova: „the buoy is zero-three-zero degrees on your port bow”.
+- **Pozițiile** — latitudine și longitudine în grade și minute, cu nord sau sud și est sau vest; sau un relevment și o distanță față de un reper bine definit, spunând dacă relevmentul este de la reper sau de la navă.
+- **Distanțele** în mile marine sau cabluri, întotdeauna cu unitatea de măsură. **Viteza** în noduri — față de apă, dacă nu se spune „over the ground”.
+- **Orele** în UTC, format de 24 de ore, patru cifre: „one-four-three-zero UTC”. Ora locală doar când se spune explicit, de obicei în port.
+
+**Ortografierea** folosește alfabetul fonetic: Alfa, Bravo, Charlie, Delta, Echo, Foxtrot, Golf, Hotel, India, Juliett, Kilo, Lima, Mike, November, Oscar, Papa, Quebec, Romeo, Sierra, Tango, Uniform, Victor, Whiskey, X-ray, Yankee, Zulu. Numele navelor și indicativele se ortografiază la orice îndoială: „I spell: Kilo-India-Lima-Oscar”.
+
+## MAYDAY, PAN-PAN și SÉCURITÉ
+
+- **MAYDAY** — pericol: nava sau o persoană se află într-un pericol grav și iminent și are nevoie de ajutor imediat. Apelul: MAYDAY de trei ori, „this is” și numele navei de trei ori, indicativul și MMSI-ul. Mesajul: MAYDAY, numele, indicativul și MMSI-ul, poziția, natura pericolului, ajutorul necesar, numărul de persoane de la bord și orice altă informație — apoi OVER.
+- **PAN-PAN** — urgență: un mesaj urgent privind siguranța navei sau a unei persoane, dar fără pericol grav și iminent — o pană de motor lângă o coastă de sub vânt, un membru al echipajului grav rănit care are nevoie de sfat medical.
+- **SÉCURITÉ** (se-kiu-ri-te) — siguranță: o avertizare de navigație sau meteorologică — o geamandură deplasată, un container în derivă, o avertizare de furtună.
+
+Fiecare se spune de trei ori înaintea apelului. Cuvintele vin din franceză — „m'aider” (ajutați-mă), „panne” (pană) și „sécurité” (siguranță).
+
+Frazele de pericol sunt scurte și fixe: „I am on fire.” „I am flooding.” „I have collided with …” „I am aground.” „I am listing — danger of capsizing.” „I am sinking.” „I am disabled and adrift.” „I am abandoning vessel.” „Person overboard.” „I require assistance.” „I require medical assistance.”
+
+În timpul traficului de pericol, stația care îl coordonează poate impune tăcerea radio cu **SEELONCE MAYDAY**. **PRUDONCE** înseamnă că se poate relua lucrul restrâns; **SEELONCE FEENEE** înseamnă că traficul de pericol s-a încheiat. Canalul 16 este pentru pericol, urgență, siguranță și apel — odată stabilit contactul, treci pe un canal de lucru: „Switch to VHF channel one-four.”
+
+## Comenzile la cârmă și la mașină
+
+**Comenzile la cârmă:**
+
+- „Midships” — cârma la mijloc (zero).
+- „Port five”, „port ten”, „port fifteen”, „port twenty”, „port twenty-five”, „hard-a-port” — și la fel la tribord.
+- „Ease to five”, „ease to ten”, „ease to fifteen”, „ease to twenty” — reduci unghiul cârmei la acea valoare.
+- „Steady” — oprești girația cât mai repede. „Steady as she goes” — ții drumul de pe compas din momentul comenzii.
+- „Steer one-two-three” — un drum de urmat, cu trei cifre.
+- „Nothing to port” / „nothing to starboard” — nu lași nava să treacă în acea parte a drumului ordonat.
+- „Keep the buoy on port side”, „Report if she does not answer the wheel”, „Finished with wheel — no more steering”.
+
+Timonierul repetă fiecare comandă la cârmă, ofițerul se asigură că a fost executată corect și imediat, iar fiecare comandă rămâne valabilă până când este anulată. Dacă nava nu ascultă de cârmă, timonierul raportează imediat.
+
+**Comenzile la mașină:** full ahead, half ahead, slow ahead, dead slow ahead, stop engine, dead slow astern, slow astern, half astern, full astern, emergency full ahead, emergency full astern; stand by engine; finished with engine. Pe navele cu două mașini, mașina se numește prima: „starboard engine half astern”. Și comenzile la mașină se repetă.
+
+## Acostarea, ancorarea și pilotul
+
+- **Acostarea:** „Stand by forward / aft.” „Send out the head line / stern line / spring.” „Heave in.” „Slack away.” „Hold on.” „Make fast.” „Single up to one head line and one spring forward.” „Let go.” „All fast” — nava este legată.
+- **Ancorarea:** „Stand by port anchor.” „Let go port anchor.” „Walk out the anchor.” „How is the cable leading?” — „The cable is leading ahead / astern / up and down.” „The anchor is holding.” „The anchor is dragging.” „Heave up.” „The anchor is aweigh.”
+- **Pilotul:** „Pilot ladder rigged on starboard side, one metre above water.” „What is your present draft?” „My maximum draft is eight decimal five metres.”
+
+Oamenii de veghe raportează în aceiași termeni: ce văd, unde — right ahead, on the port bow, abeam to starboard — și la ce distanță, dacă o pot aprecia.
+
+## Ce se întreabă la interviu
+
+- **Ofițerii:** marcatorii de mesaj și când se folosește fiecare; un mesaj MAYDAY pentru o situație dată, spus cu voce tare; diferența dintre PAN-PAN și SÉCURITÉ; cum dai o poziție și o oră; ce faci când o instrucțiune VTS intră în conflict cu siguranța; cum te corectezi pe radio.
+- **Personalul nebrevetat:** comenzile la cârmă — de obicei redate sau spuse, iar tu le repeți și le explici; comenzile la mașină; comenzile de legare și ancorare; un raport de veghe.
+- **Toată lumea:** un interviu în engleză despre ultima navă, atribuțiile tale și o situație de urgență prin care ai trecut. Testele — Marlins și CES — verifică vocabularul SMCP și înțelegerea după auz.
+
+## Greșeli frecvente
+
+1. Să citești numerele întregi. „Fifteen” și „fifty” se confundă frecvent pe un canal zgomotos; „one-five” și „five-zero”, niciodată.
+2. „Left” și „right” în loc de „port” și „starboard” — și „rudder fifteen” fără bord.
+3. Un „OK” sau un „yes” sec în loc de un răspuns complet.
+4. Ora locală, kilometrii sau un relevment fără să spui dacă este adevărat sau relativ.
+5. Să nu repeți comenzile la cârmă sau să le repeți fără să le execuți.
+6. „May I…?” și „Can you…?” în loc de „Question. Do I have permission…?” și „Request…”.
+7. Conversații pe canalul 16 și „over and out”.
+
+## Testează-te
+
+?? Care sunt cei opt marcatori de mesaj?
+=> Instruction, advice, warning, information, question, answer, request și intention.
+?? Cum spui un drum de 150 de grade și o distanță de 2,5 mile?
+=> „One-five-zero degrees” și „two decimal five miles” — fiecare cifră separat.
+?? Când folosești MAYDAY, PAN-PAN și SÉCURITÉ?
+=> MAYDAY — pericol grav și iminent, e nevoie de ajutor imediat. PAN-PAN — un mesaj urgent privind siguranța navei sau a unei persoane. SÉCURITÉ — o avertizare de navigație sau meteorologică.
+?? Cum se comandă un unghi de cârmă de 15° la babord?
+=> „Port fifteen” — în comenzile la cârmă unghiul se spune ca număr întreg. Timonierul repetă „port fifteen” și execută.
+?? Ai dat o cifră greșită într-un mesaj radio. Cum o corectezi?
+=> Spui „mistake”, apoi „correction” și varianta corectă: „…one-four knots — mistake. Correction: one-two, one-two knots.”
+?? Un centru VTS transmite „Instruction. Do not overtake.” Ce înseamnă marcatorul pentru tine?
+=> Trebuie să te conformezi, cu excepția cazului în care motive de siguranță se opun — și atunci îi raportezi aceste motive VTS-ului.
+
+## Cine are nevoie de asta la bord
+
+Fiecare ofițer de cart — [ofițerul III](/ro/jobs/rank/3rd-officer) și [ofițerul II punte](/ro/jobs/rank/2nd-officer), [ofițerul secund](/ro/jobs/rank/chief-officer) și [comandantul](/ro/jobs/rank/master), care vorbește cu piloții și cu VTS; [marinarul AB](/ro/jobs/rank/able-seaman) și [marinarul stagiar OS](/ro/jobs/rank/ordinary-seaman) la timonă și de veghe; [șeful de echipaj](/ro/jobs/rank/bosun) la teugă; și [cadetul de punte](/ro/jobs/rank/deck-cadet), pentru care e adesea primul test adevărat. De ce contează engleza maritimă și cum o îmbunătățești găsești în ghidul [Engleza maritimă și SMCP](/ro/guides/engleza-maritima-si-smcp-de-ce-este-importanta-si-cum-sa-o-imbunatatesti-1b39987f-afc4-4a6d-8ff8-4bc1150995aa); testele care o verifică — în [testul Marlins](/ro/guides/testul-marlins-de-engleza-pentru-marinari-format-sectiuni-si-cum-sa-te-pregatest-8d005130-290d-4772-be5a-fc982cc2ec2d) și [testul CES](/ro/guides/testul-ces-crew-evaluation-system-ce-verifica-si-cum-sa-te-pregatesti-8cab65a8-a51a-4498-a36c-17ce88b08331). Partea radio a traficului de pericol — DSC, canale, alerte false — este în [GMDSS pe înțelesul tuturor](/ro/handbook/gmdss-pe-intelesul-tuturor-zone-maritime-dsc-epirb-si-sart-alerte-false-si-intre-8bda0946-1e5d-4e0c-9369-896823d11b2b).
+
+Trece nivelul de engleză și rezultatele la teste în [CV-ul tău maritim](/ro/maritime-cv) — agențiile de crewing se uită primele la ele.
+
+*Sursa: Frazele standard IMO pentru comunicații maritime (rezoluția A.918(22)) și tabelul STCW A-II/1. La bord prevalează procedurile navei și ordinele permanente ale comandantului. Această pagină este un material de studiu, nu un text juridic.*$ro$::text))
+WHERE id = '210d240d-f93c-4c9f-b1a2-aa48b5000c4b';
