@@ -2289,7 +2289,7 @@ const CAB4_EN: Record<string, string> = {
 const CAB4_RU: Record<string, string> = {
   cp_contacts: "Контактные данные",
   cp_phones: "Телефоны",
-  cp_phone_ph: "+7 999 123 45 67",
+  cp_phone_ph: "+380 99 123 45 67",
   cp_add_phone: "Добавить телефон",
   cp_emails: "Email-адреса",
   cp_email_ph: "name@company.com",
