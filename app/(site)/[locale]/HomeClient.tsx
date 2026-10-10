@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Coffee, FileText, Send } from "lucide-react";
@@ -69,6 +69,11 @@ const NEWS_TAG_COLORS: Record<string, string> = {
   Technology: "bg-brass/10 border-brass/20 text-brassInk",
 };
 
+// useLayoutEffect on the client, useEffect during the server render (where it
+// does nothing either way) — the page number below must be restored before
+// the first paint, or Back would flash page 1 and scroll from there.
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 export default function HomeClient({
   initialVacancies,
   initialNews,
@@ -97,8 +102,27 @@ export default function HomeClient({
   const totalPages = Math.max(1, Math.ceil(dbVacancies.length / PAGE_SIZE));
   const pageItems = dbVacancies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  // The page number lives in the URL (?page=2), so Back from a vacancy lands on
+  // the page the reader left rather than on page 1 — the list remounts with
+  // fresh state on the way back. /jobs does the same through useSearchParams;
+  // here that hook is off-limits: the home page is cached as static HTML, and
+  // useSearchParams would push the list below the nearest Suspense boundary
+  // and out of that HTML. So the number is read from window.location once on
+  // mount, before paint, and written with replaceState when the reader turns
+  // a page — in the click handler, so restoring it never rewrites the URL.
+  useIsomorphicLayoutEffect(() => {
+    const p = parseInt(new URLSearchParams(window.location.search).get("page") ?? "", 10);
+    if (Number.isFinite(p) && p > 1) setPage(Math.min(p, totalPages));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function goToPage(p: number) {
-    setPage(Math.min(Math.max(1, p), totalPages));
+    const next = Math.min(Math.max(1, p), totalPages);
+    setPage(next);
+    const url = new URL(window.location.href);
+    if (next > 1) url.searchParams.set("page", String(next));
+    else url.searchParams.delete("page");
+    window.history.replaceState(window.history.state, "", url);
     jobsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
