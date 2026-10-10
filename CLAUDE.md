@@ -82,7 +82,7 @@ Almost everything lives under `app/(site)/[locale]/`; only the auth screens and 
 
 | Route | Page file | Notes |
 |-------|-----------|-------|
-| `/` | `app/[locale]/page.tsx` + `HomeClient.tsx` | hero + search + latest jobs/news |
+| `/` | `app/[locale]/page.tsx` + `HomeClient.tsx` | hero + search + latest jobs/news; the jobs list keeps its page in `?page=` so Back from a vacancy returns to it — read from `window.location` before paint, not `useSearchParams`, because the page is static and that hook would drop the list out of its HTML |
 | `/jobs`, `/jobs/[id]` | `app/[locale]/jobs/` | Supabase-backed listing + detail; `[id]` accepts `slug-<uuid>` (see `lib/slug.ts`) |
 | `/companies/[id]` | `app/[locale]/companies/[id]/` | public company profile; the page is a Server Component that only checks the company exists (404 if not — see **SEO**) and hands rendering to `CompanyClient` |
 | `/seafarers/[id]` | `app/[locale]/seafarers/[id]/` | public seafarer profile (shared with companies) |
