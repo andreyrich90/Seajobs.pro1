@@ -62,7 +62,14 @@ export type VacancyDetail = {
 type ApplicationStatus = "pending" | "viewed" | "accepted" | "rejected";
 
 /** What api/vacancy-contact hands a reader whose profile is complete. */
-type Contacts = { email: string | null; phone: string | null; moreEmails: string[]; morePhones: string[] };
+type Contacts = {
+  email: string | null;
+  phone: string | null;
+  moreEmails: string[];
+  morePhones: string[];
+  /** The posting's text with its contacts in place; the page holds it blanked. */
+  description: string | null;
+};
 
 type Gaps = { missing: ProfileField[]; experience: boolean };
 
@@ -694,6 +701,7 @@ export default function VacancyDetailClient({
           phone: j.phone ?? null,
           moreEmails: j.moreEmails ?? [],
           morePhones: j.morePhones ?? [],
+          description: j.description ?? null,
         });
       }
     } catch { /* stays locked */ }
@@ -1104,12 +1112,13 @@ export default function VacancyDetailClient({
               </div>
             </div>
 
-            {/* Description */}
-            {vacancy.description && (
+            {/* Description — as written once the contacts are open to this
+                reader, with the 🔒 placeholders of the cached page until then. */}
+            {(contacts?.description ?? vacancy.description) && (
               <div className="rounded-2xl border border-white/10 bg-card p-6">
                 <h2 className="font-display text-lg font-semibold text-white mb-4">Job Description</h2>
                 <div className="leading-relaxed">
-                  {renderMarkdown(vacancy.description)}
+                  {renderMarkdown(contacts?.description ?? vacancy.description ?? "")}
                 </div>
               </div>
             )}

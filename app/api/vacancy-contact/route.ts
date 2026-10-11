@@ -55,7 +55,9 @@ export async function GET(req: Request) {
   if (!v) return NextResponse.json({ ok: false, error: "Not found" }, { status: 404, headers: NO_STORE });
 
   // `email` is the one applications go to; the rest are whatever the page
-  // blanked out of the posting's text, so passing the gate loses nothing.
+  // blanked out of the posting's text. `description` is that text as written,
+  // contacts in place, so the reader who passes the gate reads the posting
+  // whole rather than the cached page's 🔒 placeholders.
   const email = v.contact_email?.trim() || null;
   const phone = v.contact_phone?.trim() || null;
   const inText = contactsInText(v.description);
@@ -67,6 +69,7 @@ export async function GET(req: Request) {
       phone,
       moreEmails: inText.emails.filter((e) => e.toLowerCase() !== email?.toLowerCase()),
       morePhones: inText.phones.filter((p) => !phone || digits(p) !== digits(phone)),
+      description: v.description ?? null,
     },
     { headers: NO_STORE },
   );
