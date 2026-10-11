@@ -7,6 +7,7 @@ import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { getSalaryIndex } from "@/lib/salaryStatsCached";
 import { buildSalaryContext, type SalaryContext, type StatVacancy } from "@/lib/salaryStats";
 import type { Lang } from "@/lib/langs";
+import { contactsInText, redactContacts } from "@/lib/vacancyContacts";
 import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
 
 import { money } from "@/lib/format";
@@ -27,9 +28,10 @@ export function generateStaticParams() {
 }
 
 
-type VacancyFull = VacancyDetail & {
+type VacancyFull = Omit<VacancyDetail, "hasAgencyEmail" | "lockedContacts"> & {
   is_imported: boolean;
-  source_url: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
   country: string | null;
   region: string | null;
   city: string | null;
@@ -79,7 +81,7 @@ async function fetchVacancy(param: string): Promise<VacancyFull | null> {
   if (!id) return null;
   const { data, error } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, source_url, contact_email, contact_phone, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, contact_email, contact_phone, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
   // PGRST116 is PostgREST's "no rows": the listing really is gone, and 404 is
@@ -240,6 +242,23 @@ export default async function VacancyPage(
   if (!vacancy) notFound();
 
   const company = vacancy.companies;
+  // The page is cached and the same for every visitor, so it may say whether
+  // the agency left contacts but never what they are: those go to a complete
+  // profile through api/vacancy-contact (lib/profileGate.ts). The ones written
+  // into the text are blanked here, for the page and the JSON-LD alike. (The
+  // agency's own post, `source_url`, is not even selected: contacts and all.)
+  const description = redactContacts(vacancy.description);
+  const inText = contactsInText(vacancy.description);
+  const { contact_email, contact_phone, ...rest } = vacancy;
+  const clientVacancy: VacancyDetail = {
+    ...rest,
+    description,
+    hasAgencyEmail: !!contact_email?.trim(),
+    lockedContacts: {
+      email: !!contact_email?.trim() || inText.emails.length > 0,
+      phone: !!contact_phone?.trim() || inText.phones.length > 0,
+    },
+  };
 
   // Our own analysis layered on top of the listing: where this offer sits in
   // the portal-wide range for its rank × fleet, what the rank actually does,
@@ -273,7 +292,7 @@ export default async function VacancyPage(
       "value": vacancy.id,
     },
     "title": vacancy.title,
-    "description": vacancy.description
+    "description": description
       ?? `${vacancy.rank ?? "Seafarer"} position${vacancy.vessel_type ? ` on ${vacancy.vessel_type}` : ""}. Apply on SeaJobs.pro — maritime job board for seafarers.`,
     "datePosted": vacancy.created_at,
     // Prefer the company-set deadline; otherwise default to 60 days after posting.
@@ -379,7 +398,7 @@ export default async function VacancyPage(
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <VacancyDetailClient
-        vacancy={vacancy}
+        vacancy={clientVacancy}
         salaryContext={salaryContext}
         rankBlurb={rankBlurb}
         rankSlug={rankInfo?.slug ?? null}

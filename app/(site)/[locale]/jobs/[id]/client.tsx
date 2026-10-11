@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Lock,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -23,6 +23,7 @@ import { supabase, notify } from "@/lib/supabase/client";
 import { renderMarkdown } from "@/lib/markdown";
 import { fromEur, type SalaryContext } from "@/lib/salaryStats";
 import { slugId } from "@/lib/slug";
+import { PROFILE_FIELDS, PROFILE_SELECT, profileGaps, type ProfileField } from "@/lib/profileGate";
 
 import { money } from "@/lib/format";
 
@@ -41,9 +42,13 @@ export type VacancyDetail = {
   views_count: number;
   created_at: string;
   is_imported?: boolean;
-  source_url?: string | null;
-  contact_email?: string | null;
-  contact_phone?: string | null;
+  // The agency's contacts never reach this component with the page: they are
+  // fetched per reader from api/vacancy-contact once the profile is complete
+  // (lib/profileGate.ts). The page only says that they exist.
+  /** Applications to this vacancy are e-mailed to the agency. */
+  hasAgencyEmail: boolean;
+  /** What the lock box holds a place for. */
+  lockedContacts: { email: boolean; phone: boolean };
   companies: {
     id: string;
     name: string | null;
@@ -55,6 +60,22 @@ export type VacancyDetail = {
 };
 
 type ApplicationStatus = "pending" | "viewed" | "accepted" | "rejected";
+
+/** What api/vacancy-contact hands a reader whose profile is complete. */
+type Contacts = { email: string | null; phone: string | null; moreEmails: string[]; morePhones: string[] };
+
+type Gaps = { missing: ProfileField[]; experience: boolean };
+
+async function readGaps(uid: string): Promise<Gaps> {
+  const [{ data: sf }, { count }] = await Promise.all([
+    supabase.from("seafarers").select(PROFILE_SELECT).eq("id", uid).maybeSingle(),
+    supabase.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", uid),
+  ]);
+  return {
+    missing: profileGaps(sf as Partial<Record<ProfileField, string | null>> | null),
+    experience: (count ?? 0) === 0,
+  };
+}
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
   pending: "text-mist border-mist/30 bg-mist/10",
@@ -114,6 +135,31 @@ const CTX: Record<string, Record<string, string>> = {
     limitAfter: "The portal could not send your CV — today's email limit is used up. Your application is saved; send it from your own mailbox: the letter opens ready, just press Send.",
     sendFailedAfter: "The portal could not deliver your CV to the agency. Your application is saved; send it from your own mailbox: the letter opens ready, just press Send.",
     mailPrimary: "Send from my email",
+    contactsTitle: "Crewing agency contacts",
+    emailLabel: "E-mail",
+    phoneLabel: "Phone",
+    lockAnon: "The agency's e-mail and phone, and the apply button, are shown to seafarers who have signed in and filled in their profile: first name, last name, phone and rank.",
+    lockIncomplete: "The agency's contacts and the apply button open as soon as your profile says who you are:",
+    lockCompany: "Contacts are shown to seafarers with a complete profile.",
+    lockWhy: "Crewing agencies answer people, not e-mail addresses — so every application from SeaJobs.pro carries a name, a rank and a phone.",
+    f_email: "E-mail",
+    f_first_name: "First name",
+    f_last_name: "Last name",
+    f_phone: "Phone",
+    f_rank: "Rank",
+    fillProfile: "Fill in the profile",
+    uploadCv: "Upload CV — we fill it in",
+    uploading: "Reading your CV…",
+    signIn: "Sign in",
+    createAccount: "Create a free account",
+    cvBadType: "Please upload a PDF or DOCX file.",
+    cvDone: "CV imported — your profile is complete.",
+    cvPartial: "CV imported, but something is still missing — see the list.",
+    cvFailed: "Upload failed. Try again or fill in the profile by hand.",
+    profileErr: "Fill in your first name, last name, phone, rank and at least one sea-service record before applying.",
+    needTitle: "Complete your profile to apply",
+    needBody: "The crewing agency receives your CV with your application, so it must include your contacts and sea service:",
+    addVoyage: "Add at least one sea-service record",
   },
   ru: {
     salaryTitle: "Как эта зарплата выглядит на фоне рынка",
@@ -143,6 +189,31 @@ const CTX: Record<string, Record<string, string>> = {
     limitAfter: "Портал не смог отправить CV — дневной лимит писем исчерпан. Отклик сохранён; отправьте его со своей почты: письмо откроется готовым, останется нажать «Отправить».",
     sendFailedAfter: "Портал не смог доставить CV в крюинг. Отклик сохранён; отправьте его со своей почты: письмо откроется готовым, останется нажать «Отправить».",
     mailPrimary: "Отправить со своей почты",
+    contactsTitle: "Контакты крюинга",
+    emailLabel: "E-mail",
+    phoneLabel: "Телефон",
+    lockAnon: "E-mail и телефон крюинга, а также кнопка отклика видны морякам, которые вошли в аккаунт и заполнили профиль: имя, фамилию, телефон и должность.",
+    lockIncomplete: "Контакты крюинга и кнопка отклика откроются, как только в профиле будет видно, кто вы:",
+    lockCompany: "Контакты видны морякам с заполненным профилем.",
+    lockWhy: "Крюинги отвечают людям, а не e-mail-адресам — поэтому каждый отклик с SeaJobs.pro приходит с именем, должностью и телефоном.",
+    f_email: "E-mail",
+    f_first_name: "Имя",
+    f_last_name: "Фамилия",
+    f_phone: "Телефон",
+    f_rank: "Должность",
+    fillProfile: "Заполнить профиль",
+    uploadCv: "Загрузить CV — заполним сами",
+    uploading: "Читаем ваше CV…",
+    signIn: "Войти",
+    createAccount: "Создать аккаунт бесплатно",
+    cvBadType: "Загрузите файл PDF или DOCX.",
+    cvDone: "CV загружено — профиль заполнен.",
+    cvPartial: "CV загружено, но кое-чего не хватает — смотрите список.",
+    cvFailed: "Не удалось загрузить. Попробуйте ещё раз или заполните профиль вручную.",
+    profileErr: "Перед откликом заполните имя, фамилию, телефон, должность и добавьте хотя бы один рейс.",
+    needTitle: "Заполните профиль, чтобы откликнуться",
+    needBody: "Крюинг получает ваше CV вместе с откликом, поэтому в нём должны быть контакты и морской стаж:",
+    addVoyage: "Добавьте хотя бы один рейс",
   },
   ua: {
     salaryTitle: "Як ця зарплата виглядає на тлі ринку",
@@ -172,6 +243,31 @@ const CTX: Record<string, Record<string, string>> = {
     limitAfter: "Портал не зміг надіслати CV — денний ліміт листів вичерпано. Відгук збережено; надішліть його зі своєї пошти: лист відкриється готовим, залишиться натиснути «Надіслати».",
     sendFailedAfter: "Портал не зміг доставити CV до крюїнгу. Відгук збережено; надішліть його зі своєї пошти: лист відкриється готовим, залишиться натиснути «Надіслати».",
     mailPrimary: "Надіслати зі своєї пошти",
+    contactsTitle: "Контакти крюїнгу",
+    emailLabel: "E-mail",
+    phoneLabel: "Телефон",
+    lockAnon: "E-mail і телефон крюїнгу, а також кнопку відгуку бачать моряки, які увійшли в акаунт і заповнили профіль: ім'я, прізвище, телефон і посаду.",
+    lockIncomplete: "Контакти крюїнгу й кнопка відгуку відкриються, щойно в профілі буде видно, хто ви:",
+    lockCompany: "Контакти бачать моряки із заповненим профілем.",
+    lockWhy: "Крюїнги відповідають людям, а не e-mail-адресам — тому кожен відгук із SeaJobs.pro приходить з ім'ям, посадою й телефоном.",
+    f_email: "E-mail",
+    f_first_name: "Ім'я",
+    f_last_name: "Прізвище",
+    f_phone: "Телефон",
+    f_rank: "Посада",
+    fillProfile: "Заповнити профіль",
+    uploadCv: "Завантажити CV — заповнимо самі",
+    uploading: "Читаємо ваше CV…",
+    signIn: "Увійти",
+    createAccount: "Створити акаунт безкоштовно",
+    cvBadType: "Завантажте файл PDF або DOCX.",
+    cvDone: "CV завантажено — профіль заповнено.",
+    cvPartial: "CV завантажено, але дечого бракує — дивіться список.",
+    cvFailed: "Не вдалося завантажити. Спробуйте ще раз або заповніть профіль вручну.",
+    profileErr: "Перед відгуком заповніть ім'я, прізвище, телефон, посаду й додайте хоча б один рейс.",
+    needTitle: "Заповніть профіль, щоб відгукнутися",
+    needBody: "Крюїнг отримує ваше CV разом із відгуком, тож у ньому мають бути контакти й морський стаж:",
+    addVoyage: "Додайте хоча б один рейс",
   },
   pl: {
     salaryTitle: "Jak ta stawka wypada na tle rynku",
@@ -201,6 +297,31 @@ const CTX: Record<string, Record<string, string>> = {
     limitAfter: "Portal nie mógł wysłać CV — dzienny limit e-maili został wyczerpany. Zgłoszenie jest zapisane; wyślij je ze swojej poczty: list otworzy się gotowy, wystarczy kliknąć „Wyślij”.",
     sendFailedAfter: "Portal nie mógł dostarczyć CV do agencji. Zgłoszenie jest zapisane; wyślij je ze swojej poczty: list otworzy się gotowy, wystarczy kliknąć „Wyślij”.",
     mailPrimary: "Wyślij ze swojej poczty",
+    contactsTitle: "Kontakt do agencji",
+    emailLabel: "E-mail",
+    phoneLabel: "Telefon",
+    lockAnon: "E-mail i telefon agencji oraz przycisk aplikowania widzą marynarze, którzy się zalogowali i uzupełnili profil: imię, nazwisko, telefon i stanowisko.",
+    lockIncomplete: "Kontakt do agencji i przycisk aplikowania pojawią się, gdy profil pokaże, kim jesteś:",
+    lockCompany: "Kontakty widzą marynarze z uzupełnionym profilem.",
+    lockWhy: "Agencje odpowiadają ludziom, nie adresom e-mail — dlatego każde zgłoszenie z SeaJobs.pro ma imię, stanowisko i telefon.",
+    f_email: "E-mail",
+    f_first_name: "Imię",
+    f_last_name: "Nazwisko",
+    f_phone: "Telefon",
+    f_rank: "Stanowisko",
+    fillProfile: "Uzupełnij profil",
+    uploadCv: "Wgraj CV — uzupełnimy za Ciebie",
+    uploading: "Czytamy Twoje CV…",
+    signIn: "Zaloguj się",
+    createAccount: "Załóż darmowe konto",
+    cvBadType: "Wgraj plik PDF lub DOCX.",
+    cvDone: "CV wgrane — profil jest kompletny.",
+    cvPartial: "CV wgrane, ale czegoś jeszcze brakuje — zobacz listę.",
+    cvFailed: "Nie udało się wgrać. Spróbuj ponownie albo uzupełnij profil ręcznie.",
+    profileErr: "Przed aplikowaniem uzupełnij imię, nazwisko, telefon, stanowisko i dodaj co najmniej jeden rejs.",
+    needTitle: "Uzupełnij profil, aby aplikować",
+    needBody: "Agencja otrzymuje Twoje CV razem ze zgłoszeniem, więc muszą w nim być kontakty i staż na morzu:",
+    addVoyage: "Dodaj co najmniej jeden rejs",
   },
   ro: {
     salaryTitle: "Cum se compară acest salariu",
@@ -230,6 +351,31 @@ const CTX: Record<string, Record<string, string>> = {
     limitAfter: "Portalul nu a putut trimite CV-ul — limita zilnică de e-mailuri a fost atinsă. Aplicația este salvată; trimite-o de pe e-mailul tău: scrisoarea se deschide gata scrisă, doar apeși „Trimite”.",
     sendFailedAfter: "Portalul nu a putut livra CV-ul către agenție. Aplicația este salvată; trimite-o de pe e-mailul tău: scrisoarea se deschide gata scrisă, doar apeși „Trimite”.",
     mailPrimary: "Trimite de pe e-mailul meu",
+    contactsTitle: "Contactele agenției",
+    emailLabel: "E-mail",
+    phoneLabel: "Telefon",
+    lockAnon: "E-mailul și telefonul agenției, precum și butonul de aplicare, sunt vizibile marinarilor autentificați care și-au completat profilul: prenume, nume, telefon și rang.",
+    lockIncomplete: "Contactele agenției și butonul de aplicare apar imediat ce profilul arată cine ești:",
+    lockCompany: "Contactele sunt vizibile marinarilor cu profilul completat.",
+    lockWhy: "Agențiile răspund oamenilor, nu adreselor de e-mail — de aceea fiecare aplicație de pe SeaJobs.pro vine cu nume, rang și telefon.",
+    f_email: "E-mail",
+    f_first_name: "Prenume",
+    f_last_name: "Nume",
+    f_phone: "Telefon",
+    f_rank: "Rang",
+    fillProfile: "Completează profilul",
+    uploadCv: "Încarcă CV-ul — îl completăm noi",
+    uploading: "Citim CV-ul tău…",
+    signIn: "Autentificare",
+    createAccount: "Creează un cont gratuit",
+    cvBadType: "Încarcă un fișier PDF sau DOCX.",
+    cvDone: "CV încărcat — profilul este complet.",
+    cvPartial: "CV încărcat, dar mai lipsește ceva — vezi lista.",
+    cvFailed: "Încărcarea a eșuat. Încearcă din nou sau completează profilul manual.",
+    profileErr: "Înainte de a aplica, completează prenumele, numele, telefonul, rangul și adaugă cel puțin un voiaj.",
+    needTitle: "Completează profilul ca să aplici",
+    needBody: "Agenția primește CV-ul tău odată cu aplicația, deci trebuie să conțină contactele și stagiul pe mare:",
+    addVoyage: "Adaugă cel puțin un voiaj",
   },
 };
 
@@ -365,6 +511,62 @@ function RelatedGuidesBlock({ guides, lang }: { guides: RelatedGuide[]; lang: st
   );
 }
 
+/** The agency's e-mail and phone: the real ones once api/vacancy-contact has
+ *  handed them over, a blurred stand-in until then. The stand-in is fixed
+ *  text, not the address blurred — the page never holds the address. */
+function ContactsBox({
+  copy, kinds, contacts, children,
+}: {
+  copy: Record<string, string>;
+  kinds: { email: boolean; phone: boolean };
+  contacts: Contacts | null;
+  children?: React.ReactNode;
+}) {
+  const emails = contacts ? ([contacts.email, ...contacts.moreEmails].filter(Boolean) as string[]) : [];
+  const phones = contacts ? ([contacts.phone, ...contacts.morePhones].filter(Boolean) as string[]) : [];
+  const standIn = (text: string) => (
+    <span className="inline-flex items-center gap-2">
+      <span aria-hidden className="select-none font-semibold text-foam blur-[5px]">{text}</span>
+      <Lock size={13} className="shrink-0 text-brassInk" />
+    </span>
+  );
+  return (
+    <div className="mb-4 rounded-xl border border-white/10 bg-navy2 p-4">
+      <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-foam">
+        {contacts ? <CheckCircle2 size={15} className="text-teal" /> : <Lock size={15} className="text-brassInk" />}
+        {copy.contactsTitle}
+      </p>
+      <dl className="grid gap-2 text-sm">
+        {kinds.email && (
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <dt className="flex w-24 shrink-0 items-center gap-1.5 text-mist"><Mail size={14} /> {copy.emailLabel}</dt>
+            <dd className="min-w-0 break-all">
+              {contacts
+                ? emails.map((e) => (
+                    <a key={e} href={`mailto:${e}`} className="mr-3 font-semibold text-brassInk transition hover:text-brass">{e}</a>
+                  ))
+                : standIn("crewing@agency-mail.com")}
+            </dd>
+          </div>
+        )}
+        {kinds.phone && (
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <dt className="flex w-24 shrink-0 items-center gap-1.5 text-mist"><Phone size={14} /> {copy.phoneLabel}</dt>
+            <dd className="min-w-0">
+              {contacts
+                ? phones.map((ph) => (
+                    <a key={ph} href={`tel:${ph.replace(/[^\d+]/g, "")}`} className="mr-3 whitespace-nowrap font-semibold text-brassInk transition hover:text-brass">{ph}</a>
+                  ))
+                : standIn("+00 000 000 00 00")}
+            </dd>
+          </div>
+        )}
+      </dl>
+      {children}
+    </div>
+  );
+}
+
 export type RelatedGuide = {
   id: string;
   title: Record<string, string>;
@@ -389,6 +591,7 @@ export default function VacancyDetailClient({
   const { lang } = useLang();
   // Only for the CV-upload errors; the rest of this page's copy is per-lang maps.
   const t = useT();
+  const copy = CTX[lang] ?? CTX.en;
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
@@ -413,9 +616,13 @@ export default function VacancyDetailClient({
   // Set once the portal attempt has written the application, so the mailbox
   // route that follows does not write a second one.
   const portalApplied = useRef(false);
-  // Applying requires a phone number and at least one sea-service record, so
-  // the crewing agency always receives contacts + a real CV. null = not loaded.
-  const [profileGaps, setProfileGaps] = useState<{ phone: boolean; experience: boolean } | null>(null);
+  // What the profile still lacks (lib/profileGate.ts), and whether there is
+  // any sea service yet. The four fields gate the agency's contacts and the
+  // apply button; a voyage is also needed to send, since the agency receives
+  // a CV built from them. null = not loaded, or not a seafarer.
+  const [gaps, setGaps] = useState<Gaps | null>(null);
+  // The agency's contacts, once api/vacancy-contact has handed them over.
+  const [contacts, setContacts] = useState<Contacts | null>(null);
   // One-shot CV import inside the apply modal: parse a PDF/DOCX with
   // /api/cv-parse and write straight into the profile (same as the cabinet).
   const [cvUploading, setCvUploading] = useState(false);
@@ -451,35 +658,58 @@ export default function VacancyDetailClient({
       // Increment views (fire & forget)
       supabase.rpc("increment_vacancy_views", { vid: vacancy.id }).then(() => {});
 
+      // Asked of the server whatever the role: it alone decides, and an admin
+      // signed in from either cabinet passes too.
+      if (uid) loadContacts();
+
       if (uid && role === "seafarer") {
-        const [{ data: appData }, { data: savedData }, { data: sf }, { count: expCount }] = await Promise.all([
+        const [{ data: appData }, { data: savedData }, g] = await Promise.all([
           supabase.from("applications").select("status").eq("vacancy_id", vacancy.id).eq("seafarer_id", uid).maybeSingle(),
           supabase.from("saved_vacancies").select("vacancy_id").eq("vacancy_id", vacancy.id).eq("seafarer_id", uid).maybeSingle(),
-          supabase.from("seafarers").select("phone").eq("id", uid).maybeSingle(),
-          supabase.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", uid),
+          readGaps(uid),
         ]);
         if (appData) setApplicationStatus(appData.status as ApplicationStatus);
         setSaved(!!savedData);
-        setProfileGaps({
-          phone: !(sf?.phone ?? "").trim(),
-          experience: (expCount ?? 0) === 0,
-        });
+        setGaps(g);
       }
     }
     loadAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vacancy.id]);
+
+  /** Ask for the agency's contacts; a refusal leaves the lock box in place. */
+  async function loadContacts() {
+    if (!vacancy.lockedContacts.email && !vacancy.lockedContacts.phone) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch(`/api/vacancy-contact?id=${vacancy.id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: "no-store",
+      });
+      const j = (await res.json()) as Partial<Contacts> & { ok?: boolean };
+      if (j.ok) {
+        setContacts({
+          email: j.email ?? null,
+          phone: j.phone ?? null,
+          moreEmails: j.moreEmails ?? [],
+          morePhones: j.morePhones ?? [],
+        });
+      }
+    } catch { /* stays locked */ }
+  }
 
   // Only an agency address costs us a portal email the seafarer depends on, so
   // only then is it worth asking whether today's allowance is gone.
   useEffect(() => {
-    if (!showModal || !vacancy.contact_email) return;
+    if (!showModal || !vacancy.hasAgencyEmail) return;
     let live = true;
     fetch("/api/email-quota", { cache: "no-store" })
       .then((r) => r.json())
       .then((j: { exhausted?: boolean }) => { if (live) setLimitKnown(!!j.exhausted); })
       .catch(() => { /* unknown — leave both routes as they are */ });
     return () => { live = false; };
-  }, [showModal, vacancy.contact_email]);
+  }, [showModal, vacancy.hasAgencyEmail]);
 
   async function handleApply() {
     if (!userId) return;
@@ -497,15 +727,13 @@ export default function VacancyDetailClient({
       // DB trigger blocks applications from incomplete profiles (see
       // enforce_profile_complete_on_apply migration).
       setApplyError(
-        error.message.includes("PROFILE_INCOMPLETE")
-          ? "Please add your phone number and at least one sea service record to your profile before applying."
-          : error.message
+        error.message.includes("PROFILE_INCOMPLETE") ? copy.profileErr : error.message
       );
       setApplying(false);
       return;
     }
 
-    if (vacancy.contact_email) {
+    if (vacancy.hasAgencyEmail) {
       // Waited for, unlike the other notifications: this one *is* the
       // application as far as the agency is concerned. If it did not go, the
       // window stays open on the mailbox route instead of closing on a lie.
@@ -558,7 +786,8 @@ export default function VacancyDetailClient({
    * was actually sent, so the status says "prepared", not "delivered".
    */
   async function handleApplyByMail() {
-    if (!userId || !vacancy.contact_email) return;
+    const agencyEmail = contacts?.email;
+    if (!userId || !agencyEmail) return;
     setMailing(true);
     setApplyError(null);
 
@@ -573,14 +802,14 @@ export default function VacancyDetailClient({
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token ?? ""}`,
         },
-        body: JSON.stringify({ vacancyId: vacancy.id, sentTo: vacancy.contact_email }),
+        body: JSON.stringify({ vacancyId: vacancy.id, sentTo: agencyEmail }),
       });
       const json = (await res.json()) as { ok?: boolean; url?: string; error?: string };
       if (!json.ok || !json.url) {
         tab?.close();
         setApplyError(
           json.error === "PROFILE_INCOMPLETE"
-            ? "Add your phone number and at least one sea service record — the CV page is built from your profile."
+            ? copy.profileErr
             : "Could not prepare the CV link. Please try again.",
         );
         setMailing(false);
@@ -617,7 +846,7 @@ export default function VacancyDetailClient({
         .filter((l, i, all) => !(l === "" && all[i - 1] === ""))
         .join("\n");
 
-      const href = `mailto:${encodeURIComponent(vacancy.contact_email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const href = `mailto:${encodeURIComponent(agencyEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       if (tab) tab.location.href = href;
       else window.location.href = href;
 
@@ -644,7 +873,7 @@ export default function VacancyDetailClient({
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       lower.endsWith(".docx");
     if (!isPdf && !isDocx) {
-      setCvNotice({ type: "error", text: "Please upload a PDF or DOCX file." });
+      setCvNotice({ type: "error", text: copy.cvBadType });
       return;
     }
     setCvUploading(true);
@@ -657,20 +886,18 @@ export default function VacancyDetailClient({
       }
       await importParsedCv(userId, parsed.profile);
 
-      // Re-check what is still missing (e.g. the CV had no phone number).
-      const [{ data: sf }, { count: expCount }] = await Promise.all([
-        supabase.from("seafarers").select("phone").eq("id", userId).maybeSingle(),
-        supabase.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", userId),
-      ]);
-      const gaps = { phone: !(sf?.phone ?? "").trim(), experience: (expCount ?? 0) === 0 };
-      setProfileGaps(gaps);
+      // Re-check what is still missing (e.g. the CV had no phone number), and
+      // open the contacts if that was the last of it.
+      const g = await readGaps(userId);
+      setGaps(g);
+      if (!g.missing.length) loadContacts();
       setCvNotice(
-        gaps.phone || gaps.experience
-          ? { type: "error", text: "CV imported, but something is still missing — see the list above." }
-          : { type: "success", text: "CV imported — your profile is complete. You can apply now." }
+        g.missing.length || g.experience
+          ? { type: "error", text: copy.cvPartial }
+          : { type: "success", text: copy.cvDone }
       );
     } catch {
-      setCvNotice({ type: "error", text: "Upload failed. Please try again or fill in your profile manually." });
+      setCvNotice({ type: "error", text: copy.cvFailed });
     } finally {
       setCvUploading(false);
       if (cvInputRef.current) cvInputRef.current.value = "";
@@ -693,6 +920,12 @@ export default function VacancyDetailClient({
 
   const salary = formatSalary(vacancy, lang);
   const company = vacancy.companies;
+  // The profile names a person and a rank: contacts and the apply button are
+  // theirs. (The server checks the same thing — this only decides the view.)
+  const profileReady = !!gaps && gaps.missing.length === 0;
+  const hasLockedContacts = vacancy.lockedContacts.email || vacancy.lockedContacts.phone;
+  // The editor's own "save" button brings the seafarer back here.
+  const editHref = `/seafarer/cv/edit?back=${encodeURIComponent(`/jobs/${slugId(vacancy.title, vacancy.id)}`)}`;
 
   const crumb = RANK_COPY[lang] ?? RANK_COPY.en;
   const rankLanding = vacancy.rank ? RANK_LANDINGS.find((r) => r.rank === vacancy.rank) : undefined;
@@ -702,6 +935,14 @@ export default function VacancyDetailClient({
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
+      {/* One file input for both upload buttons: the lock box and the modal. */}
+      <input
+        ref={cvInputRef}
+        type="file"
+        accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCvFile(f); }}
+      />
 
       <div className="mx-auto max-w-5xl px-5 py-10">
         {/* Breadcrumbs */}
@@ -888,21 +1129,31 @@ export default function VacancyDetailClient({
 
               <NoPaymentWarning variant="compact" className="mb-4" />
 
+              {/* The agency's contacts, locked until the profile says who is
+                  asking — see lib/profileGate.ts. */}
+              {hasLockedContacts && (
+                <ContactsBox copy={copy} kinds={vacancy.lockedContacts} contacts={contacts}>
+                  {!contacts && userId && userRole === "company" && (
+                    <p className="mt-3 text-xs leading-relaxed text-mist">{copy.lockCompany}</p>
+                  )}
+                </ContactsBox>
+              )}
+
               {!userId && (
                 <div>
-                  <p className="text-sm text-mist mb-4">Sign in or create a free seafarer account to apply — your CV is sent to the crewing agency with one click.</p>
+                  <p className="mb-4 text-sm leading-relaxed text-mist">{copy.lockAnon}</p>
                   <div className="flex flex-wrap gap-3">
                     <NextLink
                       href={loginHref}
                       className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
                     >
-                      <Send size={16} /> Sign in to Apply
+                      <Send size={16} /> {copy.signIn}
                     </NextLink>
                     <NextLink
                       href="/auth/register?role=seafarer"
                       className="inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/10"
                     >
-                      Create account
+                      {copy.createAccount}
                     </NextLink>
                   </div>
                 </div>
@@ -910,6 +1161,49 @@ export default function VacancyDetailClient({
 
               {userId && userRole === "company" && (
                 <p className="text-sm text-mist">Companies cannot apply to vacancies.</p>
+              )}
+
+              {/* What is still missing, field by field, and the two ways to
+                  fill it: the one-screen editor, or a CV the AI reads. */}
+              {userId && userRole === "seafarer" && gaps && !profileReady && (
+                <div className="mb-4 rounded-xl border border-brass/30 bg-brass/10 p-4">
+                  <p className="text-sm font-semibold text-foam">{copy.lockIncomplete}</p>
+                  <ul className="mt-3 flex flex-wrap gap-2">
+                    {(["email", ...PROFILE_FIELDS] as const).map((f) => {
+                      const done = f === "email" || !gaps.missing.includes(f);
+                      return (
+                        <li
+                          key={f}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${
+                            done ? "border-teal/30 bg-teal/10 text-teal" : "border-brass/40 bg-navy2 text-brassInk"
+                          }`}
+                        >
+                          {done ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />} {copy[`f_${f}`]}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Link
+                      href={editHref}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+                    >
+                      {copy.fillProfile} <ArrowRight size={15} />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => cvInputRef.current?.click()}
+                      disabled={cvUploading}
+                      className="inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/10 disabled:opacity-50"
+                    >
+                      <Upload size={15} /> {cvUploading ? copy.uploading : copy.uploadCv}
+                    </button>
+                  </div>
+                  {cvNotice && (
+                    <p className={`mt-3 text-xs ${cvNotice.type === "success" ? "text-teal" : "text-coral"}`}>{cvNotice.text}</p>
+                  )}
+                  <p className="mt-3 text-xs leading-relaxed text-mist">{copy.lockWhy}</p>
+                </div>
               )}
 
               {userId && userRole === "seafarer" && applicationStatus && (
@@ -924,14 +1218,13 @@ export default function VacancyDetailClient({
                 </div>
               )}
 
-              {userId && userRole === "seafarer" && !applicationStatus && (
+              {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && (
                 <div>
-                  {profileGaps && !profileGaps.phone && !profileGaps.experience && (
+                  {!gaps.experience ? (
                     <p className="mb-3 flex items-center gap-2 text-sm text-teal">
                       <CheckCircle2 size={16} /> Your CV is on SeaJobs.pro — it will be sent with your application.
                     </p>
-                  )}
-                  {profileGaps && (profileGaps.phone || profileGaps.experience) && (
+                  ) : (
                     <p className="mb-3 flex items-center gap-2 text-sm text-brassInk">
                       <Upload size={16} /> Upload your CV (PDF/DOCX) or complete your profile — takes a minute.
                     </p>
@@ -993,15 +1286,6 @@ export default function VacancyDetailClient({
                 </a>
               )}
 
-              {vacancy.contact_phone && (
-                <a
-                  href={`tel:${vacancy.contact_phone.replace(/[^\d+]/g, "")}`}
-                  className="mt-2 flex items-center gap-2 text-sm text-brassInk hover:text-brass transition"
-                >
-                  <Phone size={14} className="shrink-0" />
-                  {vacancy.contact_phone}
-                </a>
-              )}
             </div>
           </div>
         </div>
@@ -1022,7 +1306,7 @@ export default function VacancyDetailClient({
               Applying for: <span className="font-semibold text-foam">{vacancy.title}</span>
             </p>
 
-            {vacancy.contact_email && !limitKnown && !mailFallback && (
+            {vacancy.hasAgencyEmail && !limitKnown && !mailFallback && (
               <p className="mb-4 text-xs text-mist">
                 Your profile (rank, experience, certificates, contacts) will be sent directly to the crewing agency&apos;s email.
               </p>
@@ -1035,7 +1319,7 @@ export default function VacancyDetailClient({
               </div>
             )}
 
-            {vacancy.contact_email && (limitKnown || mailFallback) && (
+            {vacancy.hasAgencyEmail && (limitKnown || mailFallback) && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
                 <Mail size={16} className="mt-0.5 shrink-0 text-brassInk" />
                 <div className="text-sm">
@@ -1051,19 +1335,19 @@ export default function VacancyDetailClient({
               </div>
             )}
 
-            {profileGaps && (profileGaps.phone || profileGaps.experience) ? (
+            {gaps && (gaps.missing.length > 0 || gaps.experience) ? (
               <>
                 <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
                   <AlertCircle size={16} className="mt-0.5 shrink-0 text-brassInk" />
                   <div className="text-sm text-foam">
-                    <p className="mb-2 font-semibold">Complete your profile to apply</p>
-                    <p className="mb-2 text-mist">The crewing agency receives your CV with your application, so it must include your contacts and sea service:</p>
+                    <p className="mb-2 font-semibold">{copy.needTitle}</p>
+                    <p className="mb-2 text-mist">{copy.needBody}</p>
                     <ul className="list-disc pl-5 text-mist">
-                      {profileGaps.phone && (
-                        <li>Add your <NextLink href="/seafarer/profile" className="text-brassInk underline hover:text-brass">phone number</NextLink></li>
-                      )}
-                      {profileGaps.experience && (
-                        <li>Add at least one <NextLink href="/seafarer/experience" className="text-brassInk underline hover:text-brass">sea service record</NextLink></li>
+                      {gaps.missing.map((f) => (
+                        <li key={f}><Link href={editHref} className="text-brassInk underline hover:text-brass">{copy[`f_${f}`]}</Link></li>
+                      ))}
+                      {gaps.experience && (
+                        <li><Link href={editHref} className="text-brassInk underline hover:text-brass">{copy.addVoyage}</Link></li>
                       )}
                     </ul>
                   </div>
@@ -1072,13 +1356,6 @@ export default function VacancyDetailClient({
                 <div className="mb-4 rounded-xl border border-white/10 bg-navy2 px-4 py-3">
                   <p className="mb-2 text-sm font-semibold text-foam">Fastest way: upload your CV</p>
                   <p className="mb-3 text-xs text-mist">Upload a PDF or DOCX — we read it and fill your profile automatically, then your formatted CV is sent with the application.</p>
-                  <input
-                    ref={cvInputRef}
-                    type="file"
-                    accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    className="hidden"
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCvFile(f); }}
-                  />
                   <button
                     type="button"
                     onClick={() => cvInputRef.current?.click()}
@@ -1093,12 +1370,12 @@ export default function VacancyDetailClient({
                 </div>
 
                 <div className="flex gap-3">
-                  <NextLink
-                    href={profileGaps.phone ? "/seafarer/profile" : "/seafarer/experience"}
+                  <Link
+                    href={editHref}
                     className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-mist transition hover:bg-white/5"
                   >
-                    Fill in manually
-                  </NextLink>
+                    {copy.fillProfile}
+                  </Link>
                   <Link
                     href="/how-to-apply"
                     className="flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-brassInk transition hover:bg-white/5"
@@ -1115,7 +1392,7 @@ export default function VacancyDetailClient({
               </>
             ) : (
               <>
-                {profileGaps && !profileGaps.phone && !profileGaps.experience && (
+                {gaps && !gaps.missing.length && !gaps.experience && (
                   <p className="mb-4 flex items-center gap-2 text-sm text-teal">
                     <CheckCircle2 size={16} /> Your profile is complete — your CV will be sent with this application.
                   </p>
@@ -1138,7 +1415,7 @@ export default function VacancyDetailClient({
                   {/* With the day's mail spent — known up front, or learned
                       from a failed send — the portal button would only fail
                       again, so the mailbox route takes its place. */}
-                  {!(vacancy.contact_email && (limitKnown || mailFallback)) && (
+                  {!(vacancy.hasAgencyEmail && (limitKnown || mailFallback)) && (
                     <button
                       onClick={handleApply}
                       disabled={applying || mailing}
@@ -1153,7 +1430,7 @@ export default function VacancyDetailClient({
                       write to. The letter arrives personally from the seafarer
                       and carries a link to their CV on our domain, so the
                       crewing manager ends up on the site. */}
-                  {vacancy.contact_email && (
+                  {contacts?.email && (
                     <>
                       <button
                         onClick={handleApplyByMail}

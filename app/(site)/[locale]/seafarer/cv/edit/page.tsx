@@ -56,6 +56,10 @@ export default function CvEditPage() {
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
   const [fromMaker, setFromMaker] = useState(false);
   const [fleetQuery, setFleetQuery] = useState("");
+  // Set when the seafarer came from a vacancy whose contacts were locked
+  // behind this profile: saving takes them straight back to it. Only a
+  // vacancy path is honoured, so the parameter cannot send anyone elsewhere.
+  const [backTo, setBackTo] = useState<string | null>(null);
 
   const [person, setPerson] = useState<Person>(() => Object.fromEntries(PERSON_FIELDS.map((k) => [k, ""])) as Person);
   const [diplomas, setDiplomas] = useState<Diploma[]>([]);
@@ -98,6 +102,8 @@ export default function CvEditPage() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     setFromMaker(q.get("from") === "maker");
+    const back = q.get("back");
+    if (back && /^\/jobs\/[A-Za-z0-9-]+$/.test(back)) setBackTo(back);
     const f = q.get("fleet");
     if (isFleetId(f)) setFleetQuery(`?fleet=${f}`);
     (async () => {
@@ -127,7 +133,11 @@ export default function CvEditPage() {
   const today = new Date().toISOString().slice(0, 10);
   const realVoys = voys.filter((v) => v.vessel_name.trim());
   const expired = certs.filter((c) => c.name.trim() && c.expiry_date && c.expiry_date < today);
+  // The first four are what a vacancy's contacts and apply button wait for
+  // (lib/profileGate.ts); the rest make the CV worth sending.
   const checks = [
+    !person.first_name.trim() && { id: "f-first_name", text: t.cved_missing_first },
+    !person.last_name.trim() && { id: "f-last_name", text: t.cved_missing_last },
     !person.phone.trim() && { id: "f-phone", text: t.cved_missing_phone },
     !person.rank.trim() && { id: "f-rank", text: t.cved_missing_rank },
     !person.passport_no.trim() && { id: "f-passport_no", text: t.cved_missing_passport },
@@ -213,7 +223,7 @@ export default function CvEditPage() {
   }
 
   async function saveAndOpen() {
-    if (await save()) router.push(`/seafarer/cv${fleetQuery}`);
+    if (await save()) router.push(backTo ?? `/seafarer/cv${fleetQuery}`);
   }
 
   const setP = (k: PersonKey, v: string) => setPerson((p) => ({ ...p, [k]: v }));
@@ -392,7 +402,7 @@ export default function CvEditPage() {
           </button>
           <button type="button" onClick={() => void saveAndOpen()} disabled={saving}
             className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50 sm:flex-none sm:px-5">
-            <span className="truncate">{t.cved_save_open}</span> <ArrowRight size={15} className="shrink-0" />
+            <span className="truncate">{backTo ? t.cved_save_back : t.cved_save_open}</span> <ArrowRight size={15} className="shrink-0" />
           </button>
         </div>
       </div>

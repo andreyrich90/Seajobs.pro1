@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
+import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,7 @@ export const runtime = "nodejs";
 
 const SITE = "https://seajobs.pro";
 const TTL_DAYS = 30;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(req: Request) {
   // Who is asking, before anything about how the server is configured.
@@ -36,16 +38,26 @@ export async function POST(req: Request) {
   };
 
   // A CV built from an empty profile is an empty page, so the same rule the
-  // application trigger enforces applies here: there has to be something to show.
+  // application trigger enforces applies here: a named person with a rank and
+  // a phone (lib/profileGate.ts), and at least one voyage to show.
   const [{ data: sf }, { count: voyages }] = await Promise.all([
-    admin.from("seafarers").select("phone").eq("id", caller.id).maybeSingle(),
+    admin.from("seafarers").select(PROFILE_SELECT).eq("id", caller.id).maybeSingle(),
     admin.from("sea_experience").select("id", { count: "exact", head: true }).eq("seafarer_id", caller.id),
   ]);
-  if (!sf?.phone?.trim() || !voyages) {
+  const missing = profileGaps(sf as Record<string, string | null> | null);
+  if (missing.length || !voyages) {
     return NextResponse.json(
-      { ok: false, error: "PROFILE_INCOMPLETE" },
+      { ok: false, error: "PROFILE_INCOMPLETE", missing, voyages: voyages ?? 0 },
       { status: 422 },
     );
+  }
+
+  // The address the link is given to, for the "who did I send this to" list.
+  // Read from the vacancy rather than trusted from the body when there is one.
+  let sentTo = body.sentTo?.slice(0, 200) ?? null;
+  if (body.vacancyId && UUID_RE.test(body.vacancyId)) {
+    const { data: v } = await admin.from("vacancies").select("contact_email").eq("id", body.vacancyId).maybeSingle();
+    if (v?.contact_email) sentTo = v.contact_email.slice(0, 200);
   }
 
   // 24 random bytes, URL-safe. Guessing is the only attack surface a link has.
@@ -56,7 +68,7 @@ export async function POST(req: Request) {
     seafarer_id: caller.id,
     application_id: body.applicationId ?? null,
     vacancy_id: body.vacancyId ?? null,
-    sent_to: body.sentTo?.slice(0, 200) ?? null,
+    sent_to: sentTo,
     expires_at: new Date(Date.now() + TTL_DAYS * 864e5).toISOString(),
   });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
