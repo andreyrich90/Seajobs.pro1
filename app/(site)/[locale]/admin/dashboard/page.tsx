@@ -225,8 +225,10 @@ export default function AdminDashboard() {
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "seafarer"),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("role", "company"),
         supabase.from("profiles").select("*", { count: "exact", head: true }).eq("is_blocked", true),
-        supabase.from("vacancies").select("*", { count: "exact", head: true }),
-        supabase.from("vacancies").select("*", { count: "exact", head: true }).eq("is_active", true),
+        // `id`, not `*`: the browser may not read every column of vacancies
+        // (lib/vacancyColumns.ts), and `*` asks for all of them.
+        supabase.from("vacancies").select("id", { count: "exact", head: true }),
+        supabase.from("vacancies").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("applications").select("*", { count: "exact", head: true }),
         supabase.from("forum_topics").select("*", { count: "exact", head: true }),
         supabase.from("forum_posts").select("*", { count: "exact", head: true }),

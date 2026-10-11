@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Trash2, ToggleLeft, ToggleRight, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import type { Vacancy } from "@/lib/supabase/types";
+import { VACANCY_COLUMNS, type BrowserVacancy } from "@/lib/vacancyColumns";
 
-type VacancyRow = Vacancy & { company_name: string };
+type VacancyRow = BrowserVacancy & { company_name: string };
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
@@ -30,7 +30,7 @@ export default function AdminVacanciesPage() {
   useEffect(() => {
     async function load() {
       const [{ data: vacs }, { data: companies }] = await Promise.all([
-        supabase.from("vacancies").select("*").order("created_at", { ascending: false }),
+        supabase.from("vacancies").select(VACANCY_COLUMNS).order("created_at", { ascending: false }),
         supabase.from("companies").select("id, name"),
       ]);
       const coMap: Record<string, string> = {};
@@ -42,7 +42,7 @@ export default function AdminVacanciesPage() {
   }, []);
 
   async function toggleActive(v: VacancyRow) {
-    const { data, error } = await supabase.from("vacancies").update({ is_active: !v.is_active }).eq("id", v.id).select().single();
+    const { data, error } = await supabase.from("vacancies").update({ is_active: !v.is_active }).eq("id", v.id).select(VACANCY_COLUMNS).single();
     // Publishing is blocked when the company has no name or no contact — say so
     // instead of leaving the toggle silently not moving.
     if (error) {
