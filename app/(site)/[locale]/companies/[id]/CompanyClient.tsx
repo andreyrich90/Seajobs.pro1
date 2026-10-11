@@ -10,7 +10,8 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase/client";
-import type { Vacancy, CrewManager } from "@/lib/supabase/types";
+import type { CrewManager } from "@/lib/supabase/types";
+import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyColumns";
 import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { useLang } from "@/components/LangProvider";
@@ -70,7 +71,7 @@ export default function CompanyClient() {
         const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
         const { data: vacancyData } = await supabase
           .from("vacancies")
-          .select("*")
+          .select(VACANCY_COLUMNS)
           .eq("company_id", id)
           .eq("is_active", true)
           .or(`joining_date.is.null,joining_date.gte.${cutoff}`)

@@ -65,6 +65,22 @@ async function pageThrough<T>(run: (from: number, to: number) => Page<T>): Promi
   return out;
 }
 
+/** vacancy id → crewing e-mail, from the admin route; empty if it fails. */
+async function loadVacancyEmails(): Promise<Record<string, string>> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return {};
+    const res = await fetch("/api/admin/vacancy-contacts", {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      cache: "no-store",
+    });
+    const j = (await res.json()) as { ok?: boolean; emails?: Record<string, string> };
+    return j.ok && j.emails ? j.emails : {};
+  } catch {
+    return {};
+  }
+}
+
 function formatDate(d: string | null) {
   if (!d) return "—";
   return new Date(d).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
@@ -82,20 +98,24 @@ export default function AdminCompaniesPage() {
     async function load() {
       // The generated Database types describe whole rows, so a hand-picked
       // column subset needs a cast — same pattern the other admin pages use.
-      const [companies, vacancies, profiles] = await Promise.all([
+      // The crewing e-mails come from an admin route: the browser cannot read
+      // `vacancies.contact_email` (lib/vacancyColumns.ts).
+      const [companies, vacancies, profiles, emails] = await Promise.all([
         pageThrough<CompanyRow>((a, b) =>
           supabase.from("companies").select("id, name, location, website, emails, is_verified").range(a, b) as unknown as Page<CompanyRow>
         ),
         pageThrough<VacRow>((a, b) =>
           supabase
             .from("vacancies")
-            .select("id, company_id, contact_email, title, rank, vessel_type, is_active, is_imported, joining_date, created_at")
+            .select("id, company_id, title, rank, vessel_type, is_active, is_imported, joining_date, created_at")
             .range(a, b) as unknown as Page<VacRow>
         ),
         pageThrough<{ id: string; role: string | null }>((a, b) =>
           supabase.from("profiles").select("id, role").range(a, b) as unknown as Page<{ id: string; role: string | null }>
         ),
+        loadVacancyEmails(),
       ]);
+      for (const v of vacancies) v.contact_email = emails[v.id] ?? null;
 
       // A company row without a profile is an agency the importer created —
       // real enough, but nobody can log into it.

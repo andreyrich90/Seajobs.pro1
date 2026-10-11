@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight, ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { supabase, notify } from "@/lib/supabase/client";
-import type { Vacancy } from "@/lib/supabase/types";
+import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyColumns";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useT } from "@/components/DictProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -186,7 +186,7 @@ export default function VacanciesPage() {
       const [{ data }, { data: company }] = await Promise.all([
         supabase
           .from("vacancies")
-          .select("*")
+          .select(VACANCY_COLUMNS)
           .eq("company_id", session.user.id)
           .order("created_at", { ascending: false }),
         supabase
@@ -301,7 +301,7 @@ export default function VacanciesPage() {
         .from("vacancies")
         .update(payload)
         .eq("id", editingId)
-        .select()
+        .select(VACANCY_COLUMNS)
         .single();
 
       if (updateError) {
@@ -317,7 +317,7 @@ export default function VacanciesPage() {
       const { data, error: insertError } = await supabase
         .from("vacancies")
         .insert({ ...payload, company_id: userId })
-        .select()
+        .select(VACANCY_COLUMNS)
         .single();
 
       if (insertError) {
@@ -343,7 +343,7 @@ export default function VacanciesPage() {
       .from("vacancies")
       .update({ is_active: !v.is_active })
       .eq("id", v.id)
-      .select()
+      .select(VACANCY_COLUMNS)
       .single();
     if (toggleError) { setError(gateError(toggleError.message) ?? toggleError.message); return; }
     if (data) setVacancies((prev) => prev.map((x) => (x.id === v.id ? data : x)));
