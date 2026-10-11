@@ -7,6 +7,7 @@ import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRigh
 import { Link } from "@/i18n/navigation";
 import { supabase, notify } from "@/lib/supabase/client";
 import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyColumns";
+import { TITLE_MAX } from "@/lib/vacancyTitle";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useT } from "@/components/DictProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -417,9 +418,16 @@ export default function VacanciesPage() {
                 type="text" value={form.title}
                 onChange={(e) => handleChange("title", e.target.value)}
                 placeholder={t.va_job_title_ph}
+                maxLength={TITLE_MAX}
                 required disabled={submitting}
                 className="rounded-xl border border-white/10 bg-navy2 px-4 py-3 text-sm text-white outline-none focus:border-brass disabled:opacity-50"
               />
+              {/* A title is the rank and the vessel, not the posting — see
+                  lib/vacancyTitle.ts. The database enforces the same limit. */}
+              <p className="flex justify-between gap-3 text-xs text-mist">
+                <span>{t.va_title_hint}</span>
+                <span className="shrink-0 tabular-nums">{form.title.length}/{TITLE_MAX}</span>
+              </p>
             </div>
 
             {/* Rank */}
