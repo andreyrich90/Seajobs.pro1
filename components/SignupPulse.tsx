@@ -4,6 +4,7 @@ import type { Lang } from "@/lib/langs";
 import type { SignupPulse as Pulse } from "@/lib/signupPulse";
 import { money } from "@/lib/format";
 import { slavic } from "@/lib/plural";
+import { RefreshCw } from "lucide-react";
 
 // The "+N seafarers joined today" strip in the home page's hero: today's
 // figure, yesterday's, the week's sum, and the seven days as bars. It does not
@@ -27,6 +28,7 @@ type Copy = {
   joined: (n: number) => string;
   prev: (n: number) => string;
   week: (n: number) => string;
+  refresh: (m: number) => string;
 };
 
 const COPY: Record<Lang, Copy> = {
@@ -36,6 +38,7 @@ const COPY: Record<Lang, Copy> = {
     joined: (n) => (n === 1 ? "new seafarer joined" : "new seafarers joined"),
     prev: (n) => `Yesterday +${money(n)}`,
     week: (n) => `+${money(n)} in 7 days`,
+    refresh: (m) => `Updates every ${m} ${m === 1 ? "minute" : "minutes"}`,
   },
   ru: {
     today: "Сегодня на SeaJobs",
@@ -43,6 +46,7 @@ const COPY: Record<Lang, Copy> = {
     joined: (n) => slavic(n, "новый моряк", "новых моряка", "новых моряков"),
     prev: (n) => `Вчера +${money(n)}`,
     week: (n) => `+${money(n)} за 7 дней`,
+    refresh: (m) => `Обновляется каждые ${m} ${slavic(m, "минуту", "минуты", "минут")}`,
   },
   ua: {
     today: "Сьогодні на SeaJobs",
@@ -50,6 +54,7 @@ const COPY: Record<Lang, Copy> = {
     joined: (n) => slavic(n, "новий моряк", "нових моряки", "нових моряків"),
     prev: (n) => `Учора +${money(n)}`,
     week: (n) => `+${money(n)} за 7 днів`,
+    refresh: (m) => `Оновлюється кожні ${m} ${slavic(m, "хвилину", "хвилини", "хвилин")}`,
   },
   pl: {
     today: "Dziś na SeaJobs",
@@ -58,6 +63,7 @@ const COPY: Record<Lang, Copy> = {
     joined: (n) => (n === 1 ? "nowy marynarz" : "nowych marynarzy"),
     prev: (n) => `Wczoraj +${money(n)}`,
     week: (n) => `+${money(n)} w 7 dni`,
+    refresh: (m) => `Aktualizowane co ${m} ${m === 1 ? "minutę" : slavic(m, "minutę", "minuty", "minut")}`,
   },
   ro: {
     today: "Astăzi pe SeaJobs",
@@ -65,10 +71,20 @@ const COPY: Record<Lang, Copy> = {
     joined: (n) => ro(n, "marinar nou", "marinari noi", "de marinari noi"),
     prev: (n) => `Ieri +${money(n)}`,
     week: (n) => `+${money(n)} în 7 zile`,
+    refresh: (m) => `Se actualizează la fiecare ${m} ${m === 1 ? "minut" : ro(m, "minut", "minute", "de minute")}`,
   },
 };
 
-export default function SignupPulse({ data, lang }: { data: Pulse; lang: Lang }) {
+export default function SignupPulse({
+  data,
+  lang,
+  refreshMinutes,
+}: {
+  data: Pulse;
+  lang: Lang;
+  /** The page's revalidate interval in minutes; omitted, the line is not shown. */
+  refreshMinutes?: number;
+}) {
   const c = COPY[lang] ?? COPY.en;
   const eyebrow = data.useYesterday ? c.yesterday : c.today;
   const joined = c.joined(data.count);
@@ -81,50 +97,62 @@ export default function SignupPulse({ data, lang }: { data: Pulse; lang: Lang })
     <div
       role="group"
       aria-label={`${eyebrow}: +${data.count} ${joined}. ${data.useYesterday ? "" : `${c.prev(data.yesterday)}. `}${c.week(data.week)}.`}
-      className="mt-6 flex items-center gap-4 rounded-2xl border border-teal/25 bg-card/80 px-4 py-3.5 shadow-xl backdrop-blur sm:gap-6 sm:px-5 sm:py-4"
+      className="mt-6 rounded-2xl border border-teal/25 bg-card/80 px-4 py-3.5 shadow-xl backdrop-blur sm:px-5 sm:py-4"
     >
-      <div className="min-w-0 flex-1" aria-hidden="true">
-        <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-teal">
-          <span className="relative flex h-2 w-2 shrink-0">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-70 motion-reduce:hidden" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
-          </span>
-          {eyebrow}
-        </p>
-        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <span className="font-display text-3xl font-bold leading-none text-brassInk sm:text-4xl">
-            +{money(data.count)}
-          </span>
-          <span className="text-sm font-semibold text-foam sm:text-base">{joined}</span>
-        </p>
-        {/* Yesterday and the week; the size of the whole base is deliberately
-            not shown. When the headline already is yesterday, only the week.
-            Each half stays whole, so a narrow phone breaks the line at the dot. */}
-        <p className="mt-1.5 flex flex-wrap gap-x-1.5 text-xs text-mist">
-          {!data.useYesterday && (
-            <>
-              <span className="whitespace-nowrap font-semibold text-foam/80">{c.prev(data.yesterday)}</span>
-              <span aria-hidden="true">·</span>
-            </>
-          )}
-          <span className="whitespace-nowrap">{c.week(data.week)}</span>
-        </p>
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="min-w-0 flex-1" aria-hidden="true">
+          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-teal">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-70 motion-reduce:hidden" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
+            </span>
+            {eyebrow}
+          </p>
+          <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="font-display text-3xl font-bold leading-none text-brassInk sm:text-4xl">
+              +{money(data.count)}
+            </span>
+            <span className="text-sm font-semibold text-foam sm:text-base">{joined}</span>
+          </p>
+          {/* Yesterday and the week; the size of the whole base is deliberately
+              not shown. When the headline already is yesterday, only the week.
+              Each half stays whole, so a narrow phone breaks the line at the dot. */}
+          <p className="mt-1.5 flex flex-wrap gap-x-1.5 text-xs text-mist">
+            {!data.useYesterday && (
+              <>
+                <span className="whitespace-nowrap font-semibold text-foam/80">{c.prev(data.yesterday)}</span>
+                <span aria-hidden="true">·</span>
+              </>
+            )}
+            <span className="whitespace-nowrap">{c.week(data.week)}</span>
+          </p>
+        </div>
+
+        {/* Seven days, oldest on the left. A day with sign-ups never drops below
+            a stub, so a quiet morning still reads as a bar rather than a gap. */}
+        <div aria-hidden="true" className="flex h-12 shrink-0 items-end gap-1 sm:h-14 sm:gap-1.5">
+          {data.days.map((d, i) => (
+            <span
+              key={d.date}
+              title={`${d.date}: ${d.n}`}
+              className={`w-1.5 rounded-full sm:w-2 ${
+                i === hot ? "bg-brass" : i === hot - 1 && !data.useYesterday ? "bg-brass/45" : "bg-mist/35"
+              }`}
+              style={{ height: `${d.n === 0 ? 6 : Math.max(18, Math.round((d.n / max) * 100))}%` }}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Seven days, oldest on the left. A day with sign-ups never drops below
-          a stub, so a quiet morning still reads as a bar rather than a gap. */}
-      <div aria-hidden="true" className="flex h-12 shrink-0 items-end gap-1 sm:h-14 sm:gap-1.5">
-        {data.days.map((d, i) => (
-          <span
-            key={d.date}
-            title={`${d.date}: ${d.n}`}
-            className={`w-1.5 rounded-full sm:w-2 ${
-              i === hot ? "bg-brass" : i === hot - 1 && !data.useYesterday ? "bg-brass/45" : "bg-mist/35"
-            }`}
-            style={{ height: `${d.n === 0 ? 6 : Math.max(18, Math.round((d.n / max) * 100))}%` }}
-          />
-        ))}
-      </div>
+      {/* How fresh the figures are: the home page is regenerated on this
+          interval (its `revalidate`), so this is a fact about the page, not a
+          promise of live data. */}
+      {refreshMinutes ? (
+        <p className="mt-3 flex items-center gap-1.5 border-t border-teal/15 pt-2.5 text-[11px] text-mist">
+          <RefreshCw size={11} aria-hidden="true" className="shrink-0 text-teal/80" />
+          {c.refresh(refreshMinutes)}
+        </p>
+      ) : null}
     </div>
   );
 }
