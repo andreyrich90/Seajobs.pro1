@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { pageAll } from "@/lib/pageAll";
+import { pageAll, MAX_VACANCY_ROWS } from "@/lib/pageAll";
 import {
   computeSalaryIndex, computeSalaryStats,
   type SalaryIndex, type SalaryStats, type StatVacancy,
@@ -35,6 +35,7 @@ const getSalaryData = unstable_cache(
         .or("salary_from.not.is.null,salary_to.not.is.null")
         .order("id")
         .range(from, to),
+      MAX_VACANCY_ROWS,
     ).catch(() => []);
     const rows = data as unknown as StatVacancy[];
     return { stats: computeSalaryStats(rows), index: computeSalaryIndex(rows) };

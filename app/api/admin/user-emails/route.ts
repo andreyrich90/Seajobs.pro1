@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     // Page through all auth users and collect their emails.
     const emails: Record<string, string> = {};
     const perPage = 1000;
-    for (let page = 1; page <= 50; page++) {
+    for (let page = 1; page <= 100; page++) {
       const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
       if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
       for (const u of data.users) {

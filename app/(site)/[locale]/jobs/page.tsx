@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { pageAll } from "@/lib/pageAll";
+import { pageAll, MAX_VACANCY_ROWS } from "@/lib/pageAll";
 import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { RANK_LANDINGS } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS } from "@/lib/vesselLandings";
@@ -110,6 +110,7 @@ export default async function JobsPage() {
       .order("created_at", { ascending: false })
       .order("id")
       .range(from, to),
+    MAX_VACANCY_ROWS,
   );
 
   return (

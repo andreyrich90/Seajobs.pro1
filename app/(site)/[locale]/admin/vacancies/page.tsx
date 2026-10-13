@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Trash2, ToggleLeft, ToggleRight, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { VACANCY_COLUMNS, type BrowserVacancy } from "@/lib/vacancyColumns";
+import { pageAll, MAX_USER_ROWS, MAX_VACANCY_ROWS, type Page } from "@/lib/pageAll";
 
 type VacancyRow = BrowserVacancy & { company_name: string };
 
@@ -29,13 +30,34 @@ export default function AdminVacanciesPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: vacs }, { data: companies }] = await Promise.all([
-        supabase.from("vacancies").select(VACANCY_COLUMNS).order("created_at", { ascending: false }),
-        supabase.from("companies").select("id, name"),
-      ]);
+      // Both tables are past PostgREST's 1000-row answer: read them a page at
+      // a time, or the oldest vacancies drop off the list (lib/pageAll.ts).
+      let vacs: BrowserVacancy[];
+      let companies: { id: string; name: string | null }[];
+      try {
+        [vacs, companies] = await Promise.all([
+          pageAll((a, b) =>
+            supabase
+              .from("vacancies")
+              .select(VACANCY_COLUMNS)
+              .order("created_at", { ascending: false })
+              .order("id")
+              .range(a, b) as unknown as Page<BrowserVacancy>,
+            MAX_VACANCY_ROWS,
+          ),
+          pageAll((a, b) =>
+            supabase.from("companies").select("id, name").order("id").range(a, b) as unknown as Page<{ id: string; name: string | null }>,
+            MAX_USER_ROWS,
+          ),
+        ]);
+      } catch (e) {
+        console.error("[admin/vacancies]", e);
+        setLoading(false);
+        return;
+      }
       const coMap: Record<string, string> = {};
-      for (const c of companies ?? []) coMap[c.id] = c.name ?? "(no name)";
-      setVacancies((vacs ?? []).map((v) => ({ ...v, company_name: coMap[v.company_id] ?? "(unknown)" })));
+      for (const c of companies) coMap[c.id] = c.name ?? "(no name)";
+      setVacancies(vacs.map((v) => ({ ...v, company_name: coMap[v.company_id] ?? "(unknown)" })));
       setLoading(false);
     }
     load();
@@ -76,6 +98,11 @@ export default function AdminVacanciesPage() {
       <div className="mb-6">
         <h1 className="font-display text-2xl font-semibold text-white">Vacancies</h1>
         <p className="mt-1 text-sm text-mist">{vacancies.length} total vacancies</p>
+        {vacancies.length >= MAX_VACANCY_ROWS && (
+          <p className="mt-1 text-sm text-coral">
+            Only the newest {MAX_VACANCY_ROWS.toLocaleString("en-US")} are loaded — raise MAX_VACANCY_ROWS in lib/pageAll.ts.
+          </p>
+        )}
       </div>
 
       <div className="mb-5 flex flex-wrap items-center gap-3">

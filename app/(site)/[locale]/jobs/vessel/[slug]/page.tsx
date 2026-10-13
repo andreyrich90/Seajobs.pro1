@@ -9,7 +9,7 @@ import { Building2, ShieldCheck, ChevronRight, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { pageAll } from "@/lib/pageAll";
+import { pageAll, MAX_VACANCY_ROWS } from "@/lib/pageAll";
 import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
@@ -74,6 +74,7 @@ async function fetchVesselVacancies(keywords: string[]): Promise<Vac[]> {
       .order("created_at", { ascending: false })
       .order("id")
       .range(from, to),
+    MAX_VACANCY_ROWS,
   );
   return (data as unknown as Vac[]).filter((v) => vacancyMatchesVessel(v.vessel_type, v.title, keywords));
 }
