@@ -1,7 +1,7 @@
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { cvMakerCopy } from "@/lib/cvMaker";
 import type { Lang } from "@/lib/langs";
 
@@ -23,6 +23,7 @@ export async function generateMetadata({
     description: c.metaDescription,
     keywords: c.keywords,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: c.metaTitle,
       description: c.metaDescription,
       type: "website",
@@ -30,7 +31,7 @@ export async function generateMetadata({
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
-    twitter: { card: "summary", title: c.metaTitle, description: c.metaDescription },
+    twitter: { card: "summary_large_image", title: c.metaTitle, description: c.metaDescription },
     alternates: {
       canonical: canonicalUrl("/cv-builder", locale),
       languages: hreflangAlternates("/cv-builder"),

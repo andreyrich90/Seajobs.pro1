@@ -3,6 +3,24 @@ import { getPathname } from "@/i18n/navigation";
 
 const BASE = "https://seajobs.pro";
 
+/**
+ * The site's own social card (app/opengraph-image.tsx, served at
+ * /opengraph-image), for every page without a card of its own.
+ *
+ * It has to be named in each `openGraph` block. Next does not carry
+ * `openGraph.images` down from a parent segment — a page that sets `openGraph`
+ * replaces the parent's whole object — and since the root layout moved under
+ * `app/(site)/[locale]/`, the file at the app root no longer attaches to any
+ * page by itself. Without it Facebook and Telegram pick an image off the page
+ * instead: on the home page, the cover of whichever news article came first.
+ */
+export const DEFAULT_OG_IMAGE = {
+  url: `${BASE}/opengraph-image`,
+  width: 1200,
+  height: 630,
+  alt: "SeaJobs.pro — maritime jobs for seafarers, seafarers for crewing companies",
+};
+
 export const OG_LOCALE: Record<string, string> = {
   en: "en_US",
   ru: "ru_RU",
