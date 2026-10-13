@@ -18,7 +18,7 @@ export const DEFAULT_OG_IMAGE = {
   url: `${BASE}/opengraph-image`,
   width: 1200,
   height: 630,
-  alt: "SeaJobs.pro — Maritime Jobs for Seafarers",
+  alt: "SeaJobs.pro — maritime jobs for seafarers, seafarers for crewing companies",
 };
 
 export const OG_LOCALE: Record<string, string> = {
