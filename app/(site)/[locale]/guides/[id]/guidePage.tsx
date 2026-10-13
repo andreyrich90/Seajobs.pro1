@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { extractId } from "@/lib/slug";
-import { OG_LOCALE, alternateOgLocales } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { guideAlternates, guideCanonical } from "@/lib/guideUrls";
 import { GUIDE_SECTIONS, type GuideSection } from "@/lib/guidesUi";
 import type { Lang } from "@/lib/langs";
@@ -82,7 +82,7 @@ export async function guideMetadata(id: string, locale: string, section: GuideSe
     openGraph: {
       title, description, type: "article", siteName: "SeaJobs.pro", url: canonical,
       locale: OG_LOCALE[locale], alternateLocale: alternateOgLocales(locale),
-      ...(guide.coverUrl ? { images: [guide.coverUrl] } : {}),
+      images: guide.coverUrl ? [guide.coverUrl] : [DEFAULT_OG_IMAGE],
     },
     twitter: { card: "summary_large_image", title, description },
     alternates: { canonical, languages: guideAlternates(guide.rawTitle, guide.rawBody, uuid, base) },

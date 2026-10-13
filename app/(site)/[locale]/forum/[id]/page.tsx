@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { extractId, slugId } from "@/lib/slug";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import TopicClient from "./TopicClient";
 
 
@@ -69,6 +69,7 @@ export async function generateMetadata(
     title: `${titleLoc || "Topic"} | SeaJobs.pro Forum`,
     description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: titleLoc,
       description,
       type: "article",

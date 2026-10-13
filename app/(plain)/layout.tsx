@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import HtmlShell, { SITE_METADATA } from "@/components/HtmlShell";
 import CookieBanner from "@/components/CookieBanner";
+import { DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 // The root layout for the routes that carry no locale in the URL: the auth
 // screens and the tokenised CV page. Both are English by design — /auth/*
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
   description:
     "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков по всему миру — поиск по рангу, типу судна и зарплате. Free platform for seafarers and crewing companies.",
   openGraph: {
+    images: [DEFAULT_OG_IMAGE],
     title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
     description:
       "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary. / Вакансии для моряков — поиск по рангу, типу судна и зарплате.",
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
     alternateLocale: ["ru_RU", "uk_UA", "pl_PL", "ro_RO"],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
     description: "Find maritime jobs worldwide. Search vacancies by rank, vessel type and salary.",
   },

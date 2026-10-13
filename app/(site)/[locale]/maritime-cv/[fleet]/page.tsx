@@ -2,7 +2,7 @@ import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { FLEET_IDS, isFleetId } from "@/lib/cvFleets";
 import { maritimeCvCopy } from "@/lib/maritimeCv";
 import { fleetPagesCopy } from "@/lib/maritimeCvFleets";
@@ -35,6 +35,7 @@ export async function generateMetadata({
     description: p.metaDescription,
     keywords: p.keywords,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: p.metaTitle,
       description: p.metaDescription,
       type: "website",
@@ -42,7 +43,7 @@ export async function generateMetadata({
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
-    twitter: { card: "summary", title: p.metaTitle, description: p.metaDescription },
+    twitter: { card: "summary_large_image", title: p.metaTitle, description: p.metaDescription },
     alternates: { canonical: canonicalUrl(path, locale), languages: hreflangAlternates(path) },
   };
 }

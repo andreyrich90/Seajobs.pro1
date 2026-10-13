@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
 import { money } from "@/lib/format";
-import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
+import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import type { Lang } from "@/lib/langs";
 import { RANK_COPY, rankLandingBySlug, rankName } from "@/lib/rankLandings";
 import { vesselLandingBySlug } from "@/lib/vesselLandings";
@@ -66,10 +66,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     // Below the bar the page is a signpost, not something to rank.
     ...(n < MIN_COMBO_VACANCIES ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title, description, type: "website", siteName: "SeaJobs.pro", url: canonical,
       locale: OG_LOCALE[locale], alternateLocale: alternateOgLocales(locale),
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description },
     alternates: { canonical, languages: hreflangAlternates(path) },
   };
 }

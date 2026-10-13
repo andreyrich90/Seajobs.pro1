@@ -4,7 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
 import HtmlShell, { SITE_METADATA } from "@/components/HtmlShell";
-import { HREFLANG } from "@/lib/seo";
+import { HREFLANG, DEFAULT_OG_IMAGE } from "@/lib/seo";
 // The one place in the app that may import the full dictionary map on the
 // client side of the tree: this is a Server Component, so only the single
 // dictionary it selects below is serialised into the page.
@@ -61,6 +61,7 @@ export async function generateMetadata({
     title: meta.title,
     description: meta.description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: meta.title,
       description: meta.description,
       type: "website",
@@ -69,7 +70,7 @@ export async function generateMetadata({
       alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: meta.title,
       description: meta.description,
     },

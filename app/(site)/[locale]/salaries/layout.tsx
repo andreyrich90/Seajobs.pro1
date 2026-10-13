@@ -1,7 +1,7 @@
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 const SITE_META: Record<string, { title: string; description: string }> = {
   en: {
@@ -47,6 +47,7 @@ export async function generateMetadata({
     title: meta.title,
     description: meta.description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: meta.title,
       description: meta.description,
       type: "website",
@@ -55,7 +56,7 @@ export async function generateMetadata({
       alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: meta.title,
       description: meta.description,
     },

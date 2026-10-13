@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -33,6 +33,7 @@ export async function generateMetadata({
     title,
     description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title,
       description,
       type: "website",
@@ -42,7 +43,7 @@ export async function generateMetadata({
       alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
     },

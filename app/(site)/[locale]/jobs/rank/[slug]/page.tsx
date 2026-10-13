@@ -12,7 +12,7 @@ import { pageAll } from "@/lib/pageAll";
 import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
-import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales } from "@/lib/seo";
+import { canonicalUrl, hreflangAlternates, OG_LOCALE, alternateOgLocales, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import type { Lang } from "@/lib/langs";
 import { money } from "@/lib/format";
 import {
@@ -95,6 +95,7 @@ export async function generateMetadata(
     title: copy.metaTitle(name),
     description: copy.metaDesc(name),
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: copy.metaTitle(name),
       description: copy.metaDesc(name),
       type: "website",
@@ -103,7 +104,7 @@ export async function generateMetadata(
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
-    twitter: { card: "summary", title: copy.metaTitle(name), description: copy.metaDesc(name) },
+    twitter: { card: "summary_large_image", title: copy.metaTitle(name), description: copy.metaDesc(name) },
     alternates: { canonical, languages: hreflangAlternates(path) },
   };
 }

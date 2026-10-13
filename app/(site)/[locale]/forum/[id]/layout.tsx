@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Metadata } from "next";
-import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import { slugId, extractId } from "@/lib/slug";
 
 function loc(field: unknown, lang = "en"): string {
@@ -52,6 +52,7 @@ export async function generateMetadata({
     title: `${titleStr} | SeaJobs.pro`,
     description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title: `${titleStr} | SeaJobs.pro`,
       description,
       type: "article",
@@ -61,7 +62,7 @@ export async function generateMetadata({
       alternateLocale: alternateOgLocales(locale),
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${titleStr} | SeaJobs.pro`,
       description,
     },

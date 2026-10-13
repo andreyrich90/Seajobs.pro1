@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
-import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates } from "@/lib/seo";
+import { OG_LOCALE, alternateOgLocales, contentCanonicalUrl, contentHreflangAlternates, DEFAULT_OG_IMAGE } from "@/lib/seo";
 import CompanyClient from "./CompanyClient";
 
 
@@ -71,6 +71,7 @@ export async function generateMetadata(
     title,
     description,
     openGraph: {
+      images: [DEFAULT_OG_IMAGE],
       title,
       description,
       type: "website",
@@ -79,7 +80,7 @@ export async function generateMetadata(
       locale: OG_LOCALE[locale],
       alternateLocale: alternateOgLocales(locale),
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description },
     alternates: { canonical, languages },
   };
 }
