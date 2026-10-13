@@ -5,6 +5,7 @@ import { CONTENT_LOCALES, contentHreflangAlternates, hreflangAlternates } from "
 import { routing } from "@/i18n/routing";
 import { getPathname } from "@/i18n/navigation";
 import { slugId } from "@/lib/slug";
+import { pageAll } from "@/lib/pageAll";
 import { RANK_LANDING_SLUGS } from "@/lib/rankLandings";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 import { COUNTRY_LANDING_SLUGS } from "@/lib/countryLandings";
@@ -141,26 +142,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const [{ data: vacancies }, { data: topics }, { data: companies }, { data: dbNews }] = await Promise.all([
-      admin
-        .from("vacancies")
-        .select("id, title, rank, vessel_type, updated_at, created_at")
-        .eq("is_active", true)
-        .or(`joining_date.is.null,joining_date.gte.${new Date(now.getTime() - 14 * 864e5).toISOString().slice(0, 10)}`)
-        .order("created_at", { ascending: false }),
-      admin
-        .from("forum_topics")
-        .select("id, title, updated_at, created_at")
-        .order("created_at", { ascending: false }),
-      admin
-        .from("companies")
-        .select("id, updated_at, logo_url")
-        .order("updated_at", { ascending: false }),
-      admin
-        .from("news_articles")
-        .select("id, title, body, published_at, created_at, category, cover_url")
-        .eq("is_published", true)
-        .order("created_at", { ascending: false }),
+    // Every table is read a page at a time (lib/pageAll.ts). One request stops
+    // at 1000 rows, and the sitemap silently lost the oldest 375 live
+    // vacancies once the board passed a thousand. A table that fails to load
+    // leaves its own section empty, as before, rather than the whole sitemap.
+    const [vacancies, topics, companies, dbNews] = await Promise.all([
+      pageAll((from, to) =>
+        admin
+          .from("vacancies")
+          .select("id, title, rank, vessel_type, updated_at, created_at")
+          .eq("is_active", true)
+          .or(`joining_date.is.null,joining_date.gte.${new Date(now.getTime() - 14 * 864e5).toISOString().slice(0, 10)}`)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ).catch(() => []),
+      pageAll((from, to) =>
+        admin
+          .from("forum_topics")
+          .select("id, title, updated_at, created_at")
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ).catch(() => []),
+      pageAll((from, to) =>
+        admin
+          .from("companies")
+          .select("id, updated_at, logo_url")
+          .order("updated_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ).catch(() => []),
+      pageAll((from, to) =>
+        admin
+          .from("news_articles")
+          .select("id, title, body, published_at, created_at, category, cover_url")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false })
+          .order("id")
+          .range(from, to),
+      ).catch(() => []),
     ]);
 
     const vacancyRoutes: MetadataRoute.Sitemap = (vacancies ?? []).flatMap((v) =>

@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { pageAll } from "@/lib/pageAll";
 import {
   computeSalaryIndex, computeSalaryStats,
   type SalaryIndex, type SalaryStats, type StatVacancy,
@@ -22,14 +23,20 @@ const getSalaryData = unstable_cache(
     // grace period used by the listing queries.
     const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
     const sb = getServerSupabase();
-    const { data } = await sb
-      .from("vacancies")
-      .select("rank, vessel_type, title, salary_from, salary_to, salary_period, currency")
-      .eq("is_active", true)
-      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
-      .or("salary_from.not.is.null,salary_to.not.is.null")
-      .limit(5000);
-    const rows = (data ?? []) as StatVacancy[];
+    // Paged (lib/pageAll.ts): `.limit(5000)` never got past the first 1000.
+    // A failed read still degrades to "no figures", as before, rather than
+    // taking the home page down with it.
+    const data = await pageAll((from, to) =>
+      sb
+        .from("vacancies")
+        .select("rank, vessel_type, title, salary_from, salary_to, salary_period, currency")
+        .eq("is_active", true)
+        .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+        .or("salary_from.not.is.null,salary_to.not.is.null")
+        .order("id")
+        .range(from, to),
+    ).catch(() => []);
+    const rows = data as unknown as StatVacancy[];
     return { stats: computeSalaryStats(rows), index: computeSalaryIndex(rows) };
   },
   ["salary-stats-v2"],

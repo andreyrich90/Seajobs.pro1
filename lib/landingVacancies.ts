@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { pageAll } from "@/lib/pageAll";
 
 // The live vacancies every landing page filters, read once and shared.
 //
@@ -26,17 +27,21 @@ export const getLandingVacancies = unstable_cache(
   async (): Promise<LandingVacancy[]> => {
     // Same window as the listing queries: two weeks past the joining date.
     const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
-    const { data, error } = await getServerSupabase()
-      .from("vacancies")
-      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
-      .eq("is_active", true)
-      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
-      .order("created_at", { ascending: false })
-      .limit(1000);
-    // Thrown, not returned empty: an outage must not be cached as "no
+    const sb = getServerSupabase();
+    // Paged (lib/pageAll.ts): one request stops at 1000 rows. pageAll throws
+    // rather than returning empty: an outage must not be cached as "no
     // vacancies", which would noindex every combination page for five minutes.
-    if (error) throw error;
-    return (data ?? []) as unknown as LandingVacancy[];
+    const data = await pageAll((from, to) =>
+      sb
+        .from("vacancies")
+        .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
+        .eq("is_active", true)
+        .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+        .order("created_at", { ascending: false })
+        .order("id")
+        .range(from, to),
+    );
+    return data as unknown as LandingVacancy[];
   },
   ["landing-vacancies-v1"],
   { revalidate: 300, tags: ["vacancies"] },

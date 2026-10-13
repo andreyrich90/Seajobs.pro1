@@ -7,6 +7,7 @@ import { Building2, ShieldCheck, ChevronRight, ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { pageAll } from "@/lib/pageAll";
 import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { monthlyEquivalent } from "@/lib/salary";
@@ -60,14 +61,20 @@ const SAL: Record<Lang, { from: string; upTo: string; day: string }> = {
 
 async function fetchCountryVacancies(keywords: string[]): Promise<Vac[]> {
   const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
-  const { data } = await getServerSupabase()
-    .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, country, joining_date, companies(name, logo_url, location, is_verified)")
-    .eq("is_active", true)
-    .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
-    .order("created_at", { ascending: false })
-    .limit(1000);
-  return ((data ?? []) as Vac[]).filter((v) => vacancyMatchesCountry(v.companies?.location ?? null, v.country, keywords));
+  // Every live vacancy, read a page at a time (lib/pageAll.ts): one request
+  // stops at 1000 rows, and the older matches were silently missing here.
+  const sb = getServerSupabase();
+  const data = await pageAll((from, to) =>
+    sb
+      .from("vacancies")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, country, joining_date, companies(name, logo_url, location, is_verified)")
+      .eq("is_active", true)
+      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
+  return (data as unknown as Vac[]).filter((v) => vacancyMatchesCountry(v.companies?.location ?? null, v.country, keywords));
 }
 
 export async function generateMetadata(
