@@ -12,6 +12,8 @@ import FaqSection from "@/components/FaqSection";
 import VesselFilter from "@/components/VesselFilter";
 import VacancyCard from "@/components/VacancyCard";
 import RankFilter from "@/components/RankFilter";
+import SignupPulse from "@/components/SignupPulse";
+import type { SignupPulse as Pulse } from "@/lib/signupPulse";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
@@ -78,10 +80,12 @@ export default function HomeClient({
   initialVacancies,
   initialNews,
   salaryStats,
+  signups,
 }: {
   initialVacancies: DbVacancy[];
   initialNews: DbNews[];
   salaryStats: SalaryStats;
+  signups: Pulse | null;
 }) {
   const { lang } = useLang();
   const tiles = HOME_SERVICE_TILES[lang] ?? HOME_SERVICE_TILES.en;
@@ -199,6 +203,10 @@ export default function HomeClient({
               {t.hero_title}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
+
+            {/* Seafarers who joined today — shown on phones too, where it is
+                most of what a first-time visitor sees above the fold. */}
+            {signups && <SignupPulse data={signups} lang={lang} />}
 
             <div className="mt-8 flex flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
