@@ -22,8 +22,6 @@ export type SignupPulse = {
   days: { date: string; n: number }[];
   /** Sum of `days`. */
   week: number;
-  /** Every seafarer profile. */
-  total: number;
 };
 
 const ZONE = "Europe/Kyiv";
@@ -48,22 +46,18 @@ export async function getSignupPulse(): Promise<SignupPulse | null> {
   // Eight days back covers seven Kyiv days whatever the hour.
   const since = new Date(Date.now() - 8 * 864e5).toISOString();
 
-  const [recent, totalRes] = await Promise.all([
-    pageAll(
-      (from, to) =>
-        sb
-          .from("profiles")
-          .select("created_at")
-          .eq("role", "seafarer")
-          .gte("created_at", since)
-          .order("created_at")
-          .order("id")
-          .range(from, to),
-      MAX_USER_ROWS,
-    ),
-    sb.from("profiles").select("id", { count: "exact", head: true }).eq("role", "seafarer"),
-  ]);
-  if (totalRes.error) throw new Error(totalRes.error.message);
+  const recent = await pageAll(
+    (from, to) =>
+      sb
+        .from("profiles")
+        .select("created_at")
+        .eq("role", "seafarer")
+        .gte("created_at", since)
+        .order("created_at")
+        .order("id")
+        .range(from, to),
+    MAX_USER_ROWS,
+  );
 
   const keys = daysEnding(kyivDate(new Date()), 7);
   const perDay = new Map(keys.map((k) => [k, 0]));
@@ -80,6 +74,5 @@ export async function getSignupPulse(): Promise<SignupPulse | null> {
     useYesterday,
     days,
     week: days.reduce((s, d) => s + d.n, 0),
-    total: totalRes.count ?? 0,
   };
 }

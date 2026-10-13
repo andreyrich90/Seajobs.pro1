@@ -6,8 +6,10 @@ import { money } from "@/lib/format";
 import { slavic } from "@/lib/plural";
 
 // The "+N seafarers joined today" strip in the home page's hero, with the last
-// seven days as bars. The numbers come from the server (lib/signupPulse.ts);
-// this only words and draws them.
+// seven days as bars and their sum. It does not show how many seafarers the
+// board holds in all — the owner asked for that to stay off the home page.
+// The numbers come from the server (lib/signupPulse.ts); this only words and
+// draws them.
 //
 // The copy carries all five languages, about 1 KB: each line needs a plural
 // rule, which the flat strings in lib/i18n.ts cannot express.
@@ -23,7 +25,6 @@ type Copy = {
   today: string;
   yesterday: string;
   joined: (n: number) => string;
-  base: (n: number) => string;
   week: (n: number) => string;
 };
 
@@ -32,21 +33,18 @@ const COPY: Record<Lang, Copy> = {
     today: "Today on SeaJobs",
     yesterday: "Yesterday on SeaJobs",
     joined: (n) => (n === 1 ? "new seafarer joined" : "new seafarers joined"),
-    base: (n) => `${money(n)} ${n === 1 ? "seafarer" : "seafarers"} on the board`,
     week: (n) => `+${money(n)} in 7 days`,
   },
   ru: {
     today: "Сегодня на SeaJobs",
     yesterday: "Вчера на SeaJobs",
     joined: (n) => slavic(n, "новый моряк", "новых моряка", "новых моряков"),
-    base: (n) => `${money(n)} ${slavic(n, "моряк", "моряка", "моряков")} в базе`,
     week: (n) => `+${money(n)} за 7 дней`,
   },
   ua: {
     today: "Сьогодні на SeaJobs",
     yesterday: "Учора на SeaJobs",
     joined: (n) => slavic(n, "новий моряк", "нових моряки", "нових моряків"),
-    base: (n) => `${money(n)} ${slavic(n, "моряк", "моряки", "моряків")} у базі`,
     week: (n) => `+${money(n)} за 7 днів`,
   },
   pl: {
@@ -54,14 +52,12 @@ const COPY: Record<Lang, Copy> = {
     yesterday: "Wczoraj na SeaJobs",
     // With a numeral, Polish masculine-personal nouns take the genitive from 2 on.
     joined: (n) => (n === 1 ? "nowy marynarz" : "nowych marynarzy"),
-    base: (n) => `${money(n)} ${n === 1 ? "marynarz" : "marynarzy"} w bazie`,
     week: (n) => `+${money(n)} w 7 dni`,
   },
   ro: {
     today: "Astăzi pe SeaJobs",
     yesterday: "Ieri pe SeaJobs",
     joined: (n) => ro(n, "marinar nou", "marinari noi", "de marinari noi"),
-    base: (n) => `${money(n)} ${ro(n, "marinar", "marinari", "de marinari")} în bază`,
     week: (n) => `+${money(n)} în 7 zile`,
   },
 };
@@ -77,7 +73,7 @@ export default function SignupPulse({ data, lang }: { data: Pulse; lang: Lang })
   return (
     <div
       role="group"
-      aria-label={`${eyebrow}: +${data.count} ${joined}. ${c.base(data.total)}, ${c.week(data.week)}.`}
+      aria-label={`${eyebrow}: +${data.count} ${joined}. ${c.week(data.week)}.`}
       className="mt-6 flex items-center gap-4 rounded-2xl border border-teal/25 bg-card/80 px-4 py-3.5 shadow-xl backdrop-blur sm:gap-6 sm:px-5 sm:py-4"
     >
       <div className="min-w-0 flex-1" aria-hidden="true">
@@ -94,12 +90,8 @@ export default function SignupPulse({ data, lang }: { data: Pulse; lang: Lang })
           </span>
           <span className="text-sm font-semibold text-foam sm:text-base">{joined}</span>
         </p>
-        {/* Each half stays whole; a narrow phone breaks the line at the dot. */}
-        <p className="mt-1.5 flex flex-wrap gap-x-1.5 text-xs text-mist">
-          <span className="whitespace-nowrap">{c.base(data.total)}</span>
-          <span aria-hidden="true">·</span>
-          <span className="whitespace-nowrap">{c.week(data.week)}</span>
-        </p>
+        {/* The week only. The size of the whole base is deliberately not shown. */}
+        <p className="mt-1.5 text-xs text-mist">{c.week(data.week)}</p>
       </div>
 
       {/* Seven days, oldest on the left. A day with sign-ups never drops below
