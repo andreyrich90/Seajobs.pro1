@@ -11,6 +11,13 @@
 
 export const PAGE_SIZE = 1000;
 
+// How far a sweep may read before it stops. Set well past today's numbers
+// (October 2026: 1,690 profiles, 2,878 vacancies of which 1,406 live) so the
+// cap is not the thing anyone hits next. Reaching one logs a warning, and the
+// admin lists say so on screen.
+export const MAX_USER_ROWS = 100_000; // profiles, seafarers, companies
+export const MAX_VACANCY_ROWS = 10_000;
+
 export type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
 export async function pageAll<T>(run: (from: number, to: number) => Page<T>, maxRows = 20000): Promise<T[]> {
@@ -21,6 +28,9 @@ export async function pageAll<T>(run: (from: number, to: number) => Page<T>, max
     const rows = data ?? [];
     out.push(...rows);
     if (rows.length < PAGE_SIZE) break;
+  }
+  if (out.length >= maxRows) {
+    console.warn(`[pageAll] stopped at the ${maxRows}-row cap; rows past it were not read — raise the cap in lib/pageAll.ts`);
   }
   return out;
 }

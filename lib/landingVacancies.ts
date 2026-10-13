@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getServerSupabase } from "@/lib/supabase/admin";
-import { pageAll } from "@/lib/pageAll";
+import { pageAll, MAX_VACANCY_ROWS } from "@/lib/pageAll";
 
 // The live vacancies every landing page filters, read once and shared.
 //
@@ -40,6 +40,7 @@ export const getLandingVacancies = unstable_cache(
         .order("created_at", { ascending: false })
         .order("id")
         .range(from, to),
+      MAX_VACANCY_ROWS,
     );
     return data as unknown as LandingVacancy[];
   },

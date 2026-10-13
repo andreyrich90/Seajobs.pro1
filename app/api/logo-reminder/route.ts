@@ -91,7 +91,7 @@ export async function GET(req: Request) {
   // service-role admin API. Page through it and keep only the ids we care about.
   const wanted = new Set((rows ?? []).map((r) => r.id as string));
   const emails = new Map<string, string>();
-  for (let page = 1; page <= 50; page++) {
+  for (let page = 1; page <= 100; page++) {
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
     if (error) {
       return NextResponse.json({ ok: false, error: `auth listUsers failed: ${error.message}` }, { status: 500 });

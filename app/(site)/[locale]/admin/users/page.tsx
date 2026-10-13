@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2, MessageCircle, X } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
-import { pageAll, type Page } from "@/lib/pageAll";
+import { pageAll, MAX_USER_ROWS, type Page } from "@/lib/pageAll";
 
 type UserRow = {
   id: string;
@@ -59,13 +59,16 @@ export default function AdminUsersPage() {
               .select("id, role, is_blocked, is_admin, created_at")
               .order("created_at", { ascending: false })
               .order("id")
-              .range(a, b) as unknown as Page<(typeof profiles)[number]>
+              .range(a, b) as unknown as Page<(typeof profiles)[number]>,
+            MAX_USER_ROWS,
           ),
           pageAll((a, b) =>
-            supabase.from("seafarers").select("id, first_name, last_name, rank").order("id").range(a, b) as unknown as Page<(typeof seafarers)[number]>
+            supabase.from("seafarers").select("id, first_name, last_name, rank").order("id").range(a, b) as unknown as Page<(typeof seafarers)[number]>,
+            MAX_USER_ROWS,
           ),
           pageAll((a, b) =>
-            supabase.from("companies").select("id, name, is_verified, logo_url").order("id").range(a, b) as unknown as Page<(typeof companies)[number]>
+            supabase.from("companies").select("id, name, is_verified, logo_url").order("id").range(a, b) as unknown as Page<(typeof companies)[number]>,
+            MAX_USER_ROWS,
           ),
           // Emails live in auth.users — fetched via an admin-only server route.
           token
@@ -192,6 +195,11 @@ export default function AdminUsersPage() {
       <div className="mb-6">
         <h1 className="font-display text-2xl font-semibold text-white">Users</h1>
         <p className="mt-1 text-sm text-mist">{users.length} total registered users</p>
+        {users.length >= MAX_USER_ROWS && (
+          <p className="mt-1 text-sm text-coral">
+            Only the first {MAX_USER_ROWS.toLocaleString("en-US")} are loaded — raise MAX_USER_ROWS in lib/pageAll.ts.
+          </p>
+        )}
       </div>
 
       {/* Seafarers-by-rank statistics */}

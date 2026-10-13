@@ -5,7 +5,7 @@ import { CONTENT_LOCALES, contentHreflangAlternates, hreflangAlternates } from "
 import { routing } from "@/i18n/routing";
 import { getPathname } from "@/i18n/navigation";
 import { slugId } from "@/lib/slug";
-import { pageAll } from "@/lib/pageAll";
+import { pageAll, MAX_VACANCY_ROWS } from "@/lib/pageAll";
 import { RANK_LANDING_SLUGS } from "@/lib/rankLandings";
 import { VESSEL_LANDING_SLUGS } from "@/lib/vesselLandings";
 import { COUNTRY_LANDING_SLUGS } from "@/lib/countryLandings";
@@ -156,6 +156,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .order("created_at", { ascending: false })
           .order("id")
           .range(from, to),
+        MAX_VACANCY_ROWS,
       ).catch(() => []),
       pageAll((from, to) =>
         admin
