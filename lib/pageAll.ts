@@ -11,7 +11,7 @@
 
 export const PAGE_SIZE = 1000;
 
-type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
+export type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
 export async function pageAll<T>(run: (from: number, to: number) => Page<T>, maxRows = 20000): Promise<T[]> {
   const out: T[] = [];

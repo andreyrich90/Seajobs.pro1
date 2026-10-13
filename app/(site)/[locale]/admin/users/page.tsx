@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ShieldOff, ShieldCheck, Trash2, Search, Anchor, Building2, MessageCircle, X } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { pageAll, type Page } from "@/lib/pageAll";
 
 type UserRow = {
   id: string;
@@ -40,35 +41,53 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     async function load() {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, role, is_blocked, is_admin, created_at")
-        .order("created_at", { ascending: false });
-
-      if (!profiles) { setLoading(false); return; }
-
+      // Every table here is past PostgREST's 1000-row answer, so each is read
+      // a page at a time — a single request showed "1000 total" and left the
+      // names and ranks of the newer 600 seafarers blank (lib/pageAll.ts).
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
-      const [{ data: seafarers }, { data: companies }, emailRes] = await Promise.all([
-        supabase.from("seafarers").select("id, first_name, last_name, rank"),
-        supabase.from("companies").select("id, name, is_verified, logo_url"),
-        // Emails live in auth.users — fetched via an admin-only server route.
-        token
-          ? fetch("/api/admin/user-emails", { headers: { Authorization: `Bearer ${token}` } })
-              .then((r) => r.json())
-              .catch(() => ({ emails: {} }))
-          : Promise.resolve({ emails: {} }),
-      ]);
+      let profiles: { id: string; role: "seafarer" | "company"; is_blocked: boolean; is_admin: boolean; created_at: string }[];
+      let seafarers: { id: string; first_name: string | null; last_name: string | null; rank: string | null }[];
+      let companies: { id: string; name: string | null; is_verified: boolean | null; logo_url: string | null }[];
+      let emailRes: { emails?: Record<string, string> };
+      try {
+        [profiles, seafarers, companies, emailRes] = await Promise.all([
+          pageAll((a, b) =>
+            supabase
+              .from("profiles")
+              .select("id, role, is_blocked, is_admin, created_at")
+              .order("created_at", { ascending: false })
+              .order("id")
+              .range(a, b) as unknown as Page<(typeof profiles)[number]>
+          ),
+          pageAll((a, b) =>
+            supabase.from("seafarers").select("id, first_name, last_name, rank").order("id").range(a, b) as unknown as Page<(typeof seafarers)[number]>
+          ),
+          pageAll((a, b) =>
+            supabase.from("companies").select("id, name, is_verified, logo_url").order("id").range(a, b) as unknown as Page<(typeof companies)[number]>
+          ),
+          // Emails live in auth.users — fetched via an admin-only server route.
+          token
+            ? fetch("/api/admin/user-emails", { headers: { Authorization: `Bearer ${token}` } })
+                .then((r) => r.json())
+                .catch(() => ({ emails: {} }))
+            : Promise.resolve({ emails: {} }),
+        ]);
+      } catch (e) {
+        console.error("[admin/users]", e);
+        setLoading(false);
+        return;
+      }
 
       const sfMap: Record<string, string> = {};
       const rankMap: Record<string, string | null> = {};
-      for (const s of seafarers ?? []) {
+      for (const s of seafarers) {
         sfMap[s.id] = [s.first_name, s.last_name].filter(Boolean).join(" ") || "(no name)";
         rankMap[s.id] = s.rank ?? null;
       }
       const coMap: Record<string, { name: string; is_verified: boolean; logo_url: string | null }> = {};
-      for (const c of companies ?? []) {
+      for (const c of companies) {
         coMap[c.id] = {
           name: c.name ?? "(no name)",
           is_verified: c.is_verified ?? false,

@@ -102,16 +102,17 @@ export default function AdminCompaniesPage() {
       // `vacancies.contact_email` (lib/vacancyColumns.ts).
       const [companies, vacancies, profiles, emails] = await Promise.all([
         pageThrough<CompanyRow>((a, b) =>
-          supabase.from("companies").select("id, name, location, website, emails, is_verified").range(a, b) as unknown as Page<CompanyRow>
+          supabase.from("companies").select("id, name, location, website, emails, is_verified").order("id").range(a, b) as unknown as Page<CompanyRow>
         ),
         pageThrough<VacRow>((a, b) =>
           supabase
             .from("vacancies")
             .select("id, company_id, title, rank, vessel_type, is_active, is_imported, joining_date, created_at")
+            .order("id")
             .range(a, b) as unknown as Page<VacRow>
         ),
         pageThrough<{ id: string; role: string | null }>((a, b) =>
-          supabase.from("profiles").select("id, role").range(a, b) as unknown as Page<{ id: string; role: string | null }>
+          supabase.from("profiles").select("id, role").order("id").range(a, b) as unknown as Page<{ id: string; role: string | null }>
         ),
         loadVacancyEmails(),
       ]);

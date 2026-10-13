@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Trash2, ToggleLeft, ToggleRight, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { VACANCY_COLUMNS, type BrowserVacancy } from "@/lib/vacancyColumns";
+import { pageAll, type Page } from "@/lib/pageAll";
 
 type VacancyRow = BrowserVacancy & { company_name: string };
 
@@ -29,13 +30,32 @@ export default function AdminVacanciesPage() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: vacs }, { data: companies }] = await Promise.all([
-        supabase.from("vacancies").select(VACANCY_COLUMNS).order("created_at", { ascending: false }),
-        supabase.from("companies").select("id, name"),
-      ]);
+      // Both tables are past PostgREST's 1000-row answer: read them a page at
+      // a time, or the oldest vacancies drop off the list (lib/pageAll.ts).
+      let vacs: BrowserVacancy[];
+      let companies: { id: string; name: string | null }[];
+      try {
+        [vacs, companies] = await Promise.all([
+          pageAll((a, b) =>
+            supabase
+              .from("vacancies")
+              .select(VACANCY_COLUMNS)
+              .order("created_at", { ascending: false })
+              .order("id")
+              .range(a, b) as unknown as Page<BrowserVacancy>
+          ),
+          pageAll((a, b) =>
+            supabase.from("companies").select("id, name").order("id").range(a, b) as unknown as Page<{ id: string; name: string | null }>
+          ),
+        ]);
+      } catch (e) {
+        console.error("[admin/vacancies]", e);
+        setLoading(false);
+        return;
+      }
       const coMap: Record<string, string> = {};
-      for (const c of companies ?? []) coMap[c.id] = c.name ?? "(no name)";
-      setVacancies((vacs ?? []).map((v) => ({ ...v, company_name: coMap[v.company_id] ?? "(unknown)" })));
+      for (const c of companies) coMap[c.id] = c.name ?? "(no name)";
+      setVacancies(vacs.map((v) => ({ ...v, company_name: coMap[v.company_id] ?? "(unknown)" })));
       setLoading(false);
     }
     load();
