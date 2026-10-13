@@ -1,5 +1,6 @@
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { getSalaryStats } from "@/lib/salaryStatsCached";
+import { getSignupPulse } from "@/lib/signupPulse";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
 
 
@@ -20,7 +21,9 @@ export default async function Home() {
   // The salary comparison is computed by `getSalaryStats`, which caches its
   // 5,000-row scan for 15 minutes — that scan used to run on every request and
   // dominated TTFB/LCP here. The lists below stay per-request fresh.
-  const [{ data: vacancies }, { data: news }, salaryStats] = await Promise.all([
+  // The "joined today" strip is decoration: if its count fails, the hero
+  // simply goes without it rather than taking the page down.
+  const [{ data: vacancies }, { data: news }, salaryStats, signups] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
       .eq("is_active", true)
@@ -35,6 +38,10 @@ export default async function Home() {
       .order("published_at", { ascending: false })
       .limit(6),
     getSalaryStats(),
+    getSignupPulse().catch((e) => {
+      console.error("[home] signup pulse", e);
+      return null;
+    }),
   ]);
 
   return (
@@ -42,6 +49,7 @@ export default async function Home() {
       initialVacancies={(vacancies ?? []) as DbVacancy[]}
       initialNews={(news ?? []) as DbNews[]}
       salaryStats={salaryStats}
+      signups={signups}
     />
   );
 }
