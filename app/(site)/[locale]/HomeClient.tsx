@@ -81,11 +81,14 @@ export default function HomeClient({
   initialNews,
   salaryStats,
   signups,
+  refreshMinutes,
 }: {
   initialVacancies: DbVacancy[];
   initialNews: DbNews[];
   salaryStats: SalaryStats;
   signups: Pulse | null;
+  /** How often the page is regenerated, for the strip's "updates every" line. */
+  refreshMinutes: number;
 }) {
   const { lang } = useLang();
   const tiles = HOME_SERVICE_TILES[lang] ?? HOME_SERVICE_TILES.en;
@@ -206,7 +209,7 @@ export default function HomeClient({
 
             {/* Seafarers who joined today — shown on phones too, where it is
                 most of what a first-time visitor sees above the fold. */}
-            {signups && <SignupPulse data={signups} lang={lang} />}
+            {signups && <SignupPulse data={signups} lang={lang} refreshMinutes={refreshMinutes} />}
 
             <div className="mt-8 flex flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">

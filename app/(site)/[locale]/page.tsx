@@ -50,6 +50,9 @@ export default async function Home() {
       initialNews={(news ?? []) as DbNews[]}
       salaryStats={salaryStats}
       signups={signups}
+      // Read from `revalidate` itself, so the strip's "updates every N minutes"
+      // cannot drift from the interval the page is actually cached for.
+      refreshMinutes={revalidate / 60}
     />
   );
 }
