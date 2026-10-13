@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { connection } from "next/server";
 import type { Metadata } from "next";
 import { getServerSupabase } from "@/lib/supabase/admin";
+import { pageAll } from "@/lib/pageAll";
 import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import { RANK_LANDINGS } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS } from "@/lib/vesselLandings";
@@ -96,18 +97,24 @@ export default async function JobsPage() {
   // Fetch vacancies on the server so the listing is in the initial HTML
   // (SEO + faster first paint). Search/filters/pagination stay client-side.
   // Hide vacancies whose joining date passed more than 2 weeks ago.
-  const { data } = await getServerSupabase()
-    .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, created_at, featured_until, companies(name, logo_url, location, is_verified)")
-    .eq("is_active", true)
-    .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
-    .order("featured_until", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false })
-    .limit(1000);
+  // Every live vacancy, read a page at a time: a single request stops at 1000
+  // rows, which once hid the oldest few hundred from the list (lib/pageAll.ts).
+  const sb = getServerSupabase();
+  const data = await pageAll((from, to) =>
+    sb
+      .from("vacancies")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, created_at, featured_until, companies(name, logo_url, location, is_verified)")
+      .eq("is_active", true)
+      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+      .order("featured_until", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
 
   return (
     <Suspense>
-      <JobsClient initialVacancies={(data ?? []) as VacancyWithCompany[]} />
+      <JobsClient initialVacancies={data as unknown as VacancyWithCompany[]} />
     </Suspense>
   );
 }
