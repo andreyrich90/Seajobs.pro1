@@ -18,6 +18,8 @@ export type SignupPulse = {
   count: number;
   /** True when `count` is yesterday's. */
   useYesterday: boolean;
+  /** Sign-ups yesterday, shown beside today's figure. */
+  yesterday: number;
   /** The last seven Kyiv days, oldest first, today last. */
   days: { date: string; n: number }[];
   /** Sum of `days`. */
@@ -72,6 +74,7 @@ export async function getSignupPulse(): Promise<SignupPulse | null> {
   return {
     count: useYesterday ? days[5].n : today,
     useYesterday,
+    yesterday: days[5].n,
     days,
     week: days.reduce((s, d) => s + d.n, 0),
   };
