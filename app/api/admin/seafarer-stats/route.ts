@@ -49,12 +49,15 @@ export async function GET(req: Request) {
 
   try {
     // Paged: PostgREST caps a response at 1000 rows, and an unpaged read would
-    // stop at the first thousand and report a total that looks right.
+    // stop at the first thousand and report a total that looks right. Ordered
+    // by id, or the pages are cut from an order Postgres may change between
+    // requests and a seafarer can be counted twice while another is missed.
     const rows: Row[] = [];
     for (let from = 0; ; from += 1000) {
       const { data, error } = await db
         .from("seafarers")
         .select("nationality, rank")
+        .order("id")
         .range(from, from + 999);
       if (error) throw new Error(error.message);
       const page = (data ?? []) as unknown as Row[];
