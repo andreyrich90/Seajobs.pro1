@@ -27,6 +27,7 @@ export default function AdminVacanciesPage() {
   const [loading, setLoading]     = useState(true);
   const [filter, setFilter]       = useState<"all" | "active" | "inactive">("all");
   const [query, setQuery]         = useState("");
+  const [queue, setQueue]         = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function load() {
@@ -58,13 +59,33 @@ export default function AdminVacanciesPage() {
       const coMap: Record<string, string> = {};
       for (const c of companies) coMap[c.id] = c.name ?? "(no name)";
       setVacancies(vacs.map((v) => ({ ...v, company_name: coMap[v.company_id] ?? "(unknown)" })));
+
+      // Release times of the publish queue (lib/publishQueue.ts). Read on its
+      // own, not through VACANCY_COLUMNS: before the migration that adds the
+      // column, a failure here must only lose the badge, not the whole list.
+      const { data: q } = await supabase
+        .from("vacancies")
+        .select("id, publish_at")
+        .not("publish_at", "is", null)
+        .limit(1000);
+      const due: Record<string, string> = {};
+      for (const r of (q ?? []) as unknown as { id: string; publish_at: string }[]) due[r.id] = r.publish_at;
+      setQueue(due);
       setLoading(false);
     }
     load();
   }, []);
 
   async function toggleActive(v: VacancyRow) {
-    const { data, error } = await supabase.from("vacancies").update({ is_active: !v.is_active }).eq("id", v.id).select(VACANCY_COLUMNS).single();
+    // Switching a queued vacancy by hand takes it out of the queue, or the
+    // release would bring it "back" later with a second round of alerts.
+    const inQueue = Boolean(queue[v.id]);
+    const { data, error } = await supabase
+      .from("vacancies")
+      .update({ is_active: !v.is_active, ...(inQueue ? { publish_at: null } : {}) })
+      .eq("id", v.id)
+      .select(VACANCY_COLUMNS)
+      .single();
     // Publishing is blocked when the company has no name or no contact — say so
     // instead of leaving the toggle silently not moving.
     if (error) {
@@ -78,6 +99,7 @@ export default function AdminVacanciesPage() {
       return;
     }
     if (data) setVacancies((prev) => prev.map((x) => x.id === v.id ? { ...data, company_name: v.company_name } : x));
+    if (inQueue) setQueue((prev) => { const next = { ...prev }; delete next[v.id]; return next; });
   }
 
   async function deleteVacancy(id: string) {
@@ -161,6 +183,14 @@ export default function AdminVacanciesPage() {
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
                       v.is_active ? "border-teal/20 bg-teal/10 text-teal" : "border-white/10 bg-white/5 text-mist"
                     }`}>{v.is_active ? "Active" : "Inactive"}</span>
+                    {queue[v.id] && (
+                      <span
+                        title="In the publish queue — goes live at this time (Kyiv)"
+                        className="ml-1.5 inline-flex rounded-full border border-brass/30 bg-brass/10 px-2 py-0.5 text-[11px] font-semibold text-brassInk"
+                      >
+                        ⏳ {new Date(queue[v.id]).toLocaleString("en-GB", { timeZone: "Europe/Kyiv", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">

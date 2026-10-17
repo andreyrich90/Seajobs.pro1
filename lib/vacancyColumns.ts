@@ -20,4 +20,7 @@ export const VACANCY_COLUMNS =
   "id, company_id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, is_active, is_imported, country, region, city, postal_code, valid_through, views_count, created_at, updated_at, featured_until, telegram_message_id";
 
 /** A vacancy as the browser may see it. */
-export type BrowserVacancy = Omit<Vacancy, "contact_email" | "contact_phone" | "source_url">;
+// The publish-queue columns are left out too: publish_alerts is server-only,
+// and publish_at is read on its own by /admin/vacancies, so a browser query
+// keeps working before the migration that adds them (lib/publishQueue.ts).
+export type BrowserVacancy = Omit<Vacancy, "contact_email" | "contact_phone" | "source_url" | "publish_at" | "publish_alerts">;

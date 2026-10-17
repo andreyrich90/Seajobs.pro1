@@ -4,8 +4,12 @@ import { fetchTelegramPosts } from "@/lib/telegram";
 import { parseVacancies } from "@/lib/parseVacancy";
 import { companyFromEmail } from "@/lib/companyName";
 import { importVacancy } from "@/lib/importVacancy";
+import { queueReady, scheduleQueued, interleave } from "@/lib/publishQueue";
 
 // Poll every active Telegram source and turn fresh posts into vacancies.
+// Auto-published ones do not go live in one burst: they enter the publish
+// queue (lib/publishQueue.ts) and are released two or three at a time over the
+// following hours, never at night in Kyiv.
 // Shared by the scheduled cron (api/cron/collect-telegram, every 6h on weekdays) and the admin "run now"
 // button (api/admin/collect-now). Per source: auto_publish channels turn a
 // qualifying post (position + crewing name) straight into a live vacancy;
@@ -69,6 +73,11 @@ export type CollectReport = {
   published: number;
   /** Sources that threw. Their messages stay in import_sources.last_error. */
   errors: number;
+  /** Of `published`, how many wait in the publish queue rather than went live. */
+  queued: number;
+  /** When the first and last of them are due (ISO), if any. */
+  queueFrom?: string;
+  queueTo?: string;
   report: Array<Record<string, unknown>>;
 };
 
@@ -107,6 +116,11 @@ export async function collectTelegram(
     });
     throw new Error(srcErr.message);
   }
+
+  // Queue only once the migration has added publish_at; until then publish
+  // straight away, exactly as before.
+  const useQueue = await queueReady(admin);
+  const queued: Array<{ id: string; source: string }> = [];
 
   const report: Array<Record<string, unknown>> = [];
   let totalDrafts = 0;
@@ -173,8 +187,9 @@ export async function collectTelegram(
           // manual review queue as pending drafts.
           if (source.auto_publish) {
             try {
-              const res = await importVacancy(admin, { ...payload, sourceUrl: post.url });
+              const res = await importVacancy(admin, { ...payload, sourceUrl: post.url }, { queue: useQueue });
               published++;
+              if (res.queued) queued.push({ id: res.vacancyId, source: source.handle });
               await admin.from("vacancy_drafts").insert({
                 source_id: source.id, source_kind: "telegram", source_handle: source.handle,
                 source_url: post.url, raw_text: post.text, parsed: payload,
@@ -237,6 +252,18 @@ export async function collectTelegram(
     report.push(entry);
   }
 
+  // Give this run's queued vacancies their slots, now that the batch size is
+  // known. If this fails they keep the placeholder time six hours out and are
+  // still released — later, but not lost.
+  let slots: Date[] = [];
+  if (queued.length) {
+    try {
+      slots = await scheduleQueued(admin, interleave(queued).map((q) => q.id));
+    } catch (e) {
+      console.error("[collectTelegram] scheduling the queue failed:", e instanceof Error ? e.message : e);
+    }
+  }
+
   const errors = report.filter((r) => r.error).length;
   const result: CollectReport = {
     ok: true,
@@ -247,6 +274,9 @@ export async function collectTelegram(
     drafts: totalDrafts,
     published: totalPublished,
     errors,
+    queued: queued.length,
+    queueFrom: slots[0]?.toISOString(),
+    queueTo: slots[slots.length - 1]?.toISOString(),
     report,
   };
 
