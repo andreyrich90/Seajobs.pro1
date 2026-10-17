@@ -4,10 +4,12 @@ import type { Lang } from "@/lib/langs";
 import type { SignupPulse as Pulse } from "@/lib/signupPulse";
 import { money } from "@/lib/format";
 import { slavic } from "@/lib/plural";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 
 // The "+N seafarers joined today" strip in the home page's hero: today's
-// figure, yesterday's, the week's sum, and the seven days as bars. It does not
+// figure, yesterday's, the week's sum, the seven days as labelled bars, and
+// between them how many vacancies are live on the board. It does not
 // show how many seafarers the board holds in all — the owner asked for that to
 // stay off the home page. The numbers come from the server
 // (lib/signupPulse.ts); this only words and draws them.
@@ -29,6 +31,11 @@ type Copy = {
   prev: (n: number) => string;
   week: (n: number) => string;
   refresh: (m: number) => string;
+  /** Label over the live-vacancy count, and the words after the number. */
+  liveEyebrow: string;
+  live: (n: number) => string;
+  /** Weekday abbreviations, Sunday first (Date.getUTCDay order). */
+  wd: string[];
 };
 
 const COPY: Record<Lang, Copy> = {
@@ -39,6 +46,9 @@ const COPY: Record<Lang, Copy> = {
     prev: (n) => `Yesterday +${money(n)}`,
     week: (n) => `+${money(n)} in 7 days`,
     refresh: (m) => `Updates every ${m} ${m === 1 ? "minute" : "minutes"}`,
+    liveEyebrow: "On the board now",
+    live: (n) => (n === 1 ? "live vacancy" : "live vacancies"),
+    wd: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
   },
   ru: {
     today: "Сегодня на SeaJobs",
@@ -47,6 +57,9 @@ const COPY: Record<Lang, Copy> = {
     prev: (n) => `Вчера +${money(n)}`,
     week: (n) => `+${money(n)} за 7 дней`,
     refresh: (m) => `Обновляется каждые ${m} ${slavic(m, "минуту", "минуты", "минут")}`,
+    liveEyebrow: "Сейчас на сайте",
+    live: (n) => slavic(n, "актуальная вакансия", "актуальные вакансии", "актуальных вакансий"),
+    wd: ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
   },
   ua: {
     today: "Сьогодні на SeaJobs",
@@ -55,6 +68,9 @@ const COPY: Record<Lang, Copy> = {
     prev: (n) => `Учора +${money(n)}`,
     week: (n) => `+${money(n)} за 7 днів`,
     refresh: (m) => `Оновлюється кожні ${m} ${slavic(m, "хвилину", "хвилини", "хвилин")}`,
+    liveEyebrow: "Зараз на сайті",
+    live: (n) => slavic(n, "актуальна вакансія", "актуальні вакансії", "актуальних вакансій"),
+    wd: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
   },
   pl: {
     today: "Dziś na SeaJobs",
@@ -64,6 +80,9 @@ const COPY: Record<Lang, Copy> = {
     prev: (n) => `Wczoraj +${money(n)}`,
     week: (n) => `+${money(n)} w 7 dni`,
     refresh: (m) => `Aktualizowane co ${m} ${m === 1 ? "minutę" : slavic(m, "minutę", "minuty", "minut")}`,
+    liveEyebrow: "Teraz na stronie",
+    live: (n) => (n === 1 ? "aktualna oferta" : slavic(n, "aktualnych ofert", "aktualne oferty", "aktualnych ofert")),
+    wd: ["Nd", "Pn", "Wt", "Śr", "Cz", "Pt", "So"],
   },
   ro: {
     today: "Astăzi pe SeaJobs",
@@ -72,6 +91,9 @@ const COPY: Record<Lang, Copy> = {
     prev: (n) => `Ieri +${money(n)}`,
     week: (n) => `+${money(n)} în 7 zile`,
     refresh: (m) => `Se actualizează la fiecare ${m} ${m === 1 ? "minut" : ro(m, "minut", "minute", "de minute")}`,
+    liveEyebrow: "Acum pe site",
+    live: (n) => ro(n, "post activ", "posturi active", "de posturi active"),
+    wd: ["Du", "Lu", "Ma", "Mi", "Jo", "Vi", "Sâ"],
   },
 };
 
@@ -79,29 +101,46 @@ export default function SignupPulse({
   data,
   lang,
   refreshMinutes,
+  liveVacancies,
 }: {
   data: Pulse;
   lang: Lang;
   /** The page's revalidate interval in minutes; omitted, the line is not shown. */
   refreshMinutes?: number;
+  /**
+   * Live vacancies on the board, counted the way /jobs lists them (page.tsx).
+   * Null when the count failed: the middle block is then left out.
+   */
+  liveVacancies?: number | null;
 }) {
   const c = COPY[lang] ?? COPY.en;
   const eyebrow = data.useYesterday ? c.yesterday : c.today;
   const joined = c.joined(data.count);
   const max = Math.max(1, ...data.days.map((d) => d.n));
-  // The bar that matches the headline figure is gold; yesterday's, when it is
-  // the second line, is half-gold.
+  // The bar that matches the headline figure is the brightest.
   const hot = data.useYesterday ? data.days.length - 2 : data.days.length - 1;
+  const hasLive = typeof liveVacancies === "number" && liveVacancies > 0;
+  const liveLabel = hasLive ? c.live(liveVacancies!) : "";
+  // Calendar dates, read at noon UTC so the weekday is the same on the server
+  // and in any reader's browser.
+  const weekday = (date: string) => c.wd[new Date(`${date}T12:00:00Z`).getUTCDay()];
 
   return (
     <div
       role="group"
-      aria-label={`${eyebrow}: +${data.count} ${joined}. ${data.useYesterday ? "" : `${c.prev(data.yesterday)}. `}${c.week(data.week)}.`}
+      aria-label={
+        `${eyebrow}: +${data.count} ${joined}. ` +
+        `${data.useYesterday ? "" : `${c.prev(data.yesterday)}. `}${c.week(data.week)}.` +
+        (hasLive ? ` ${c.liveEyebrow}: ${money(liveVacancies!)} ${c.live(liveVacancies!)}.` : "")
+      }
       className="mt-6 rounded-2xl border border-teal/25 bg-card/80 px-4 py-3.5 shadow-xl backdrop-blur sm:px-5 sm:py-4"
     >
-      <div className="flex items-center gap-4 sm:gap-6">
-        <div className="min-w-0 flex-1" aria-hidden="true">
-          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-teal">
+      {/* Seafarers | vacancies on one row, the week underneath at full width —
+          on a desktop too: three across squeezed the seafarer figure onto two
+          lines in the hero's column. */}
+      <div className={`grid gap-x-4 gap-y-4 sm:gap-x-6 ${hasLive ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div className="min-w-0" aria-hidden="true">
+          <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-teal sm:tracking-[0.16em]">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-70 motion-reduce:hidden" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-teal" />
@@ -128,19 +167,52 @@ export default function SignupPulse({
           </p>
         </div>
 
-        {/* Seven days, oldest on the left. A day with sign-ups never drops below
-            a stub, so a quiet morning still reads as a bar rather than a gap. */}
-        <div aria-hidden="true" className="flex h-12 shrink-0 items-end gap-1 sm:h-14 sm:gap-1.5">
-          {data.days.map((d, i) => (
-            <span
-              key={d.date}
-              title={`${d.date}: ${d.n}`}
-              className={`w-1.5 rounded-full sm:w-2 ${
-                i === hot ? "bg-brass" : i === hot - 1 && !data.useYesterday ? "bg-brass/45" : "bg-mist/35"
-              }`}
-              style={{ height: `${d.n === 0 ? 6 : Math.max(18, Math.round((d.n / max) * 100))}%` }}
-            />
-          ))}
+        {/* What a seafarer can apply to right now — the same count /jobs lists. */}
+        {hasLive && (
+          <Link
+            href="/jobs"
+            aria-label={`${money(liveVacancies!)} ${c.live(liveVacancies!)}`}
+            className="group min-w-0 border-l border-teal/15 pl-4 sm:pl-6"
+          >
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-mist sm:tracking-[0.16em]">{c.liveEyebrow}</p>
+            <p className="mt-1.5 font-display text-3xl font-bold leading-none text-foam transition group-hover:text-brassInk sm:text-4xl">
+              {money(liveVacancies!)}
+            </p>
+            {/* The arrow is glued to the last word, or a narrow column drops it
+                onto a line of its own. */}
+            <p className="mt-1.5 text-xs font-semibold text-mist transition group-hover:text-brassInk">
+              {liveLabel.slice(0, liveLabel.lastIndexOf(" ") + 1)}
+              <span className="whitespace-nowrap">
+                {liveLabel.slice(liveLabel.lastIndexOf(" ") + 1)}
+                <ArrowRight size={12} className="ml-1 inline-block align-[-1px]" />
+              </span>
+            </p>
+          </Link>
+        )}
+
+        {/* The week, oldest on the left: every day lit and labelled with its
+            count, today the brightest. A day with sign-ups never drops below a
+            stub, so a quiet morning still reads as a bar rather than a gap. */}
+        <div aria-hidden="true" className={`flex items-end justify-between gap-1 sm:gap-2 ${hasLive ? "col-span-2" : ""}`}>
+          {data.days.map((d, i) => {
+            const isHot = i === hot;
+            return (
+              <div key={d.date} className="flex flex-1 flex-col items-center" title={`${d.date}: ${d.n}`}>
+                <span className={`text-[10px] font-semibold tabular-nums leading-none ${isHot ? "text-brassInk" : "text-mist"}`}>
+                  {d.n}
+                </span>
+                <div className="mt-1 flex h-12 w-full items-end justify-center sm:h-14">
+                  <span
+                    className={`w-4 rounded-t-md sm:w-5 ${isHot ? "bg-brass" : "bg-brass/60"}`}
+                    style={{ height: `${d.n === 0 ? 6 : Math.max(14, Math.round((d.n / max) * 100))}%` }}
+                  />
+                </div>
+                <span className={`mt-1 text-[10px] leading-none ${isHot ? "font-bold text-foam" : "text-mist"}`}>
+                  {weekday(d.date)}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

@@ -23,7 +23,7 @@ export default async function Home() {
   // dominated TTFB/LCP here. The lists below stay per-request fresh.
   // The "joined today" strip is decoration: if its count fails, the hero
   // simply goes without it rather than taking the page down.
-  const [{ data: vacancies }, { data: news }, salaryStats, signups] = await Promise.all([
+  const [{ data: vacancies }, { data: news }, salaryStats, signups, live] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
       .eq("is_active", true)
@@ -42,6 +42,12 @@ export default async function Home() {
       console.error("[home] signup pulse", e);
       return null;
     }),
+    // Live vacancies for the strip: the same filter as the list below and
+    // /jobs, counted rather than fetched (the list stops at 500).
+    sb.from("vacancies")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true)
+      .or(`joining_date.is.null,joining_date.gte.${cutoff}`),
   ]);
 
   return (
@@ -50,6 +56,7 @@ export default async function Home() {
       initialNews={(news ?? []) as DbNews[]}
       salaryStats={salaryStats}
       signups={signups}
+      liveVacancies={live.error ? null : live.count}
       // Read from `revalidate` itself, so the strip's "updates every N minutes"
       // cannot drift from the interval the page is actually cached for.
       refreshMinutes={revalidate / 60}
