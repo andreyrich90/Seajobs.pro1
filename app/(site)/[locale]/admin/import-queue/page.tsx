@@ -144,9 +144,17 @@ export default function ImportQueuePage() {
       const res = await authFetch("/api/admin/collect-now", { method: "POST" });
       const json = await res.json();
       if (!json.ok) { setError(json.error ?? "Collection failed"); return; }
+      // Auto-published vacancies now wait in the publish queue and go live a
+      // few at a time (lib/publishQueue.ts); say when, or "published" reads
+      // as if they were on the board already.
+      const kyiv = (iso: string) =>
+        new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/Kyiv", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+      const queuedNote = json.queued
+        ? ` ${json.queued} of them go live gradually, ${kyiv(json.queueFrom)} – ${kyiv(json.queueTo)} (Kyiv).`
+        : "";
       setNotice(
         `From ${json.sources} source(s): ${json.fetched ?? "?"} posts fetched, ${json.fresh ?? "?"} new, ` +
-        `${json.published ?? 0} published, ${json.drafts} queued for review.`
+        `${json.published ?? 0} published, ${json.drafts} queued for review.` + queuedNote
       );
       setRunsKey((k) => k + 1);
       load();

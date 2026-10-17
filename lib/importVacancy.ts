@@ -3,6 +3,7 @@ import { companyFromEmail } from "@/lib/companyName";
 import { normalizeContractDuration } from "@/lib/contract";
 import { dispatchJobAlerts, type AlertResult } from "@/lib/jobAlerts";
 import { postVacancyToChannel, type ChannelPostResult } from "@/lib/telegramFeed";
+import { PLACEHOLDER_DELAY_MIN } from "@/lib/publishQueue";
 
 // Shared "upsert one vacancy" used by the admin Import route and by approving a
 // scraped draft. Finds/creates the company by name, then either refreshes a
@@ -65,6 +66,12 @@ export type ImportVacancyResult = {
   alerts?: AlertResult;
   /** Telegram channel mirror. Absent for a refreshed duplicate. */
   channel?: ChannelPostResult;
+  /**
+   * Imported hidden into the publish queue (lib/publishQueue.ts) and waiting
+   * for scheduleQueued() to give it a slot. Alerts and the channel post happen
+   * when it is released, not here.
+   */
+  queued?: boolean;
 };
 
 // The `vacancies` trigger blocks a publish when the owning company has no name
@@ -84,7 +91,13 @@ function readableDbError(message: string): string {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export async function importVacancy(
   admin: SupabaseClient<any, any, any>,
-  input: ImportVacancyInput
+  input: ImportVacancyInput,
+  /**
+   * `queue`: import hidden into the publish queue instead of publishing now.
+   * Only the Telegram collector asks for it; a person importing by hand gets
+   * the vacancy live at once.
+   */
+  opts: { queue?: boolean } = {},
 ): Promise<ImportVacancyResult> {
   const title = input.title?.trim();
   // Fall back to the crewing email's domain when no company name was parsed
@@ -156,15 +169,44 @@ export async function importVacancy(
     contact_phone: input.contactPhone?.trim() || null,
   };
 
+  // A queued vacancy is hidden, and the publish check (company name and a
+  // contact, 20260812000000) only looks at visible rows — so it would first
+  // fail at release, where nobody sees it. Apply it now instead, so the
+  // collector falls back to a pending draft exactly as it does for an
+  // immediate publish that the check refuses.
+  if (opts.queue && !contactEmail && !input.contactPhone?.trim()) {
+    const { data: co } = await admin.from("companies").select("emails, phones").eq("id", companyId).maybeSingle();
+    const has = (a: unknown) => Array.isArray(a) && a.some((x) => typeof x === "string" && x.trim() !== "");
+    if (!has(co?.emails) && !has(co?.phones)) throw new Error(readableDbError("company_contact_required"));
+  }
+  const placeholder = new Date(Date.now() + PLACEHOLDER_DELAY_MIN * 60_000).toISOString();
+
   // Recurring posting (same company + title) → refresh instead of cloning.
-  const { data: duplicate } = await admin
+  // publish_at only in queue mode: before its migration the column does not
+  // exist, and a hand import must keep working regardless.
+  const { data: duplicateRow } = await admin
     .from("vacancies")
-    .select("id")
+    .select((opts.queue ? "id, publish_at" : "id") as "id")
     .eq("company_id", companyId)
     .ilike("title", title)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+  const duplicate = duplicateRow as { id: string; publish_at?: string | null } | null;
+
+  if (duplicate && opts.queue) {
+    // Re-advertised: refresh the text now, but let the queue decide when it
+    // moves back to the top. One already waiting keeps its slot.
+    const { is_active: _keepVisibility, ...rest } = fields;
+    void _keepVisibility;
+    const waiting = Boolean(duplicate.publish_at);
+    const { error: updErr } = await admin
+      .from("vacancies")
+      .update({ ...rest, updated_at: new Date().toISOString(), ...(waiting ? {} : { publish_at: placeholder, publish_alerts: false }) })
+      .eq("id", duplicate.id);
+    if (updErr) throw new Error(readableDbError(updErr.message));
+    return { vacancyId: duplicate.id, companyId, refreshed: true, contactEmailInherited, contactEmail, queued: !waiting };
+  }
 
   if (duplicate) {
     const now = new Date().toISOString();
@@ -178,10 +220,20 @@ export async function importVacancy(
 
   const { data: vacancy, error: vacErr } = await admin
     .from("vacancies")
-    .insert({ company_id: companyId, title, ...fields })
+    .insert({
+      company_id: companyId,
+      title,
+      ...fields,
+      // Queued: hidden until its slot; publish_alerts makes the release send
+      // the alerts and the channel post this function sends below otherwise.
+      ...(opts.queue ? { is_active: false, publish_at: placeholder, publish_alerts: true } : {}),
+    })
     .select("id")
     .single();
   if (vacErr) throw new Error(readableDbError(vacErr.message));
+  if (opts.queue) {
+    return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, queued: true };
+  }
 
   // Fire job alerts here rather than at the call sites: imported postings are
   // most of the board and reach it through three different routes (the admin

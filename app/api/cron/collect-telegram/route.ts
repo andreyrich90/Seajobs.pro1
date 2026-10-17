@@ -5,8 +5,11 @@ import { collectTelegram } from "@/lib/collectTelegram";
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-// Hourly Vercel cron: poll every active Telegram source and parse fresh posts
-// into vacancy_drafts for admin review. Nothing goes live automatically — an
+// Vercel cron, every 6 hours Monday to Friday (UTC, vercel.json): poll every
+// active Telegram source and parse fresh posts into vacancy_drafts for admin
+// review. Weekends are skipped to save parser calls — they brought about 10% of
+// them and almost no publishable vacancies. Monday's first run picks up what
+// the channels posted meanwhile, at most MAX_POSTS_PER_SOURCE per channel. Nothing goes live automatically — an
 // admin approves each draft from /admin/import-queue, which is what creates the
 // real vacancies row (and, on apply, forwards our CV + site link to the crewing
 // email). See lib/collectTelegram.ts for the collection logic.

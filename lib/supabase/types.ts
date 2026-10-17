@@ -326,6 +326,10 @@ export interface Database {
           updated_at: string | null;
           featured_until: string | null;
           telegram_message_id: number | null;
+          // Publish queue (20261017000000): release time of a vacancy the
+          // Telegram collector queued, and whether its release sends alerts.
+          publish_at: string | null;
+          publish_alerts: boolean;
         };
         Insert: {
           id?: string;
@@ -355,6 +359,8 @@ export interface Database {
           updated_at?: string | null;
           featured_until?: string | null;
           telegram_message_id?: number | null;
+          publish_at?: string | null;
+          publish_alerts?: boolean;
         };
         Update: {
           id?: string;
@@ -384,6 +390,8 @@ export interface Database {
           updated_at?: string | null;
           featured_until?: string | null;
           telegram_message_id?: number | null;
+          publish_at?: string | null;
+          publish_alerts?: boolean;
         };
         Relationships: [];
       };
