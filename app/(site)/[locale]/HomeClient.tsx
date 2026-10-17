@@ -82,6 +82,7 @@ export default function HomeClient({
   salaryStats,
   signups,
   refreshMinutes,
+  liveVacancies,
 }: {
   initialVacancies: DbVacancy[];
   initialNews: DbNews[];
@@ -89,6 +90,8 @@ export default function HomeClient({
   signups: Pulse | null;
   /** How often the page is regenerated, for the strip's "updates every" line. */
   refreshMinutes: number;
+  /** Live vacancies on the board, for the strip; null when the count failed. */
+  liveVacancies: number | null;
 }) {
   const { lang } = useLang();
   const tiles = HOME_SERVICE_TILES[lang] ?? HOME_SERVICE_TILES.en;
@@ -209,7 +212,7 @@ export default function HomeClient({
 
             {/* Seafarers who joined today — shown on phones too, where it is
                 most of what a first-time visitor sees above the fold. */}
-            {signups && <SignupPulse data={signups} lang={lang} refreshMinutes={refreshMinutes} />}
+            {signups && <SignupPulse data={signups} lang={lang} refreshMinutes={refreshMinutes} liveVacancies={liveVacancies} />}
 
             <div className="mt-8 flex flex-wrap gap-2.5 rounded-2xl border border-white/10 bg-white p-2 shadow-2xl">
               <div className="flex min-w-[200px] flex-1 items-center gap-2.5 px-3">
