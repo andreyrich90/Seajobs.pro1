@@ -1,8 +1,8 @@
 import "../app/globals.css";
-import Script from "next/script";
 import { Fraunces, Archivo } from "next/font/google";
 import { LangProvider } from "@/components/LangProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import GoogleScripts from "@/components/GoogleScripts";
 
 // The document itself: <html>, <body>, fonts, the pre-paint theme script, the
 // site-wide JSON-LD and the analytics tags.
@@ -91,25 +91,9 @@ export default function HtmlShell({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
-        {/* Ads and analytics are not needed for interactivity — load them
-            during idle time so they stop adding to Total Blocking Time. */}
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9585615049936117"
-          strategy="lazyOnload"
-          crossOrigin="anonymous"
-        />
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-1H5KRW7TS9');
-          `}
-        </Script>
+        {/* AdSense (and with it Google's consent message) and Analytics, with
+            Consent Mode defaults; skipped on the privacy policy page. */}
+        <GoogleScripts />
         {/* CookieBanner is NOT here, though it is on every page: it links to
             /privacy through @/i18n/navigation, which needs next-intl's locale
             context. That provider is supplied by each root layout, below this
