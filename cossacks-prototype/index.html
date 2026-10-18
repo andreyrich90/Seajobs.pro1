@@ -21,6 +21,7 @@ button:focus-visible{outline:2px solid var(--gold2);outline-offset:2px}
 svg{flex:none}
 #app{position:relative;height:100%;overflow:hidden}
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#grade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(255,215,140,.13),rgba(255,215,140,0) 45%),radial-gradient(ellipse at center,rgba(0,0,0,0) 45%,rgba(8,6,2,.5) 100%)}
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);border:1px solid var(--edge);box-shadow:0 10px 28px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.07)}
 
 #top{position:absolute;top:10px;left:0;right:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;pointer-events:none}
@@ -158,6 +159,7 @@ svg{flex:none}
 
 <div id="app">
   <canvas id="cv" aria-label="Поле боя"></canvas>
+  <div id="grade" aria-hidden="true"></div>
 
   <div id="hud" hidden>
     <header id="top">
@@ -218,6 +220,10 @@ svg{flex:none}
   <div id="modal" hidden></div>
 </div>
 
+<script>
+window.showErr=function(m){var d=document.getElementById('err');if(!d){d=document.createElement('div');d.id='err';d.style.cssText='position:fixed;left:16px;right:16px;bottom:16px;z-index:99;padding:12px 14px;border-radius:12px;background:#6a1d14;color:#fff;font:14px/1.4 sans-serif';document.body.appendChild(d);}if(!d.dataset.m){d.dataset.m=m;d.textContent='Игра споткнулась: '+m+'. Пришлите этот текст — исправлю.';}};
+window.addEventListener('error',function(e){showErr(e.message||'ошибка');});
+</script>
 <script>
 (()=>{
 'use strict';
@@ -316,7 +322,6 @@ const SANDBOX={name:'Свободная игра',sub:'Против Речи П�
 
 /* ================= state ================= */
 const cv=document.getElementById('cv'), ctx0=cv.getContext('2d');
-const shadowCv=document.createElement('canvas'), sctx=shadowCv.getContext('2d');
 const mm=document.getElementById('mm'), mctx=mm.getContext('2d');
 let ctx=ctx0, W=0,H=0,DPR=1, time=0, shake=0;
 let G=null, terr,shade,occ,deco=[],waterTiles=[],ground=null,groundDirty=false,mapVer=0;
@@ -398,12 +403,14 @@ function buildGround(){
     const [ax,ay]=iso(x,y);sg.fillStyle=`rgb(${r|0},${g|0},${b|0})`;
     sg.beginPath();sg.moveTo(ax/S,ay/S-.5);sg.lineTo((ax+HW)/S+.5,(ay+HH)/S);sg.lineTo(ax/S,(ay+TH)/S+.5);sg.lineTo((ax-HW)/S-.5,(ay+HH)/S);sg.closePath();sg.fill();
   }
-  ground=ground||document.createElement('canvas');ground.width=N*TW;ground.height=N*TH+2;
+  // the ground is kept at half resolution: it is soft anyway, and a full-size canvas cost phones ~25 MB
+  ground=ground||document.createElement('canvas');ground.width=N*TW/2;ground.height=N*TH/2+1;
   const g=ground.getContext('2d');g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,ground.width,ground.height);
-  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
-  g.filter='blur(5px)';g.drawImage(small,0,0,ground.width,ground.height);g.filter='none';
+  g.imageSmoothingEnabled=true;
+  try{g.filter='blur(2.5px)';}catch(e){}
+  g.drawImage(small,0,0,ground.width,ground.height);g.filter='none';
   g.globalAlpha=.5;g.drawImage(small,0,0,ground.width,ground.height);g.globalAlpha=1;
-  g.translate(N*HW,0);
+  g.setTransform(.5,0,0,.5,N*HW/2,0);
   const r=rngF(99);waterTiles=[];
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     const i=y*N+x,t=terr[i],[cx,cy]=iso(x+.5,y+.5);
@@ -424,6 +431,8 @@ function buildGround(){
       if(t!==TREE&&r()<.05){const c=['#f2e36a','#e6e0ff','#e86a5a'][fl(r()*3)];g.fillStyle=c;for(let k=0;k<4;k++){g.beginPath();g.arc(cx+(r()-.5)*20,cy+(r()-.5)*8,1.3,0,7);g.fill();}}
     }
   }
+  g.fillStyle='rgba(20,14,4,.2)';
+  for(const d of deco){const [px,py]=iso(d.x+.5,d.y+.5);g.beginPath();if(d.k===TREE)g.ellipse(px+16,py+5,15,6,.2,0,7);else g.ellipse(px+8,py+4,17,6,0,0,7);g.fill();}
   groundDirty=false;
 }
 
@@ -1033,8 +1042,22 @@ function drawBuilding(b){
     if(b.hp<b.max*.3)for(let k=0;k<3;k++){const ph=(time*2+k/3)%1;ell(px-6+k*6,top+12-ph*8,2.5*(1-ph)+1,4*(1-ph)+1,`rgba(255,${120+k*40},40,${.9-ph*.7})`);}
   }
 }
-function drawTree(d){
-  const [px,py]=iso(d.x+.5,d.y+.5),s=d.s,sw=Math.sin(time*1.1+s*9)*.8;
+// trees and rocks are drawn once into small sprites and stamped, instead of being re-painted every frame
+const SPR=new Map();
+function sprite(d){
+  const q=Math.round(d.s*5)/5,key=d.k+'_'+(d.v?1:0)+'_'+q;let sp=SPR.get(key);
+  if(!sp){
+    const tree=d.k===TREE,w=tree?52:40,h=tree?54:40,top=tree?46:30,c=document.createElement('canvas');c.width=w*2;c.height=h*2;
+    const g=c.getContext('2d'),sv=ctx,svt=time;ctx=g;time=0;g.scale(2,2);g.translate(w/2,top-HH);
+    (tree?paintTree:paintRock)({x:0,y:0,s:q,v:d.v});ctx=sv;time=svt;
+    sp={c,w,h,top};SPR.set(key,sp);
+  }
+  return sp;
+}
+function drawTree(d){const sp=sprite(d),[px,py]=iso(d.x+.5,d.y+.5);ctx.drawImage(sp.c,px-sp.w/2,py-sp.top,sp.w,sp.h);}
+function drawRock(d){drawTree(d);}
+function paintTree(d){
+  const [px,py]=iso(d.x+.5,d.y+.5),s=d.s,sw=0;
   if(d.v){ // pine
     ctx.fillStyle='#5a3f26';ctx.fillRect(px-1.5,py-8,3,8);
     for(let k=0;k<3;k++){const yy=py-8-k*9,ww=12-k*3;poly([px-ww+sw,yy,px+ww+sw,yy,px+sw*1.5,yy-14],k%2?'#2f5a2c':'#3d6e34');}
@@ -1045,7 +1068,7 @@ function drawTree(d){
     ell(px-3+sw,py-26,6,5,'rgba(190,225,130,.35)');
   }
 }
-function drawRock(d){const [px,py]=iso(d.x+.5,d.y+.5);const h=8+d.s*10;
+function paintRock(d){const [px,py]=iso(d.x+.5,d.y+.5);const h=8+d.s*10;
   poly([px-16,py+2,px-9,py-h,px+2,py-h-4,px+14,py-h+3,px+17,py+2,px,py+7],grad(0,py-h,0,py+6,'#aaa595','#7f7a6c'));
   poly([px-9,py-h,px+2,py-h-4,px+14,py-h+3,px+3,py-h+5],'#d6d2c4');poly([px+3,py-h+5,px+14,py-h+3,px+17,py+2,px+4,py+5],'#747062');}
 
@@ -1113,7 +1136,7 @@ function shadowBox(x,y,w,h,ht){
   if(ht<=0)return;
   const c=[iso(x,y),iso(x+w,y),iso(x+w,y+h),iso(x,y+h)];
   const pts=hull(c.concat(c.map(([a,b])=>[a+ht*.85,b+ht*.32])));
-  sctx.beginPath();sctx.moveTo(pts[0][0],pts[0][1]);for(const p of pts)sctx.lineTo(p[0],p[1]);sctx.closePath();sctx.fill();
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(const p of pts)ctx.lineTo(p[0],p[1]);ctx.closePath();ctx.fill();
 }
 
 /* ================= render ================= */
@@ -1126,21 +1149,17 @@ function render(){
   const z=cam.z,sx=shake?(Math.random()-.5)*shake:0,sy=shake?(Math.random()-.5)*shake:0;
   const M=[DPR*z,0,0,DPR*z,DPR*(W/2-cam.x*z+sx),DPR*(H/2-cam.y*z+sy)];
   ctx.setTransform(...M);
-  ctx.drawImage(ground,-N*HW,0);
+  ctx.drawImage(ground,-N*HW,0,N*TW,N*TH+2);
   const vx0=cam.x-W/2/z-90,vx1=cam.x+W/2/z+90,vy0=cam.y-H/2/z-70,vy1=cam.y+H/2/z+150;
   const vis=(gx,gy)=>{const [px,py]=iso(gx,gy);return px>vx0&&px<vx1&&py>vy0&&py<vy1;};
 
   ctx.lineWidth=1.3;
   for(const [x,y,s,ford] of waterTiles){if(!vis(x+.5,y+.5))continue;const [cx,cy]=iso(x+.5,y+.5);const a=(Math.sin(time*1.6+s*20)+1)/2;ctx.strokeStyle=`rgba(235,250,255,${(ford?.1:.08)+a*.28})`;const o=Math.sin(time*.7+s*9)*6;ctx.beginPath();ctx.moveTo(cx-8+o,cy-2+s*4);ctx.lineTo(cx+2+o,cy-2+s*4);ctx.stroke();}
 
-  // shadows
-  if(shadowCv.width!==cv.width||shadowCv.height!==cv.height){shadowCv.width=cv.width;shadowCv.height=cv.height;}
-  sctx.setTransform(1,0,0,1,0,0);sctx.clearRect(0,0,shadowCv.width,shadowCv.height);sctx.setTransform(...M);sctx.fillStyle='#000';
+  // shadows: buildings and units; tree and rock shadows are baked into the ground
+  ctx.fillStyle='rgba(20,14,4,.2)';
   for(const b of G.blds){const d=BT[b.type];if(!d.sh||!vis(b.x+b.w/2,b.y+b.h/2))continue;shadowBox(b.x+.1,b.y+.1,b.w-.2,b.h-.2,d.sh*Math.max(.15,b.built));}
-  for(const d of deco){if(!vis(d.x+.5,d.y+.5))continue;const [px,py]=iso(d.x+.5,d.y+.5);sctx.beginPath();if(d.k===TREE)sctx.ellipse(px+18,py+5,14,6,.2,0,7);else sctx.ellipse(px+8,py+4,16,6,0,0,7);sctx.fill();}
-  for(const u of G.units){if(!vis(u.x,u.y))continue;const [px,py]=iso(u.x,u.y),r=UT[u.type].r*20;sctx.beginPath();sctx.ellipse(px+5,py+1,r,r*.42,0,0,7);sctx.fill();}
-  for(let k=0;k<3;k++){const cxw=((time*14+k*1100)%(N*TW+900))-N*HW-450,cyw=(k*.33+.15)*N*TH;sctx.globalAlpha=.25;sctx.beginPath();sctx.ellipse(cxw,cyw,300,120,0,0,7);sctx.fill();sctx.globalAlpha=1;}
-  ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=.24;ctx.drawImage(shadowCv,0,0);ctx.globalAlpha=1;ctx.setTransform(...M);
+  for(const u of G.units){if(!vis(u.x,u.y))continue;const [px,py]=iso(u.x,u.y),r=UT[u.type].r*20;ctx.beginPath();ctx.ellipse(px+5,py+1,r,r*.42,0,0,7);ctx.fill();}
 
   // overlays under the units
   if(tool==='build'&&buildType==='mine')for(let y=0;y<N;y++)for(let x=0;x<N;x++){const t=terr[y*N+x];if(DEP[t]&&!occ[y*N+x]){const [ax,ay]=iso(x,y);poly([ax,ay+2,ax+HW-3,ay+HH,ax,ay+TH-2,ax-HW+3,ay+HH],'rgba(255,230,140,.25)');}}
@@ -1208,9 +1227,6 @@ function render(){
   ctx.setTransform(DPR,0,0,DPR,0,0);
   if(boxDrag){const x=Math.min(boxDrag.x0,boxDrag.x1),y=Math.min(boxDrag.y0,boxDrag.y1);ctx.fillStyle='rgba(255,223,143,.1)';ctx.fillRect(x,y,Math.abs(boxDrag.x1-boxDrag.x0),Math.abs(boxDrag.y1-boxDrag.y0));ctx.strokeStyle='rgba(255,223,143,.8)';ctx.lineWidth=1.2;ctx.setLineDash([5,4]);ctx.strokeRect(x,y,Math.abs(boxDrag.x1-boxDrag.x0),Math.abs(boxDrag.y1-boxDrag.y0));ctx.setLineDash([]);}
   ctx.setTransform(1,0,0,1,0,0);
-  const hz=ctx.createLinearGradient(0,0,0,cv.height*.45);hz.addColorStop(0,'rgba(255,215,140,.14)');hz.addColorStop(1,'rgba(255,215,140,0)');ctx.fillStyle=hz;ctx.fillRect(0,0,cv.width,cv.height*.45);
-  const vg=ctx.createRadialGradient(cv.width/2,cv.height/2,Math.min(cv.width,cv.height)*.35,cv.width/2,cv.height/2,Math.max(cv.width,cv.height)*.75);
-  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(8,6,2,.5)');ctx.fillStyle=vg;ctx.fillRect(0,0,cv.width,cv.height);
 }
 
 /* ================= minimap ================= */
@@ -1222,7 +1238,7 @@ function drawMini(){
   const ox=w/2,oy=(h-N*TH*s)/2;
   mctx.setTransform(1,0,0,1,0,0);mctx.clearRect(0,0,mm.width,mm.height);
   mctx.setTransform(d*s,0,0,d*s,d*ox,d*oy);
-  mctx.drawImage(ground,-N*HW,0);
+  mctx.drawImage(ground,-N*HW,0,N*TW,N*TH+2);
   for(const b of G.blds){const [ax,ay]=iso(b.x,b.y),[bx,by]=iso(b.x+b.w,b.y),[cx,cy]=iso(b.x+b.w,b.y+b.h),[dx,dy]=iso(b.x,b.y+b.h);mctx.beginPath();mctx.moveTo(ax,ay);mctx.lineTo(bx,by);mctx.lineTo(cx,cy);mctx.lineTo(dx,dy);mctx.closePath();mctx.fillStyle=b.o===0?'#ffdf8f':'#ff5a40';mctx.fill();}
   for(const u of G.units){const [px,py]=iso(u.x,u.y);mctx.fillStyle=u.o===0?'#86c8e6':'#ff5a40';mctx.fillRect(px-24,py-24,48,48);}
   if(G.ping&&time-G.ping.t<6){const [px,py]=iso(G.ping.x,G.ping.y),k=((time-G.ping.t)%1);mctx.strokeStyle=`rgba(255,90,64,${1-k})`;mctx.lineWidth=3/s;mctx.beginPath();mctx.ellipse(px,py,(40+k*260),(20+k*130),0,0,7);mctx.stroke();}
@@ -1625,20 +1641,24 @@ function endGame(win){
 }
 
 /* ================= boot ================= */
-function resize(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;DPR=Math.min(2,window.devicePixelRatio||1);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);measure();}
+function resize(){const r=cv.getBoundingClientRect();W=r.width;H=r.height;DPR=Math.min(1.5,window.devicePixelRatio||1);cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);measure();}
 window.addEventListener('resize',resize);
 if(window.ResizeObserver){const ro=new ResizeObserver(measure);ro.observe($('#top'));ro.observe($('#dock'));}
 let last=performance.now(),mmT=0;
 function loop(now){
+  try{step(now);}catch(e){showErr(e&&e.message||String(e));}
+  requestAnimationFrame(loop);
+}
+function step(now){
   const rdt=Math.min(.05,(now-last)/1000);last=now;time+=rdt;
   shake=Math.max(0,shake-rdt*20);
   if(G&&!G.paused&&!G.over){let s=rdt*(G.demo?1:G.speed);while(s>0){const st=Math.min(s,.05);update(st);s-=st;if(G.over)break;}}
   if(G&&G.demo){cam.x=G.camBase[0]+Math.sin(time*.05)*200;cam.y=G.camBase[1]+Math.sin(time*.037)*90;}
   if(live()){hudT+=rdt;if(hudT>.3){hudT=0;refreshHud();}mmT+=rdt;if(mmT>.2){mmT=0;drawMini();}}
-  render();requestAnimationFrame(loop);
+  render();
 }
-window.__dp={get G(){return G},startLevel,update,centerOn,hit};
-THUMB=thumbs();
-buildTools();resize();showMenu();requestAnimationFrame(loop);
+window.__dp={get G(){return G},startLevel,update,centerOn,hit,render,thumbs,buildGround,showMenu};
+try{THUMB=thumbs();buildTools();resize();showMenu();}catch(e){showErr(e&&e.message||String(e));}
+requestAnimationFrame(loop);
 })();
 </script>
