@@ -52,6 +52,9 @@ export type BlastPackage = {
   payUrl?: string;
 };
 
+/** The checkout for every monthly package — they cost the same. */
+const MONTHLY_PAY_URL = "https://buymeacoffee.com/seajobs.pro/e/588425";
+
 export const BLAST_PACKAGES: BlastPackage[] = [
   // Narrow bases: fewer addresses, but every one of them hires this fleet.
   { code: "offshore",   name: "Offshore MAX",                      group: "fleet", eur: 30, usd: 35, addresses: 5400, sends: 1, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/Seajobs.pro/e/577095" },
@@ -69,12 +72,14 @@ export const BLAST_PACKAGES: BlastPackage[] = [
   { code: "crew_sites", group: "general", eur: 26, usd: 30, addresses: 1600,  sends: 3, tags: "Maritime Zone · Crewell · Crewdate · Ukrcrewing", payUrl: "https://buymeacoffee.com/seajobs.pro/e/580682" },
 
   // One price, different cadence: the narrower the base, the more often it can
-  // be mailed without burning it out.
-  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 99, usd: 115, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant" },
-  { code: "full_tanker",    name: "Full Tanker",    group: "monthly", eur: 99, usd: 115, addresses: null, sends: 11, recurring: true, tags: "Tanker · Merchant" },
-  { code: "full_bulk",      name: "Full Bulk",      group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Bulker · Merchant" },
-  { code: "full_container", name: "Full Container", group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Container · Merchant" },
-  { code: "full_general",   name: "Full General",   group: "monthly", eur: 99, usd: 115, addresses: null, sends: 4,  recurring: true, tags: "all fleets" },
+  // be mailed without burning it out. One price also means one checkout: the
+  // five share MONTHLY_PAY_URL, and which package was bought comes from the
+  // request the payment is matched to by e-mail, not from the product.
+  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 99, usd: 115, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant", payUrl: MONTHLY_PAY_URL },
+  { code: "full_tanker",    name: "Full Tanker",    group: "monthly", eur: 99, usd: 115, addresses: null, sends: 11, recurring: true, tags: "Tanker · Merchant", payUrl: MONTHLY_PAY_URL },
+  { code: "full_bulk",      name: "Full Bulk",      group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Bulker · Merchant", payUrl: MONTHLY_PAY_URL },
+  { code: "full_container", name: "Full Container", group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Container · Merchant", payUrl: MONTHLY_PAY_URL },
+  { code: "full_general",   name: "Full General",   group: "monthly", eur: 99, usd: 115, addresses: null, sends: 4,  recurring: true, tags: "all fleets", payUrl: MONTHLY_PAY_URL },
 
   { code: "application_form", group: "extra", eur: 17, usd: 20, addresses: null, sends: 0, tags: "PDF · Word" },
 ];
