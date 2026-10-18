@@ -70,7 +70,7 @@ export const BLAST_PACKAGES: BlastPackage[] = [
 
   // One price, different cadence: the narrower the base, the more often it can
   // be mailed without burning it out.
-  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 99, usd: 115, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant" },
+  { code: "full_offshore",  name: "Full Offshore",  group: "monthly", eur: 99, usd: 115, addresses: null, sends: 5,  recurring: true, tags: "Offshore · Merchant", payUrl: "https://buymeacoffee.com/seajobs.pro/e/588425" },
   { code: "full_tanker",    name: "Full Tanker",    group: "monthly", eur: 99, usd: 115, addresses: null, sends: 11, recurring: true, tags: "Tanker · Merchant" },
   { code: "full_bulk",      name: "Full Bulk",      group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Bulker · Merchant" },
   { code: "full_container", name: "Full Container", group: "monthly", eur: 99, usd: 115, addresses: null, sends: 16, recurring: true, tags: "Container · Merchant" },
