@@ -2,6 +2,7 @@
 
 import Script from "next/script";
 import { usePathname } from "next/navigation";
+import { CONSENT_KEY } from "@/lib/consent";
 
 // AdSense and Google Analytics, with consent.
 //
@@ -16,7 +17,7 @@ import { usePathname } from "next/navigation";
 // those regions: Consent Mode v2's default below, pushed before `config`. Until
 // the visitor answers, Google records cookieless pings and stores nothing.
 // Everywhere else the default is "granted", unless the visitor declined our
-// own banner (components/CookieBanner.tsx), which writes `cookie_consent`.
+// own banner (components/CookieBanner.tsx), which writes CONSENT_KEY.
 //
 // Neither tag loads on the privacy policy page: Google asks that the page the
 // consent message links to carries no consent-requiring scripts, so the
@@ -55,7 +56,7 @@ export default function GoogleScripts() {
           function gtag(){dataLayer.push(arguments);}
           var denied = { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' };
           gtag('consent', 'default', Object.assign({ region: ${JSON.stringify(CONSENT_REGIONS)}, wait_for_update: 500 }, denied));
-          try { if (localStorage.getItem('cookie_consent') === 'declined') gtag('consent', 'default', denied); } catch (e) {}
+          try { if (localStorage.getItem('${CONSENT_KEY}') === 'declined') gtag('consent', 'default', denied); } catch (e) {}
           gtag('js', new Date());
           gtag('config', '${GA_ID}');
         `}
