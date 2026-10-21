@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { CONSENT_KEY, LEGACY_CONSENT_KEY } from "@/lib/consent";
 
 // Our own cookie banner — for visitors outside the EEA, the UK and Switzerland.
 //
@@ -17,6 +16,7 @@ import { CONSENT_KEY, LEGACY_CONSENT_KEY } from "@/lib/consent";
 // off through Consent Mode now, and GoogleScripts reads the stored answer on
 // every later page load.
 
+const CONSENT_KEY = "cookie_consent";
 /** How long to wait for Google's consent message before showing ours. */
 const CMP_WAIT_MS = 8000;
 
@@ -41,14 +41,6 @@ export default function CookieBanner() {
   useEffect(() => {
     try {
       if (localStorage.getItem(CONSENT_KEY)) return;
-      // The old banner's answer: "accepted" still stands, "declined" is asked
-      // again — it was given when Decline did nothing (lib/consent.ts).
-      const legacy = localStorage.getItem(LEGACY_CONSENT_KEY);
-      if (legacy) localStorage.removeItem(LEGACY_CONSENT_KEY);
-      if (legacy === "accepted") {
-        localStorage.setItem(CONSENT_KEY, "accepted");
-        return;
-      }
     } catch {
       return;
     }
