@@ -30,7 +30,7 @@ export const getLandingVacancies = unstable_cache(
     const sb = getServerSupabase();
     // Paged (lib/pageAll.ts): one request stops at 1000 rows. pageAll throws
     // rather than returning empty: an outage must not be cached as "no
-    // vacancies", which would noindex every combination page for five minutes.
+    // vacancies", which would noindex every combination page for an hour.
     const data = await pageAll((from, to) =>
       sb
         .from("vacancies")
@@ -45,5 +45,5 @@ export const getLandingVacancies = unstable_cache(
     return data as unknown as LandingVacancy[];
   },
   ["landing-vacancies-v1"],
-  { revalidate: 300, tags: ["vacancies"] },
+  { revalidate: 3600, tags: ["vacancies"] },
 );

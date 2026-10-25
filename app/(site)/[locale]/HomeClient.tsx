@@ -404,6 +404,19 @@ export default function HomeClient({
             </button>
           </div>
         )}
+
+        {/* The list holds only the newest few pages; the rest of the board is
+            on /jobs, so the end of the list points there. */}
+        {dbVacancies.length > 0 && (
+          <div className="mt-6 flex justify-center">
+            <Link
+              href="/jobs"
+              className="flex cursor-pointer items-center gap-1 text-sm font-bold text-brassInk transition hover:gap-2"
+            >
+              {t.view_all} <ChevronRight size={17} />
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* LATEST NEWS */}
