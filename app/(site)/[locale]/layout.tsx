@@ -106,13 +106,16 @@ export default async function LocaleLayout({
   // the metadata, not the copy — so passing them serialised another 23-34 KB of
   // strings into every page for nobody to read. The provider itself stays:
   // `Link`/`useRouter` from `@/i18n/navigation` need its locale.
+  // It has to be `messages={null}`, not just no prop: next-intl 4's server
+  // provider fills a missing `messages` in from i18n/request.ts, and until
+  // October 2026 that put the whole dictionary into every cached page anyway.
   // This layout owns <html> for every localized page. It is the whole reason
   // the app has two root layouts: `lang` must be the reader's language, and
   // only a layout under the [locale] segment can know it without reading the
   // request — which is what used to make every page dynamic.
   return (
     <HtmlShell lang={HREFLANG[locale] ?? locale}>
-      <NextIntlClientProvider locale={locale}>
+      <NextIntlClientProvider locale={locale} messages={null}>
         <DictProvider dict={T[locale as Lang]}>{children}</DictProvider>
         {/* Inside the provider: the banner links through @/i18n/navigation. */}
         <CookieBanner />

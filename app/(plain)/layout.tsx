@@ -38,10 +38,11 @@ export const metadata: Metadata = {
 export default function PlainLayout({ children }: { children: React.ReactNode }) {
   // No `messages` on the provider: nothing in the app calls useTranslations, so
   // serialising a dictionary here only added weight. It stays because
-  // `@/i18n/navigation` reads its locale.
+  // `@/i18n/navigation` reads its locale. `null` rather than leaving the prop
+  // out: next-intl 4 fills a missing one in from i18n/request.ts.
   return (
     <HtmlShell lang="en">
-      <NextIntlClientProvider locale="en">
+      <NextIntlClientProvider locale="en" messages={null}>
         {children}
         <CookieBanner />
       </NextIntlClientProvider>
