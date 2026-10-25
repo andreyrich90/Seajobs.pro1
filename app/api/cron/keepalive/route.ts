@@ -11,15 +11,23 @@ export const maxDuration = 30;
 // organisation in October 2026, where each extra project cost ~$10 a month.
 //
 // Unrelated to SeaJobs itself; it lives here because this project already has
-// the cron machinery. Each target is a one-row read of a table the project
-// already serves to anonymous visitors, with its publishable key — a public
-// value that ships in that site's own browser code — so nothing here grants
-// more than the site already does.
+// the cron machinery. Each target is a one-row read through the project's
+// public API with its publishable key — a public value that ships in that
+// site's own browser code — so nothing here can see more than an anonymous
+// visitor of that site. Row-level security decides what comes back (a public
+// recipe from svezho, an empty list from romana-app, whose progress rows only
+// their owner may read); either way the request runs a query in the database,
+// which is the activity Supabase counts.
 const TARGETS = [
   {
     name: "svezho",
     url: "https://ojsdynvdkslypahoumwe.supabase.co/rest/v1/recipes?select=id&limit=1",
     key: "sb_publishable_EZuyanRrFhNFwESRtdgRHw_agiFB-KR",
+  },
+  {
+    name: "romana-app",
+    url: "https://gepxgtpcbjigjfowlkva.supabase.co/rest/v1/progress?select=user_id&limit=1",
+    key: "sb_publishable_MIgP3djtK-R5QD_pBRmqrQ_9Qr7W6g4",
   },
 ];
 
