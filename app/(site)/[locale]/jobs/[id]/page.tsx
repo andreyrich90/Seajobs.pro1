@@ -12,11 +12,18 @@ import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./cl
 
 import { money } from "@/lib/format";
 
-// Five minutes. This also fixes something that was quietly wrong: with no
-// revalidate at all, a vacancy page rendered once stayed in the cache until the
-// next deployment — so an edited vacancy kept showing its old text, and a
-// deleted one kept answering 200 instead of the 404 the route now returns.
-export const revalidate = 300;
+// An hour. A published vacancy's text almost never changes, and every
+// refresh is a billed ISR write in each of five languages, for some 1,500
+// pages that crawlers walk around the clock; at five minutes the board's
+// pages were the second line of October 2026's Vercel overage. An edit or a
+// closed vacancy shows within the hour; new vacancies reach the lists that
+// link here on their own schedule.
+//
+// Some revalidate is needed all the same: with none at all, a vacancy page
+// rendered once stayed in the cache until the next deployment — an edited
+// vacancy kept its old text, and a deleted one kept answering 200 instead of
+// the 404 the route now returns.
+export const revalidate = 3600;
 
 // Empty on purpose. A dynamic segment with no generateStaticParams is rendered
 // per request and never cached, so `revalidate` above would do nothing. An

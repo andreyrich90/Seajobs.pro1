@@ -22,7 +22,7 @@ import {
 
 
 // Eleven vessel types x five languages, crawled the same way. Cached.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 // Prerendered at build, every slug in every language.
 //

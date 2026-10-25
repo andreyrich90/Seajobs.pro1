@@ -10,8 +10,8 @@ import { pageAll, MAX_USER_ROWS } from "@/lib/pageAll";
 // empty — the strip then shows yesterday rather than a zero (`useYesterday`).
 //
 // Counted from `profiles` with role 'seafarer', the same figure the admin
-// dashboard calls Seafarers. The home page is cached for five minutes, so the
-// number is at most five minutes behind.
+// dashboard calls Seafarers. The home page is cached for fifteen minutes, so
+// the number is at most fifteen minutes behind.
 
 export type SignupPulse = {
   /** Sign-ups on the day shown (today, or yesterday when today has none yet). */

@@ -21,7 +21,7 @@ import {
 
 
 // Nineteen ranks x five languages, and Google re-crawls all of them. Cached.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 // Prerendered at build, every slug in every language.
 //

@@ -19,7 +19,7 @@ import { getLandingVacancies } from "@/lib/landingVacancies";
 
 // /jobs/rank/chief-engineer/bulk-carrier — see lib/rankVesselLandings.ts for
 // why these exist and why only some of them are indexed.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 // Only the combinations that clear the bar today are prerendered. The rest are
 // rendered on request with `noindex`, which is all a stale link deserves.
