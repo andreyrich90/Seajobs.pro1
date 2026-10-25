@@ -1,6 +1,7 @@
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { getSalaryStats } from "@/lib/salaryStatsCached";
 import { getSignupPulse } from "@/lib/signupPulse";
+import { newsExcerpt, newsReadMins } from "@/lib/newsText";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
 
 
@@ -22,7 +23,8 @@ export const revalidate = 900;
  */
 const HOME_VACANCIES = 90;
 
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   // Keep vacancies visible for 2 weeks after the joining date (grace period);
   // the crewing can close one earlier via is_active.
   const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
@@ -61,10 +63,35 @@ export default async function Home() {
       .or(`joining_date.is.null,joining_date.gte.${cutoff}`),
   ]);
 
+  // One language per news card, with its excerpt and reading time worked out
+  // here: the browser used to receive every article's full body in all five
+  // languages (~80 KB of each cached copy of the page) to show two lines of it.
+  // Same fallback the card used to apply: the reader's language, then the
+  // older "uk" key for Ukrainian, then English.
+  const ukKey = locale === "ua" ? "uk" : locale;
+  const pick = (m: unknown) => {
+    const r = (m ?? {}) as Record<string, string | undefined>;
+    return r[locale] || r[ukKey] || r.en || "";
+  };
+  const newsCards: DbNews[] = (news ?? []).map((a) => {
+    const body = pick(a.body);
+    return {
+      id: a.id,
+      title: pick(a.title),
+      excerpt: newsExcerpt(body),
+      readMins: newsReadMins(body),
+      tag: a.tag,
+      cover_gradient: a.cover_gradient,
+      cover_url: a.cover_url,
+      published_at: a.published_at,
+      created_at: a.created_at,
+    };
+  });
+
   return (
     <HomeClient
       initialVacancies={(vacancies ?? []) as DbVacancy[]}
-      initialNews={(news ?? []) as DbNews[]}
+      initialNews={newsCards}
       salaryStats={salaryStats}
       signups={signups}
       liveVacancies={live.error ? null : live.count}

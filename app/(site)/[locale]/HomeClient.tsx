@@ -19,6 +19,7 @@ import { FAQ_SEAFARERS } from "@/lib/faq";
 import { NEWS } from "@/lib/data";
 import { useLang } from "@/components/LangProvider";
 import { slugId } from "@/lib/slug";
+import { newsExcerpt, newsReadMins } from "@/lib/newsText";
 import { FLEETS, fleetLabel } from "@/lib/fleets";
 import { HOME_SERVICE_TILES } from "@/lib/cvMaker";
 
@@ -43,25 +44,22 @@ export type DbVacancy = {
   companies: { name: string | null; logo_url: string | null; is_verified: boolean } | null;
 };
 
+/**
+ * A news card as page.tsx prepares it: the reader's language only, with the
+ * excerpt and reading time already worked out. The articles' full bodies in
+ * all five languages were ~80 KB of every cached copy of this page.
+ */
 export type DbNews = {
   id: string;
-  title: Record<string, string>;
-  body: Record<string, string> | null;
+  title: string;
+  excerpt: string;
+  readMins: number;
   tag: string | null;
   cover_gradient: string | null;
   cover_url: string | null;
   published_at: string | null;
   created_at: string;
 };
-
-function newsExcerpt(text: string, max = 120): string {
-  const clean = text.replace(/^#{1,6}\s.*$/gm, "").replace(/[#*_>`]/g, "").replace(/\s+/g, " ").trim();
-  return clean.length > max ? clean.slice(0, max).replace(/\s+\S*$/, "") + "…" : clean;
-}
-function newsReadMins(text: string): number {
-  const words = text.trim().split(/\s+/).filter(Boolean).length;
-  return Math.max(1, Math.round(words / 200));
-}
 
 const NEWS_TAG_COLORS: Record<string, string> = {
   Regulation: "bg-teal/10 border-teal/20 text-teal",
@@ -147,23 +145,18 @@ export default function HomeClient({
   }
 
   // Latest news for the homepage block (DB articles + static editorial), newest first.
-  const ukKey = lang === "ua" ? "uk" : lang;
   const minLabel = lang === "ua" ? "хв читання" : lang === "pl" ? "min czytania" : lang === "ru" ? "мин чтения" : "min read";
   const latestNews = [
-    ...initialNews.map((a) => {
-      const body = a.body?.[lang] || a.body?.[ukKey] || a.body?.en || "";
-      const title = a.title?.[lang] || a.title?.[ukKey] || a.title?.en || "";
-      return {
-        id: slugId(title, a.id),
-        title,
-        tag: a.tag ?? "News",
-        date: a.published_at ?? a.created_at,
-        gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
-        coverUrl: a.cover_url ?? null,
-        excerpt: newsExcerpt(body),
-        readMins: newsReadMins(body),
-      };
-    }),
+    ...initialNews.map((a) => ({
+      id: slugId(a.title, a.id),
+      title: a.title,
+      tag: a.tag ?? "News",
+      date: a.published_at ?? a.created_at,
+      gradient: a.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
+      coverUrl: a.cover_url ?? null,
+      excerpt: a.excerpt,
+      readMins: a.readMins,
+    })),
     ...NEWS.map((n) => {
       const body = n.body[lang] ?? n.body.en ?? "";
       return {
