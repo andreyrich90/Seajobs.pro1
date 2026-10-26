@@ -11,6 +11,7 @@ import { contactsInText, redactContacts } from "@/lib/vacancyContacts";
 import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./client";
 
 import { money } from "@/lib/format";
+import { SUB_SELLING } from "@/lib/subscription";
 
 // An hour. A published vacancy's text almost never changes, and every
 // refresh is a billed ISR write in each of five languages, for some 1,500
@@ -332,7 +333,9 @@ export default async function VacancyPage(
         "addressCountry": resolveCountry(vacancy.country, company?.location ?? null),
       },
     },
-    "directApply": true,
+    // Applying on the site needs a subscription once one is on sale, which is
+    // not what Google means by direct apply — so the claim goes with it.
+    "directApply": !SUB_SELLING,
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
     // NOT the per-vacancy social card, however much it looks like the right
     // answer. Under a dynamic segment Next serves that image only at the hashed

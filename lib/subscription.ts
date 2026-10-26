@@ -5,14 +5,17 @@
  *
  * What it opens, and what it deliberately does not:
  *
- *   - **Free for everyone signed in:** searching, the profile, and applying
- *     through the portal (the site sends the CV to the agency; the seafarer
- *     never sees the address). Applying is never paid for — Google for Jobs
- *     does not list postings that charge the applicant, and the site tells
- *     seafarers everywhere never to pay for a job.
- *   - **With a subscription:** a vacancy's e-mail and phone, the "write from my
- *     own mailbox" route, a company's contact people, and the CV files (PDF,
- *     image, Word in every fleet template).
+ *   - **Free for everyone signed in:** searching, the profile, and building
+ *     and editing the CV.
+ *   - **With a subscription:** applying through the portal (the site sends the
+ *     CV to the agency), a vacancy's e-mail and phone, the "write from my own
+ *     mailbox" route, a company's contact people, and the CV files (PDF, image,
+ *     Word in every fleet template).
+ *
+ * What is never paid for is a job: the subscription buys the portal's tools,
+ * and every paid page says so in the same breath (MLC 2006 A1.4(5)(b), and
+ * the site's own "never pay for a job" notice). While it is on sale the
+ * vacancy pages stop claiming `directApply` to Google, since applying needs it.
  *
  * Same one-field shape as `lib/cvBlast.ts` and `lib/cvWord.ts`: a plan sells
  * once its Buy Me a Coffee extra is pasted into `payUrl`, and **the price here
@@ -119,38 +122,43 @@ export function withSubPrice<T>(node: T, lang?: string): T {
   return fill(node) as T;
 }
 
-/** The lines on a lock — a vacancy's contacts, a company's, the CV files —
+/** The lines on a lock — applying, a vacancy's contacts, a company's, the CV files —
  *  and its button. `{price}` in `cta` is the cheapest plan. The full page copy
  *  is in lib/subscriptionCopy.ts, which only the subscription page loads. */
-export type SubLock = { lockContacts: string; lockCompany: string; lockCv: string; cta: string };
+export type SubLock = { lockContacts: string; lockApply: string; lockCompany: string; lockCv: string; cta: string };
 
 const SUB_LOCK: Record<string, SubLock> = {
   en: {
-    lockContacts: "The agency's e-mail and phone open with a subscription. Applying through the portal is free.",
+    lockContacts: "The agency's e-mail and phone open with a subscription.",
+    lockApply: "Applying through the portal, the agency's e-mail and phone, and writing from your own mailbox come with a subscription.",
     lockCompany: "The company's contacts open with a subscription.",
     lockCv: "Downloading your CV (PDF, image, Word) comes with a subscription. Building and editing it stay free.",
     cta: "Subscribe — from {price}",
   },
   ru: {
-    lockContacts: "E-mail и телефон крюинга открываются с подпиской. Откликнуться через портал можно бесплатно.",
+    lockContacts: "E-mail и телефон крюинга открываются с подпиской.",
+    lockApply: "Отклик через портал, e-mail и телефон крюинга и письмо со своей почты — по подписке.",
     lockCompany: "Контакты компании открываются с подпиской.",
     lockCv: "Скачать CV (PDF, картинка, Word) можно с подпиской. Собирать и редактировать его — бесплатно.",
     cta: "Оформить подписку — от {price}",
   },
   ua: {
-    lockContacts: "E-mail і телефон крюїнгу відкриваються з підпискою. Відгукнутися через портал можна безкоштовно.",
+    lockContacts: "E-mail і телефон крюїнгу відкриваються з підпискою.",
+    lockApply: "Відгук через портал, e-mail і телефон крюїнгу та лист зі своєї пошти — за підпискою.",
     lockCompany: "Контакти компанії відкриваються з підпискою.",
     lockCv: "Завантажити CV (PDF, картинка, Word) можна з підпискою. Збирати й редагувати його — безкоштовно.",
     cta: "Оформити підписку — від {price}",
   },
   pl: {
-    lockContacts: "E-mail i telefon agencji otwiera subskrypcja. Aplikowanie przez portal jest darmowe.",
+    lockContacts: "E-mail i telefon agencji otwiera subskrypcja.",
+    lockApply: "Aplikowanie przez portal, e-mail i telefon agencji oraz list z własnej skrzynki są w subskrypcji.",
     lockCompany: "Kontakty firmy otwiera subskrypcja.",
     lockCv: "Pobranie CV (PDF, obraz, Word) jest w subskrypcji. Tworzenie i edycja pozostają darmowe.",
     cta: "Wykup subskrypcję — od {price}",
   },
   ro: {
-    lockContacts: "E-mailul și telefonul agenției se deschid cu abonament. Aplicarea prin portal este gratuită.",
+    lockContacts: "E-mailul și telefonul agenției se deschid cu abonament.",
+    lockApply: "Aplicarea prin portal, e-mailul și telefonul agenției și scrisoarea din propriul e-mail vin cu abonamentul.",
     lockCompany: "Contactele companiei se deschid cu abonament.",
     lockCv: "Descărcarea CV-ului (PDF, imagine, Word) vine cu abonamentul. Construirea și editarea rămân gratuite.",
     cta: "Abonează-te — de la {price}",

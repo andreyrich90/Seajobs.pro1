@@ -32,9 +32,9 @@ export async function POST(req: Request) {
   const { data: { user: caller }, error: authErr } = await admin.auth.getUser(token);
   if (authErr || !caller) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
-  // Writing from one's own mailbox is a subscription feature: the letter goes
-  // to the agency's address, which only subscribers are shown. Applying
-  // through the portal stays free and does not come through here.
+  // Writing from one's own mailbox is a subscription feature, like applying
+  // through the portal: the letter goes to the agency's address, which only
+  // subscribers are shown.
   if (!(await hasToolAccess(admin, caller.id))) {
     return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
   }

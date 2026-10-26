@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
 import { contactsInText } from "@/lib/vacancyContacts";
 import { hasToolAccess } from "@/lib/subscriptionAccess";
+import { SUB_SELLING } from "@/lib/subscription";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,9 +51,14 @@ export async function GET(req: Request) {
     if (!(await hasToolAccess(admin, caller.id))) {
       return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403, headers: NO_STORE });
     }
-    const missing = profileGaps(sf as unknown as Record<string, string | null>);
-    if (missing.length) {
-      return NextResponse.json({ ok: false, error: "PROFILE_INCOMPLETE", missing }, { status: 403, headers: NO_STORE });
+    // Once the subscription is on sale it is the whole key: someone who has
+    // paid is not sent to fill in fields before seeing what they paid for.
+    // Until then the profile is the gate, as it always was.
+    if (!SUB_SELLING) {
+      const missing = profileGaps(sf as unknown as Record<string, string | null>);
+      if (missing.length) {
+        return NextResponse.json({ ok: false, error: "PROFILE_INCOMPLETE", missing }, { status: 403, headers: NO_STORE });
+      }
     }
   }
 

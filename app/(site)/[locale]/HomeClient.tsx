@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Coffee, FileText, Send } from "lucide-react";
+import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Star, FileText, Send } from "lucide-react";
 import Header from "@/components/Header";
 import { useT } from "@/components/DictProvider";
 import Footer from "@/components/Footer";
@@ -24,11 +24,8 @@ import { FLEETS, fleetLabel } from "@/lib/fleets";
 import { HOME_SERVICE_TILES } from "@/lib/cvMaker";
 
 import { money } from "@/lib/format";
+import { SUB_FROM, subPrice } from "@/lib/subscription";
 
-// Where the coffee goes. The same Buy Me a Coffee page the CV-distribution
-// checkouts live on, but the plain profile rather than a priced "extra": the
-// amount is the reader's to choose, and nothing here is a product.
-const SUPPORT_URL = "https://buymeacoffee.com/seajobs.pro";
 
 export type DbVacancy = {
   id: string;
@@ -459,28 +456,25 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* Support — a tip, never a fee. The copy carries the distinction (see
-          TIP_* in lib/i18n.ts); the block only has to stay quiet enough that it
-          reads as a thank-you rather than a toll booth, which is why it sits
-          below the jobs and the news rather than above them. */}
+      {/* The subscription — what is free, what it opens, and that a job is
+          never paid for (see TIP_* in lib/i18n.ts). Below the jobs and the news
+          on purpose: the board comes first. */}
       <section className="mx-auto max-w-7xl px-5 py-6">
         <div className="flex flex-wrap items-center gap-5 rounded-2xl border border-brass/25 bg-card px-6 py-6 sm:px-8">
           <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brass/10">
-            <Coffee size={22} className="text-brassInk" />
+            <Star size={22} className="text-brassInk" />
           </div>
           <div className="min-w-[240px] flex-1">
-            <h2 className="font-display text-lg font-bold text-white">{t.tip_title}</h2>
-            <p className="mt-1 text-sm leading-relaxed text-mist">{t.tip_body}</p>
+            <h2 className="font-display text-lg font-bold text-white">{t.subpromo_title.replace("{price}", subPrice(SUB_FROM, lang))}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-mist">{t.subpromo_body}</p>
           </div>
-          <a
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/seafarer/subscription"
             className="flex shrink-0 items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-5 py-3 text-sm font-bold text-brassInk transition hover:bg-brass/20"
           >
-            <Coffee size={15} />
-            {t.tip_cta}
-          </a>
+            <Star size={15} />
+            {t.subpromo_cta}
+          </Link>
         </div>
       </section>
 

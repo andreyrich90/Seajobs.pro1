@@ -128,7 +128,7 @@ const en: MaritimeCvCopy = {
   faqTitle: "Questions",
   faq: [
     { q: "Do you guarantee a contract?", a: "No. We prepare the document; the decision is the shipowner's and the crewing agency's." },
-    { q: "Do I have to pay?", a: "Building and editing the CV are free, and so is applying through the portal — the site sends your CV to the agency. Downloading the CV yourself (PDF, image, Word) comes with a subscription from {price} for 3 months." },
+    { q: "Do I have to pay?", a: "Building and editing the CV are free. Applying through the portal, the agencies' contacts and downloading the CV yourself (PDF, image, Word) come with a subscription from {price} for 3 months." },
     { q: "Can I change the CV after I download it?", a: "Yes. Edit your profile and download again — the Word file is unlocked for your account for good." },
     { q: "My CV is a scan. Will it work?", a: "A scan is a picture with no text in it, so it cannot be read. Upload a PDF with text, or fill in the profile by hand — it takes about ten minutes." },
     { q: "Who sees my passport number?", a: "Nobody but you and the crewing agencies you send the CV to. Your public profile shows a short whitelist only." },
@@ -136,7 +136,7 @@ const en: MaritimeCvCopy = {
 
   notTitle: "We never charge for a job",
   notBody:
-    "Nothing here is charged for a contract, a berth, a medical, certificates or visas. Registration, searching and applying through the portal are free. What the subscription pays for is the portal's tools: the CV files and agencies' direct contacts. If someone asks you for money for the job itself, it is not us, and it is not legal.",
+    "Nothing here is charged for a contract, a berth, a medical, certificates or visas. Registration, searching vacancies and building the CV are free. What the subscription pays for is the portal's tools: applying through the portal, agencies' direct contacts and the CV files. If someone asks you for money for the job itself, it is not us, and it is not legal.",
 
   closingTitle: "Your next contract starts with the CV",
   closingCta: "Upload my CV",
@@ -197,7 +197,7 @@ const ru: MaritimeCvCopy = {
   faqTitle: "Вопросы",
   faq: [
     { q: "Вы гарантируете контракт?", a: "Нет. Мы готовим документ; решение принимают судовладелец и крюинг." },
-    { q: "Обязательно платить?", a: "Собрать и редактировать анкету — бесплатно, откликаться через портал — тоже: сайт сам отправит ваше CV в крюинг. Скачать CV себе (PDF, картинка, Word) можно по подписке от {price} за 3 месяца." },
+    { q: "Обязательно платить?", a: "Собрать и редактировать анкету — бесплатно. Отклик через портал, контакты крюингов и скачивание CV (PDF, картинка, Word) — по подписке от {price} за 3 месяца." },
     { q: "Можно поменять анкету после скачивания?", a: "Да. Правьте профиль и скачивайте снова — Word открыт для вашего аккаунта навсегда." },
     { q: "Моё резюме — скан. Получится?", a: "Скан — это картинка без текста, его не прочитать. Загрузите PDF с текстом или заполните профиль вручную — это минут десять." },
     { q: "Кто увидит номер моего паспорта?", a: "Только вы и крюинги, которым вы отправите анкету. В публичном профиле — лишь короткий список полей." },
@@ -205,7 +205,7 @@ const ru: MaritimeCvCopy = {
 
   notTitle: "Мы никогда не берём денег за работу",
   notBody:
-    "Здесь не берут денег за контракт, место на судне, медкомиссию, сертификаты или визы. Регистрация, поиск и отклики через портал бесплатны. Подписка — это оплата инструментов портала: файлов CV и прямых контактов крюингов. Если кто-то просит у вас деньги за саму работу — это не мы, и это незаконно.",
+    "Здесь не берут денег за контракт, место на судне, медкомиссию, сертификаты или визы. Регистрация, поиск вакансий и сборка анкеты бесплатны. Подписка — это оплата инструментов портала: отклика через портал, прямых контактов крюингов и файлов CV. Если кто-то просит у вас деньги за саму работу — это не мы, и это незаконно.",
 
   closingTitle: "Следующий контракт начинается с анкеты",
   closingCta: "Загрузить резюме",
@@ -266,7 +266,7 @@ const ua: MaritimeCvCopy = {
   faqTitle: "Питання",
   faq: [
     { q: "Ви гарантуєте контракт?", a: "Ні. Ми готуємо документ; рішення ухвалюють судновласник і крюїнг." },
-    { q: "Обов'язково платити?", a: "Зібрати й редагувати анкету — безкоштовно, відгукуватися через портал — теж: сайт сам надішле ваше CV у крюїнг. Завантажити CV собі (PDF, зображення, Word) можна за підпискою від {price} за 3 місяці." },
+    { q: "Обов'язково платити?", a: "Зібрати й редагувати анкету — безкоштовно. Відгук через портал, контакти крюїнгів і завантаження CV (PDF, зображення, Word) — за підпискою від {price} за 3 місяці." },
     { q: "Можна змінити анкету після завантаження?", a: "Так. Редагуйте профіль і завантажуйте знову — Word відкритий для вашого акаунта назавжди." },
     { q: "Моє резюме — скан. Вийде?", a: "Скан — це зображення без тексту, його не прочитати. Завантажте PDF із текстом або заповніть профіль вручну — це хвилин десять." },
     { q: "Хто побачить номер мого паспорта?", a: "Лише ви й крюїнги, яким ви надішлете анкету. У публічному профілі — тільки короткий перелік полів." },
@@ -274,7 +274,7 @@ const ua: MaritimeCvCopy = {
 
   notTitle: "Ми ніколи не беремо грошей за роботу",
   notBody:
-    "Тут не беруть грошей за контракт, місце на судні, медкомісію, сертифікати чи візи. Реєстрація, пошук і відгуки через портал безкоштовні. Підписка — це оплата інструментів порталу: файлів CV і прямих контактів крюїнгів. Якщо хтось просить у вас гроші за саму роботу — це не ми, і це незаконно.",
+    "Тут не беруть грошей за контракт, місце на судні, медкомісію, сертифікати чи візи. Реєстрація, пошук вакансій і збірка анкети безкоштовні. Підписка — це оплата інструментів порталу: відгуку через портал, прямих контактів крюїнгів і файлів CV. Якщо хтось просить у вас гроші за саму роботу — це не ми, і це незаконно.",
 
   closingTitle: "Наступний контракт починається з анкети",
   closingCta: "Завантажити резюме",
@@ -335,7 +335,7 @@ const pl: MaritimeCvCopy = {
   faqTitle: "Pytania",
   faq: [
     { q: "Gwarantujecie kontrakt?", a: "Nie. Przygotowujemy dokument; decyzję podejmują armator i agencja crewingowa." },
-    { q: "Czy muszę płacić?", a: "Tworzenie i edycja CV są darmowe, aplikowanie przez portal też — strona sama wyśle Twoje CV do agencji. Pobranie CV dla siebie (PDF, obraz, Word) jest w subskrypcji od {price} za 3 miesiące." },
+    { q: "Czy muszę płacić?", a: "Tworzenie i edycja CV są darmowe. Aplikowanie przez portal, kontakty agencji i pobranie CV (PDF, obraz, Word) są w subskrypcji od {price} za 3 miesiące." },
     { q: "Czy mogę zmienić CV po pobraniu?", a: "Tak. Edytuj profil i pobierz ponownie — Word jest odblokowany dla Twojego konta na stałe." },
     { q: "Moje CV to skan. Zadziała?", a: "Skan to obraz bez tekstu, więc nie da się go odczytać. Wgraj PDF z tekstem albo wypełnij profil ręcznie — to około dziesięciu minut." },
     { q: "Kto zobaczy numer mojego paszportu?", a: "Tylko Ty i agencje, do których wyślesz CV. Publiczny profil pokazuje jedynie krótką listę pól." },
@@ -343,7 +343,7 @@ const pl: MaritimeCvCopy = {
 
   notTitle: "Nigdy nie bierzemy pieniędzy za pracę",
   notBody:
-    "Nie pobieramy opłat za kontrakt, miejsce na statku, badania, certyfikaty ani wizy. Rejestracja, szukanie i aplikowanie przez portal są darmowe. Subskrypcja to opłata za narzędzia portalu: pliki CV i bezpośrednie kontakty agencji. Jeśli ktoś żąda od Ciebie pieniędzy za samą pracę — to nie my i jest to nielegalne.",
+    "Nie pobieramy opłat za kontrakt, miejsce na statku, badania, certyfikaty ani wizy. Rejestracja, szukanie ofert i tworzenie CV są darmowe. Subskrypcja to opłata za narzędzia portalu: aplikowanie przez portal, bezpośrednie kontakty agencji i pliki CV. Jeśli ktoś żąda od Ciebie pieniędzy za samą pracę — to nie my i jest to nielegalne.",
 
   closingTitle: "Kolejny kontrakt zaczyna się od CV",
   closingCta: "Wgraj moje CV",
@@ -404,7 +404,7 @@ const ro: MaritimeCvCopy = {
   faqTitle: "Întrebări",
   faq: [
     { q: "Garantați un contract?", a: "Nu. Pregătim documentul; decizia aparține armatorului și agenției de crewing." },
-    { q: "Trebuie să plătesc?", a: "Construirea și editarea CV-ului sunt gratuite, la fel și aplicarea prin portal — site-ul trimite CV-ul tău agenției. Descărcarea CV-ului pentru tine (PDF, imagine, Word) vine cu abonamentul de la {price} pentru 3 luni." },
+    { q: "Trebuie să plătesc?", a: "Construirea și editarea CV-ului sunt gratuite. Aplicarea prin portal, contactele agențiilor și descărcarea CV-ului (PDF, imagine, Word) vin cu abonamentul de la {price} pentru 3 luni." },
     { q: "Pot schimba CV-ul după descărcare?", a: "Da. Editezi profilul și descarci din nou — Word-ul e deblocat pentru contul tău definitiv." },
     { q: "CV-ul meu e scanat. Merge?", a: "O scanare e o imagine fără text, deci nu poate fi citită. Încarcă un PDF cu text sau completează profilul manual — durează cam zece minute." },
     { q: "Cine îmi vede numărul de pașaport?", a: "Doar tu și agențiile cărora le trimiți CV-ul. Profilul public arată doar o listă scurtă de câmpuri." },
@@ -412,7 +412,7 @@ const ro: MaritimeCvCopy = {
 
   notTitle: "Nu cerem niciodată bani pentru un loc de muncă",
   notBody:
-    "Nu cerem bani pentru un contract, un post pe navă, medical, certificate sau vize. Înregistrarea, căutarea și aplicarea prin portal sunt gratuite. Abonamentul plătește uneltele portalului: fișierele CV și contactele directe ale agențiilor. Dacă cineva îți cere bani pentru munca în sine — nu suntem noi și nu este legal.",
+    "Nu cerem bani pentru un contract, un post pe navă, medical, certificate sau vize. Înregistrarea, căutarea posturilor și crearea CV-ului sunt gratuite. Abonamentul plătește uneltele portalului: aplicarea prin portal, contactele directe ale agențiilor și fișierele CV. Dacă cineva îți cere bani pentru munca în sine — nu suntem noi și nu este legal.",
 
   closingTitle: "Următorul contract începe cu CV-ul",
   closingCta: "Încarcă CV-ul meu",

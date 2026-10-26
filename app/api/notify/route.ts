@@ -4,6 +4,7 @@ import { emailQuotaExhausted, sendEmail } from "@/lib/email";
 import { buildCvHtml } from "@/lib/cvHtml";
 import { dispatchJobAlerts } from "@/lib/jobAlerts";
 import { postVacancyToChannel } from "@/lib/telegramFeed";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -47,6 +48,10 @@ export async function POST(req: Request) {
       // The caller must be the seafarer who applied.
       if (caller.id !== seafarerId) {
         return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+      }
+      // Applying comes with the subscription once one is on sale.
+      if (!(await hasToolAccess(admin, caller.id))) {
+        return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
       }
       // And an application must actually exist.
       const { data: appExists } = await admin
@@ -103,6 +108,10 @@ ${cv.html}
       }
       if (caller.id !== seafarerId) {
         return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+      }
+      // The CV goes to the agency only for a subscriber, once one is on sale.
+      if (!(await hasToolAccess(admin, caller.id))) {
+        return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
       }
       const { data: appExists } = await admin
         .from("applications").select("id, cover_letter").eq("vacancy_id", vacancyId).eq("seafarer_id", seafarerId).maybeSingle();

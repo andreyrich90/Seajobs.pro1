@@ -15,27 +15,27 @@ type Copy = { heading: string; body: string; short: string };
 const WARN: Record<string, Copy> = {
   en: {
     heading: "Never pay to get a job at sea",
-    body: "Legitimate crewing agencies never ask seafarers for money. Do not pay anyone for a contract, a place on board, a medical, certificates, visas or “processing”. If you are asked to pay to be hired — it is a scam. Stop all contact and let us know. SeaJobs itself takes money only for optional tools — a subscription to contacts and CV files — never for a job, and applying through the portal is free.",
+    body: "Legitimate crewing agencies never ask seafarers for money. Do not pay anyone for a contract, a place on board, a medical, certificates, visas or “processing”. If you are asked to pay to be hired — it is a scam. Stop all contact and let us know. SeaJobs itself takes money only for its subscription — applying through the portal, agencies' contacts and CV files — never for a job, a contract or a place on board.",
     short: "Never pay for a job, medical, certificates or a contract — a request for money is a scam.",
   },
   ru: {
     heading: "Никогда не платите за трудоустройство в море",
-    body: "Настоящий крюинг никогда не берёт с моряков деньги. Не платите никому за контракт, за место на судне, за медкомиссию, сертификаты, визы или «оформление». Просят деньги за работу — это развод. Прекратите общение и сообщите нам. Сам SeaJobs берёт деньги только за необязательные инструменты — подписку на контакты и файлы CV, — никогда за работу, а отклик через портал бесплатный.",
+    body: "Настоящий крюинг никогда не берёт с моряков деньги. Не платите никому за контракт, за место на судне, за медкомиссию, сертификаты, визы или «оформление». Просят деньги за работу — это развод. Прекратите общение и сообщите нам. Сам SeaJobs берёт деньги только за подписку — отклик через портал, контакты крюингов и файлы CV, — и никогда за работу, контракт или место на судне.",
     short: "Никогда не платите за работу, медкомиссию, сертификаты или контракт — просят деньги, это развод.",
   },
   ua: {
     heading: "Ніколи не платіть за працевлаштування в морі",
-    body: "Справжній крюїнг ніколи не бере з моряків гроші. Не платіть нікому за контракт, за місце на судні, за медкомісію, сертифікати, візи чи «оформлення». Просять гроші за роботу — це шахрайство. Припиніть спілкування та повідомте нам. Сам SeaJobs бере гроші лише за необов’язкові інструменти — підписку на контакти й файли CV, — ніколи за роботу, а відгук через портал безкоштовний.",
+    body: "Справжній крюїнг ніколи не бере з моряків гроші. Не платіть нікому за контракт, за місце на судні, за медкомісію, сертифікати, візи чи «оформлення». Просять гроші за роботу — це шахрайство. Припиніть спілкування та повідомте нам. Сам SeaJobs бере гроші лише за підписку — відгук через портал, контакти крюїнгів і файли CV, — і ніколи за роботу, контракт чи місце на судні.",
     short: "Ніколи не платіть за роботу, медкомісію, сертифікати чи контракт — просять гроші, це шахрайство.",
   },
   pl: {
     heading: "Nigdy nie płać za pracę na morzu",
-    body: "Uczciwe agencje crewingowe nigdy nie żądają pieniędzy od marynarzy. Nie płać nikomu za kontrakt, miejsce na statku, badania lekarskie, certyfikaty, wizy ani „obsługę”. Jeśli ktoś żąda zapłaty za zatrudnienie — to oszustwo. Zerwij kontakt i daj nam znać. Sam SeaJobs pobiera opłaty tylko za dodatkowe narzędzia — subskrypcję kontaktów i plików CV — nigdy za pracę, a aplikowanie przez portal jest darmowe.",
+    body: "Uczciwe agencje crewingowe nigdy nie żądają pieniędzy od marynarzy. Nie płać nikomu za kontrakt, miejsce na statku, badania lekarskie, certyfikaty, wizy ani „obsługę”. Jeśli ktoś żąda zapłaty za zatrudnienie — to oszustwo. Zerwij kontakt i daj nam znać. Sam SeaJobs pobiera opłatę tylko za subskrypcję — aplikowanie przez portal, kontakty agencji i pliki CV — i nigdy za pracę, kontrakt ani miejsce na statku.",
     short: "Nigdy nie płać za pracę, badania, certyfikaty ani kontrakt — prośba o pieniądze to oszustwo.",
   },
   ro: {
     heading: "Nu plăti niciodată pentru un loc de muncă pe mare",
-    body: "O agenție de crewing corectă nu cere niciodată bani de la navigatori. Nu plăti nimănui pentru contract, un loc la bord, vizita medicală, certificate, vize sau „procesare”. Dacă ți se cere să plătești pentru angajare — este o înșelătorie. Întrerupe orice contact și anunță-ne. SeaJobs ia bani doar pentru unelte opționale — abonamentul la contacte și fișiere CV —, niciodată pentru un loc de muncă, iar aplicarea prin portal este gratuită.",
+    body: "O agenție de crewing corectă nu cere niciodată bani de la navigatori. Nu plăti nimănui pentru contract, un loc la bord, vizita medicală, certificate, vize sau „procesare”. Dacă ți se cere să plătești pentru angajare — este o înșelătorie. Întrerupe orice contact și anunță-ne. SeaJobs ia bani doar pentru abonament — aplicarea prin portal, contactele agențiilor și fișierele CV — și niciodată pentru un post, un contract sau un loc la bord.",
     short: "Nu plăti niciodată pentru muncă, vizită medicală, certificate sau contract — cererea de bani este o escrocherie.",
   },
 };

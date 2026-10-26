@@ -13,7 +13,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
-import { subLock } from "@/lib/subscription";
+import { SUB_SELLING, subLock } from "@/lib/subscription";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { DOCX_TYPE, PDF_TYPE, importParsedCv, parseCvFile } from "@/lib/cvImport";
@@ -147,7 +147,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Crewing agency contacts",
     emailLabel: "E-mail",
     phoneLabel: "Phone",
-    lockAnon: "Sign in to apply: the portal sends your CV to the agency for free once your profile has a first name, last name, phone and rank. The agency's own e-mail and phone open with a subscription.",
+    lockAnon: "Sign in to apply. Applying through the portal and the agency's own e-mail and phone come with a subscription; the portal sends your CV once your profile has a first name, last name, phone and rank.",
     limitNoSub: "Today's portal sending limit is used up — your application can go out tomorrow. Or subscribe and write to the agency from your own mailbox now.",
     sendFailedNoSub: "The portal could not deliver your CV today. Your application is saved; with a subscription you can send it from your own mailbox right away.",
     lockIncomplete: "The apply button opens as soon as your profile says who you are:",
@@ -203,7 +203,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакты крюинга",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "Войдите, чтобы откликнуться: портал бесплатно отправит ваше CV в крюинг, когда в профиле будут имя, фамилия, телефон и должность. Собственные e-mail и телефон крюинга открываются с подпиской.",
+    lockAnon: "Войдите, чтобы откликнуться. Отклик через портал и собственные e-mail и телефон крюинга открываются с подпиской; портал отправит ваше CV, когда в профиле будут имя, фамилия, телефон и должность.",
     limitNoSub: "Дневной лимит отправки через портал исчерпан — отклик можно будет отправить завтра. Или оформите подписку и напишите крюингу со своей почты прямо сейчас.",
     sendFailedNoSub: "Портал не смог сегодня доставить ваше CV. Отклик сохранён; с подпиской его можно сразу отправить со своей почты.",
     lockIncomplete: "Кнопка отклика откроется, как только в профиле будет видно, кто вы:",
@@ -259,7 +259,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакти крюїнгу",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "Увійдіть, щоб відгукнутися: портал безкоштовно надішле ваше CV у крюїнг, коли в профілі будуть ім'я, прізвище, телефон і посада. Власні e-mail і телефон крюїнгу відкриваються з підпискою.",
+    lockAnon: "Увійдіть, щоб відгукнутися. Відгук через портал і власні e-mail і телефон крюїнгу відкриваються з підпискою; портал надішле ваше CV, коли в профілі будуть ім'я, прізвище, телефон і посада.",
     limitNoSub: "Денний ліміт надсилання через портал вичерпано — відгук можна буде надіслати завтра. Або оформіть підписку й напишіть крюїнгу зі своєї пошти просто зараз.",
     sendFailedNoSub: "Портал не зміг сьогодні доставити ваше CV. Відгук збережено; з підпискою його можна одразу надіслати зі своєї пошти.",
     lockIncomplete: "Кнопка відгуку відкриється, щойно в профілі буде видно, хто ви:",
@@ -315,7 +315,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Kontakt do agencji",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "Zaloguj się, aby aplikować: portal za darmo wyśle Twoje CV do agencji, gdy profil będzie miał imię, nazwisko, telefon i stanowisko. Własny e-mail i telefon agencji otwiera subskrypcja.",
+    lockAnon: "Zaloguj się, aby aplikować. Aplikowanie przez portal oraz własny e-mail i telefon agencji otwiera subskrypcja; portal wyśle Twoje CV, gdy profil będzie miał imię, nazwisko, telefon i stanowisko.",
     limitNoSub: "Dzienny limit wysyłki przez portal się wyczerpał — zgłoszenie wyślesz jutro. Albo wykup subskrypcję i napisz do agencji ze swojej poczty od razu.",
     sendFailedNoSub: "Portal nie zdołał dziś dostarczyć Twojego CV. Zgłoszenie jest zapisane; z subskrypcją wyślesz je od razu ze swojej poczty.",
     lockIncomplete: "Przycisk aplikowania pojawi się, gdy profil pokaże, kim jesteś:",
@@ -371,7 +371,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Contactele agenției",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "Autentifică-te pentru a aplica: portalul trimite gratuit CV-ul tău agenției când profilul are prenume, nume, telefon și rang. E-mailul și telefonul agenției se deschid cu abonament.",
+    lockAnon: "Autentifică-te pentru a aplica. Aplicarea prin portal, e-mailul și telefonul agenției se deschid cu abonament; portalul trimite CV-ul tău când profilul are prenume, nume, telefon și rang.",
     limitNoSub: "Limita zilnică de trimitere prin portal s-a epuizat — aplicația poate pleca mâine. Sau abonează-te și scrie agenției de pe e-mailul tău chiar acum.",
     sendFailedNoSub: "Portalul nu a putut livra azi CV-ul tău. Aplicația este salvată; cu abonament o poți trimite imediat de pe e-mailul tău.",
     lockIncomplete: "Butonul de aplicare apare imediat ce profilul arată cine ești:",
@@ -645,6 +645,10 @@ export default function VacancyDetailClient({
   // and when it has not, why: SUBSCRIPTION_REQUIRED shows the way to subscribe.
   const [contacts, setContacts] = useState<Contacts | null>(null);
   const [contactsError, setContactsError] = useState<string | null>(null);
+  // Whether this seafarer may apply at all. Once a plan is on sale, applying
+  // through the portal comes with the subscription like everything else here;
+  // before that it is open. Presentation only — api/notify checks the same.
+  const [subActive, setSubActive] = useState<boolean | null>(SUB_SELLING ? null : true);
   // One-shot CV import inside the apply modal: parse a PDF/DOCX with
   // /api/cv-parse and write straight into the profile (same as the cabinet).
   const [cvUploading, setCvUploading] = useState(false);
@@ -693,11 +697,22 @@ export default function VacancyDetailClient({
         if (appData) setApplicationStatus(appData.status as ApplicationStatus);
         setSaved(!!savedData);
         setGaps(g);
+        if (SUB_SELLING && session) loadSub(session.access_token);
       }
     }
     loadAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vacancy.id]);
+
+  async function loadSub(token: string) {
+    try {
+      const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+      const j = (await res.json()) as { ok?: boolean; active?: boolean };
+      setSubActive(!!(j.ok && j.active));
+    } catch {
+      setSubActive(false);
+    }
+  }
 
   /** Ask for the agency's contacts; a refusal leaves the lock box in place. */
   async function loadContacts() {
@@ -736,7 +751,7 @@ export default function VacancyDetailClient({
   }, [showModal, vacancy.hasAgencyEmail]);
 
   async function handleApply() {
-    if (!userId) return;
+    if (!userId || needSub) return;
     setApplying(true);
     setApplyError(null);
 
@@ -947,6 +962,11 @@ export default function VacancyDetailClient({
   // The profile names a person and a rank: contacts and the apply button are
   // theirs. (The server checks the same thing — this only decides the view.)
   const profileReady = !!gaps && gaps.missing.length === 0;
+  // A seafarer without a subscription, once one is on sale: the apply button
+  // gives way to the subscription, and the contacts box drops its own button
+  // so the page asks once.
+  const needSub = SUB_SELLING && userRole === "seafarer" && subActive === false;
+  const subAsk = needSub && !applicationStatus;
   const hasLockedContacts = vacancy.lockedContacts.email || vacancy.lockedContacts.phone;
   // The editor's own "save" button brings the seafarer back here.
   const vacancyPath = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
@@ -1163,16 +1183,16 @@ export default function VacancyDetailClient({
                     <p className="mt-3 text-xs leading-relaxed text-mist">{copy.lockCompany}</p>
                   )}
                   {/* Signed in, no subscription: the contacts are what it opens.
-                      Applying below stays free either way. */}
+                      The button sits in the apply box below when that one asks. */}
                   {!contacts && userId && contactsError === "SUBSCRIPTION_REQUIRED" && (
                     <div className="mt-3">
                       <p className="text-xs leading-relaxed text-mist">{sub.lockContacts}</p>
-                      <Link
+                      {!subAsk && <Link
                         href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
                         className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5"
                       >
                         <Lock size={13} /> {sub.cta}
-                      </Link>
+                      </Link>}
                     </div>
                   )}
                 </ContactsBox>
@@ -1202,9 +1222,25 @@ export default function VacancyDetailClient({
                 <p className="text-sm text-mist">Companies cannot apply to vacancies.</p>
               )}
 
+              {/* No subscription: applying, the contacts and the mailbox route
+                  all open with it, so this is the one thing to do first. */}
+              {subAsk && (
+                <div className="mb-4 rounded-xl border border-brass/30 bg-brass/10 p-4">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-foam">
+                    <Lock size={15} className="shrink-0 text-brassInk" /> {sub.lockApply}
+                  </p>
+                  <Link
+                    href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+                  >
+                    {sub.cta} <ArrowRight size={15} />
+                  </Link>
+                </div>
+              )}
+
               {/* What is still missing, field by field, and the two ways to
                   fill it: the one-screen editor, or a CV the AI reads. */}
-              {userId && userRole === "seafarer" && gaps && !profileReady && (
+              {userId && userRole === "seafarer" && gaps && !profileReady && !subAsk && (
                 <div className="mb-4 rounded-xl border border-brass/30 bg-brass/10 p-4">
                   <p className="text-sm font-semibold text-foam">{copy.lockIncomplete}</p>
                   <ul className="mt-3 flex flex-wrap gap-2">
@@ -1257,7 +1293,7 @@ export default function VacancyDetailClient({
                 </div>
               )}
 
-              {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && (
+              {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && !needSub && subActive !== null && (
                 <div>
                   {!gaps.experience ? (
                     <p className="mb-3 flex items-center gap-2 text-sm text-teal">

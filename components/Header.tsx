@@ -54,7 +54,7 @@ export default function Header() {
 
   const nav = [
     // Before the salary comparison on purpose: making a CV is the thing a
-    // seafarer needs first, and it is free.
+    // seafarer needs first, and building it is free.
     { label: t.nav_cv_builder, icon: FileText, href: "/maritime-cv" },
     { label: t.nav_salaries, icon: TrendingUp, href: "/salaries" },
     { label: t.nav_forum, icon: MessageSquare, href: "/forum" },

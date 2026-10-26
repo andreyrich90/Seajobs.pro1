@@ -53,7 +53,7 @@ const AB: Record<Lang, AboutCopy> = {
     ],
     ranksNote: "Deck officers, engine officers, electro-technical, ratings, cadets, catering and offshore specialists — plus dual and combined roles.",
     scamTitle: "Our anti-scam promise",
-    scamLead: "SeaJobs.pro is free for seafarers, and we are strict about it. A legitimate crewing agency never asks a seafarer for money.",
+    scamLead: "SeaJobs.pro never takes money for a job, and we are strict about it. A legitimate crewing agency never asks a seafarer for money.",
     scamPoints: [
       "Never pay for a contract, a place on board, a medical, certificates, visas or “processing”.",
       "If anyone asks you to pay to be hired — it is a scam. Stop all contact and let us know.",
@@ -101,7 +101,7 @@ const AB: Record<Lang, AboutCopy> = {
     ],
     ranksNote: "Палубные и машинные офицеры, электро-технические специалисты, рядовой состав, кадеты, кейтеринг и офшорные специалисты — включая совмещённые должности.",
     scamTitle: "Наше обещание против скама",
-    scamLead: "SeaJobs.pro бесплатен для моряков, и мы строго за этим следим. Легальное крюинговое агентство никогда не просит у моряка денег.",
+    scamLead: "SeaJobs.pro никогда не берёт денег за трудоустройство, и мы строго за этим следим. Легальное крюинговое агентство никогда не просит у моряка денег.",
     scamPoints: [
       "Никогда не платите за контракт, место на борту, медкомиссию, сертификаты, визы или «оформление».",
       "Если у вас просят деньги за трудоустройство — это скам. Прекратите общение и сообщите нам.",
@@ -149,7 +149,7 @@ const AB: Record<Lang, AboutCopy> = {
     ],
     ranksNote: "Палубні й машинні офіцери, електро-технічні спеціалісти, рядовий склад, кадети, кейтеринг і офшорні спеціалісти — включно з суміщеними посадами.",
     scamTitle: "Наша обіцянка проти шахрайства",
-    scamLead: "SeaJobs.pro безкоштовний для моряків, і ми суворо за цим стежимо. Легальна крюїнгова агенція ніколи не просить у моряка грошей.",
+    scamLead: "SeaJobs.pro ніколи не бере грошей за працевлаштування, і ми суворо за цим стежимо. Легальна крюїнгова агенція ніколи не просить у моряка грошей.",
     scamPoints: [
       "Ніколи не платіть за контракт, місце на борту, медкомісію, сертифікати, візи чи «оформлення».",
       "Якщо у вас просять гроші за працевлаштування — це шахрайство. Припиніть спілкування й повідомте нас.",
@@ -197,7 +197,7 @@ const AB: Record<Lang, AboutCopy> = {
     ],
     ranksNote: "Oficerowie pokładowi i mechanicy, elektrycy, załoga, kadeci, catering i specjaliści offshore — także role łączone.",
     scamTitle: "Nasza obietnica przeciw oszustwom",
-    scamLead: "SeaJobs.pro jest bezpłatny dla marynarzy i ściśle tego pilnujemy. Legalna agencja crewingowa nigdy nie prosi marynarza o pieniądze.",
+    scamLead: "SeaJobs.pro nigdy nie bierze pieniędzy za pracę i ściśle tego pilnujemy. Legalna agencja crewingowa nigdy nie prosi marynarza o pieniądze.",
     scamPoints: [
       "Nigdy nie płać za kontrakt, miejsce na statku, badania, certyfikaty, wizy ani „obsługę”.",
       "Jeśli ktoś żąda opłaty za zatrudnienie — to oszustwo. Przerwij kontakt i daj nam znać.",
@@ -245,7 +245,7 @@ const AB: Record<Lang, AboutCopy> = {
     ],
     ranksNote: "Ofițeri de punte și mecanici, electricieni, nebrevetați, cadeți, catering și specialiști offshore — inclusiv roluri combinate.",
     scamTitle: "Promisiunea noastră anti-fraudă",
-    scamLead: "SeaJobs.pro este gratuit pentru marinari și suntem stricți în privința asta. O agenție de crewing legitimă nu cere niciodată bani unui marinar.",
+    scamLead: "SeaJobs.pro nu ia niciodată bani pentru un loc de muncă și suntem stricți în privința asta. O agenție de crewing legitimă nu cere niciodată bani unui marinar.",
     scamPoints: [
       "Nu plăti niciodată pentru un contract, un loc la bord, vizita medicală, certificate, vize sau „procesare”.",
       "Dacă cineva îți cere bani ca să fii angajat — este o fraudă. Oprește contactul și anunță-ne.",
