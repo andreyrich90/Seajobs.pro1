@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
 import { contactsInText } from "@/lib/vacancyContacts";
-import { hasActiveSubscription } from "@/lib/subscriptionAccess";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -47,7 +47,7 @@ export async function GET(req: Request) {
     if (!sf) return NextResponse.json({ ok: false, error: "NOT_SEAFARER" }, { status: 403, headers: NO_STORE });
     // The subscription before the profile: someone without one is asked to
     // subscribe, not sent to fill in fields that would still open nothing.
-    if (!(await hasActiveSubscription(admin, caller.id))) {
+    if (!(await hasToolAccess(admin, caller.id))) {
       return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403, headers: NO_STORE });
     }
     const missing = profileGaps(sf as unknown as Record<string, string | null>);

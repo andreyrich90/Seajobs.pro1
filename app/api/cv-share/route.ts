@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
-import { hasActiveSubscription } from "@/lib/subscriptionAccess";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
   // Writing from one's own mailbox is a subscription feature: the letter goes
   // to the agency's address, which only subscribers are shown. Applying
   // through the portal stays free and does not come through here.
-  if (!(await hasActiveSubscription(admin, caller.id))) {
+  if (!(await hasToolAccess(admin, caller.id))) {
     return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
   }
 

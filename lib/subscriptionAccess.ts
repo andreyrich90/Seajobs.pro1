@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { SUB_SELLING } from "@/lib/subscription";
 
 // Server-side answers to "may this seafarer do that", for the routes that are
 // the subscription's real boundary (lib/subscription.ts says what it opens).
@@ -8,6 +9,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 // A missing table — the migration has not been run yet — reads as "no
 // subscription" rather than as a crash. The paid features then stay closed,
 // which is the safe way round; nothing that was free before needs a table.
+//
+// And nothing is locked before a plan is on sale (`SUB_SELLING`): a lock with
+// no way to buy the key would only take away what used to be free. Pasting
+// the first checkout link into SUB_PLANS is what switches the locks on.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Db = SupabaseClient<any, any, any>;
@@ -52,8 +57,15 @@ export async function hasLegacyWord(db: Db, seafarerId: string): Promise<boolean
   return (data?.length ?? 0) > 0;
 }
 
+/** May see contacts and use the mailbox route: a subscription — or no plan on sale yet. */
+export async function hasToolAccess(db: Db, seafarerId: string): Promise<boolean> {
+  if (!SUB_SELLING) return true;
+  return hasActiveSubscription(db, seafarerId);
+}
+
 /** May download their CV as PDF, image or Word. An admin may too, to check what a buyer gets. */
 export async function hasCvAccess(db: Db, seafarerId: string): Promise<boolean> {
+  if (!SUB_SELLING) return true;
   const [sub, word, { data: profile }] = await Promise.all([
     hasActiveSubscription(db, seafarerId),
     hasLegacyWord(db, seafarerId),

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { hasActiveSubscription } from "@/lib/subscriptionAccess";
+import { SUB_SELLING } from "@/lib/subscription";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,6 +45,10 @@ export async function GET(req: Request) {
   const refuse = (error: string, status: number) =>
     NextResponse.json({ ok: false, error, has }, { status, headers: NO_STORE });
 
+  // Before any plan is on sale nothing is locked, for visitors either — the
+  // page shows what it always showed.
+  if (!SUB_SELLING) return NextResponse.json({ ok: true, has, phones, emails, crew_managers: managers }, { headers: NO_STORE });
+
   const header = req.headers.get("authorization") ?? "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
   if (!token) return refuse("SIGN_IN", 401);
@@ -58,7 +63,7 @@ export async function GET(req: Request) {
     if (profile?.is_blocked) return refuse("Forbidden", 403);
     if (!profile?.is_admin) {
       if (!sf) return refuse("NOT_SEAFARER", 403);
-      if (!(await hasActiveSubscription(admin, user.id))) return refuse("SUBSCRIPTION_REQUIRED", 403);
+      if (!(await hasToolAccess(admin, user.id))) return refuse("SUBSCRIPTION_REQUIRED", 403);
     }
   }
 
