@@ -32,9 +32,9 @@ export type PlanId = "3m" | "6m" | "12m";
 export const PLAN_IDS: PlanId[] = ["3m", "6m", "12m"];
 
 export const SUB_PLANS: Record<PlanId, { months: 3 | 6 | 12; usd: number; payUrl: string | null }> = {
-  "3m": { months: 3, usd: 5, payUrl: null },
-  "6m": { months: 6, usd: 8, payUrl: null },
-  "12m": { months: 12, usd: 12, payUrl: null },
+  "3m": { months: 3, usd: 5, payUrl: "https://buymeacoffee.com/seajobs.pro/e/591416" },
+  "6m": { months: 6, usd: 8, payUrl: "https://buymeacoffee.com/seajobs.pro/e/591418" },
+  "12m": { months: 12, usd: 12, payUrl: "https://buymeacoffee.com/seajobs.pro/e/591420" },
 };
 
 export function isPlanId(v: unknown): v is PlanId {
