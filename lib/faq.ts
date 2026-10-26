@@ -1,4 +1,8 @@
 import type { Lang } from "@/lib/langs";
+import { SUB_FROM, subPrice } from "@/lib/subscription";
+
+/** The cheapest plan as each language writes it — never typed into the answers. */
+const p = (lang: Lang) => subPrice(SUB_FROM, lang);
 
 // Localized FAQ content rendered by components/FaqSection.tsx as a visible
 // accordion + FAQPage structured data (rich results / AI-search citations).
@@ -28,11 +32,11 @@ export const FAQ_SEAFARERS: FaqItem[] = [
       ro: "Este SeaJobs.pro gratuit pentru marinari?",
     },
     a: {
-      en: "Yes. Registration, building a CV, browsing vacancies and applying are completely free for seafarers — no hidden fees at any stage.",
-      ru: "Да. Регистрация, создание CV, просмотр вакансий и отклики полностью бесплатны для моряков — никаких скрытых платежей.",
-      ua: "Так. Реєстрація, створення CV, перегляд вакансій і відгуки повністю безкоштовні для моряків — жодних прихованих платежів.",
-      pl: "Tak. Rejestracja, tworzenie CV, przeglądanie ofert i aplikowanie są całkowicie darmowe dla marynarzy — bez ukrytych opłat.",
-      ro: "Da. Înregistrarea, crearea CV-ului, căutarea posturilor și aplicarea sunt complet gratuite pentru marinari — fără taxe ascunse.",
+      en: `Partly. Registration, browsing vacancies, your profile and building a CV are free. Applying through the portal, the crewing agencies' e-mails and phones, and downloading your CV come with a subscription from ${p("en")} for 3 months. We never take money for a job, a contract or a place on board.`,
+      ru: `Частично. Регистрация, просмотр вакансий, профиль и сборка CV — бесплатно. Отклик через портал, e-mail и телефоны крюингов и скачивание CV — по подписке от ${p("ru")} за 3 месяца. Денег за работу, контракт или место на судне мы не берём никогда.`,
+      ua: `Частково. Реєстрація, перегляд вакансій, профіль і збірка CV — безкоштовно. Відгук через портал, e-mail і телефони крюїнгів та завантаження CV — за підпискою від ${p("ua")} за 3 місяці. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.`,
+      pl: `Częściowo. Rejestracja, przeglądanie ofert, profil i tworzenie CV są darmowe. Aplikowanie przez portal, e-maile i telefony agencji oraz pobieranie CV są w subskrypcji od ${p("pl")} za 3 miesiące. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.`,
+      ro: `Parțial. Înregistrarea, căutarea posturilor, profilul și crearea CV-ului sunt gratuite. Aplicarea prin portal, e-mailurile și telefoanele agențiilor și descărcarea CV-ului vin cu abonamentul de la ${p("ro")} pentru 3 luni. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.`,
     },
   },
   {
@@ -212,11 +216,11 @@ export const FAQ_APPLY: FaqItem[] = [
       ro: "Trebuie să plătesc ca să aplic?",
     },
     a: {
-      en: "No. Registration, your profile, the CV builder and every application are free for seafarers, and always will be. If anyone asks you for money for a job, a medical, a contract or a visa — that is a scam, and you can report the vacancy to us.",
-      ru: "Нет. Регистрация, профиль, конструктор CV и любые отклики бесплатны для моряков и останутся такими. Если кто-то просит деньги за работу, медкомиссию, контракт или визу — это мошенничество, сообщите нам о такой вакансии.",
-      ua: "Ні. Реєстрація, профіль, конструктор CV та будь-які відгуки безкоштовні для моряків і залишаться такими. Якщо хтось просить гроші за роботу, медкомісію, контракт чи візу — це шахрайство, повідомте нам про таку вакансію.",
-      pl: "Nie. Rejestracja, profil, kreator CV i wszystkie aplikacje są dla marynarzy bezpłatne i takie pozostaną. Jeśli ktoś żąda pieniędzy za pracę, badania, kontrakt lub wizę — to oszustwo, zgłoś nam taką ofertę.",
-      ro: "Nu. Înregistrarea, profilul, generatorul de CV și toate aplicările sunt gratuite pentru marinari și vor rămâne așa. Dacă cineva îți cere bani pentru un post, vizita medicală, contract sau viză — este o înșelătorie, anunță-ne despre acel anunț.",
+      en: `Applying through the portal comes with the subscription, from ${p("en")} for 3 months — it also opens the agencies' e-mails and phones and your CV files. Registration, your profile and the CV builder are free. You pay for the portal's tools, never for a job: if anyone asks you for money for a job, a medical, a contract or a visa, that is a scam, and you can report the vacancy to us.`,
+      ru: `Отклик через портал входит в подписку — от ${p("ru")} за 3 месяца; она же открывает e-mail и телефоны крюингов и файлы вашего CV. Регистрация, профиль и конструктор CV — бесплатно. Платите вы за инструменты портала, а не за работу: если кто-то просит деньги за работу, медкомиссию, контракт или визу — это мошенничество, сообщите нам о такой вакансии.`,
+      ua: `Відгук через портал входить у підписку — від ${p("ua")} за 3 місяці; вона ж відкриває e-mail і телефони крюїнгів і файли вашого CV. Реєстрація, профіль і конструктор CV — безкоштовно. Платите ви за інструменти порталу, а не за роботу: якщо хтось просить гроші за роботу, медкомісію, контракт чи візу — це шахрайство, повідомте нам про таку вакансію.`,
+      pl: `Aplikowanie przez portal jest w subskrypcji — od ${p("pl")} za 3 miesiące; otwiera ona też e-maile i telefony agencji oraz pliki Twojego CV. Rejestracja, profil i kreator CV są bezpłatne. Płacisz za narzędzia portalu, nie za pracę: jeśli ktoś żąda pieniędzy za pracę, badania, kontrakt lub wizę — to oszustwo, zgłoś nam taką ofertę.`,
+      ro: `Aplicarea prin portal vine cu abonamentul — de la ${p("ro")} pentru 3 luni; el deschide și e-mailurile și telefoanele agențiilor și fișierele CV-ului tău. Înregistrarea, profilul și generatorul de CV sunt gratuite. Plătești uneltele portalului, nu un post: dacă cineva îți cere bani pentru un post, vizita medicală, contract sau viză — este o înșelătorie, anunță-ne despre acel anunț.`,
     },
   },
   {

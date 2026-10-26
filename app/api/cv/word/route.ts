@@ -1,16 +1,19 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { buildCvDocx } from "@/lib/cvDocx";
-import { CV_WORD } from "@/lib/cvWord";
+import { hasCvAccess } from "@/lib/subscriptionAccess";
 import { isFleetId } from "@/lib/cvFleets";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-// The paid Word export, and the gate in front of it.
+// The Word export, and the gate in front of it.
 //
-//   GET  → the .docx, once this seafarer has paid
-//   POST → start a purchase: writes a pending row and returns its id
+//   GET  → the .docx, for a seafarer with a subscription — or one who bought
+//          the Word export before the subscription replaced it (that purchase
+//          was sold as "yours for good", lib/subscriptionAccess.ts)
+//   POST → retired: Word is no longer sold on its own. Answers 410 so an old
+//          tab that still shows the buy button gets a clear refusal.
 //
 // The check lives here and nowhere else. Hiding the button in the cabinet is
 // presentation; this route is the boundary, and it re-derives who is asking
@@ -32,39 +35,17 @@ async function caller(req: Request) {
   return { db, user };
 }
 
-/**
- * Has this seafarer paid?
- *
- * One paid row is enough, for ever — see the migration for why the purchase
- * does not expire. A missing table (the migration has not been run yet) reads
- * as "not paid" rather than as a crash: the button then simply never unlocks,
- * which is the safe way round.
- */
-async function hasPaid(db: NonNullable<ReturnType<typeof admin>>, seafarerId: string) {
-  const { data, error } = await db
-    .from("cv_word_purchases")
-    .select("id")
-    .eq("seafarer_id", seafarerId)
-    .not("paid_at", "is", null)
-    .limit(1);
-  if (error) {
-    console.error("[cv-word] purchase lookup", error.message);
-    return false;
-  }
-  return (data?.length ?? 0) > 0;
-}
-
 export async function GET(req: Request) {
   const { db, user } = await caller(req);
   if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!(await hasPaid(db, user.id))) {
-    return NextResponse.json({ error: "Not purchased" }, { status: 402 });
+  if (!(await hasCvAccess(db, user.id))) {
+    return NextResponse.json({ error: "SUBSCRIPTION_REQUIRED" }, { status: 402 });
   }
 
   // `?fleet=offshore` and the rest pick the fleet template; anything else —
-  // or nothing — is the general CV. One payment covers every template.
+  // or nothing — is the general CV. The subscription covers every template.
   const fleet = new URL(req.url).searchParams.get("fleet");
   const { buffer, filename } = await buildCvDocx(db, user.id, user.email ?? null, isFleetId(fleet) ? fleet : null);
   return new NextResponse(new Uint8Array(buffer), {
@@ -78,36 +59,6 @@ export async function GET(req: Request) {
   });
 }
 
-export async function POST(req: Request) {
-  const { db, user } = await caller(req);
-  if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  // Already paid: nothing to buy, and no second row to confuse the webhook.
-  if (await hasPaid(db, user.id)) return NextResponse.json({ ok: true, paid: true });
-
-  const email = user.email?.trim().toLowerCase() ?? null;
-  if (!email) return NextResponse.json({ error: "No e-mail on the account" }, { status: 400 });
-
-  // One pending row per buyer. Without this, opening the checkout twice leaves
-  // two rows and the webhook marks the newer one, so the older never clears.
-  const { data: open } = await db
-    .from("cv_word_purchases")
-    .select("id")
-    .eq("seafarer_id", user.id)
-    .is("paid_at", null)
-    .order("created_at", { ascending: false })
-    .limit(1);
-  if (open?.length) return NextResponse.json({ ok: true, id: open[0].id, paid: false });
-
-  const { data, error } = await db
-    .from("cv_word_purchases")
-    .insert({ seafarer_id: user.id, email, price_usd: CV_WORD.usd, status: "pending" })
-    .select("id")
-    .single();
-  if (error) {
-    console.error("[cv-word] create", error.message);
-    return NextResponse.json({ error: "Could not start the purchase" }, { status: 500 });
-  }
-  return NextResponse.json({ ok: true, id: data.id, paid: false });
+export async function POST() {
+  return NextResponse.json({ error: "Word is part of the subscription now", subscription: "/seafarer/subscription" }, { status: 410 });
 }

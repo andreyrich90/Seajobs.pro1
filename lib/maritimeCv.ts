@@ -1,5 +1,5 @@
 import type { Lang } from "@/lib/langs";
-import { withPrice } from "@/lib/cvWord";
+import { withSubPrice } from "@/lib/subscription";
 
 /**
  * /maritime-cv — the page that sells the CV: upload the old one, let the AI
@@ -17,8 +17,10 @@ import { withPrice } from "@/lib/cvWord";
  * dictionary on every page. The page is a Server Component and passes one
  * language down.
  *
- * `{price}` is filled from CV_WORD.usd by `maritimeCvCopy()` — never write the
- * figure into the strings, or the next price change leaves this page behind.
+ * `{price}` is filled with the cheapest subscription plan by `maritimeCvCopy()`
+ * (lib/subscription.ts) — never write the figure into the strings, or the next
+ * price change leaves this page behind. Building and editing the CV are free;
+ * downloading it (PDF, image, Word) comes with the subscription.
  */
 
 export type MaritimeCvUploadCopy = {
@@ -75,7 +77,7 @@ export type MaritimeCvCopy = {
 const en: MaritimeCvCopy = {
   metaTitle: "Seafarer CV in Word — upload your old CV, AI fills it in | SeaJobs.pro",
   metaDescription:
-    "Upload your old CV (PDF or Word) and AI fills in a seafarer's CV for you: rank, documents, certificates, sea service. Check it, then download — PDF free, editable Word {price} once.",
+    "Upload your old CV (PDF or Word) and AI fills in a seafarer's CV for you: rank, documents, certificates, sea service. Check it for free, then download it as PDF, image or editable Word with a subscription from {price}.",
   keywords:
     "seafarer cv template, maritime cv word, seaman cv download, offshore cv, tanker cv, merchant navy cv, cv for crewing agency, editable seafarer cv",
 
@@ -105,7 +107,7 @@ const en: MaritimeCvCopy = {
   steps: [
     { title: "Upload the old CV", body: "Any layout, any language. A PDF from the agency, a Word file you made years ago — the AI finds the fields in it." },
     { title: "Check and correct", body: "Everything lands in your profile: rank, passport and seaman's book, certificates with expiry dates, every vessel. Fix a date, add the last contract." },
-    { title: "Download", body: "PDF and image are free. The editable Word file is {price}, once — and stays yours: edit the profile and download again as often as you like." },
+    { title: "Download", body: "PDF, image and editable Word come with a subscription from {price} for 3 months — edit the profile and download again as often as you like while it runs." },
   ],
 
   fleetsTitle: "What crewing managers look for, fleet by fleet",
@@ -119,14 +121,14 @@ const en: MaritimeCvCopy = {
   ],
 
   priceTitle: "Price",
-  priceFree: "PDF and image — free",
-  pricePaid: "Editable Word (.docx) — {price} once, yours for good",
-  priceNote: "No subscription. Pay once, then edit the profile and download the Word file again any time.",
+  priceFree: "Uploading the old CV, the AI, editing — free",
+  pricePaid: "Download as PDF, image and Word (.docx) — subscription from {price} for 3 months",
+  priceNote: "One payment for 3, 6 or 12 months, no auto-renewal. The same subscription opens crewing agencies' e-mails and phones on every vacancy.",
 
   faqTitle: "Questions",
   faq: [
     { q: "Do you guarantee a contract?", a: "No. We prepare the document; the decision is the shipowner's and the crewing agency's." },
-    { q: "Do I have to pay?", a: "No. Building the CV, PDF and image are free. Only the editable Word file costs {price}, once." },
+    { q: "Do I have to pay?", a: "Building and editing the CV are free. Applying through the portal, the agencies' contacts and downloading the CV yourself (PDF, image, Word) come with a subscription from {price} for 3 months." },
     { q: "Can I change the CV after I download it?", a: "Yes. Edit your profile and download again — the Word file is unlocked for your account for good." },
     { q: "My CV is a scan. Will it work?", a: "A scan is a picture with no text in it, so it cannot be read. Upload a PDF with text, or fill in the profile by hand — it takes about ten minutes." },
     { q: "Who sees my passport number?", a: "Nobody but you and the crewing agencies you send the CV to. Your public profile shows a short whitelist only." },
@@ -134,7 +136,7 @@ const en: MaritimeCvCopy = {
 
   notTitle: "We never charge for a job",
   notBody:
-    "Nothing here is charged for a contract, a berth, a medical, certificates or visas. Registration, searching and applying are free. The only paid thing on this page is a file format. If someone asks you for money for the job itself, it is not us, and it is not legal.",
+    "Nothing here is charged for a contract, a berth, a medical, certificates or visas. Registration, searching vacancies and building the CV are free. What the subscription pays for is the portal's tools: applying through the portal, agencies' direct contacts and the CV files. If someone asks you for money for the job itself, it is not us, and it is not legal.",
 
   closingTitle: "Your next contract starts with the CV",
   closingCta: "Upload my CV",
@@ -144,7 +146,7 @@ const en: MaritimeCvCopy = {
 const ru: MaritimeCvCopy = {
   metaTitle: "Анкета моряка в Word — загрузите старое резюме, ИИ заполнит сам | SeaJobs.pro",
   metaDescription:
-    "Загрузите старое резюме (PDF или Word), и ИИ заполнит анкету моряка: ранг, документы, сертификаты, стаж. Проверьте и скачайте — PDF бесплатно, редактируемый Word за {price} один раз.",
+    "Загрузите старое резюме (PDF или Word), и ИИ заполнит анкету моряка: ранг, документы, сертификаты, стаж. Проверьте бесплатно и скачайте в PDF, картинкой или редактируемым Word по подписке от {price}.",
   keywords:
     "анкета моряка, резюме моряка word, скачать анкету моряка, cv моряка шаблон, анкета моряка офшор, резюме для крюинга, анкета моряка танкер, cv seaman",
 
@@ -174,7 +176,7 @@ const ru: MaritimeCvCopy = {
   steps: [
     { title: "Загрузите старое резюме", body: "Любой вид, любой язык. PDF от крюинга, Word, сделанный годы назад, — ИИ сам найдёт в нём нужные поля." },
     { title: "Проверьте и поправьте", body: "Всё попадает в ваш профиль: ранг, паспорт и мореходная книжка, сертификаты со сроками, каждое судно. Поправьте дату, добавьте последний контракт." },
-    { title: "Скачайте", body: "PDF и картинка — бесплатно. Редактируемый Word — {price} один раз, и он остаётся вашим: правьте профиль и скачивайте снова сколько угодно." },
+    { title: "Скачайте", body: "PDF, картинка и редактируемый Word — по подписке от {price} за 3 месяца: пока она действует, правьте профиль и скачивайте снова сколько угодно." },
   ],
 
   fleetsTitle: "Что смотрят крюинги — по флотам",
@@ -188,14 +190,14 @@ const ru: MaritimeCvCopy = {
   ],
 
   priceTitle: "Цена",
-  priceFree: "PDF и картинка — бесплатно",
-  pricePaid: "Редактируемый Word (.docx) — {price} один раз, навсегда",
-  priceNote: "Без подписки. Платите один раз, потом правьте профиль и скачивайте Word снова в любой момент.",
+  priceFree: "Загрузка старого резюме, ИИ, редактирование — бесплатно",
+  pricePaid: "Скачать в PDF, картинкой и Word (.docx) — подписка от {price} за 3 месяца",
+  priceNote: "Один платёж на 3, 6 или 12 месяцев, без автопродления. Та же подписка открывает e-mail и телефоны крюингов в каждой вакансии.",
 
   faqTitle: "Вопросы",
   faq: [
     { q: "Вы гарантируете контракт?", a: "Нет. Мы готовим документ; решение принимают судовладелец и крюинг." },
-    { q: "Обязательно платить?", a: "Нет. Собрать анкету, скачать PDF и картинку — бесплатно. Платный только редактируемый Word — {price}, один раз." },
+    { q: "Обязательно платить?", a: "Собрать и редактировать анкету — бесплатно. Отклик через портал, контакты крюингов и скачивание CV (PDF, картинка, Word) — по подписке от {price} за 3 месяца." },
     { q: "Можно поменять анкету после скачивания?", a: "Да. Правьте профиль и скачивайте снова — Word открыт для вашего аккаунта навсегда." },
     { q: "Моё резюме — скан. Получится?", a: "Скан — это картинка без текста, его не прочитать. Загрузите PDF с текстом или заполните профиль вручную — это минут десять." },
     { q: "Кто увидит номер моего паспорта?", a: "Только вы и крюинги, которым вы отправите анкету. В публичном профиле — лишь короткий список полей." },
@@ -203,7 +205,7 @@ const ru: MaritimeCvCopy = {
 
   notTitle: "Мы никогда не берём денег за работу",
   notBody:
-    "Здесь не берут денег за контракт, место на судне, медкомиссию, сертификаты или визы. Регистрация, поиск и отклики бесплатны. Единственное платное на этой странице — формат файла. Если кто-то просит у вас деньги за саму работу — это не мы, и это незаконно.",
+    "Здесь не берут денег за контракт, место на судне, медкомиссию, сертификаты или визы. Регистрация, поиск вакансий и сборка анкеты бесплатны. Подписка — это оплата инструментов портала: отклика через портал, прямых контактов крюингов и файлов CV. Если кто-то просит у вас деньги за саму работу — это не мы, и это незаконно.",
 
   closingTitle: "Следующий контракт начинается с анкеты",
   closingCta: "Загрузить резюме",
@@ -213,7 +215,7 @@ const ru: MaritimeCvCopy = {
 const ua: MaritimeCvCopy = {
   metaTitle: "Анкета моряка у Word — завантажте старе резюме, ШІ заповнить сам | SeaJobs.pro",
   metaDescription:
-    "Завантажте старе резюме (PDF або Word), і ШІ заповнить анкету моряка: ранг, документи, сертифікати, стаж. Перевірте й завантажте — PDF безкоштовно, редагований Word за {price} один раз.",
+    "Завантажте старе резюме (PDF або Word), і ШІ заповнить анкету моряка: ранг, документи, сертифікати, стаж. Перевірте безкоштовно й завантажте в PDF, картинкою або редагованим Word за підпискою від {price}.",
   keywords:
     "анкета моряка, резюме моряка word, завантажити анкету моряка, cv моряка шаблон, анкета моряка офшор, резюме для крюїнгу, анкета моряка танкер",
 
@@ -243,7 +245,7 @@ const ua: MaritimeCvCopy = {
   steps: [
     { title: "Завантажте старе резюме", body: "Будь-який вигляд, будь-яка мова. PDF від крюїнгу, Word, зроблений роки тому, — ШІ сам знайде в ньому потрібні поля." },
     { title: "Перевірте й виправте", body: "Усе потрапляє у ваш профіль: ранг, паспорт і посвідчення моряка, сертифікати зі строками, кожне судно. Виправте дату, додайте останній контракт." },
-    { title: "Завантажте", body: "PDF і зображення — безкоштовно. Редагований Word — {price} один раз, і він залишається вашим: редагуйте профіль і завантажуйте знову скільки завгодно." },
+    { title: "Завантажте", body: "PDF, зображення й редагований Word — за підпискою від {price} за 3 місяці: поки вона діє, редагуйте профіль і завантажуйте знову скільки завгодно." },
   ],
 
   fleetsTitle: "Що дивляться крюїнги — за флотами",
@@ -257,14 +259,14 @@ const ua: MaritimeCvCopy = {
   ],
 
   priceTitle: "Ціна",
-  priceFree: "PDF і зображення — безкоштовно",
-  pricePaid: "Редагований Word (.docx) — {price} один раз, назавжди",
-  priceNote: "Без підписки. Платите один раз, потім редагуйте профіль і завантажуйте Word знову будь-коли.",
+  priceFree: "Завантаження старого резюме, ШІ, редагування — безкоштовно",
+  pricePaid: "Завантажити в PDF, картинкою і Word (.docx) — підписка від {price} за 3 місяці",
+  priceNote: "Один платіж на 3, 6 або 12 місяців, без автопродовження. Та сама підписка відкриває e-mail і телефони крюїнгів у кожній вакансії.",
 
   faqTitle: "Питання",
   faq: [
     { q: "Ви гарантуєте контракт?", a: "Ні. Ми готуємо документ; рішення ухвалюють судновласник і крюїнг." },
-    { q: "Обов'язково платити?", a: "Ні. Зібрати анкету, завантажити PDF і зображення — безкоштовно. Платний лише редагований Word — {price}, один раз." },
+    { q: "Обов'язково платити?", a: "Зібрати й редагувати анкету — безкоштовно. Відгук через портал, контакти крюїнгів і завантаження CV (PDF, зображення, Word) — за підпискою від {price} за 3 місяці." },
     { q: "Можна змінити анкету після завантаження?", a: "Так. Редагуйте профіль і завантажуйте знову — Word відкритий для вашого акаунта назавжди." },
     { q: "Моє резюме — скан. Вийде?", a: "Скан — це зображення без тексту, його не прочитати. Завантажте PDF із текстом або заповніть профіль вручну — це хвилин десять." },
     { q: "Хто побачить номер мого паспорта?", a: "Лише ви й крюїнги, яким ви надішлете анкету. У публічному профілі — тільки короткий перелік полів." },
@@ -272,7 +274,7 @@ const ua: MaritimeCvCopy = {
 
   notTitle: "Ми ніколи не беремо грошей за роботу",
   notBody:
-    "Тут не беруть грошей за контракт, місце на судні, медкомісію, сертифікати чи візи. Реєстрація, пошук і відгуки безкоштовні. Єдине платне на цій сторінці — формат файлу. Якщо хтось просить у вас гроші за саму роботу — це не ми, і це незаконно.",
+    "Тут не беруть грошей за контракт, місце на судні, медкомісію, сертифікати чи візи. Реєстрація, пошук вакансій і збірка анкети безкоштовні. Підписка — це оплата інструментів порталу: відгуку через портал, прямих контактів крюїнгів і файлів CV. Якщо хтось просить у вас гроші за саму роботу — це не ми, і це незаконно.",
 
   closingTitle: "Наступний контракт починається з анкети",
   closingCta: "Завантажити резюме",
@@ -282,7 +284,7 @@ const ua: MaritimeCvCopy = {
 const pl: MaritimeCvCopy = {
   metaTitle: "CV marynarza w Wordzie — wgraj stare CV, AI wypełni je samo | SeaJobs.pro",
   metaDescription:
-    "Wgraj stare CV (PDF lub Word), a AI wypełni CV marynarza: stopień, dokumenty, certyfikaty, staż. Sprawdź i pobierz — PDF za darmo, edytowalny Word za {price} jednorazowo.",
+    "Wgraj stare CV (PDF lub Word), a AI wypełni CV marynarza: stopień, dokumenty, certyfikaty, staż. Sprawdź za darmo i pobierz jako PDF, obraz lub edytowalny Word w subskrypcji od {price}.",
   keywords:
     "cv marynarza, cv marynarza word, wzór cv marynarza, cv offshore, cv tankowiec, cv dla agencji crewingowej, edytowalne cv marynarza",
 
@@ -312,7 +314,7 @@ const pl: MaritimeCvCopy = {
   steps: [
     { title: "Wgraj stare CV", body: "Dowolny układ, dowolny język. PDF od agencji, Word sprzed lat — AI samo znajdzie w nim potrzebne pola." },
     { title: "Sprawdź i popraw", body: "Wszystko trafia do Twojego profilu: stopień, paszport i książeczka żeglarska, certyfikaty z datami ważności, każdy statek. Popraw datę, dodaj ostatni kontrakt." },
-    { title: "Pobierz", body: "PDF i obraz — za darmo. Edytowalny Word — {price} jednorazowo, i zostaje Twój: edytuj profil i pobieraj ponownie, ile chcesz." },
+    { title: "Pobierz", body: "PDF, obraz i edytowalny Word — w subskrypcji od {price} za 3 miesiące: póki trwa, edytuj profil i pobieraj ponownie, ile chcesz." },
   ],
 
   fleetsTitle: "Na co patrzą agencje — flota po flocie",
@@ -326,14 +328,14 @@ const pl: MaritimeCvCopy = {
   ],
 
   priceTitle: "Cena",
-  priceFree: "PDF i obraz — za darmo",
-  pricePaid: "Edytowalny Word (.docx) — {price} raz, na stałe",
-  priceNote: "Bez abonamentu. Płacisz raz, potem edytujesz profil i pobierasz Worda ponownie w dowolnej chwili.",
+  priceFree: "Wgranie starego CV, AI, edycja — za darmo",
+  pricePaid: "Pobranie jako PDF, obraz i Word (.docx) — subskrypcja od {price} za 3 miesiące",
+  priceNote: "Jedna płatność na 3, 6 lub 12 miesięcy, bez automatycznego odnawiania. Ta sama subskrypcja otwiera e-maile i telefony agencji w każdej ofercie.",
 
   faqTitle: "Pytania",
   faq: [
     { q: "Gwarantujecie kontrakt?", a: "Nie. Przygotowujemy dokument; decyzję podejmują armator i agencja crewingowa." },
-    { q: "Czy muszę płacić?", a: "Nie. Zbudowanie CV, PDF i obraz są za darmo. Płatny jest tylko edytowalny Word — {price}, jednorazowo." },
+    { q: "Czy muszę płacić?", a: "Tworzenie i edycja CV są darmowe. Aplikowanie przez portal, kontakty agencji i pobranie CV (PDF, obraz, Word) są w subskrypcji od {price} za 3 miesiące." },
     { q: "Czy mogę zmienić CV po pobraniu?", a: "Tak. Edytuj profil i pobierz ponownie — Word jest odblokowany dla Twojego konta na stałe." },
     { q: "Moje CV to skan. Zadziała?", a: "Skan to obraz bez tekstu, więc nie da się go odczytać. Wgraj PDF z tekstem albo wypełnij profil ręcznie — to około dziesięciu minut." },
     { q: "Kto zobaczy numer mojego paszportu?", a: "Tylko Ty i agencje, do których wyślesz CV. Publiczny profil pokazuje jedynie krótką listę pól." },
@@ -341,7 +343,7 @@ const pl: MaritimeCvCopy = {
 
   notTitle: "Nigdy nie bierzemy pieniędzy za pracę",
   notBody:
-    "Nie pobieramy opłat za kontrakt, miejsce na statku, badania, certyfikaty ani wizy. Rejestracja, szukanie i aplikowanie są darmowe. Jedyną płatną rzeczą na tej stronie jest format pliku. Jeśli ktoś żąda od Ciebie pieniędzy za samą pracę — to nie my i jest to nielegalne.",
+    "Nie pobieramy opłat za kontrakt, miejsce na statku, badania, certyfikaty ani wizy. Rejestracja, szukanie ofert i tworzenie CV są darmowe. Subskrypcja to opłata za narzędzia portalu: aplikowanie przez portal, bezpośrednie kontakty agencji i pliki CV. Jeśli ktoś żąda od Ciebie pieniędzy za samą pracę — to nie my i jest to nielegalne.",
 
   closingTitle: "Kolejny kontrakt zaczyna się od CV",
   closingCta: "Wgraj moje CV",
@@ -351,7 +353,7 @@ const pl: MaritimeCvCopy = {
 const ro: MaritimeCvCopy = {
   metaTitle: "CV de marinar în Word — încarcă CV-ul vechi, AI-ul îl completează | SeaJobs.pro",
   metaDescription:
-    "Încarcă CV-ul vechi (PDF sau Word) și AI-ul completează CV-ul de marinar: rang, acte, certificate, vechime. Verifică și descarcă — PDF gratuit, Word editabil cu {price} o singură dată.",
+    "Încarcă CV-ul vechi (PDF sau Word) și AI-ul completează CV-ul de marinar: rang, acte, certificate, vechime. Verifică gratuit și descarcă-l ca PDF, imagine sau Word editabil cu abonament de la {price}.",
   keywords:
     "cv marinar, model cv marinar, cv marinar word, cv offshore, cv tanc petrolier, cv pentru agentie crewing, cv marinar editabil",
 
@@ -381,7 +383,7 @@ const ro: MaritimeCvCopy = {
   steps: [
     { title: "Încarcă CV-ul vechi", body: "Orice aspect, orice limbă. Un PDF de la agenție, un Word de acum câțiva ani — AI-ul găsește singur câmpurile." },
     { title: "Verifică și corectează", body: "Totul ajunge în profilul tău: rang, pașaport și carnet de marinar, certificate cu termene, fiecare navă. Corectează o dată, adaugă ultimul contract." },
-    { title: "Descarcă", body: "PDF-ul și imaginea sunt gratuite. Word-ul editabil costă {price}, o singură dată, și rămâne al tău: editezi profilul și descarci din nou de câte ori vrei." },
+    { title: "Descarcă", body: "PDF-ul, imaginea și Word-ul editabil vin cu abonamentul de la {price} pentru 3 luni: cât timp e activ, editezi profilul și descarci din nou de câte ori vrei." },
   ],
 
   fleetsTitle: "Ce caută agențiile, flotă cu flotă",
@@ -395,14 +397,14 @@ const ro: MaritimeCvCopy = {
   ],
 
   priceTitle: "Preț",
-  priceFree: "PDF și imagine — gratuit",
-  pricePaid: "Word editabil (.docx) — {price} o dată, definitiv",
-  priceNote: "Fără abonament. Plătești o dată, apoi editezi profilul și descarci Word-ul din nou oricând.",
+  priceFree: "Încărcarea CV-ului vechi, AI-ul, editarea — gratuit",
+  pricePaid: "Descărcare ca PDF, imagine și Word (.docx) — abonament de la {price} pentru 3 luni",
+  priceNote: "O singură plată pentru 3, 6 sau 12 luni, fără reînnoire automată. Același abonament deschide e-mailurile și telefoanele agențiilor la fiecare post.",
 
   faqTitle: "Întrebări",
   faq: [
     { q: "Garantați un contract?", a: "Nu. Pregătim documentul; decizia aparține armatorului și agenției de crewing." },
-    { q: "Trebuie să plătesc?", a: "Nu. Construirea CV-ului, PDF-ul și imaginea sunt gratuite. Doar Word-ul editabil costă {price}, o singură dată." },
+    { q: "Trebuie să plătesc?", a: "Construirea și editarea CV-ului sunt gratuite. Aplicarea prin portal, contactele agențiilor și descărcarea CV-ului (PDF, imagine, Word) vin cu abonamentul de la {price} pentru 3 luni." },
     { q: "Pot schimba CV-ul după descărcare?", a: "Da. Editezi profilul și descarci din nou — Word-ul e deblocat pentru contul tău definitiv." },
     { q: "CV-ul meu e scanat. Merge?", a: "O scanare e o imagine fără text, deci nu poate fi citită. Încarcă un PDF cu text sau completează profilul manual — durează cam zece minute." },
     { q: "Cine îmi vede numărul de pașaport?", a: "Doar tu și agențiile cărora le trimiți CV-ul. Profilul public arată doar o listă scurtă de câmpuri." },
@@ -410,7 +412,7 @@ const ro: MaritimeCvCopy = {
 
   notTitle: "Nu cerem niciodată bani pentru un loc de muncă",
   notBody:
-    "Nu cerem bani pentru un contract, un post pe navă, medical, certificate sau vize. Înregistrarea, căutarea și aplicarea sunt gratuite. Singurul lucru plătit pe această pagină este un format de fișier. Dacă cineva îți cere bani pentru munca în sine — nu suntem noi și nu este legal.",
+    "Nu cerem bani pentru un contract, un post pe navă, medical, certificate sau vize. Înregistrarea, căutarea posturilor și crearea CV-ului sunt gratuite. Abonamentul plătește uneltele portalului: aplicarea prin portal, contactele directe ale agențiilor și fișierele CV. Dacă cineva îți cere bani pentru munca în sine — nu suntem noi și nu este legal.",
 
   closingTitle: "Următorul contract începe cu CV-ul",
   closingCta: "Încarcă CV-ul meu",
@@ -422,5 +424,5 @@ const MARITIME_CV_COPY: Record<Lang, MaritimeCvCopy> = { en, ru, ua, pl, ro };
 
 /** The copy for one language, with the real price filled in. */
 export function maritimeCvCopy(lang: Lang): MaritimeCvCopy {
-  return withPrice(MARITIME_CV_COPY[lang] ?? MARITIME_CV_COPY.en, lang);
+  return withSubPrice(MARITIME_CV_COPY[lang] ?? MARITIME_CV_COPY.en, lang);
 }

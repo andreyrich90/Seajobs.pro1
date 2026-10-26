@@ -69,6 +69,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Trimitere CV",
     nav_cv_builder: "Creează CV",
     cab_cv_blast: "Distribuire CV",
+    cab_subscription: "Abonament",
     cab_messages: "Mesaje",
     cab_notifications: "Notificări",
     cab_logout: "Ieșire",
@@ -218,7 +219,7 @@ export const T: Record<Lang, Dict> = {
     news_comment_delete: "Șterge comentariul",
     news_comment_delete_confirm: "Ștergi acest comentariu?",
     home_seo_title: "De ce SeaJobs.pro?",
-    home_seo_p1: "SeaJobs.pro este un job board maritim gratuit, creat exclusiv pentru marinari și companii de crewing. Fie că ești Comandant, Șef mecanic, Ofițer de punte sau alt profesionist maritim, vei găsi mii de posturi verificate de la agenții de crewing certificate din toată Europa. Creează-ți CV-ul, încarcă certificatele, setează data disponibilității și primește alerte când apar posturi potrivite.",
+    home_seo_p1: "SeaJobs.pro este un job board maritim creat exclusiv pentru marinari și companii de crewing. Fie că ești Comandant, Șef mecanic, Ofițer de punte sau alt profesionist maritim, vei găsi mii de posturi verificate de la agenții de crewing certificate din toată Europa. Creează-ți CV-ul, încarcă certificatele, setează data disponibilității și primește alerte când apar posturi potrivite.",
     home_seo_p2: "Companiile de crewing publică posturi gratuit și ajung instant la peste 32.000 de marinari înregistrați. Fiecare post este structurat automat pentru Google for Jobs — vizibilitate maximă fără efort sau costuri suplimentare. Alătură-te celor peste 180 de companii de crewing care au deja încredere în SeaJobs.pro.",
     footer_tagline: "Portul carierelor maritime. Conectăm marinarii cu agențiile de crewing din întreaga lume.",
     footer_platform: "Platformă",
@@ -551,6 +552,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Розсилка CV",
     nav_cv_builder: "Зібрати CV",
     cab_cv_blast: "Розсилка резюме",
+    cab_subscription: "Підписка",
     cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
     cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
@@ -633,6 +635,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Wysyłka CV",
     nav_cv_builder: "Zrób CV",
     cab_cv_blast: "Wysyłka CV",
+    cab_subscription: "Subskrypcja",
     cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
     cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
@@ -715,6 +718,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Рассылка CV",
     nav_cv_builder: "Собрать CV",
     cab_cv_blast: "Рассылка резюме",
+    cab_subscription: "Подписка",
     cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
     cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
@@ -797,6 +801,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "CV mailing",
     nav_cv_builder: "Make a CV",
     cab_cv_blast: "CV distribution",
+    cab_subscription: "Subscription",
     cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
     cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",
@@ -904,7 +909,7 @@ export const T: Record<Lang, Dict> = {
     news_comment_delete_confirm: "Delete this comment?",
     // Home SEO section
     home_seo_title: "Why SeaJobs.pro?",
-    home_seo_p1: "SeaJobs.pro is a free maritime job board built exclusively for seafarers and crewing companies. Whether you are a Captain, Chief Engineer, Deck Officer or any other maritime professional, you will find thousands of verified vacancies from certified crewing agencies across Europe. Create your CV, upload certificates, set your readiness date and receive alerts when matching vacancies appear.",
+    home_seo_p1: "SeaJobs.pro is a maritime job board built exclusively for seafarers and crewing companies. Whether you are a Captain, Chief Engineer, Deck Officer or any other maritime professional, you will find thousands of verified vacancies from certified crewing agencies across Europe. Create your CV, upload certificates, set your readiness date and receive alerts when matching vacancies appear.",
     home_seo_p2: "Crewing companies post vacancies for free and instantly reach over 32,000 registered seafarers. Every vacancy is automatically structured for Google for Jobs — maximising your reach with zero extra effort or cost. Join 180+ crewing companies that already trust SeaJobs.pro for their maritime recruitment.",
     // Footer
     footer_tagline: "The harbour for maritime careers. Connecting seafarers with crewing agencies worldwide.",
@@ -1041,7 +1046,7 @@ Object.assign(T.ru, ABOUT_RU);
 
 const HOME_FOOTER_UA: Record<string, string> = {
   home_seo_title: "Чому SeaJobs.pro?",
-  home_seo_p1: "SeaJobs.pro — безкоштовна морська платформа для моряків і крюїнгових компаній. Тут ви знайдете тисячі перевірених вакансій від сертифікованих агентств по всій Європі. Капітани, старші механіки, штурмани та інші морські спеціалісти знаходять роботу тут. Створіть резюме, завантажте сертифікати, вкажіть дату готовності й отримуйте сповіщення про підходящі вакансії.",
+  home_seo_p1: "SeaJobs.pro — морська платформа для моряків і крюїнгових компаній. Тут ви знайдете тисячі перевірених вакансій від сертифікованих агентств по всій Європі. Капітани, старші механіки, штурмани та інші морські спеціалісти знаходять роботу тут. Створіть резюме, завантажте сертифікати, вкажіть дату готовності й отримуйте сповіщення про підходящі вакансії.",
   home_seo_p2: "Крюїнгові компанії розміщують вакансії безкоштовно і миттєво охоплюють понад 32 000 зареєстрованих моряків. Кожна вакансія автоматично індексується в Google for Jobs — максимальне охоплення без жодних додаткових витрат. Приєднуйтесь до 180+ крюїнгових компаній, які вже довіряють SeaJobs.pro.",
   footer_tagline: "Гавань для морської кар'єри. З'єднуємо моряків із крюїнговими агентствами по всьому світу.",
   footer_platform: "Платформа", footer_company_col: "Компанія", footer_get_started: "Почати", footer_follow: "Ми в соцмережах",
@@ -1053,7 +1058,7 @@ const HOME_FOOTER_UA: Record<string, string> = {
 
 const HOME_FOOTER_PL: Record<string, string> = {
   home_seo_title: "Dlaczego SeaJobs.pro?",
-  home_seo_p1: "SeaJobs.pro to bezpłatna platforma morska stworzona dla marynarzy i firm crewingowych. Znajdziesz tu tysiące zweryfikowanych ofert od certyfikowanych agencji w całej Europie. Kapitanowie, starsi mechanicy, oficerowie pokładowi i inni specjalisci morscy — wszyscy znajda tu prace. Stwórz CV, dodaj certyfikaty, ustaw date gotowosci i otrzymuj alerty o pasujacych ofertach.",
+  home_seo_p1: "SeaJobs.pro to platforma morska stworzona dla marynarzy i firm crewingowych. Znajdziesz tu tysiące zweryfikowanych ofert od certyfikowanych agencji w całej Europie. Kapitanowie, starsi mechanicy, oficerowie pokładowi i inni specjalisci morscy — wszyscy znajda tu prace. Stwórz CV, dodaj certyfikaty, ustaw date gotowosci i otrzymuj alerty o pasujacych ofertach.",
   home_seo_p2: "Firmy crewingowe publikuja oferty bezplatnie i natychmiast docieraja do ponad 32 000 zarejestrowanych marynarzy. Kazda oferta jest automatycznie indeksowana w Google for Jobs — maksymalny zasieg bez dodatkowych kosztów. Dolacz do 180+ firm crewingowych, które juz ufa SeaJobs.pro.",
   footer_tagline: "Port kariery morskiej. Laczymy marynarzy z agencjami crewingowymi na calym swiecie.",
   footer_platform: "Platforma", footer_company_col: "Firma", footer_get_started: "Zaczynamy", footer_follow: "Sledz nas",
@@ -1065,7 +1070,7 @@ const HOME_FOOTER_PL: Record<string, string> = {
 
 const HOME_FOOTER_RU: Record<string, string> = {
   home_seo_title: "Почему SeaJobs.pro?",
-  home_seo_p1: "SeaJobs.pro — бесплатная морская платформа для моряков и крюинговых компаний. Здесь вы найдёте тысячи проверенных вакансий от сертифицированных агентств по всей Европе. Капитаны, старшие механики, штурманы и другие морские специалисты находят работу здесь. Создайте резюме, загрузите сертификаты, укажите дату готовности и получайте уведомления о подходящих вакансиях.",
+  home_seo_p1: "SeaJobs.pro — морская платформа для моряков и крюинговых компаний. Здесь вы найдёте тысячи проверенных вакансий от сертифицированных агентств по всей Европе. Капитаны, старшие механики, штурманы и другие морские специалисты находят работу здесь. Создайте резюме, загрузите сертификаты, укажите дату готовности и получайте уведомления о подходящих вакансиях.",
   home_seo_p2: "Крюинговые компании размещают вакансии бесплатно и мгновенно охватывают более 32 000 зарегистрированных моряков. Каждая вакансия автоматически индексируется в Google for Jobs — максимальный охват без лишних затрат. Присоединяйтесь к 180+ крюинговым компаниям, которые уже доверяют SeaJobs.pro.",
   footer_tagline: "Гавань для морской карьеры. Соединяем моряков с крюинговыми агентствами по всему миру.",
   footer_platform: "Платформа", footer_company_col: "Компания", footer_get_started: "Начать", footer_follow: "Мы в соцсетях",
@@ -2463,38 +2468,39 @@ Object.assign(T.ru, CAB7_RU);
 Object.assign(T.ua, CAB7_UA);
 Object.assign(T.pl, CAB7_PL);
 
-// ── "Buy us a coffee" on the home page ──
+// ── The subscription on the home page ──
 //
-// A tip, not a fee, and the copy has to keep it that way: the site tells
-// seafarers everywhere never to pay for a job (components/NoPaymentWarning),
-// and MLC 2006 A1.4(5)(b) forbids charging them for placement. So the block
-// says plainly that everything is free and that the coffee buys nothing — no
-// priority, no hidden features. Drop that sentence and the block changes from
-// a thank-you into a soft paywall.
+// This block used to ask for a coffee and promise the site would stay free;
+// with the seafarer subscription (lib/subscription.ts) that promise went, and
+// the block says what is free and what the subscription opens instead. It
+// still has to say, in the same breath, that nothing is ever charged for a
+// job: the site tells seafarers everywhere never to pay for one
+// (components/NoPaymentWarning), and MLC 2006 A1.4(5)(b) forbids charging them
+// for placement. `{price}` is filled by the page from the cheapest plan.
 const TIP_EN: Record<string, string> = {
-  tip_title: "The site is free — and stays free",
-  tip_body: "Vacancies, applications, your profile and your CV cost seafarers nothing, and we never take money for a job. If SeaJobs.pro has been useful, you can buy us a coffee. It is voluntary and buys nothing: no priority in applications, no hidden features.",
-  tip_cta: "Buy us a coffee",
+  subpromo_title: "Subscription from {price} for 3 months",
+  subpromo_body: "Searching vacancies, your profile and building your CV are free. The subscription opens applying through the portal, the crewing agencies' e-mails and phones, writing from your own mailbox, and your CV as PDF, image and Word. We never take money for a job, a contract or a place on board.",
+  subpromo_cta: "See the plans",
 };
 const TIP_RU: Record<string, string> = {
-  tip_title: "Сайт бесплатный — и останется таким",
-  tip_body: "Вакансии, отклики, профиль и резюме не стоят морякам ничего, и мы никогда не берём деньги за трудоустройство. Если портал вам пригодился — можете угостить нас кофе. Это добровольно и ничего не даёт: ни приоритета в откликах, ни закрытых возможностей.",
-  tip_cta: "Купить нам кофе",
+  subpromo_title: "Подписка от {price} за 3 месяца",
+  subpromo_body: "Поиск вакансий, профиль и сборка CV — бесплатно. Подписка открывает отклик через портал, e-mail и телефоны крюингов, письмо со своей почты и ваше CV в PDF, картинкой и Word. Денег за работу, контракт или место на судне мы не берём никогда.",
+  subpromo_cta: "Смотреть тарифы",
 };
 const TIP_UA: Record<string, string> = {
-  tip_title: "Сайт безкоштовний — і таким залишиться",
-  tip_body: "Вакансії, відгуки, профіль і резюме не коштують морякам нічого, і ми ніколи не беремо грошей за працевлаштування. Якщо портал вам знадобився — можете пригостити нас кавою. Це добровільно і нічого не дає: ні пріоритету у відгуках, ні закритих можливостей.",
-  tip_cta: "Купити нам каву",
+  subpromo_title: "Підписка від {price} за 3 місяці",
+  subpromo_body: "Пошук вакансій, профіль і збірка CV — безкоштовно. Підписка відкриває відгук через портал, e-mail і телефони крюїнгів, лист зі своєї пошти та ваше CV у PDF, зображенням і Word. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.",
+  subpromo_cta: "Переглянути тарифи",
 };
 const TIP_PL: Record<string, string> = {
-  tip_title: "Serwis jest bezpłatny — i taki zostanie",
-  tip_body: "Oferty, aplikacje, profil i CV nic marynarzy nie kosztują, a za pracę nigdy nie bierzemy pieniędzy. Jeśli SeaJobs.pro się przydał, możesz postawić nam kawę. To dobrowolne i nic nie daje: żadnego pierwszeństwa w aplikacjach ani ukrytych funkcji.",
-  tip_cta: "Postaw nam kawę",
+  subpromo_title: "Subskrypcja od {price} za 3 miesiące",
+  subpromo_body: "Szukanie ofert, profil i tworzenie CV są darmowe. Subskrypcja otwiera aplikowanie przez portal, e-maile i telefony agencji, list z własnej skrzynki oraz Twoje CV jako PDF, obraz i Word. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.",
+  subpromo_cta: "Zobacz plany",
 };
 const TIP_RO: Record<string, string> = {
-  tip_title: "Site-ul este gratuit — și așa rămâne",
-  tip_body: "Posturile, aplicările, profilul și CV-ul nu costă marinarii nimic, iar pentru un job nu luăm niciodată bani. Dacă SeaJobs.pro ți-a fost de folos, ne poți face cinste cu o cafea. Este voluntar și nu îți aduce nimic: nicio prioritate la aplicări, nicio funcție ascunsă.",
-  tip_cta: "Fă-ne cinste cu o cafea",
+  subpromo_title: "Abonament de la {price} pentru 3 luni",
+  subpromo_body: "Căutarea posturilor, profilul și crearea CV-ului sunt gratuite. Abonamentul deschide aplicarea prin portal, e-mailurile și telefoanele agențiilor, scrisoarea din propriul e-mail și CV-ul tău ca PDF, imagine și Word. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.",
+  subpromo_cta: "Vezi planurile",
 };
 Object.assign(T.en, TIP_EN);
 Object.assign(T.ru, TIP_RU);

@@ -549,6 +549,56 @@ export interface Database {
         };
         Relationships: [];
       };
+      // Seafarer subscriptions: 3/6/12 months of contacts and CV files. Read by
+      // the owner only; every write is the service role (checkout route,
+      // payment webhook, admin). See 20261026000000_seafarer_subscriptions.
+      seafarer_subscriptions: {
+        Row: {
+          id: string;
+          seafarer_id: string;
+          plan: "3m" | "6m" | "12m";
+          months: number;
+          price_usd: number;
+          email: string;
+          status: "pending" | "paid" | "refunded";
+          starts_at: string | null;
+          paid_until: string | null;
+          paid_at: string | null;
+          paid_amount: number | null;
+          paid_currency: string | null;
+          paid_ref: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          seafarer_id: string;
+          plan: "3m" | "6m" | "12m";
+          months: number;
+          price_usd: number;
+          email: string;
+          status?: "pending" | "paid" | "refunded";
+          starts_at?: string | null;
+          paid_until?: string | null;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          email?: string;
+          price_usd?: number;
+          status?: "pending" | "paid" | "refunded";
+          starts_at?: string | null;
+          paid_until?: string | null;
+          paid_at?: string | null;
+          paid_amount?: number | null;
+          paid_currency?: string | null;
+          paid_ref?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       saved_vacancies: {
         Row: {
           vacancy_id: string;

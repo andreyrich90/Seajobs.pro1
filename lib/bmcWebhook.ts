@@ -186,7 +186,7 @@ export type WordMatchRow = { id: string; email: string };
  * 4. **Never by time for a refund.** Taking access away from someone whose money
  *    may not even be involved is not a mistake worth automating.
  */
-export function chooseWordMatch(opts: {
+export function chooseWordMatch<R extends WordMatchRow = WordMatchRow>(opts: {
   kind: "paid" | "refund" | "other";
   amount: number | null;
   /** The catalogue price, in the same currency the checkout charges. */
@@ -201,10 +201,10 @@ export function chooseWordMatch(opts: {
    */
   isWordProduct?: boolean | null;
   /** The row found by e-mail, if any. */
-  byEmail: WordMatchRow | null;
+  byEmail: R | null;
   /** Unpaid rows opened inside the matching window — two is enough to know it is ambiguous. */
-  pending: WordMatchRow[];
-}): { row: WordMatchRow; by: "email" | "recency" } | null {
+  pending: R[];
+}): { row: R; by: "email" | "recency" } | null {
   const { kind, amount, price, margin = 2, isWordProduct = null, byEmail, pending } = opts;
   if (kind === "other") return null;
   // The provider named a different product: nothing here is ours, whatever it cost.

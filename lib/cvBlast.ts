@@ -255,7 +255,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     notBody: [
       "Це не плата за працевлаштування. Ми не беремо грошей за контракт, місце на судні, медкомісію, сертифікати чи візи — і ніколи не братимемо. Якщо у вас просять гроші за роботу, це шахрайство, від кого б воно не йшло.",
       "Оплачується робота з документом: підготовка анкети та її розсилка по базі адрес. Це послуга оформлення, а не посередництво в наймі.",
-      "Вакансії, відгуки та профіль на порталі були й залишаються безкоштовними.",
+      "Вакансії, профіль і збірка CV на порталі безкоштовні; відгуки й контакти крюїнгів — за підпискою порталу.",
     ],
 
     faqTitle: "Часті питання",
@@ -355,7 +355,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     notBody: [
       "Это не плата за трудоустройство. Мы не берём денег за контракт, место на судне, медкомиссию, сертификаты или визы — и никогда не будем. Если у вас просят деньги за работу, это развод, от кого бы он ни исходил.",
       "Оплачивается работа с документом: подготовка анкеты и её рассылка по базе адресов. Это услуга оформления, а не посредничество в найме.",
-      "Вакансии, отклики и профиль на портале были и остаются бесплатными.",
+      "Вакансии, профиль и сборка CV на портале бесплатны; отклики и контакты крюингов — по подписке портала.",
     ],
 
     faqTitle: "Частые вопросы",
@@ -455,7 +455,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     notBody: [
       "To nie jest opłata za zatrudnienie. Nie bierzemy pieniędzy za kontrakt, miejsce na statku, badania, certyfikaty ani wizy — i nigdy nie będziemy. Jeśli ktoś żąda zapłaty za pracę, to oszustwo, kimkolwiek by nie był.",
       "Płacisz za pracę z dokumentem: przygotowanie aplikacji i jej wysyłkę do bazy adresów. To usługa opracowania, nie pośrednictwo w zatrudnieniu.",
-      "Oferty, aplikowanie i profil na portalu były i pozostają bezpłatne.",
+      "Oferty, profil i tworzenie CV na portalu są bezpłatne; aplikowanie i kontakty agencji są w subskrypcji portalu.",
     ],
 
     faqTitle: "Częste pytania",
@@ -555,7 +555,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     notBody: [
       "This is not a fee for employment. We take no money for a contract, a place on board, a medical, certificates or visas — and never will. If anyone asks you to pay for a job, it is a scam, whoever they are.",
       "What is paid for is document work: preparing the application and mailing it to a list of addresses. It is a preparation service, not placement.",
-      "Vacancies, applications and the profile on the portal were and remain free.",
+      "Vacancies, the profile and building a CV on the portal are free; applying and agencies' contacts come with the portal's subscription.",
     ],
 
     faqTitle: "Common questions",
@@ -655,7 +655,7 @@ export const CV_BLAST_COPY: Record<Lang, CvBlastCopy> = {
     notBody: [
       "Nu este o taxă pentru angajare. Nu luăm bani pentru contract, pentru un loc la bord, pentru vizita medicală, certificate sau vize — și nu vom lua niciodată. Dacă cineva îți cere bani pentru un loc de muncă, este o înșelătorie, oricine ar fi.",
       "Se plătește munca la document: pregătirea dosarului și trimiterea lui către o listă de adrese. Este un serviciu de întocmire, nu intermediere la angajare.",
-      "Posturile, aplicările și profilul pe portal au fost și rămân gratuite.",
+      "Posturile, profilul și crearea CV-ului pe portal sunt gratuite; aplicările și contactele agențiilor vin cu abonamentul portalului.",
     ],
 
     faqTitle: "Întrebări frecvente",

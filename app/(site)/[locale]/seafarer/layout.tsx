@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle, Search, Mail,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle, Search, Mail, Star,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
@@ -22,6 +22,7 @@ const NAV_KEYS = [
   { key: "cab_experience",   href: "/seafarer/experience",   icon: Ship },
   { key: "cab_cv",           href: "/seafarer/cv",           icon: FileText },
   { key: "cab_applications", href: "/seafarer/applications", icon: Send },
+  { key: "cab_subscription", href: "/seafarer/subscription", icon: Star },
   // Sits outside the /seafarer tree, like "Browse jobs" above it.
   { key: "cab_cv_blast",     href: "/cv-distribution",       icon: Mail },
   { key: "cab_messages",     href: "/seafarer/messages",     icon: MessageCircle },

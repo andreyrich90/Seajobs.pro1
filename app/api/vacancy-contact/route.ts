@@ -2,12 +2,15 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
 import { contactsInText } from "@/lib/vacancyContacts";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
+import { SUB_SELLING } from "@/lib/subscription";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// A vacancy's crewing e-mail and phone, for a seafarer whose profile says who
-// they are (see lib/profileGate.ts).
+// A vacancy's crewing e-mail and phone, for a subscribed seafarer whose
+// profile says who they are (lib/subscription.ts, lib/profileGate.ts).
+// Applying through the portal needs neither the contacts nor a subscription.
 //
 // The vacancy page is cached and identical for every visitor, so the contacts
 // cannot be in it: they are asked for here, per reader, after the page loads.
@@ -43,9 +46,19 @@ export async function GET(req: Request) {
   if (!profile?.is_admin) {
     // Companies are not handed a competitor's crewing desk.
     if (!sf) return NextResponse.json({ ok: false, error: "NOT_SEAFARER" }, { status: 403, headers: NO_STORE });
-    const missing = profileGaps(sf as unknown as Record<string, string | null>);
-    if (missing.length) {
-      return NextResponse.json({ ok: false, error: "PROFILE_INCOMPLETE", missing }, { status: 403, headers: NO_STORE });
+    // The subscription before the profile: someone without one is asked to
+    // subscribe, not sent to fill in fields that would still open nothing.
+    if (!(await hasToolAccess(admin, caller.id))) {
+      return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403, headers: NO_STORE });
+    }
+    // Once the subscription is on sale it is the whole key: someone who has
+    // paid is not sent to fill in fields before seeing what they paid for.
+    // Until then the profile is the gate, as it always was.
+    if (!SUB_SELLING) {
+      const missing = profileGaps(sf as unknown as Record<string, string | null>);
+      if (missing.length) {
+        return NextResponse.json({ ok: false, error: "PROFILE_INCOMPLETE", missing }, { status: 403, headers: NO_STORE });
+      }
     }
   }
 

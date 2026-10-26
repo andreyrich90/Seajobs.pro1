@@ -125,7 +125,7 @@ export function siteCard() {
         </div>
 
         <div style={{ display: "flex", fontSize: 20, color: MIST, marginTop: 34 }}>
-          Free for seafarers · Free to post jobs
+          Jobs for seafarers · Free to post vacancies
         </div>
 
         {/* Bottom bar */}

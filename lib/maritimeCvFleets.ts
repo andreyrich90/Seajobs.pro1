@@ -1,6 +1,6 @@
 import type { Lang } from "@/lib/langs";
 import type { FleetId } from "@/lib/cvFleets";
-import { withPrice } from "@/lib/cvWord";
+import { withSubPrice } from "@/lib/subscription";
 
 /**
  * /maritime-cv/[fleet] — one page per fleet, written to that fleet's searches
@@ -36,7 +36,7 @@ const en: FleetPagesCopy = {
   pages: {
     merchant: {
       metaTitle: "Merchant navy CV in Word — AI fills it from your old CV | SeaJobs.pro",
-      metaDescription: "A seafarer's CV for bulk, container, general cargo and ro-ro: upload your old CV, AI fills it in, download. PDF free, Word {price} once.",
+      metaDescription: "A seafarer's CV for bulk, container, general cargo and ro-ro: upload your old CV, AI fills it in, download. PDF and Word with a subscription from {price}.",
       keywords: "merchant navy cv, bulk carrier cv, container ship cv, general cargo cv, seaman cv template word",
       h1: "Merchant navy CV — filled in from the one you have",
       lede: "Bulk, container, general cargo, reefer, ro-ro. Drop your old CV, and the Word template leads with what a merchant-fleet crewing desk reads first.",
@@ -48,7 +48,7 @@ const en: FleetPagesCopy = {
     },
     offshore: {
       metaTitle: "Offshore CV in Word — DP, BOSIET up front, AI-filled | SeaJobs.pro",
-      metaDescription: "An offshore seafarer's CV with DP and survival certificates at the top: upload your old CV, AI fills it in, download. PDF free, Word {price} once.",
+      metaDescription: "An offshore seafarer's CV with DP and survival certificates at the top: upload your old CV, AI fills it in, download. PDF and Word with a subscription from {price}.",
       keywords: "offshore cv, offshore cv template, dp officer cv, ahts cv, psv cv, offshore seaman cv word",
       h1: "Offshore CV — with DP and BOSIET where they are read first",
       lede: "AHTS, PSV, SOV, DSV, jack-ups. Drop your old CV, and the Word template puts what an offshore crewing desk hires on at the top.",
@@ -60,7 +60,7 @@ const en: FleetPagesCopy = {
     },
     tanker: {
       metaTitle: "Tanker & gas carrier CV in Word — endorsements up front | SeaJobs.pro",
-      metaDescription: "A CV for oil, chemical, LNG and LPG tankers with your tanker endorsements at the top: upload your old CV, AI fills it in. PDF free, Word {price} once.",
+      metaDescription: "A CV for oil, chemical, LNG and LPG tankers with your tanker endorsements at the top: upload your old CV, AI fills it in. PDF and Word with a subscription from {price}.",
       keywords: "tanker cv, lng carrier cv, lpg carrier cv, chemical tanker cv, oil tanker cv template, gas carrier cv",
       h1: "Tanker and gas carrier CV — endorsements first",
       lede: "Oil, chemical, LNG, LPG. Drop your old CV, and the Word template leads with the endorsements a tanker crewing desk checks before anything else.",
@@ -72,7 +72,7 @@ const en: FleetPagesCopy = {
     },
     passenger: {
       metaTitle: "Cruise & ferry CV in Word — passenger safety up front | SeaJobs.pro",
-      metaDescription: "A CV for cruise ships, ferries and Ro-Pax with Crowd Management and passenger safety at the top: upload your old CV, AI fills it in. PDF free, Word {price} once.",
+      metaDescription: "A CV for cruise ships, ferries and Ro-Pax with Crowd Management and passenger safety at the top: upload your old CV, AI fills it in. PDF and Word with a subscription from {price}.",
       keywords: "cruise ship cv, ferry cv, ro-pax cv, passenger ship cv, crowd management cv",
       h1: "Cruise and ferry CV — passenger certificates first",
       lede: "Cruise, ferries, Ro-Pax. Drop your old CV, and the Word template leads with the courses a passenger-ship crewing desk is required to see.",
@@ -84,7 +84,7 @@ const en: FleetPagesCopy = {
     },
     tug: {
       metaTitle: "Tug & dredger CV in Word — AI fills it from your old CV | SeaJobs.pro",
-      metaDescription: "A CV for tugs, dredgers and workboats: upload your old CV, AI fills it in, download. PDF free, Word {price} once.",
+      metaDescription: "A CV for tugs, dredgers and workboats: upload your old CV, AI fills it in, download. PDF and Word with a subscription from {price}.",
       keywords: "tug cv, tugboat master cv, dredger cv, workboat cv, towing cv template",
       h1: "Tug and dredger CV — filled in from the one you have",
       lede: "Harbour and ocean towing, dredgers, workboats, multicats. Drop your old CV, and the Word template leads with what this work is hired on.",
@@ -103,7 +103,7 @@ const ru: FleetPagesCopy = {
   pages: {
     merchant: {
       metaTitle: "Анкета моряка торгового флота в Word — ИИ заполнит из резюме | SeaJobs.pro",
-      metaDescription: "Анкета моряка для балкеров, контейнеровозов, генкарго и ро-ро: загрузите старое резюме, ИИ заполнит, скачайте. PDF бесплатно, Word за {price} один раз.",
+      metaDescription: "Анкета моряка для балкеров, контейнеровозов, генкарго и ро-ро: загрузите старое резюме, ИИ заполнит, скачайте. PDF и Word по подписке от {price}.",
       keywords: "анкета моряка торговый флот, анкета моряка балкер, резюме моряка контейнеровоз, анкета моряка генкарго, анкета моряка word",
       h1: "Анкета для торгового флота — из вашего старого резюме",
       lede: "Балкеры, контейнеровозы, генкарго, рефрижераторы, ро-ро. Загрузите старое резюме, и шаблон Word начнётся с того, что крюинг торгового флота читает первым.",
@@ -115,7 +115,7 @@ const ru: FleetPagesCopy = {
     },
     offshore: {
       metaTitle: "Анкета моряка для офшора в Word — DP и BOSIET наверху | SeaJobs.pro",
-      metaDescription: "Анкета моряка для офшора, где DP и сертификаты выживания стоят первыми: загрузите старое резюме, ИИ заполнит. PDF бесплатно, Word за {price} один раз.",
+      metaDescription: "Анкета моряка для офшора, где DP и сертификаты выживания стоят первыми: загрузите старое резюме, ИИ заполнит. PDF и Word по подписке от {price}.",
       keywords: "анкета моряка офшор, резюме офшор, cv офшор шаблон, анкета dp оператора, анкета моряка ahts, анкета моряка psv",
       h1: "Анкета для офшора — DP и BOSIET там, где их читают первыми",
       lede: "AHTS, PSV, SOV, DSV, самоподъёмные установки. Загрузите старое резюме, и шаблон Word поставит наверх то, по чему нанимают в офшор.",
@@ -127,7 +127,7 @@ const ru: FleetPagesCopy = {
     },
     tanker: {
       metaTitle: "Анкета моряка на танкер и газовоз в Word — допуски наверху | SeaJobs.pro",
-      metaDescription: "Анкета для нефтяных, химических танкеров, LNG и LPG, где танкерные допуски стоят первыми: загрузите старое резюме, ИИ заполнит. PDF бесплатно, Word за {price}.",
+      metaDescription: "Анкета для нефтяных, химических танкеров, LNG и LPG, где танкерные допуски стоят первыми: загрузите старое резюме, ИИ заполнит. PDF и Word по подписке от {price}.",
       keywords: "анкета моряка танкер, анкета моряка газовоз, резюме lng, резюме lpg, анкета химовоз, cv танкер шаблон",
       h1: "Анкета на танкер и газовоз — допуски первыми",
       lede: "Нефть, химия, LNG, LPG. Загрузите старое резюме, и шаблон Word начнётся с допусков, которые танкерный крюинг проверяет раньше всего.",
@@ -139,7 +139,7 @@ const ru: FleetPagesCopy = {
     },
     passenger: {
       metaTitle: "Анкета моряка на круизный лайнер и паром в Word | SeaJobs.pro",
-      metaDescription: "Анкета для круизных судов, паромов и Ro-Pax, где Crowd Management и безопасность пассажиров стоят первыми: загрузите старое резюме, ИИ заполнит. PDF бесплатно, Word за {price}.",
+      metaDescription: "Анкета для круизных судов, паромов и Ro-Pax, где Crowd Management и безопасность пассажиров стоят первыми: загрузите старое резюме, ИИ заполнит. PDF и Word по подписке от {price}.",
       keywords: "анкета моряка круизный лайнер, анкета моряка паром, резюме ro-pax, crowd management, анкета пассажирский флот",
       h1: "Анкета на круизный лайнер и паром — пассажирские сертификаты первыми",
       lede: "Круизные суда, паромы, Ro-Pax. Загрузите старое резюме, и шаблон Word начнётся с курсов, которые крюинг пассажирского флота обязан увидеть.",
@@ -151,7 +151,7 @@ const ru: FleetPagesCopy = {
     },
     tug: {
       metaTitle: "Анкета моряка на буксир и земснаряд в Word | SeaJobs.pro",
-      metaDescription: "Анкета для буксиров, земснарядов и рабочих судов: загрузите старое резюме, ИИ заполнит, скачайте. PDF бесплатно, Word за {price} один раз.",
+      metaDescription: "Анкета для буксиров, земснарядов и рабочих судов: загрузите старое резюме, ИИ заполнит, скачайте. PDF и Word по подписке от {price}.",
       keywords: "анкета моряка буксир, резюме капитан буксира, анкета земснаряд, анкета моряка рабочее судно",
       h1: "Анкета на буксир и земснаряд — из вашего старого резюме",
       lede: "Портовая и морская буксировка, земснаряды, рабочие суда, мультикаты. Загрузите старое резюме, и шаблон Word начнётся с того, по чему нанимают на эту работу.",
@@ -170,7 +170,7 @@ const ua: FleetPagesCopy = {
   pages: {
     merchant: {
       metaTitle: "Анкета моряка торговельного флоту у Word — ШІ заповнить з резюме | SeaJobs.pro",
-      metaDescription: "Анкета моряка для балкерів, контейнеровозів, генкарго й ро-ро: завантажте старе резюме, ШІ заповнить, завантажте. PDF безкоштовно, Word за {price} один раз.",
+      metaDescription: "Анкета моряка для балкерів, контейнеровозів, генкарго й ро-ро: завантажте старе резюме, ШІ заповнить, завантажте. PDF і Word за підпискою від {price}.",
       keywords: "анкета моряка торговий флот, анкета моряка балкер, резюме моряка контейнеровоз, анкета моряка генкарго, анкета моряка word",
       h1: "Анкета для торговельного флоту — з вашого старого резюме",
       lede: "Балкери, контейнеровози, генкарго, рефрижератори, ро-ро. Завантажте старе резюме, і шаблон Word почнеться з того, що крюїнг торговельного флоту читає першим.",
@@ -182,7 +182,7 @@ const ua: FleetPagesCopy = {
     },
     offshore: {
       metaTitle: "Анкета моряка для офшору у Word — DP і BOSIET нагорі | SeaJobs.pro",
-      metaDescription: "Анкета моряка для офшору, де DP і сертифікати виживання стоять першими: завантажте старе резюме, ШІ заповнить. PDF безкоштовно, Word за {price} один раз.",
+      metaDescription: "Анкета моряка для офшору, де DP і сертифікати виживання стоять першими: завантажте старе резюме, ШІ заповнить. PDF і Word за підпискою від {price}.",
       keywords: "анкета моряка офшор, резюме офшор, cv офшор шаблон, анкета dp оператора, анкета моряка ahts, анкета моряка psv",
       h1: "Анкета для офшору — DP і BOSIET там, де їх читають першими",
       lede: "AHTS, PSV, SOV, DSV, самопідйомні установки. Завантажте старе резюме, і шаблон Word поставить нагору те, за чим наймають в офшор.",
@@ -194,7 +194,7 @@ const ua: FleetPagesCopy = {
     },
     tanker: {
       metaTitle: "Анкета моряка на танкер і газовоз у Word — допуски нагорі | SeaJobs.pro",
-      metaDescription: "Анкета для нафтових, хімічних танкерів, LNG і LPG, де танкерні допуски стоять першими: завантажте старе резюме, ШІ заповнить. PDF безкоштовно, Word за {price}.",
+      metaDescription: "Анкета для нафтових, хімічних танкерів, LNG і LPG, де танкерні допуски стоять першими: завантажте старе резюме, ШІ заповнить. PDF і Word за підпискою від {price}.",
       keywords: "анкета моряка танкер, анкета моряка газовоз, резюме lng, резюме lpg, анкета хімовоз, cv танкер шаблон",
       h1: "Анкета на танкер і газовоз — допуски першими",
       lede: "Нафта, хімія, LNG, LPG. Завантажте старе резюме, і шаблон Word почнеться з допусків, які танкерний крюїнг перевіряє раніше за все.",
@@ -206,7 +206,7 @@ const ua: FleetPagesCopy = {
     },
     passenger: {
       metaTitle: "Анкета моряка на круїзний лайнер і пором у Word | SeaJobs.pro",
-      metaDescription: "Анкета для круїзних суден, поромів і Ro-Pax, де Crowd Management і безпека пасажирів стоять першими: завантажте старе резюме, ШІ заповнить. PDF безкоштовно, Word за {price}.",
+      metaDescription: "Анкета для круїзних суден, поромів і Ro-Pax, де Crowd Management і безпека пасажирів стоять першими: завантажте старе резюме, ШІ заповнить. PDF і Word за підпискою від {price}.",
       keywords: "анкета моряка круїзний лайнер, анкета моряка пором, резюме ro-pax, crowd management, анкета пасажирський флот",
       h1: "Анкета на круїзний лайнер і пором — пасажирські сертифікати першими",
       lede: "Круїзні судна, пороми, Ro-Pax. Завантажте старе резюме, і шаблон Word почнеться з курсів, які крюїнг пасажирського флоту мусить побачити.",
@@ -218,7 +218,7 @@ const ua: FleetPagesCopy = {
     },
     tug: {
       metaTitle: "Анкета моряка на буксир і земснаряд у Word | SeaJobs.pro",
-      metaDescription: "Анкета для буксирів, земснарядів і робочих суден: завантажте старе резюме, ШІ заповнить, завантажте. PDF безкоштовно, Word за {price} один раз.",
+      metaDescription: "Анкета для буксирів, земснарядів і робочих суден: завантажте старе резюме, ШІ заповнить, завантажте. PDF і Word за підпискою від {price}.",
       keywords: "анкета моряка буксир, резюме капітан буксира, анкета земснаряд, анкета моряка робоче судно",
       h1: "Анкета на буксир і земснаряд — з вашого старого резюме",
       lede: "Портове й морське буксирування, земснаряди, робочі судна, мультикати. Завантажте старе резюме, і шаблон Word почнеться з того, за чим наймають на цю роботу.",
@@ -237,7 +237,7 @@ const pl: FleetPagesCopy = {
   pages: {
     merchant: {
       metaTitle: "CV marynarza floty handlowej w Wordzie — AI wypełni ze starego CV | SeaJobs.pro",
-      metaDescription: "CV marynarza na masowce, kontenerowce, drobnicowce i ro-ro: wgraj stare CV, AI je wypełni, pobierz. PDF za darmo, Word za {price} jednorazowo.",
+      metaDescription: "CV marynarza na masowce, kontenerowce, drobnicowce i ro-ro: wgraj stare CV, AI je wypełni, pobierz. PDF i Word w subskrypcji od {price}.",
       keywords: "cv marynarza flota handlowa, cv masowiec, cv kontenerowiec, cv drobnicowiec, wzór cv marynarza word",
       h1: "CV na flotę handlową — z tego, które już masz",
       lede: "Masowce, kontenerowce, drobnicowce, chłodniowce, ro-ro. Wgraj stare CV, a szablon Word zacznie się od tego, co agencja floty handlowej czyta najpierw.",
@@ -249,7 +249,7 @@ const pl: FleetPagesCopy = {
     },
     offshore: {
       metaTitle: "CV offshore w Wordzie — DP i BOSIET na górze, wypełnione przez AI | SeaJobs.pro",
-      metaDescription: "CV marynarza offshore z certyfikatami DP i ratowniczymi na początku: wgraj stare CV, AI je wypełni. PDF za darmo, Word za {price} jednorazowo.",
+      metaDescription: "CV marynarza offshore z certyfikatami DP i ratowniczymi na początku: wgraj stare CV, AI je wypełni. PDF i Word w subskrypcji od {price}.",
       keywords: "cv offshore, wzór cv offshore, cv dpo, cv ahts, cv psv, cv marynarza offshore word",
       h1: "CV offshore — DP i BOSIET tam, gdzie czyta się je najpierw",
       lede: "AHTS, PSV, SOV, DSV, platformy samopodnośne. Wgraj stare CV, a szablon Word postawi na górze to, po czym zatrudnia się w offshore.",
@@ -261,7 +261,7 @@ const pl: FleetPagesCopy = {
     },
     tanker: {
       metaTitle: "CV na tankowiec i gazowiec w Wordzie — uprawnienia na górze | SeaJobs.pro",
-      metaDescription: "CV na tankowce olejowe, chemikaliowce, LNG i LPG z uprawnieniami tankowcowymi na początku: wgraj stare CV, AI je wypełni. PDF za darmo, Word za {price}.",
+      metaDescription: "CV na tankowce olejowe, chemikaliowce, LNG i LPG z uprawnieniami tankowcowymi na początku: wgraj stare CV, AI je wypełni. PDF i Word w subskrypcji od {price}.",
       keywords: "cv tankowiec, cv gazowiec, cv lng, cv lpg, cv chemikaliowiec, wzór cv tankowiec",
       h1: "CV na tankowiec i gazowiec — uprawnienia najpierw",
       lede: "Ropa, chemikalia, LNG, LPG. Wgraj stare CV, a szablon Word zacznie się od uprawnień, które agencja tankowcowa sprawdza przed wszystkim innym.",
@@ -273,7 +273,7 @@ const pl: FleetPagesCopy = {
     },
     passenger: {
       metaTitle: "CV na statek wycieczkowy i prom w Wordzie | SeaJobs.pro",
-      metaDescription: "CV na statki wycieczkowe, promy i Ro-Pax z Crowd Management i bezpieczeństwem pasażerów na początku: wgraj stare CV, AI je wypełni. PDF za darmo, Word za {price}.",
+      metaDescription: "CV na statki wycieczkowe, promy i Ro-Pax z Crowd Management i bezpieczeństwem pasażerów na początku: wgraj stare CV, AI je wypełni. PDF i Word w subskrypcji od {price}.",
       keywords: "cv statek wycieczkowy, cv prom, cv ro-pax, crowd management, cv flota pasażerska",
       h1: "CV na wycieczkowiec i prom — certyfikaty pasażerskie najpierw",
       lede: "Statki wycieczkowe, promy, Ro-Pax. Wgraj stare CV, a szablon Word zacznie się od kursów, które agencja floty pasażerskiej musi zobaczyć.",
@@ -285,7 +285,7 @@ const pl: FleetPagesCopy = {
     },
     tug: {
       metaTitle: "CV na holownik i pogłębiarkę w Wordzie | SeaJobs.pro",
-      metaDescription: "CV na holowniki, pogłębiarki i jednostki robocze: wgraj stare CV, AI je wypełni, pobierz. PDF za darmo, Word za {price} jednorazowo.",
+      metaDescription: "CV na holowniki, pogłębiarki i jednostki robocze: wgraj stare CV, AI je wypełni, pobierz. PDF i Word w subskrypcji od {price}.",
       keywords: "cv holownik, cv kapitan holownika, cv pogłębiarka, cv jednostka robocza",
       h1: "CV na holownik i pogłębiarkę — z tego, które już masz",
       lede: "Holowanie portowe i oceaniczne, pogłębiarki, jednostki robocze, multicaty. Wgraj stare CV, a szablon Word zacznie się od tego, po czym zatrudnia się do tej pracy.",
@@ -304,7 +304,7 @@ const ro: FleetPagesCopy = {
   pages: {
     merchant: {
       metaTitle: "CV de marinar pentru flota comercială în Word — completat de AI | SeaJobs.pro",
-      metaDescription: "CV de marinar pentru vrachiere, portcontainere, cargouri și ro-ro: încarci CV-ul vechi, AI-ul îl completează, descarci. PDF gratuit, Word cu {price} o dată.",
+      metaDescription: "CV de marinar pentru vrachiere, portcontainere, cargouri și ro-ro: încarci CV-ul vechi, AI-ul îl completează, descarci. PDF și Word cu abonament de la {price}.",
       keywords: "cv marinar flota comerciala, cv vrachier, cv portcontainer, cv cargou, model cv marinar word",
       h1: "CV pentru flota comercială — din cel pe care îl ai",
       lede: "Vrachiere, portcontainere, cargouri, frigorifice, ro-ro. Încarci CV-ul vechi, iar șablonul Word începe cu ce citește întâi o agenție de flotă comercială.",
@@ -316,7 +316,7 @@ const ro: FleetPagesCopy = {
     },
     offshore: {
       metaTitle: "CV offshore în Word — DP și BOSIET în față, completat de AI | SeaJobs.pro",
-      metaDescription: "CV de marinar offshore cu certificatele DP și de supraviețuire în față: încarci CV-ul vechi, AI-ul îl completează. PDF gratuit, Word cu {price} o dată.",
+      metaDescription: "CV de marinar offshore cu certificatele DP și de supraviețuire în față: încarci CV-ul vechi, AI-ul îl completează. PDF și Word cu abonament de la {price}.",
       keywords: "cv offshore, model cv offshore, cv dpo, cv ahts, cv psv, cv marinar offshore word",
       h1: "CV offshore — DP și BOSIET acolo unde se citesc primele",
       lede: "AHTS, PSV, SOV, DSV, platforme autoridicătoare. Încarci CV-ul vechi, iar șablonul Word pune în față ce contează la angajarea în offshore.",
@@ -328,7 +328,7 @@ const ro: FleetPagesCopy = {
     },
     tanker: {
       metaTitle: "CV pentru petroliere și gaziere în Word — atestatele în față | SeaJobs.pro",
-      metaDescription: "CV pentru petroliere, chimicaliere, LNG și LPG cu atestatele de tanc în față: încarci CV-ul vechi, AI-ul îl completează. PDF gratuit, Word cu {price}.",
+      metaDescription: "CV pentru petroliere, chimicaliere, LNG și LPG cu atestatele de tanc în față: încarci CV-ul vechi, AI-ul îl completează. PDF și Word cu abonament de la {price}.",
       keywords: "cv petrolier, cv gazier, cv lng, cv lpg, cv chimicalier, model cv petrolier",
       h1: "CV pentru petroliere și gaziere — atestatele întâi",
       lede: "Petrol, chimicale, LNG, LPG. Încarci CV-ul vechi, iar șablonul Word începe cu atestatele pe care agenția de tancuri le verifică înaintea oricărui alt lucru.",
@@ -340,7 +340,7 @@ const ro: FleetPagesCopy = {
     },
     passenger: {
       metaTitle: "CV pentru nave de croazieră și feriboturi în Word | SeaJobs.pro",
-      metaDescription: "CV pentru nave de croazieră, feriboturi și Ro-Pax cu Crowd Management și siguranța pasagerilor în față: încarci CV-ul vechi, AI-ul îl completează. PDF gratuit, Word cu {price}.",
+      metaDescription: "CV pentru nave de croazieră, feriboturi și Ro-Pax cu Crowd Management și siguranța pasagerilor în față: încarci CV-ul vechi, AI-ul îl completează. PDF și Word cu abonament de la {price}.",
       keywords: "cv nava de croaziera, cv ferry, cv ro-pax, crowd management, cv flota de pasageri",
       h1: "CV pentru croazieră și feribot — certificatele de pasageri întâi",
       lede: "Nave de croazieră, feriboturi, Ro-Pax. Încarci CV-ul vechi, iar șablonul Word începe cu cursurile pe care agenția flotei de pasageri trebuie să le vadă.",
@@ -352,7 +352,7 @@ const ro: FleetPagesCopy = {
     },
     tug: {
       metaTitle: "CV pentru remorcher și dragă în Word | SeaJobs.pro",
-      metaDescription: "CV pentru remorchere, drage și nave de lucru: încarci CV-ul vechi, AI-ul îl completează, descarci. PDF gratuit, Word cu {price} o dată.",
+      metaDescription: "CV pentru remorchere, drage și nave de lucru: încarci CV-ul vechi, AI-ul îl completează, descarci. PDF și Word cu abonament de la {price}.",
       keywords: "cv remorcher, cv comandant remorcher, cv draga, cv nava de lucru",
       h1: "CV pentru remorcher și dragă — din cel pe care îl ai",
       lede: "Remorcaj portuar și oceanic, drage, nave de lucru, multicat-uri. Încarci CV-ul vechi, iar șablonul Word începe cu ce contează la angajarea pentru această muncă.",
@@ -368,5 +368,5 @@ const ro: FleetPagesCopy = {
 const COPY: Record<Lang, FleetPagesCopy> = { en, ru, ua, pl, ro };
 
 export function fleetPagesCopy(lang: Lang): FleetPagesCopy {
-  return withPrice(COPY[lang] ?? COPY.en, lang);
+  return withSubPrice(COPY[lang] ?? COPY.en, lang);
 }

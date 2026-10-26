@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { routing } from "@/i18n/routing";
 import { cvMakerCopy } from "@/lib/cvMaker";
-import { CV_WORD, cvWordPrice } from "@/lib/cvWord";
+import { SUB_FROM, SUB_PLANS } from "@/lib/subscription";
 import type { Lang } from "@/lib/langs";
 
 // The public page about making a CV on the site — and the page search engines
@@ -137,7 +137,7 @@ export default async function CvBuilderPage({
           >
             {c.ctaPrimary} <ArrowRight size={15} />
           </Link>
-          <p className="sr-only">{CV_WORD.usd.toFixed(2)} USD</p>
+          <p className="sr-only">{SUB_PLANS[SUB_FROM].usd.toFixed(2)} USD</p>
         </section>
 
         {/* FAQ — mirrored into the JSON-LD above */}

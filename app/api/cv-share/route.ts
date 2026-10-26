@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
+import { hasToolAccess } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,13 @@ export async function POST(req: Request) {
 
   const { data: { user: caller }, error: authErr } = await admin.auth.getUser(token);
   if (authErr || !caller) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+
+  // Writing from one's own mailbox is a subscription feature, like applying
+  // through the portal: the letter goes to the agency's address, which only
+  // subscribers are shown.
+  if (!(await hasToolAccess(admin, caller.id))) {
+    return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
+  }
 
   const body = (await req.json().catch(() => ({}))) as {
     applicationId?: string;
