@@ -62,7 +62,7 @@ export function kyivWall(t: Date): Wall {
 }
 
 /** The instant at which Kyiv's clock shows the given wall time. */
-function kyivToInstant(w: Wall): Date {
+export function kyivToInstant(w: Wall): Date {
   const asUtc = Date.UTC(w.y, w.m - 1, w.d, w.h, w.mi);
   let t = asUtc;
   // The offset is +2 or +3 hours; two passes settle it either side of a clock change.

@@ -4,7 +4,7 @@ import { emailQuotaExhausted, sendEmail } from "@/lib/email";
 import { buildCvHtml } from "@/lib/cvHtml";
 import { dispatchJobAlerts } from "@/lib/jobAlerts";
 import { postVacancyToChannel } from "@/lib/telegramFeed";
-import { hasToolAccess } from "@/lib/subscriptionAccess";
+import { mayUseVacancy } from "@/lib/freeUnlocks";
 
 function getAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -49,8 +49,9 @@ export async function POST(req: Request) {
       if (caller.id !== seafarerId) {
         return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
       }
-      // Applying comes with the subscription once one is on sale.
-      if (!(await hasToolAccess(admin, caller.id))) {
+      // Applying comes with the subscription once one is on sale, or with this
+      // vacancy opened as one of the week's free ones (lib/freeUnlocks.ts).
+      if (!(await mayUseVacancy(admin, caller.id, vacancyId))) {
         return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
       }
       // And an application must actually exist.
@@ -109,8 +110,9 @@ ${cv.html}
       if (caller.id !== seafarerId) {
         return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
       }
-      // The CV goes to the agency only for a subscriber, once one is on sale.
-      if (!(await hasToolAccess(admin, caller.id))) {
+      // The CV goes to the agency only for a subscriber, once one is on sale,
+      // or for a vacancy opened as one of the week's free ones.
+      if (!(await mayUseVacancy(admin, caller.id, vacancyId))) {
         return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
       }
       const { data: appExists } = await admin

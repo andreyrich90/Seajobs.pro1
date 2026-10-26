@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "node:crypto";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
 import { hasToolAccess } from "@/lib/subscriptionAccess";
+import { mayUseVacancy } from "@/lib/freeUnlocks";
 
 export const runtime = "nodejs";
 
@@ -32,18 +33,21 @@ export async function POST(req: Request) {
   const { data: { user: caller }, error: authErr } = await admin.auth.getUser(token);
   if (authErr || !caller) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
-  // Writing from one's own mailbox is a subscription feature, like applying
-  // through the portal: the letter goes to the agency's address, which only
-  // subscribers are shown.
-  if (!(await hasToolAccess(admin, caller.id))) {
-    return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
-  }
-
   const body = (await req.json().catch(() => ({}))) as {
     applicationId?: string;
     vacancyId?: string;
     sentTo?: string;
   };
+
+  // Writing from one's own mailbox goes with the agency's address, so it is
+  // open on the same terms: a subscription, or this vacancy opened as one of
+  // the week's free ones (lib/freeUnlocks.ts).
+  const allowed = body.vacancyId && UUID_RE.test(body.vacancyId)
+    ? await mayUseVacancy(admin, caller.id, body.vacancyId)
+    : await hasToolAccess(admin, caller.id);
+  if (!allowed) {
+    return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
+  }
 
   // A CV built from an empty profile is an empty page, so the same rule the
   // application trigger enforces applies here: a named person with a rank and

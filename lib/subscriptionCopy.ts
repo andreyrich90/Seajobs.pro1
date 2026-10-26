@@ -4,7 +4,7 @@
 // vacancy, company and CV pages for their lock lines, and this map — about 10 KB
 // — would otherwise ride along on every vacancy anybody opens.
 
-import type { PlanId } from "@/lib/subscription";
+import { FREE_UNLOCKS_PER_WEEK, type PlanId } from "@/lib/subscription";
 
 export type SubCopy = {
   title: string;
@@ -34,7 +34,7 @@ export type SubCopy = {
 export const SUB_COPY: Record<string, SubCopy> = {
   en: {
     title: "SeaJobs subscription",
-    lede: "Searching vacancies, your profile and building your CV are free. A subscription opens everything you need to reach the agency:",
+    lede: "Without a subscription you can open {free} vacancies a week — their contacts and applying. A subscription removes the limit:",
     perks: [
       "Applying through the portal — the site sends your CV straight to the agency",
       "Crewing agencies' e-mails and phones on every vacancy",
@@ -42,7 +42,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
       "Contact people of crewing companies on their pages",
       "Your CV as PDF, image and editable Word, in every fleet template",
     ],
-    free: "Free without a subscription: vacancies, your profile, building and editing your CV.",
+    free: "Free without a subscription: vacancies, your profile, building and editing your CV, and {free} vacancies a week with contacts and applying.",
     plan: { "3m": "3 months", "6m": "6 months", "12m": "12 months" },
     perMonth: "≈ {price} a month",
     best: "Best value",
@@ -61,7 +61,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
   },
   ru: {
     title: "Подписка SeaJobs",
-    lede: "Искать вакансии, заполнять профиль и собирать CV — бесплатно. Подписка открывает всё, чтобы связаться с крюингом:",
+    lede: "Без подписки можно открыть {free} вакансии в неделю — с контактами и откликом. Подписка снимает лимит:",
     perks: [
       "Отклик через портал — сайт сам отправит ваше CV в крюинг",
       "E-mail и телефоны крюингов в каждой вакансии",
@@ -69,7 +69,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
       "Контактные лица крюинговых компаний на их страницах",
       "Ваше CV в PDF, картинкой и редактируемым Word во всех шаблонах флота",
     ],
-    free: "Бесплатно и без подписки: вакансии, профиль, сборка и редактирование CV.",
+    free: "Бесплатно и без подписки: вакансии, профиль, сборка и редактирование CV и {free} вакансии в неделю с контактами и откликом.",
     plan: { "3m": "3 месяца", "6m": "6 месяцев", "12m": "12 месяцев" },
     perMonth: "≈ {price} в месяц",
     best: "Выгоднее всего",
@@ -88,7 +88,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
   },
   ua: {
     title: "Підписка SeaJobs",
-    lede: "Шукати вакансії, заповнювати профіль і збирати CV — безкоштовно. Підписка відкриває все, щоб зв'язатися з крюїнгом:",
+    lede: "Без підписки можна відкрити {free} вакансії на тиждень — з контактами та відгуком. Підписка знімає ліміт:",
     perks: [
       "Відгук через портал — сайт сам надішле ваше CV у крюїнг",
       "E-mail і телефони крюїнгів у кожній вакансії",
@@ -96,7 +96,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
       "Контактні особи крюїнгових компаній на їхніх сторінках",
       "Ваше CV у PDF, картинкою та редагованим Word у всіх шаблонах флоту",
     ],
-    free: "Безкоштовно і без підписки: вакансії, профіль, збірка й редагування CV.",
+    free: "Безкоштовно і без підписки: вакансії, профіль, збірка й редагування CV та {free} вакансії на тиждень з контактами та відгуком.",
     plan: { "3m": "3 місяці", "6m": "6 місяців", "12m": "12 місяців" },
     perMonth: "≈ {price} на місяць",
     best: "Найвигідніше",
@@ -115,7 +115,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
   },
   pl: {
     title: "Subskrypcja SeaJobs",
-    lede: "Szukanie ofert, profil i tworzenie CV są darmowe. Subskrypcja otwiera wszystko, by skontaktować się z agencją:",
+    lede: "Bez subskrypcji możesz otworzyć {free} oferty tygodniowo — z kontaktami i aplikowaniem. Subskrypcja znosi limit:",
     perks: [
       "Aplikowanie przez portal — strona sama wyśle Twoje CV do agencji",
       "E-maile i telefony agencji crewingowych w każdej ofercie",
@@ -123,7 +123,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
       "Osoby kontaktowe firm crewingowych na ich stronach",
       "Twoje CV jako PDF, obraz i edytowalny Word, we wszystkich szablonach floty",
     ],
-    free: "Za darmo, bez subskrypcji: oferty, profil, tworzenie i edycja CV.",
+    free: "Za darmo, bez subskrypcji: oferty, profil, tworzenie i edycja CV oraz {free} oferty tygodniowo z kontaktami i aplikowaniem.",
     plan: { "3m": "3 miesiące", "6m": "6 miesięcy", "12m": "12 miesięcy" },
     perMonth: "≈ {price} miesięcznie",
     best: "Najkorzystniej",
@@ -142,7 +142,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
   },
   ro: {
     title: "Abonament SeaJobs",
-    lede: "Căutarea posturilor, profilul și crearea CV-ului sunt gratuite. Abonamentul deschide tot ce îți trebuie ca să ajungi la agenție:",
+    lede: "Fără abonament poți deschide {free} posturi pe săptămână — cu contacte și aplicare. Abonamentul ridică limita:",
     perks: [
       "Aplicarea prin portal — site-ul trimite singur CV-ul tău agenției",
       "E-mailurile și telefoanele agențiilor de crewing la fiecare post",
@@ -150,7 +150,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
       "Persoanele de contact ale companiilor de crewing pe paginile lor",
       "CV-ul tău ca PDF, imagine și Word editabil, în toate șabloanele de flotă",
     ],
-    free: "Gratuit, fără abonament: posturile, profilul, crearea și editarea CV-ului.",
+    free: "Gratuit, fără abonament: posturile, profilul, crearea și editarea CV-ului și {free} posturi pe săptămână cu contacte și aplicare.",
     plan: { "3m": "3 luni", "6m": "6 luni", "12m": "12 luni" },
     perMonth: "≈ {price} pe lună",
     best: "Cel mai avantajos",
@@ -169,7 +169,9 @@ export const SUB_COPY: Record<string, SubCopy> = {
   },
 };
 
-/** `SUB_COPY[lang]`, English when the language is missing. `perMonth` is filled per plan by the page. */
+/** `SUB_COPY[lang]`, English when the language is missing, with `{free}` filled. `perMonth` is filled per plan by the page. */
 export function subCopy(lang: string): SubCopy {
-  return SUB_COPY[lang] ?? SUB_COPY.en;
+  const c = SUB_COPY[lang] ?? SUB_COPY.en;
+  const n = String(FREE_UNLOCKS_PER_WEEK);
+  return { ...c, lede: c.lede.replace("{free}", n), free: c.free.replace("{free}", n) };
 }

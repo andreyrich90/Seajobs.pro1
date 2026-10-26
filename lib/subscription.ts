@@ -41,6 +41,13 @@ export function isPlanId(v: unknown): v is PlanId {
   return v === "3m" || v === "6m" || v === "12m";
 }
 
+/**
+ * The free tier: vacancies a seafarer without a subscription may open each
+ * week (Monday 00:00 Kyiv), each showing its contacts and taking an
+ * application. Server side in lib/freeUnlocks.ts; here so pages can say it.
+ */
+export const FREE_UNLOCKS_PER_WEEK = 3;
+
 /** Any plan on sale. Until then the page says subscriptions open soon. */
 export const SUB_SELLING = PLAN_IDS.some((p) => SUB_PLANS[p].payUrl);
 
@@ -125,43 +132,81 @@ export function withSubPrice<T>(node: T, lang?: string): T {
 /** The lines on a lock — applying, a vacancy's contacts, a company's, the CV files —
  *  and its button. `{price}` in `cta` is the cheapest plan. The full page copy
  *  is in lib/subscriptionCopy.ts, which only the subscription page loads. */
-export type SubLock = { lockContacts: string; lockApply: string; lockCompany: string; lockCv: string; cta: string };
+export type SubLock = {
+  lockContacts: string;
+  /** Under the free-tier box: what the subscription adds on top of it. */
+  lockApply: string;
+  lockCompany: string;
+  lockCv: string;
+  cta: string;
+  /** The free tier. `{limit}` and `{left}` are counts, `{date}` the next Monday — filled by the page. */
+  freeTitle: string;
+  freeBody: string;
+  freeBtn: string;
+  freeLeft: string;
+  freeUsed: string;
+};
 
 const SUB_LOCK: Record<string, SubLock> = {
   en: {
     lockContacts: "The agency's e-mail and phone open with a subscription.",
-    lockApply: "Applying through the portal, the agency's e-mail and phone, and writing from your own mailbox come with a subscription.",
+    lockApply: "With a subscription there is no weekly limit: every vacancy, writing from your own mailbox and your CV files.",
     lockCompany: "The company's contacts open with a subscription.",
     lockCv: "Downloading your CV (PDF, image, Word) comes with a subscription. Building and editing it stay free.",
     cta: "Subscribe — from {price}",
+    freeTitle: "{limit} vacancies a week for free",
+    freeBody: "Open this vacancy to see the agency's e-mail and phone and apply to it. Left this week: {left} of {limit}.",
+    freeBtn: "Open this vacancy — free",
+    freeLeft: "Free vacancies left this week: {left} of {limit}.",
+    freeUsed: "This week's {limit} free vacancies are used. New ones on {date}.",
   },
   ru: {
     lockContacts: "E-mail и телефон крюинга открываются с подпиской.",
-    lockApply: "Отклик через портал, e-mail и телефон крюинга и письмо со своей почты — по подписке.",
+    lockApply: "С подпиской без недельного лимита: все вакансии, письмо со своей почты и файлы CV.",
     lockCompany: "Контакты компании открываются с подпиской.",
     lockCv: "Скачать CV (PDF, картинка, Word) можно с подпиской. Собирать и редактировать его — бесплатно.",
     cta: "Оформить подписку — от {price}",
+    freeTitle: "{limit} вакансии в неделю — бесплатно",
+    freeBody: "Откройте эту вакансию, чтобы увидеть e-mail и телефон крюинга и откликнуться. Осталось на этой неделе: {left} из {limit}.",
+    freeBtn: "Открыть вакансию — бесплатно",
+    freeLeft: "Бесплатных вакансий на этой неделе осталось: {left} из {limit}.",
+    freeUsed: "{limit} бесплатные вакансии этой недели использованы. Новые — {date}.",
   },
   ua: {
     lockContacts: "E-mail і телефон крюїнгу відкриваються з підпискою.",
-    lockApply: "Відгук через портал, e-mail і телефон крюїнгу та лист зі своєї пошти — за підпискою.",
+    lockApply: "З підпискою без тижневого ліміту: усі вакансії, лист зі своєї пошти та файли CV.",
     lockCompany: "Контакти компанії відкриваються з підпискою.",
     lockCv: "Завантажити CV (PDF, картинка, Word) можна з підпискою. Збирати й редагувати його — безкоштовно.",
     cta: "Оформити підписку — від {price}",
+    freeTitle: "{limit} вакансії на тиждень — безкоштовно",
+    freeBody: "Відкрийте цю вакансію, щоб побачити e-mail і телефон крюїнгу та відгукнутися. Залишилось цього тижня: {left} з {limit}.",
+    freeBtn: "Відкрити вакансію — безкоштовно",
+    freeLeft: "Безкоштовних вакансій цього тижня залишилось: {left} з {limit}.",
+    freeUsed: "{limit} безкоштовні вакансії цього тижня використано. Нові — {date}.",
   },
   pl: {
     lockContacts: "E-mail i telefon agencji otwiera subskrypcja.",
-    lockApply: "Aplikowanie przez portal, e-mail i telefon agencji oraz list z własnej skrzynki są w subskrypcji.",
+    lockApply: "Z subskrypcją bez tygodniowego limitu: wszystkie oferty, list z własnej skrzynki i pliki CV.",
     lockCompany: "Kontakty firmy otwiera subskrypcja.",
     lockCv: "Pobranie CV (PDF, obraz, Word) jest w subskrypcji. Tworzenie i edycja pozostają darmowe.",
     cta: "Wykup subskrypcję — od {price}",
+    freeTitle: "{limit} oferty tygodniowo za darmo",
+    freeBody: "Otwórz tę ofertę, aby zobaczyć e-mail i telefon agencji i aplikować. W tym tygodniu zostało: {left} z {limit}.",
+    freeBtn: "Otwórz ofertę — za darmo",
+    freeLeft: "Darmowych ofert w tym tygodniu zostało: {left} z {limit}.",
+    freeUsed: "Wykorzystano {limit} darmowe oferty w tym tygodniu. Kolejne — {date}.",
   },
   ro: {
     lockContacts: "E-mailul și telefonul agenției se deschid cu abonament.",
-    lockApply: "Aplicarea prin portal, e-mailul și telefonul agenției și scrisoarea din propriul e-mail vin cu abonamentul.",
+    lockApply: "Cu abonament nu ai limită săptămânală: toate posturile, scrisoarea din propriul e-mail și fișierele CV.",
     lockCompany: "Contactele companiei se deschid cu abonament.",
     lockCv: "Descărcarea CV-ului (PDF, imagine, Word) vine cu abonamentul. Construirea și editarea rămân gratuite.",
     cta: "Abonează-te — de la {price}",
+    freeTitle: "{limit} posturi pe săptămână gratuit",
+    freeBody: "Deschide acest post ca să vezi e-mailul și telefonul agenției și să aplici. Rămase săptămâna aceasta: {left} din {limit}.",
+    freeBtn: "Deschide postul — gratuit",
+    freeLeft: "Posturi gratuite rămase săptămâna aceasta: {left} din {limit}.",
+    freeUsed: "Cele {limit} posturi gratuite din această săptămână au fost folosite. Următoarele — {date}.",
   },
 };
 

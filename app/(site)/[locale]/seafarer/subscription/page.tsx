@@ -5,7 +5,8 @@ import { Check, Star, Lock, ArrowLeft, Clock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { PLAN_IDS, SUB_PLANS, SUB_SELLING, subPrice, type PlanId } from "@/lib/subscription";
+import { PLAN_IDS, SUB_PLANS, SUB_SELLING, subLock, subPrice, type PlanId } from "@/lib/subscription";
+import type { FreeState } from "@/lib/freeUnlocks";
 import { subCopy } from "@/lib/subscriptionCopy";
 
 // The seafarer subscription, from the cabinet: what it opens, the three plans,
@@ -24,7 +25,7 @@ const DATE_LOCALE: Record<string, string> = { en: "en-GB", ru: "ru-RU", ua: "uk-
 /** How long a tab waits for the webhook before giving the buttons back. */
 const WAIT_MS = 15 * 60_000;
 
-type Status = { active: boolean; activeUntil: string | null; email: string | null };
+type Status = { active: boolean; activeUntil: string | null; email: string | null; free: FreeState | null };
 
 export default function SubscriptionPage() {
   const { lang } = useLang();
@@ -46,7 +47,7 @@ export default function SubscriptionPage() {
       const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
       const j = (await res.json()) as Partial<Status> & { ok?: boolean };
       if (!j.ok) return null;
-      const s: Status = { active: !!j.active, activeUntil: j.activeUntil ?? null, email: j.email ?? null };
+      const s: Status = { active: !!j.active, activeUntil: j.activeUntil ?? null, email: j.email ?? null, free: j.free ?? null };
       setStatus(s);
       return s;
     } catch {
@@ -154,6 +155,12 @@ export default function SubscriptionPage() {
         ) : (
           <p className="flex items-center gap-2 text-sm text-mist">
             <Lock size={15} /> {c.inactive}
+          </p>
+        )}
+        {/* No subscription: how much of the week's free tier is left. */}
+        {SUB_SELLING && status && !status.active && !waiting && status.free && (
+          <p className="mt-2 text-xs text-mist">
+            {subLock(lang).freeLeft.replace("{left}", String(status.free.left)).replace("{limit}", String(status.free.limit))}
           </p>
         )}
         {stale && <p className="mt-2 text-xs text-mist">{c.trouble}</p>}

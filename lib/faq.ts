@@ -1,5 +1,5 @@
 import type { Lang } from "@/lib/langs";
-import { SUB_FROM, subPrice } from "@/lib/subscription";
+import { FREE_UNLOCKS_PER_WEEK as F, SUB_FROM, subPrice } from "@/lib/subscription";
 
 /** The cheapest plan as each language writes it — never typed into the answers. */
 const p = (lang: Lang) => subPrice(SUB_FROM, lang);
@@ -32,11 +32,11 @@ export const FAQ_SEAFARERS: FaqItem[] = [
       ro: "Este SeaJobs.pro gratuit pentru marinari?",
     },
     a: {
-      en: `Partly. Registration, browsing vacancies, your profile and building a CV are free. Applying through the portal, the crewing agencies' e-mails and phones, and downloading your CV come with a subscription from ${p("en")} for 3 months. We never take money for a job, a contract or a place on board.`,
-      ru: `Частично. Регистрация, просмотр вакансий, профиль и сборка CV — бесплатно. Отклик через портал, e-mail и телефоны крюингов и скачивание CV — по подписке от ${p("ru")} за 3 месяца. Денег за работу, контракт или место на судне мы не берём никогда.`,
-      ua: `Частково. Реєстрація, перегляд вакансій, профіль і збірка CV — безкоштовно. Відгук через портал, e-mail і телефони крюїнгів та завантаження CV — за підпискою від ${p("ua")} за 3 місяці. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.`,
-      pl: `Częściowo. Rejestracja, przeglądanie ofert, profil i tworzenie CV są darmowe. Aplikowanie przez portal, e-maile i telefony agencji oraz pobieranie CV są w subskrypcji od ${p("pl")} za 3 miesiące. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.`,
-      ro: `Parțial. Înregistrarea, căutarea posturilor, profilul și crearea CV-ului sunt gratuite. Aplicarea prin portal, e-mailurile și telefoanele agențiilor și descărcarea CV-ului vin cu abonamentul de la ${p("ro")} pentru 3 luni. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.`,
+      en: `Partly. Registration, browsing vacancies, your profile and building a CV are free, and so are ${F} vacancies a week: open one to see the agency's e-mail and phone and apply to it. With a subscription from ${p("en")} for 3 months there is no weekly limit, and you can download your CV. We never take money for a job, a contract or a place on board.`,
+      ru: `Частично. Регистрация, просмотр вакансий, профиль и сборка CV — бесплатно, и ещё ${F} вакансии в неделю: откройте вакансию, чтобы увидеть e-mail и телефон крюинга и откликнуться. С подпиской от ${p("ru")} за 3 месяца — без недельного лимита и со скачиванием CV. Денег за работу, контракт или место на судне мы не берём никогда.`,
+      ua: `Частково. Реєстрація, перегляд вакансій, профіль і збірка CV — безкоштовно, а ще ${F} вакансії на тиждень: відкрийте вакансію, щоб побачити e-mail і телефон крюїнгу та відгукнутися. З підпискою від ${p("ua")} за 3 місяці — без тижневого ліміту і із завантаженням CV. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.`,
+      pl: `Częściowo. Rejestracja, przeglądanie ofert, profil i tworzenie CV są darmowe, a do tego ${F} oferty tygodniowo: otwórz ofertę, aby zobaczyć e-mail i telefon agencji i aplikować. Z subskrypcją od ${p("pl")} za 3 miesiące — bez tygodniowego limitu i z pobieraniem CV. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.`,
+      ro: `Parțial. Înregistrarea, căutarea posturilor, profilul și crearea CV-ului sunt gratuite, plus ${F} posturi pe săptămână: deschide un post ca să vezi e-mailul și telefonul agenției și să aplici. Cu abonamentul de la ${p("ro")} pentru 3 luni nu ai limită săptămânală și poți descărca CV-ul. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.`,
     },
   },
   {
@@ -216,11 +216,11 @@ export const FAQ_APPLY: FaqItem[] = [
       ro: "Trebuie să plătesc ca să aplic?",
     },
     a: {
-      en: `Applying through the portal comes with the subscription, from ${p("en")} for 3 months — it also opens the agencies' e-mails and phones and your CV files. Registration, your profile and the CV builder are free. You pay for the portal's tools, never for a job: if anyone asks you for money for a job, a medical, a contract or a visa, that is a scam, and you can report the vacancy to us.`,
-      ru: `Отклик через портал входит в подписку — от ${p("ru")} за 3 месяца; она же открывает e-mail и телефоны крюингов и файлы вашего CV. Регистрация, профиль и конструктор CV — бесплатно. Платите вы за инструменты портала, а не за работу: если кто-то просит деньги за работу, медкомиссию, контракт или визу — это мошенничество, сообщите нам о такой вакансии.`,
-      ua: `Відгук через портал входить у підписку — від ${p("ua")} за 3 місяці; вона ж відкриває e-mail і телефони крюїнгів і файли вашого CV. Реєстрація, профіль і конструктор CV — безкоштовно. Платите ви за інструменти порталу, а не за роботу: якщо хтось просить гроші за роботу, медкомісію, контракт чи візу — це шахрайство, повідомте нам про таку вакансію.`,
-      pl: `Aplikowanie przez portal jest w subskrypcji — od ${p("pl")} za 3 miesiące; otwiera ona też e-maile i telefony agencji oraz pliki Twojego CV. Rejestracja, profil i kreator CV są bezpłatne. Płacisz za narzędzia portalu, nie za pracę: jeśli ktoś żąda pieniędzy za pracę, badania, kontrakt lub wizę — to oszustwo, zgłoś nam taką ofertę.`,
-      ro: `Aplicarea prin portal vine cu abonamentul — de la ${p("ro")} pentru 3 luni; el deschide și e-mailurile și telefoanele agențiilor și fișierele CV-ului tău. Înregistrarea, profilul și generatorul de CV sunt gratuite. Plătești uneltele portalului, nu un post: dacă cineva îți cere bani pentru un post, vizita medicală, contract sau viză — este o înșelătorie, anunță-ne despre acel anunț.`,
+      en: `Not for ${F} vacancies a week: open one and you see the agency's e-mail and phone and can apply to it for free. Beyond that, applying comes with the subscription, from ${p("en")} for 3 months, which also opens your CV files. Registration, your profile and the CV builder are free. You pay for the portal's tools, never for a job: if anyone asks you for money for a job, a medical, a contract or a visa, that is a scam, and you can report the vacancy to us.`,
+      ru: `${F} вакансии в неделю — бесплатно: откройте вакансию, и вы увидите e-mail и телефон крюинга и сможете откликнуться. Сверх этого отклик входит в подписку — от ${p("ru")} за 3 месяца; она же открывает файлы вашего CV. Регистрация, профиль и конструктор CV — бесплатно. Платите вы за инструменты портала, а не за работу: если кто-то просит деньги за работу, медкомиссию, контракт или визу — это мошенничество, сообщите нам о такой вакансии.`,
+      ua: `${F} вакансії на тиждень — безкоштовно: відкрийте вакансію, і ви побачите e-mail і телефон крюїнгу та зможете відгукнутися. Понад це відгук входить у підписку — від ${p("ua")} за 3 місяці; вона ж відкриває файли вашого CV. Реєстрація, профіль і конструктор CV — безкоштовно. Платите ви за інструменти порталу, а не за роботу: якщо хтось просить гроші за роботу, медкомісію, контракт чи візу — це шахрайство, повідомте нам про таку вакансію.`,
+      pl: `${F} oferty tygodniowo są darmowe: otwórz ofertę, a zobaczysz e-mail i telefon agencji i możesz aplikować. Ponad to aplikowanie jest w subskrypcji — od ${p("pl")} za 3 miesiące; otwiera ona też pliki Twojego CV. Rejestracja, profil i kreator CV są bezpłatne. Płacisz za narzędzia portalu, nie za pracę: jeśli ktoś żąda pieniędzy za pracę, badania, kontrakt lub wizę — to oszustwo, zgłoś nam taką ofertę.`,
+      ro: `${F} posturi pe săptămână sunt gratuite: deschide un post și vezi e-mailul și telefonul agenției și poți aplica. Peste atât, aplicarea vine cu abonamentul — de la ${p("ro")} pentru 3 luni; el deschide și fișierele CV-ului tău. Înregistrarea, profilul și generatorul de CV sunt gratuite. Plătești uneltele portalului, nu un post: dacă cineva îți cere bani pentru un post, vizita medicală, contract sau viză — este o înșelătorie, anunță-ne despre acel anunț.`,
     },
   },
   {
