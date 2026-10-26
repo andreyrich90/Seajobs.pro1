@@ -13,6 +13,7 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
+import { subLock } from "@/lib/subscription";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { DOCX_TYPE, PDF_TYPE, importParsedCv, parseCvFile } from "@/lib/cvImport";
@@ -43,8 +44,9 @@ export type VacancyDetail = {
   created_at: string;
   is_imported?: boolean;
   // The agency's contacts never reach this component with the page: they are
-  // fetched per reader from api/vacancy-contact once the profile is complete
-  // (lib/profileGate.ts). The page only says that they exist.
+  // fetched per reader from api/vacancy-contact, for a subscriber whose profile
+  // is complete (lib/subscription.ts, lib/profileGate.ts). The page only says
+  // that they exist.
   /** Applications to this vacancy are e-mailed to the agency. */
   hasAgencyEmail: boolean;
   /** What the lock box holds a place for. */
@@ -61,7 +63,7 @@ export type VacancyDetail = {
 
 type ApplicationStatus = "pending" | "viewed" | "accepted" | "rejected";
 
-/** What api/vacancy-contact hands a reader whose profile is complete. */
+/** What api/vacancy-contact hands a subscribed reader whose profile is complete. */
 type Contacts = {
   email: string | null;
   phone: string | null;
@@ -145,9 +147,11 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Crewing agency contacts",
     emailLabel: "E-mail",
     phoneLabel: "Phone",
-    lockAnon: "The agency's e-mail and phone, and the apply button, are shown to seafarers who have signed in and filled in their profile: first name, last name, phone and rank.",
-    lockIncomplete: "The agency's contacts and the apply button open as soon as your profile says who you are:",
-    lockCompany: "Contacts are shown to seafarers with a complete profile.",
+    lockAnon: "Sign in to apply: the portal sends your CV to the agency for free once your profile has a first name, last name, phone and rank. The agency's own e-mail and phone open with a subscription.",
+    limitNoSub: "Today's portal sending limit is used up — your application can go out tomorrow. Or subscribe and write to the agency from your own mailbox now.",
+    sendFailedNoSub: "The portal could not deliver your CV today. Your application is saved; with a subscription you can send it from your own mailbox right away.",
+    lockIncomplete: "The apply button opens as soon as your profile says who you are:",
+    lockCompany: "Contacts are shown to seafarers with a subscription.",
     lockWhy: "Crewing agencies answer people, not e-mail addresses — so every application from SeaJobs.pro carries a name, a rank and a phone.",
     f_email: "E-mail",
     f_first_name: "First name",
@@ -199,9 +203,11 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакты крюинга",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "E-mail и телефон крюинга, а также кнопка отклика видны морякам, которые вошли в аккаунт и заполнили профиль: имя, фамилию, телефон и должность.",
-    lockIncomplete: "Контакты крюинга и кнопка отклика откроются, как только в профиле будет видно, кто вы:",
-    lockCompany: "Контакты видны морякам с заполненным профилем.",
+    lockAnon: "Войдите, чтобы откликнуться: портал бесплатно отправит ваше CV в крюинг, когда в профиле будут имя, фамилия, телефон и должность. Собственные e-mail и телефон крюинга открываются с подпиской.",
+    limitNoSub: "Дневной лимит отправки через портал исчерпан — отклик можно будет отправить завтра. Или оформите подписку и напишите крюингу со своей почты прямо сейчас.",
+    sendFailedNoSub: "Портал не смог сегодня доставить ваше CV. Отклик сохранён; с подпиской его можно сразу отправить со своей почты.",
+    lockIncomplete: "Кнопка отклика откроется, как только в профиле будет видно, кто вы:",
+    lockCompany: "Контакты видны морякам с подпиской.",
     lockWhy: "Крюинги отвечают людям, а не e-mail-адресам — поэтому каждый отклик с SeaJobs.pro приходит с именем, должностью и телефоном.",
     f_email: "E-mail",
     f_first_name: "Имя",
@@ -253,9 +259,11 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакти крюїнгу",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "E-mail і телефон крюїнгу, а також кнопку відгуку бачать моряки, які увійшли в акаунт і заповнили профіль: ім'я, прізвище, телефон і посаду.",
-    lockIncomplete: "Контакти крюїнгу й кнопка відгуку відкриються, щойно в профілі буде видно, хто ви:",
-    lockCompany: "Контакти бачать моряки із заповненим профілем.",
+    lockAnon: "Увійдіть, щоб відгукнутися: портал безкоштовно надішле ваше CV у крюїнг, коли в профілі будуть ім'я, прізвище, телефон і посада. Власні e-mail і телефон крюїнгу відкриваються з підпискою.",
+    limitNoSub: "Денний ліміт надсилання через портал вичерпано — відгук можна буде надіслати завтра. Або оформіть підписку й напишіть крюїнгу зі своєї пошти просто зараз.",
+    sendFailedNoSub: "Портал не зміг сьогодні доставити ваше CV. Відгук збережено; з підпискою його можна одразу надіслати зі своєї пошти.",
+    lockIncomplete: "Кнопка відгуку відкриється, щойно в профілі буде видно, хто ви:",
+    lockCompany: "Контакти бачать моряки з підпискою.",
     lockWhy: "Крюїнги відповідають людям, а не e-mail-адресам — тому кожен відгук із SeaJobs.pro приходить з ім'ям, посадою й телефоном.",
     f_email: "E-mail",
     f_first_name: "Ім'я",
@@ -307,9 +315,11 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Kontakt do agencji",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "E-mail i telefon agencji oraz przycisk aplikowania widzą marynarze, którzy się zalogowali i uzupełnili profil: imię, nazwisko, telefon i stanowisko.",
-    lockIncomplete: "Kontakt do agencji i przycisk aplikowania pojawią się, gdy profil pokaże, kim jesteś:",
-    lockCompany: "Kontakty widzą marynarze z uzupełnionym profilem.",
+    lockAnon: "Zaloguj się, aby aplikować: portal za darmo wyśle Twoje CV do agencji, gdy profil będzie miał imię, nazwisko, telefon i stanowisko. Własny e-mail i telefon agencji otwiera subskrypcja.",
+    limitNoSub: "Dzienny limit wysyłki przez portal się wyczerpał — zgłoszenie wyślesz jutro. Albo wykup subskrypcję i napisz do agencji ze swojej poczty od razu.",
+    sendFailedNoSub: "Portal nie zdołał dziś dostarczyć Twojego CV. Zgłoszenie jest zapisane; z subskrypcją wyślesz je od razu ze swojej poczty.",
+    lockIncomplete: "Przycisk aplikowania pojawi się, gdy profil pokaże, kim jesteś:",
+    lockCompany: "Kontakty widzą marynarze z subskrypcją.",
     lockWhy: "Agencje odpowiadają ludziom, nie adresom e-mail — dlatego każde zgłoszenie z SeaJobs.pro ma imię, stanowisko i telefon.",
     f_email: "E-mail",
     f_first_name: "Imię",
@@ -361,9 +371,11 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Contactele agenției",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "E-mailul și telefonul agenției, precum și butonul de aplicare, sunt vizibile marinarilor autentificați care și-au completat profilul: prenume, nume, telefon și rang.",
-    lockIncomplete: "Contactele agenției și butonul de aplicare apar imediat ce profilul arată cine ești:",
-    lockCompany: "Contactele sunt vizibile marinarilor cu profilul completat.",
+    lockAnon: "Autentifică-te pentru a aplica: portalul trimite gratuit CV-ul tău agenției când profilul are prenume, nume, telefon și rang. E-mailul și telefonul agenției se deschid cu abonament.",
+    limitNoSub: "Limita zilnică de trimitere prin portal s-a epuizat — aplicația poate pleca mâine. Sau abonează-te și scrie agenției de pe e-mailul tău chiar acum.",
+    sendFailedNoSub: "Portalul nu a putut livra azi CV-ul tău. Aplicația este salvată; cu abonament o poți trimite imediat de pe e-mailul tău.",
+    lockIncomplete: "Butonul de aplicare apare imediat ce profilul arată cine ești:",
+    lockCompany: "Contactele sunt vizibile marinarilor cu abonament.",
     lockWhy: "Agențiile răspund oamenilor, nu adreselor de e-mail — de aceea fiecare aplicație de pe SeaJobs.pro vine cu nume, rang și telefon.",
     f_email: "E-mail",
     f_first_name: "Prenume",
@@ -599,6 +611,7 @@ export default function VacancyDetailClient({
   // Only for the CV-upload errors; the rest of this page's copy is per-lang maps.
   const t = useT();
   const copy = CTX[lang] ?? CTX.en;
+  const sub = subLock(lang);
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"seafarer" | "company" | null>(null);
   const [applicationStatus, setApplicationStatus] = useState<ApplicationStatus | null>(null);
@@ -628,8 +641,10 @@ export default function VacancyDetailClient({
   // apply button; a voyage is also needed to send, since the agency receives
   // a CV built from them. null = not loaded, or not a seafarer.
   const [gaps, setGaps] = useState<Gaps | null>(null);
-  // The agency's contacts, once api/vacancy-contact has handed them over.
+  // The agency's contacts, once api/vacancy-contact has handed them over —
+  // and when it has not, why: SUBSCRIPTION_REQUIRED shows the way to subscribe.
   const [contacts, setContacts] = useState<Contacts | null>(null);
+  const [contactsError, setContactsError] = useState<string | null>(null);
   // One-shot CV import inside the apply modal: parse a PDF/DOCX with
   // /api/cv-parse and write straight into the profile (same as the cabinet).
   const [cvUploading, setCvUploading] = useState(false);
@@ -694,7 +709,8 @@ export default function VacancyDetailClient({
         headers: { Authorization: `Bearer ${session.access_token}` },
         cache: "no-store",
       });
-      const j = (await res.json()) as Partial<Contacts> & { ok?: boolean };
+      const j = (await res.json()) as Partial<Contacts> & { ok?: boolean; error?: string };
+      setContactsError(j.ok ? null : j.error ?? null);
       if (j.ok) {
         setContacts({
           email: j.email ?? null,
@@ -933,7 +949,8 @@ export default function VacancyDetailClient({
   const profileReady = !!gaps && gaps.missing.length === 0;
   const hasLockedContacts = vacancy.lockedContacts.email || vacancy.lockedContacts.phone;
   // The editor's own "save" button brings the seafarer back here.
-  const editHref = `/seafarer/cv/edit?back=${encodeURIComponent(`/jobs/${slugId(vacancy.title, vacancy.id)}`)}`;
+  const vacancyPath = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
+  const editHref = `/seafarer/cv/edit?back=${encodeURIComponent(vacancyPath)}`;
 
   const crumb = RANK_COPY[lang] ?? RANK_COPY.en;
   const rankLanding = vacancy.rank ? RANK_LANDINGS.find((r) => r.rank === vacancy.rank) : undefined;
@@ -1145,6 +1162,19 @@ export default function VacancyDetailClient({
                   {!contacts && userId && userRole === "company" && (
                     <p className="mt-3 text-xs leading-relaxed text-mist">{copy.lockCompany}</p>
                   )}
+                  {/* Signed in, no subscription: the contacts are what it opens.
+                      Applying below stays free either way. */}
+                  {!contacts && userId && contactsError === "SUBSCRIPTION_REQUIRED" && (
+                    <div className="mt-3">
+                      <p className="text-xs leading-relaxed text-mist">{sub.lockContacts}</p>
+                      <Link
+                        href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
+                        className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5"
+                      >
+                        <Lock size={13} /> {sub.cta}
+                      </Link>
+                    </div>
+                  )}
                 </ContactsBox>
               )}
 
@@ -1333,13 +1363,27 @@ export default function VacancyDetailClient({
                 <Mail size={16} className="mt-0.5 shrink-0 text-brassInk" />
                 <div className="text-sm">
                   {!mailFallback && <p className="mb-1 font-semibold text-foam">{(CTX[lang] ?? CTX.en).limitTitle}</p>}
-                  <p className="text-mist">
-                    {mailFallback === "limit"
-                      ? (CTX[lang] ?? CTX.en).limitAfter
-                      : mailFallback === "error"
-                        ? (CTX[lang] ?? CTX.en).sendFailedAfter
-                        : (CTX[lang] ?? CTX.en).limitBody}
-                  </p>
+                  {contacts?.email ? (
+                    <p className="text-mist">
+                      {mailFallback === "limit"
+                        ? (CTX[lang] ?? CTX.en).limitAfter
+                        : mailFallback === "error"
+                          ? (CTX[lang] ?? CTX.en).sendFailedAfter
+                          : (CTX[lang] ?? CTX.en).limitBody}
+                    </p>
+                  ) : (
+                    // No subscription, so no mailbox route to fall back on:
+                    // say what happens instead of pointing at a locked door.
+                    <>
+                      <p className="text-mist">{mailFallback ? copy.sendFailedNoSub : copy.limitNoSub}</p>
+                      <Link
+                        href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
+                        className="mt-2 inline-flex items-center gap-1.5 font-semibold text-brassInk underline hover:text-brass"
+                      >
+                        {sub.cta}
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             )}

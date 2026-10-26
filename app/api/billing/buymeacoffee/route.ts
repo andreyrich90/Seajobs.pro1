@@ -7,6 +7,8 @@ import { servicePaidEmail } from "@/lib/servicePaidEmail";
 import { contactLines, parseContact } from "@/lib/serviceContact";
 import { chooseWordMatch, classify, extraIds, readEvent, readState, refineKind, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
 import { CV_WORD, CV_WORD_EXTRA_ID } from "@/lib/cvWord";
+import { SUB_PLANS, planForExtraIds, windowFor, type PlanId } from "@/lib/subscription";
+import { subscriptionUntil } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
 
@@ -71,6 +73,14 @@ export async function POST(req: NextRequest) {
   // purchase event for an order refunded since carries its original type.
   const state = readState(body);
   const kind = refineKind(classify(eventType), body);
+
+  // A seafarer subscription first, and only by the product id the body names.
+  // Its prices ($5, $8, $12) sit right beside the Word export's, so the amount
+  // can never be what decides it. And once the body names a plan the payment
+  // is settled here, matched or not: falling through to the packages below
+  // could mark a $35 mailing paid on the strength of a $5 subscription.
+  const plan = kind === "other" ? undefined : planForExtraIds(extraIds(body));
+  if (plan && kind !== "other") return handleSubscription(db, { plan, kind, email, amount, currency, eventKey, eventType, body });
 
   // Two different things are sold through the same checkout, so decide which
   // one this payment is for before touching either.
@@ -382,4 +392,132 @@ async function matchWordPurchase(
     console.warn(`[bmc] word purchase ${hit.row.id} matched by recency, not e-mail (paid as ${email ?? "no address"})`);
   }
   return hit.row;
+}
+
+type SubRow = { id: string; email: string; seafarer_id: string; months: number };
+
+/**
+ * A payment whose body names a subscription plan: find the checkout it closes,
+ * give it its window, record it, announce it.
+ *
+ * Which checkout is decided like the Word export's (`chooseWordMatch`): the
+ * plan's newest open checkout for the paying address, and failing that the
+ * single one opened in the last minutes. Two candidates in the window, or none,
+ * and nothing is guessed — the payment is recorded unmatched and the operator
+ * opens it by hand in /admin/subscriptions. A refund never matches by time.
+ */
+async function handleSubscription(
+  db: Db,
+  p: {
+    plan: PlanId;
+    kind: "paid" | "refund";
+    email: string | null;
+    amount: number | null;
+    currency: string | null;
+    eventKey: string;
+    eventType: string;
+    body: unknown;
+  },
+) {
+  const cols = "id, email, seafarer_id, months";
+  let byEmail: SubRow | null = null;
+  if (p.email) {
+    const q = db
+      .from("seafarer_subscriptions")
+      .select(cols)
+      .eq("plan", p.plan)
+      .eq("email", p.email)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const { data, error } = await (p.kind === "refund" ? q.eq("status", "paid") : q.eq("status", "pending"));
+    if (error) console.error("[bmc] subscription lookup", error.message);
+    byEmail = (data?.[0] as SubRow | undefined) ?? null;
+  }
+  const since = new Date(Date.now() - WORD_MATCH_WINDOW_MIN * 60_000).toISOString();
+  const { data: openRows, error: openErr } = await db
+    .from("seafarer_subscriptions")
+    .select(cols)
+    .eq("plan", p.plan)
+    .eq("status", "pending")
+    .gte("created_at", since)
+    .limit(2);
+  if (openErr) console.error("[bmc] subscription recency lookup", openErr.message);
+
+  const hit = chooseWordMatch<SubRow>({
+    kind: p.kind,
+    amount: p.amount,
+    price: SUB_PLANS[p.plan].usd,
+    // The body named the plan, so the amount is not evidence of anything.
+    isWordProduct: true,
+    byEmail,
+    pending: (openRows ?? []) as SubRow[],
+  });
+  if (hit?.by === "recency") {
+    console.warn(`[bmc] subscription ${hit.row.id} matched by recency, not e-mail (paid as ${p.email ?? "no address"})`);
+  }
+  const row = hit?.row ?? null;
+
+  const { error: evErr } = await db.from("payment_events").insert({
+    provider: PROVIDER, event_key: p.eventKey, event_type: p.eventType,
+    email: p.email, amount: p.amount, currency: p.currency,
+    subscription_id: row?.id ?? null, matched: !!row, payload: p.body,
+  });
+  if (evErr) {
+    if (evErr.code === "23505") return NextResponse.json({ ok: true, duplicate: true });
+    console.error("[bmc] event insert (subscription)", evErr.message);
+    return NextResponse.json({ error: "Could not record" }, { status: 500 });
+  }
+
+  let until: Date | null = null;
+  if (row && p.kind === "paid") {
+    // Stacked on whatever window the seafarer already has, so paying early
+    // never shortens anything.
+    const current = await subscriptionUntil(db, row.seafarer_id);
+    const w = windowFor(new Date(), current, row.months);
+    until = w.until;
+    const { error } = await db.from("seafarer_subscriptions").update({
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      starts_at: w.starts.toISOString(),
+      paid_until: w.until.toISOString(),
+      paid_amount: p.amount,
+      paid_currency: p.currency,
+      paid_ref: p.eventKey,
+    }).eq("id", row.id);
+    if (error) console.error("[bmc] subscription update", error.message);
+  } else if (row && p.kind === "refund") {
+    const { error } = await db.from("seafarer_subscriptions")
+      .update({ status: "refunded", paid_at: null, starts_at: null, paid_until: null })
+      .eq("id", row.id);
+    if (error) console.error("[bmc] subscription refund", error.message);
+  }
+
+  const months = SUB_PLANS[p.plan].months;
+  const sum = p.amount !== null ? `${p.amount} ${esc(p.currency ?? "")}`.trim() : "—";
+  const who = `✉️ ${esc(row?.email ?? p.email ?? "пошта не вказана")}`;
+  const kyiv = (d: Date) => d.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "numeric", month: "long", year: "numeric" });
+  const text = p.kind === "refund"
+    ? [
+        "↩️ <b>ПОВЕРНЕННЯ — підписка</b>", "", `${months} міс. — ${sum}`, who, "",
+        row ? "Доступ закрито." : "Повернення не зіставилося з жодною оплаченою підпискою. Перевірте вручну.",
+      ]
+    : row
+      ? [
+          `⭐ <b>ПІДПИСКА — ${months} міс.</b>`, "", `Сума: ${sum}`, who,
+          until ? `Доступ до: ${kyiv(until)}` : "",
+          "", "Відкрито автоматично, робити нічого не треба.",
+        ]
+      : [
+          `⭐ <b>Оплата підписки (${months} міс.) без збігу</b>`, "", `Сума: ${sum}`, who, "",
+          "Не знайшли, чия це оплата: інша пошта, або двоє оплачували одночасно. Знайдіть моряка в адмінці й відкрийте доступ вручну.",
+        ];
+  try {
+    await tgSendAdmins(text.filter((l) => l !== null).join("\n"), {
+      buttonText: "Відкрити в адмінці",
+      buttonUrl: `${SITE}/admin/subscriptions`,
+    });
+  } catch (e) {
+    console.error("[bmc] telegram (subscription)", e instanceof Error ? e.message : e);
+  }
+  return NextResponse.json({ ok: true, kind: p.kind, matched: !!row, product: "subscription", plan: p.plan });
 }

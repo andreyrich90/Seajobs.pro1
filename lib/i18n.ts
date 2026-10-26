@@ -69,6 +69,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Trimitere CV",
     nav_cv_builder: "Creează CV",
     cab_cv_blast: "Distribuire CV",
+    cab_subscription: "Abonament",
     cab_messages: "Mesaje",
     cab_notifications: "Notificări",
     cab_logout: "Ieșire",
@@ -551,6 +552,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Розсилка CV",
     nav_cv_builder: "Зібрати CV",
     cab_cv_blast: "Розсилка резюме",
+    cab_subscription: "Підписка",
     cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
     cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
@@ -633,6 +635,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Wysyłka CV",
     nav_cv_builder: "Zrób CV",
     cab_cv_blast: "Wysyłka CV",
+    cab_subscription: "Subskrypcja",
     cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
     cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
@@ -715,6 +718,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "Рассылка CV",
     nav_cv_builder: "Собрать CV",
     cab_cv_blast: "Рассылка резюме",
+    cab_subscription: "Подписка",
     cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
     cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
@@ -797,6 +801,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_blast: "CV mailing",
     nav_cv_builder: "Make a CV",
     cab_cv_blast: "CV distribution",
+    cab_subscription: "Subscription",
     cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
     cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",

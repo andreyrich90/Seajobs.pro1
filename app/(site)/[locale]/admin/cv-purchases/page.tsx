@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Check, X, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
-import { CV_WORD, cvWordPrice } from "@/lib/cvWord";
+import { cvWordPrice } from "@/lib/cvWord";
 
 // Purchases of the Word export, and the one lever a person has over them.
 //
@@ -105,8 +105,8 @@ export default function AdminCvPurchasesPage() {
         <div>
           <h1 className="font-display text-2xl font-semibold text-white">CV in Word</h1>
           <p className="mt-1 text-sm text-mist">
-            Покупки выгрузки в Word, {cvWordPrice()} за штуку.{" "}
-            {CV_WORD.payUrl ? "Продажа включена." : "Ссылка на оплату не задана — продажа выключена."}
+            Покупки выгрузки в Word по {cvWordPrice()}, сделанные до подписки. Отдельно Word больше не
+            продаётся — он входит в подписку (Subscriptions); купившие раньше сохраняют скачивание CV навсегда.
           </p>
         </div>
         <button

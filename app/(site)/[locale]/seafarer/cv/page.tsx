@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Download, ZoomIn, ZoomOut, ImageDown, FileText, Anchor, Ship, Globe2, CalendarCheck2, BadgeCheck, Phone, Mail, MapPin,
   Award, Radio, Radar, Navigation, Monitor, Flame, HeartPulse, LifeBuoy, ShieldCheck, Droplet, Wrench, GraduationCap, Building2,
-  Pencil,
+  Pencil, Lock,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
@@ -15,7 +15,8 @@ import type { Seafarer, Certificate, SeaExperience } from "@/lib/supabase/types"
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { Link } from "@/i18n/navigation";
-import { CV_WORD, CV_WORD_COPY, cvWordPrice } from "@/lib/cvWord";
+import { CV_WORD_COPY } from "@/lib/cvWord";
+import { subLock } from "@/lib/subscription";
 import { FLEET_IDS, type FleetId, fleetHighlights, isFleetId } from "@/lib/cvFleets";
 
 // A4 width in CSS pixels (210 mm at the browser's 96 dpi). Used to scale the
@@ -950,6 +951,27 @@ export default function CVPage() {
 
   const [exporting, setExporting] = useState(false);
 
+  // Downloading the CV — PDF, image or Word — comes with the subscription; a
+  // Word export bought before it keeps the files open (api/subscription says
+  // which). Building and editing stay free. This only decides the view: the
+  // Word route checks again, and the print root below is not even rendered
+  // without access, so Ctrl+P prints a blank page.
+  const [cvAccess, setCvAccess] = useState<boolean | null>(null);
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      try {
+        const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" });
+        const j = (await res.json()) as { ok?: boolean; cvAccess?: boolean };
+        setCvAccess(!!(j.ok && j.cvAccess));
+      } catch {
+        setCvAccess(false);
+      }
+    })();
+  }, []);
+  const sub = subLock(lang);
+
   // "First Last - Rank" with filesystem-unsafe characters stripped.
   function cvFilename(): string {
     const sf = data.seafarer;
@@ -1057,22 +1079,35 @@ export default function CVPage() {
           {/* No shrink-0 here: a container that refuses to shrink sizes to its
               content on one line, so flex-wrap never gets the chance to wrap
               and the row runs off a phone screen. */}
-          <div className="flex min-w-0 max-w-full flex-wrap items-start gap-2">
-            <button
-              onClick={handleDownloadPng}
-              disabled={exporting}
-              className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
-            >
-              <ImageDown size={16} /> {exporting ? "…" : t.cv_download_png}
-            </button>
-            <button
-              onClick={handleDownload}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
-            >
-              <Download size={16} /> {t.cv_download_pdf}
-            </button>
-            <WordButton lang={lang} fleet={fleet} />
-          </div>
+          {cvAccess === true && (
+            <div className="flex min-w-0 max-w-full flex-wrap items-start gap-2">
+              <button
+                onClick={handleDownloadPng}
+                disabled={exporting}
+                className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
+              >
+                <ImageDown size={16} /> {exporting ? "…" : t.cv_download_png}
+              </button>
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+              >
+                <Download size={16} /> {t.cv_download_pdf}
+              </button>
+              <WordDownload lang={lang} fleet={fleet} />
+            </div>
+          )}
+          {cvAccess === false && (
+            <div className="flex min-w-0 max-w-sm flex-col gap-2">
+              <Link
+                href="/seafarer/subscription?back=/seafarer/cv"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+              >
+                <Lock size={16} /> {sub.cta}
+              </Link>
+              <p className="text-xs leading-snug text-mist">{sub.lockCv}</p>
+            </div>
+          )}
         </div>
 
         <FleetPanel lang={lang} fleet={fleet} onChange={chooseFleet} certificates={data.certificates} experience={data.experience} />
@@ -1153,7 +1188,7 @@ export default function CVPage() {
         </div>
       </div>
 
-      {mounted &&
+      {mounted && cvAccess === true &&
         createPortal(
           <div id="cv-print-root">
             <div style={{ width: A4_WIDTH_PX, height: clipH, overflow: "hidden" }}>
@@ -1169,128 +1204,13 @@ export default function CVPage() {
 }
 
 /**
- * The paid Word export, next to the free PDF and PNG.
- *
- * Three states, and the component shows exactly one: not bought (a price on the
- * button), waiting for the payment to arrive, and bought (a plain download for
- * ever). The purchase is read straight from `cv_word_purchases`, which RLS
- * opens to its owner alone — so this reads the truth rather than being told it,
- * and the download route checks again anyway.
- *
- * Nothing here is a security boundary: hiding the button would not stop anyone,
- * and is not meant to. `api/cv/word` is where the gate is.
+ * The Word file, for a seafarer whose CV files are open (a subscription, or a
+ * Word export bought before the subscription replaced it). Presentation only:
+ * `api/cv/word` is where the gate is, and it refuses anyone else.
  */
-function WordButton({ lang, fleet }: { lang: string; fleet: FleetId | null }) {
+function WordDownload({ lang, fleet }: { lang: string; fleet: FleetId | null }) {
   const copy = CV_WORD_COPY[lang] ?? CV_WORD_COPY.en;
-  const [state, setState] = useState<"loading" | "locked" | "waiting" | "paid">("loading");
   const [busy, setBusy] = useState(false);
-  // Was this tab the one that sent the buyer to the checkout? Only that tab
-  // starts the download by itself — a tab opened later should not fling a file
-  // at someone who came back a day afterwards to look at their CV.
-  const bought = useRef(false);
-  const pulled = useRef(false);
-  // When this tab started waiting. A payment lands in seconds; a wait that has
-  // run for minutes means the checkout was closed unpaid, and the buy button
-  // should come back rather than the page saying "waiting" for ever.
-  const waitSince = useRef(0);
-  const [stale, setStale] = useState(false);
-
-  const refresh = useCallback(async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    // Any paid purchase, not the newest row: one payment opens the export for
-    // good, and the route that serves the file asks the same question. Reading
-    // only the latest row would lock a buyer out the day a newer unpaid row
-    // appeared beside the paid one.
-    const { data, error } = await supabase
-      .from("cv_word_purchases")
-      .select("paid_at")
-      .not("paid_at", "is", null)
-      .limit(1);
-    // A missing table means the migration has not been run yet: show the
-    // product as simply not bought rather than breaking the page.
-    if (error) { setState("locked"); return; }
-    if (data?.length) { setState("paid"); return; }
-    // An unpaid row alone is not a payment in flight. It is what every
-    // abandoned checkout leaves behind — POST /api/cv/word opens it before
-    // the buyer reaches the till — so on its own it reads as "not bought",
-    // and the buy button stays, reusing that same row. Only a tab that sent
-    // the buyer to pay (or the checkout's ?paid=1 redirect) waits.
-    setState(bought.current ? "waiting" : "locked");
-  }, []);
-
-  useEffect(() => { void refresh(); }, [refresh]);
-
-  // Buy Me a Coffee can redirect the buyer back here after paying, and when it
-  // does they arrive in the *checkout* tab — which never opened the purchase
-  // and so would sit there with a locked button while the original tab, maybe
-  // on another device, quietly unlocks. The `?paid=1` on that redirect says
-  // "this tab is the one waiting", so it polls and pulls the file like the one
-  // that sent them.
-  //
-  // Read off location rather than useSearchParams: this page is prerendered,
-  // and that hook would force it out of static rendering for one flag.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (new URLSearchParams(window.location.search).get("paid") !== "1") return;
-    bought.current = true;
-    waitSince.current = Date.now();
-    setState((s) => (s === "paid" ? s : "waiting"));
-    void refresh();
-  }, [refresh]);
-
-  // While a payment is in flight the webhook is what flips the row, and it
-  // lands a few seconds later. Poll gently rather than make the buyer reload.
-  useEffect(() => {
-    if (state !== "waiting") return;
-    const id = setInterval(() => {
-      if (Date.now() - waitSince.current > WORD_WAIT_MS) {
-        // Long past any real webhook: give the buy button back, and say
-        // where to turn if they did pay.
-        bought.current = false;
-        setStale(true);
-        setState("locked");
-        return;
-      }
-      void refresh();
-    }, 4000);
-    return () => clearInterval(id);
-  }, [state, refresh]);
-
-  // Paid while this tab was waiting: fetch the file without being asked. The
-  // click that started all this was minutes ago, so a browser may decline the
-  // download — hence `pulled`, which makes this one attempt rather than a loop,
-  // and hence the button below, which stays the real way to get the file.
-  useEffect(() => {
-    if (state !== "paid" || !bought.current || pulled.current) return;
-    pulled.current = true;
-    void download();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state]);
-
-  async function buy() {
-    if (!CV_WORD.payUrl) return;
-    setBusy(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      const res = await fetch("/api/cv/word", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const json = await res.json().catch(() => null);
-      if (json?.paid) { setState("paid"); return; }
-      bought.current = true;
-      waitSince.current = Date.now();
-      setStale(false);
-      setState("waiting");
-      // A new tab, so this one stays open and keeps polling. When the webhook
-      // lands, the buyer comes back to a page that has already unlocked.
-      window.open(CV_WORD.payUrl, "_blank", "noopener");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function download() {
     setBusy(true);
@@ -1298,7 +1218,7 @@ function WordButton({ lang, fleet }: { lang: string; fleet: FleetId | null }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       const res = await fetch(`/api/cv/word${fleet ? `?fleet=${fleet}` : ""}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
-      if (!res.ok) { await refresh(); return; }
+      if (!res.ok) return;
       const blob = await res.blob();
       // The filename the route chose travels in Content-Disposition; read it
       // back so the saved file keeps the seafarer's name and rank.
@@ -1315,74 +1235,17 @@ function WordButton({ lang, fleet }: { lang: string; fleet: FleetId | null }) {
     }
   }
 
-  if (state === "loading") return null;
-
-  if (state === "paid") {
-    return (
-      <button
-        onClick={download}
-        disabled={busy}
-        title={copy.what}
-        className="flex items-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-4 py-2.5 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-60"
-      >
-        <FileText size={16} /> {busy ? "…" : copy.download}
-      </button>
-    );
-  }
-
-  if (state === "waiting") {
-    // A short badge in the row, the explanation under it. The full sentence
-    // used to sit inside the badge and pushed the whole row off a phone screen.
-    return (
-      <div className="flex min-w-0 max-w-[18rem] flex-col gap-1">
-        <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist">
-          <FileText size={16} className="shrink-0 animate-pulse" /> {copy.waitingShort}
-        </span>
-        <p className="text-xs leading-snug text-mist">
-          {copy.waiting}{" "}
-          {CV_WORD.payUrl && (
-            <a href={CV_WORD.payUrl} target="_blank" rel="noopener" className="text-brassInk underline hover:text-brass">
-              {copy.reopen}
-            </a>
-          )}
-        </p>
-      </div>
-    );
-  }
-
-  if (!CV_WORD.payUrl) {
-    return (
-      <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-mist" title={copy.why}>
-        <FileText size={16} /> {copy.soon}
-      </span>
-    );
-  }
-
-  const buyButton = (
+  return (
     <button
-      onClick={buy}
+      onClick={download}
       disabled={busy}
-      title={`${copy.what} ${copy.why}`}
-      className="flex items-center gap-2 rounded-xl border border-brass/40 bg-brass/10 px-4 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/20 disabled:opacity-60"
+      title={copy.what}
+      className="flex items-center gap-2 rounded-xl border border-teal/40 bg-teal/10 px-4 py-2.5 text-sm font-bold text-teal transition hover:bg-teal/20 disabled:opacity-60"
     >
-      <FileText size={16} /> {busy ? "…" : `${copy.buy} — ${cvWordPrice(lang)}`}
+      <FileText size={16} /> {busy ? "…" : copy.download}
     </button>
   );
-  // A wait that ran out: the buy button is back, with the line for anyone who
-  // did pay and is still locked out — the admin ledger can open it by hand.
-  if (stale) {
-    return (
-      <div className="flex min-w-0 max-w-[18rem] flex-col gap-1">
-        {buyButton}
-        <p className="text-xs leading-snug text-mist">{copy.trouble}</p>
-      </div>
-    );
-  }
-  return buyButton;
 }
-
-/** How long a tab waits for the webhook before giving the buy button back. */
-const WORD_WAIT_MS = 15 * 60_000;
 
 /**
  * Which fleet the Word file is aimed at, and a preview of what that puts at its

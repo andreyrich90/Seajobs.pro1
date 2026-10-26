@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import {
-  ArrowLeft, Building2, Globe, MapPin, ShieldCheck, Briefcase, DollarSign, Clock, Calendar, Phone, Mail, Users,
+  ArrowLeft, Building2, Globe, MapPin, ShieldCheck, Briefcase, DollarSign, Clock, Calendar, Phone, Mail, Users, Lock,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -15,6 +15,7 @@ import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyCo
 import { slugId } from "@/lib/slug";
 import VacancyCard from "@/components/VacancyCard";
 import { useLang } from "@/components/LangProvider";
+import { subLock } from "@/lib/subscription";
 
 import { money } from "@/lib/format";
 
@@ -25,10 +26,19 @@ type CompanyDetail = {
   location: string | null;
   description: string | null;
   website: string | null;
-  phones: string[] | null;
-  emails: string[] | null;
-  crew_managers: CrewManager[] | null;
   is_verified: boolean;
+};
+
+/** The company's contacts, from api/company-contacts — never from the table,
+ *  which no longer hands them to logged-out visitors. A subscription opens
+ *  them (lib/subscription.ts); `has` says what there is to open meanwhile. */
+type CompanyContacts = {
+  ok: boolean;
+  error?: string;
+  has?: { phones: number; emails: number; managers: number };
+  phones?: string[];
+  emails?: string[];
+  crew_managers?: CrewManager[];
 };
 
 function formatDate(d: string | null): string {
@@ -53,6 +63,8 @@ export default function CompanyClient() {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [contacts, setContacts] = useState<CompanyContacts | null>(null);
+  const sub = subLock(lang);
 
   useEffect(() => {
     if (!id) return;
@@ -60,12 +72,22 @@ export default function CompanyClient() {
       try {
         const { data: companyData, error } = await supabase
           .from("companies")
-          .select("id, name, logo_url, location, description, website, phones, emails, crew_managers, is_verified")
+          .select("id, name, logo_url, location, description, website, is_verified")
           .eq("id", id)
           .single();
 
         if (error || !companyData) { setNotFound(true); return; }
         setCompany(companyData as CompanyDetail);
+
+        // Contacts per reader, after the page: the route decides who sees them.
+        const { data: { session } } = await supabase.auth.getSession();
+        fetch(`/api/company-contacts?id=${id}`, {
+          headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
+          cache: "no-store",
+        })
+          .then((r) => r.json())
+          .then((j: CompanyContacts) => setContacts(j))
+          .catch(() => { /* stays without contacts */ });
 
         // Keep vacancies for 2 weeks after the joining date (grace period).
         const cutoff = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
@@ -153,14 +175,14 @@ export default function CompanyClient() {
                     Visit website
                   </a>
                 )}
-                {company.phones?.filter(Boolean).map((p) => (
+                {contacts?.ok && contacts.phones?.filter(Boolean).map((p) => (
                   <a key={p} href={`tel:${p.replace(/\s+/g, "")}`}
                     className="flex items-center gap-2 text-sm text-mist hover:text-white transition">
                     <Phone size={14} className="shrink-0 text-mist/60" />
                     {p}
                   </a>
                 ))}
-                {company.emails?.filter(Boolean).map((m) => (
+                {contacts?.ok && contacts.emails?.filter(Boolean).map((m) => (
                   <a key={m} href={`mailto:${m}`}
                     className="flex items-center gap-2 text-sm text-brassInk hover:text-brass transition break-all">
                     <Mail size={14} className="shrink-0 text-mist/60" />
@@ -169,20 +191,50 @@ export default function CompanyClient() {
                 ))}
               </div>
 
+              {/* What a subscription would open, when there is something to open. */}
+              {contacts && !contacts.ok && contacts.has && (contacts.has.phones + contacts.has.emails + contacts.has.managers > 0) && (
+                <div className="mt-5 rounded-xl border border-brass/30 bg-brass/10 p-4 text-left">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-foam">
+                    <Lock size={14} className="shrink-0 text-brassInk" /> {sub.lockCompany}
+                  </p>
+                  <ul className="mt-2 flex flex-col gap-1 text-xs text-mist">
+                    {contacts.has.phones > 0 && <li className="flex items-center gap-1.5"><Phone size={11} /> <span className="select-none blur-[4px]">+00 000 000 00</span></li>}
+                    {contacts.has.emails > 0 && <li className="flex items-center gap-1.5"><Mail size={11} /> <span className="select-none blur-[4px]">crewing@agency.com</span></li>}
+                    {contacts.has.managers > 0 && <li className="flex items-center gap-1.5"><Users size={11} /> {contacts.has.managers}</li>}
+                  </ul>
+                  {/* Sign-up sits outside the locale tree; the cabinet inside it. */}
+                  {contacts.error === "SIGN_IN" ? (
+                    <a
+                      href="/auth/register?role=seafarer"
+                      className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5"
+                    >
+                      {sub.cta}
+                    </a>
+                  ) : contacts.error === "SUBSCRIPTION_REQUIRED" ? (
+                    <Link
+                      href="/seafarer/subscription"
+                      className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5"
+                    >
+                      {sub.cta}
+                    </Link>
+                  ) : null}
+                </div>
+              )}
+
               {company.description && (
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <p className="text-sm text-mist leading-relaxed">{company.description}</p>
                 </div>
               )}
 
-              {company.crew_managers && company.crew_managers.filter((m) => m.name || m.phone || m.email).length > 0 && (
+              {contacts?.ok && contacts.crew_managers && contacts.crew_managers.filter((m) => m.name || m.phone || m.email).length > 0 && (
                 <div className="mt-5 border-t border-white/10 pt-5">
                   <div className="mb-3 flex items-center gap-2">
                     <Users size={14} className="text-brassInk" />
                     <h3 className="text-xs font-semibold uppercase tracking-wider text-mist">Crew managers</h3>
                   </div>
                   <div className="flex flex-col gap-3">
-                    {company.crew_managers
+                    {contacts.crew_managers
                       .filter((m) => m.name || m.phone || m.email)
                       .map((m, i) => (
                         <div key={i} className="rounded-xl border border-white/10 bg-navy2/40 p-3 text-left">
