@@ -2479,27 +2479,27 @@ Object.assign(T.pl, CAB7_PL);
 // for placement. `{price}` is filled by the page from the cheapest plan.
 const TIP_EN: Record<string, string> = {
   subpromo_title: "Subscription from {price} for 3 months",
-  subpromo_body: "Searching vacancies, your profile and building your CV are free. The subscription opens applying through the portal, the crewing agencies' e-mails and phones, writing from your own mailbox, and your CV as PDF, image and Word. We never take money for a job, a contract or a place on board.",
+  subpromo_body: "Searching vacancies, your profile and building your CV are free, and so are {free} contact views a week, each with applying. The subscription removes the limit: every vacancy, writing from your own mailbox, and your CV as PDF, image and Word. We never take money for a job, a contract or a place on board.",
   subpromo_cta: "See the plans",
 };
 const TIP_RU: Record<string, string> = {
   subpromo_title: "Подписка от {price} за 3 месяца",
-  subpromo_body: "Поиск вакансий, профиль и сборка CV — бесплатно. Подписка открывает отклик через портал, e-mail и телефоны крюингов, письмо со своей почты и ваше CV в PDF, картинкой и Word. Денег за работу, контракт или место на судне мы не берём никогда.",
+  subpromo_body: "Поиск вакансий, профиль и сборка CV — бесплатно, как и {free} просмотра контактов крюинга в неделю — с откликом. Подписка снимает лимит: все вакансии, письмо со своей почты и ваше CV в PDF, картинкой и Word. Денег за работу, контракт или место на судне мы не берём никогда.",
   subpromo_cta: "Смотреть тарифы",
 };
 const TIP_UA: Record<string, string> = {
   subpromo_title: "Підписка від {price} за 3 місяці",
-  subpromo_body: "Пошук вакансій, профіль і збірка CV — безкоштовно. Підписка відкриває відгук через портал, e-mail і телефони крюїнгів, лист зі своєї пошти та ваше CV у PDF, зображенням і Word. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.",
+  subpromo_body: "Пошук вакансій, профіль і збірка CV — безкоштовно, як і {free} перегляди контактів крюїнгу на тиждень — з відгуком. Підписка знімає ліміт: усі вакансії, лист зі своєї пошти та ваше CV у PDF, зображенням і Word. Грошей за роботу, контракт чи місце на судні ми не беремо ніколи.",
   subpromo_cta: "Переглянути тарифи",
 };
 const TIP_PL: Record<string, string> = {
   subpromo_title: "Subskrypcja od {price} za 3 miesiące",
-  subpromo_body: "Szukanie ofert, profil i tworzenie CV są darmowe. Subskrypcja otwiera aplikowanie przez portal, e-maile i telefony agencji, list z własnej skrzynki oraz Twoje CV jako PDF, obraz i Word. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.",
+  subpromo_body: "Szukanie ofert, profil i tworzenie CV są darmowe, podobnie jak {free} odsłony kontaktów agencji tygodniowo — z aplikowaniem. Subskrypcja znosi limit: wszystkie oferty, list z własnej skrzynki oraz Twoje CV jako PDF, obraz i Word. Nigdy nie bierzemy pieniędzy za pracę, kontrakt ani miejsce na statku.",
   subpromo_cta: "Zobacz plany",
 };
 const TIP_RO: Record<string, string> = {
   subpromo_title: "Abonament de la {price} pentru 3 luni",
-  subpromo_body: "Căutarea posturilor, profilul și crearea CV-ului sunt gratuite. Abonamentul deschide aplicarea prin portal, e-mailurile și telefoanele agențiilor, scrisoarea din propriul e-mail și CV-ul tău ca PDF, imagine și Word. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.",
+  subpromo_body: "Căutarea posturilor, profilul și crearea CV-ului sunt gratuite, la fel și {free} vizualizări de contacte ale agențiilor pe săptămână — cu aplicare. Abonamentul ridică limita: toate posturile, scrisoarea din propriul e-mail și CV-ul tău ca PDF, imagine și Word. Nu luăm niciodată bani pentru un post, un contract sau un loc la bord.",
   subpromo_cta: "Vezi planurile",
 };
 Object.assign(T.en, TIP_EN);

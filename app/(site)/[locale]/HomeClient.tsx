@@ -24,7 +24,7 @@ import { FLEETS, fleetLabel } from "@/lib/fleets";
 import { HOME_SERVICE_TILES } from "@/lib/cvMaker";
 
 import { money } from "@/lib/format";
-import { SUB_FROM, subPrice } from "@/lib/subscription";
+import { FREE_UNLOCKS_PER_WEEK, SUB_FROM, subPrice } from "@/lib/subscription";
 
 
 export type DbVacancy = {
@@ -466,7 +466,7 @@ export default function HomeClient({
           </div>
           <div className="min-w-[240px] flex-1">
             <h2 className="font-display text-lg font-bold text-white">{t.subpromo_title.replace("{price}", subPrice(SUB_FROM, lang))}</h2>
-            <p className="mt-1 text-sm leading-relaxed text-mist">{t.subpromo_body}</p>
+            <p className="mt-1 text-sm leading-relaxed text-mist">{t.subpromo_body.replace("{free}", String(FREE_UNLOCKS_PER_WEEK))}</p>
           </div>
           <Link
             href="/seafarer/subscription"

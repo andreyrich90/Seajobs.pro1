@@ -13,7 +13,8 @@ import {
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import NoPaymentWarning from "@/components/NoPaymentWarning";
-import { SUB_SELLING, subLock } from "@/lib/subscription";
+import { FREE_UNLOCKS_PER_WEEK, SUB_SELLING, subLock } from "@/lib/subscription";
+import type { FreeState } from "@/lib/freeUnlocks";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { DOCX_TYPE, PDF_TYPE, importParsedCv, parseCvFile } from "@/lib/cvImport";
@@ -86,6 +87,9 @@ async function readGaps(uid: string): Promise<Gaps> {
   };
 }
 
+/** For "new free vacancies on Monday, 2 November". */
+const DATE_LOCALE: Record<string, string> = { en: "en-GB", ru: "ru-RU", ua: "uk-UA", pl: "pl-PL", ro: "ro-RO" };
+
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
   pending: "text-mist border-mist/30 bg-mist/10",
   viewed: "text-brassInk border-brass2/30 bg-brass2/10",
@@ -147,7 +151,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Crewing agency contacts",
     emailLabel: "E-mail",
     phoneLabel: "Phone",
-    lockAnon: "Sign in to apply. Applying through the portal and the agency's own e-mail and phone come with a subscription; the portal sends your CV once your profile has a first name, last name, phone and rank.",
+    lockAnon: "Sign in to apply. {free} contact views a week are free — the agency's e-mail and phone, and applying — and a subscription removes the limit. The portal sends your CV once your profile has a first name, last name, phone and rank.",
     limitNoSub: "Today's portal sending limit is used up — your application can go out tomorrow. Or subscribe and write to the agency from your own mailbox now.",
     sendFailedNoSub: "The portal could not deliver your CV today. Your application is saved; with a subscription you can send it from your own mailbox right away.",
     lockIncomplete: "The apply button opens as soon as your profile says who you are:",
@@ -203,7 +207,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакты крюинга",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "Войдите, чтобы откликнуться. Отклик через портал и собственные e-mail и телефон крюинга открываются с подпиской; портал отправит ваше CV, когда в профиле будут имя, фамилия, телефон и должность.",
+    lockAnon: "Войдите, чтобы откликнуться. {free} просмотра контактов в неделю — бесплатно: e-mail и телефон крюинга и отклик; подписка снимает лимит. Портал отправит ваше CV, когда в профиле будут имя, фамилия, телефон и должность.",
     limitNoSub: "Дневной лимит отправки через портал исчерпан — отклик можно будет отправить завтра. Или оформите подписку и напишите крюингу со своей почты прямо сейчас.",
     sendFailedNoSub: "Портал не смог сегодня доставить ваше CV. Отклик сохранён; с подпиской его можно сразу отправить со своей почты.",
     lockIncomplete: "Кнопка отклика откроется, как только в профиле будет видно, кто вы:",
@@ -259,7 +263,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Контакти крюїнгу",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
-    lockAnon: "Увійдіть, щоб відгукнутися. Відгук через портал і власні e-mail і телефон крюїнгу відкриваються з підпискою; портал надішле ваше CV, коли в профілі будуть ім'я, прізвище, телефон і посада.",
+    lockAnon: "Увійдіть, щоб відгукнутися. {free} перегляди контактів на тиждень — безкоштовно: e-mail і телефон крюїнгу та відгук; підписка знімає ліміт. Портал надішле ваше CV, коли в профілі будуть ім'я, прізвище, телефон і посада.",
     limitNoSub: "Денний ліміт надсилання через портал вичерпано — відгук можна буде надіслати завтра. Або оформіть підписку й напишіть крюїнгу зі своєї пошти просто зараз.",
     sendFailedNoSub: "Портал не зміг сьогодні доставити ваше CV. Відгук збережено; з підпискою його можна одразу надіслати зі своєї пошти.",
     lockIncomplete: "Кнопка відгуку відкриється, щойно в профілі буде видно, хто ви:",
@@ -315,7 +319,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Kontakt do agencji",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "Zaloguj się, aby aplikować. Aplikowanie przez portal oraz własny e-mail i telefon agencji otwiera subskrypcja; portal wyśle Twoje CV, gdy profil będzie miał imię, nazwisko, telefon i stanowisko.",
+    lockAnon: "Zaloguj się, aby aplikować. {free} odsłony kontaktów tygodniowo są darmowe: e-mail i telefon agencji oraz aplikowanie; subskrypcja znosi limit. Portal wyśle Twoje CV, gdy profil będzie miał imię, nazwisko, telefon i stanowisko.",
     limitNoSub: "Dzienny limit wysyłki przez portal się wyczerpał — zgłoszenie wyślesz jutro. Albo wykup subskrypcję i napisz do agencji ze swojej poczty od razu.",
     sendFailedNoSub: "Portal nie zdołał dziś dostarczyć Twojego CV. Zgłoszenie jest zapisane; z subskrypcją wyślesz je od razu ze swojej poczty.",
     lockIncomplete: "Przycisk aplikowania pojawi się, gdy profil pokaże, kim jesteś:",
@@ -371,7 +375,7 @@ const CTX: Record<string, Record<string, string>> = {
     contactsTitle: "Contactele agenției",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
-    lockAnon: "Autentifică-te pentru a aplica. Aplicarea prin portal, e-mailul și telefonul agenției se deschid cu abonament; portalul trimite CV-ul tău când profilul are prenume, nume, telefon și rang.",
+    lockAnon: "Autentifică-te pentru a aplica. {free} vizualizări de contacte pe săptămână sunt gratuite: e-mailul și telefonul agenției și aplicarea; abonamentul ridică limita. Portalul trimite CV-ul tău când profilul are prenume, nume, telefon și rang.",
     limitNoSub: "Limita zilnică de trimitere prin portal s-a epuizat — aplicația poate pleca mâine. Sau abonează-te și scrie agenției de pe e-mailul tău chiar acum.",
     sendFailedNoSub: "Portalul nu a putut livra azi CV-ul tău. Aplicația este salvată; cu abonament o poți trimite imediat de pe e-mailul tău.",
     lockIncomplete: "Butonul de aplicare apare imediat ce profilul arată cine ești:",
@@ -645,10 +649,16 @@ export default function VacancyDetailClient({
   // and when it has not, why: SUBSCRIPTION_REQUIRED shows the way to subscribe.
   const [contacts, setContacts] = useState<Contacts | null>(null);
   const [contactsError, setContactsError] = useState<string | null>(null);
-  // Whether this seafarer may apply at all. Once a plan is on sale, applying
-  // through the portal comes with the subscription like everything else here;
-  // before that it is open. Presentation only — api/notify checks the same.
-  const [subActive, setSubActive] = useState<boolean | null>(SUB_SELLING ? null : true);
+  // Whether this reader may act on this vacancy — contacts, applying, the
+  // mailbox route — as api/vacancy-contact answered: "open" with a
+  // subscription or once the vacancy is opened as one of the week's free ones,
+  // "locked" without, "unknown" until it has answered. Presentation only;
+  // api/notify and api/cv-share check the same.
+  const [access, setAccess] = useState<"unknown" | "open" | "locked">("unknown");
+  // The free tier's week (lib/freeUnlocks.ts), for a seafarer without a
+  // subscription: how many vacancies are left to open, and when more arrive.
+  const [free, setFree] = useState<FreeState | null>(null);
+  const [unlocking, setUnlocking] = useState(false);
   // One-shot CV import inside the apply modal: parse a PDF/DOCX with
   // /api/cv-parse and write straight into the profile (same as the cabinet).
   const [cvUploading, setCvUploading] = useState(false);
@@ -697,35 +707,36 @@ export default function VacancyDetailClient({
         if (appData) setApplicationStatus(appData.status as ApplicationStatus);
         setSaved(!!savedData);
         setGaps(g);
-        if (SUB_SELLING && session) loadSub(session.access_token);
       }
     }
     loadAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vacancy.id]);
 
-  async function loadSub(token: string) {
-    try {
-      const res = await fetch("/api/subscription", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
-      const j = (await res.json()) as { ok?: boolean; active?: boolean };
-      setSubActive(!!(j.ok && j.active));
-    } catch {
-      setSubActive(false);
-    }
-  }
-
-  /** Ask for the agency's contacts; a refusal leaves the lock box in place. */
-  async function loadContacts() {
-    if (!vacancy.lockedContacts.email && !vacancy.lockedContacts.phone) return;
+  /**
+   * Ask for the agency's contacts — asked even when the posting has none,
+   * since the answer is also whether this reader may apply. `unlock` spends
+   * one of the week's free opens on this vacancy first. A refusal leaves the
+   * lock in place.
+   */
+  async function loadContacts(unlock = false) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const res = await fetch(`/api/vacancy-contact?id=${vacancy.id}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-        cache: "no-store",
-      });
-      const j = (await res.json()) as Partial<Contacts> & { ok?: boolean; error?: string };
+      const res = await fetch(
+        unlock ? "/api/vacancy-contact" : `/api/vacancy-contact?id=${vacancy.id}`,
+        unlock
+          ? {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ id: vacancy.id }),
+            }
+          : { headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store" },
+      );
+      const j = (await res.json()) as Partial<Contacts> & { ok?: boolean; error?: string; free?: FreeState | null };
       setContactsError(j.ok ? null : j.error ?? null);
+      setFree(j.free ?? null);
+      setAccess(j.ok ? "open" : j.error === "SUBSCRIPTION_REQUIRED" || j.error === "FREE_LIMIT" ? "locked" : "unknown");
       if (j.ok) {
         setContacts({
           email: j.email ?? null,
@@ -736,6 +747,12 @@ export default function VacancyDetailClient({
         });
       }
     } catch { /* stays locked */ }
+  }
+
+  async function openFree() {
+    setUnlocking(true);
+    await loadContacts(true);
+    setUnlocking(false);
   }
 
   // Only an agency address costs us a portal email the seafarer depends on, so
@@ -962,11 +979,17 @@ export default function VacancyDetailClient({
   // The profile names a person and a rank: contacts and the apply button are
   // theirs. (The server checks the same thing — this only decides the view.)
   const profileReady = !!gaps && gaps.missing.length === 0;
-  // A seafarer without a subscription, once one is on sale: the apply button
-  // gives way to the subscription, and the contacts box drops its own button
-  // so the page asks once.
-  const needSub = SUB_SELLING && userRole === "seafarer" && subActive === false;
+  // A seafarer who may not act on this vacancy yet, once a plan is on sale:
+  // the apply button gives way to the free tier and the subscription, and the
+  // contacts box drops its own button so the page asks once.
+  const needSub = SUB_SELLING && userRole === "seafarer" && access === "locked";
   const subAsk = needSub && !applicationStatus;
+  const canAct = !SUB_SELLING || access === "open";
+  const fill = (t: string) =>
+    t.replace("{limit}", String(free?.limit ?? FREE_UNLOCKS_PER_WEEK)).replace("{left}", String(free?.left ?? 0)).replace(
+      "{date}",
+      free ? new Date(free.resetsAt).toLocaleDateString(DATE_LOCALE[lang] ?? "en-GB", { timeZone: "Europe/Kyiv", weekday: "long", day: "numeric", month: "long" }) : "",
+    );
   const hasLockedContacts = vacancy.lockedContacts.email || vacancy.lockedContacts.phone;
   // The editor's own "save" button brings the seafarer back here.
   const vacancyPath = `/jobs/${slugId(vacancy.title, vacancy.id)}`;
@@ -1182,17 +1205,18 @@ export default function VacancyDetailClient({
                   {!contacts && userId && userRole === "company" && (
                     <p className="mt-3 text-xs leading-relaxed text-mist">{copy.lockCompany}</p>
                   )}
-                  {/* Signed in, no subscription: the contacts are what it opens.
-                      The button sits in the apply box below when that one asks. */}
-                  {!contacts && userId && contactsError === "SUBSCRIPTION_REQUIRED" && (
+                  {/* Signed in, no subscription and not opened: the box below
+                      asks (free open or subscribe); only when it does not —
+                      already applied — does this one carry the button. */}
+                  {!contacts && userId && needSub && !subAsk && (
                     <div className="mt-3">
                       <p className="text-xs leading-relaxed text-mist">{sub.lockContacts}</p>
-                      {!subAsk && <Link
+                      <Link
                         href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
                         className="mt-3 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-4 py-2 text-xs font-bold text-[#061523] transition hover:-translate-y-0.5"
                       >
                         <Lock size={13} /> {sub.cta}
-                      </Link>}
+                      </Link>
                     </div>
                   )}
                 </ContactsBox>
@@ -1200,7 +1224,7 @@ export default function VacancyDetailClient({
 
               {!userId && (
                 <div>
-                  <p className="mb-4 text-sm leading-relaxed text-mist">{copy.lockAnon}</p>
+                  <p className="mb-4 text-sm leading-relaxed text-mist">{copy.lockAnon.replace("{free}", String(FREE_UNLOCKS_PER_WEEK))}</p>
                   <div className="flex flex-wrap gap-3">
                     <NextLink
                       href={loginHref}
@@ -1222,20 +1246,48 @@ export default function VacancyDetailClient({
                 <p className="text-sm text-mist">Companies cannot apply to vacancies.</p>
               )}
 
-              {/* No subscription: applying, the contacts and the mailbox route
-                  all open with it, so this is the one thing to do first. */}
+              {/* No subscription and this vacancy not opened: one of the
+                  week's free opens, or the subscription. Opening is a press,
+                  never a page view, so browsing does not use the week up. */}
               {subAsk && (
                 <div className="mb-4 rounded-xl border border-brass/30 bg-brass/10 p-4">
                   <p className="flex items-center gap-2 text-sm font-semibold text-foam">
-                    <Lock size={15} className="shrink-0 text-brassInk" /> {sub.lockApply}
+                    <Lock size={15} className="shrink-0 text-brassInk" /> {fill(sub.freeTitle)}
                   </p>
-                  <Link
-                    href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
-                  >
-                    {sub.cta} <ArrowRight size={15} />
-                  </Link>
+                  <p className="mt-2 text-sm leading-relaxed text-mist">
+                    {free && free.left > 0 ? fill(sub.freeBody) : fill(sub.freeUsed)}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {free && free.left > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => void openFree()}
+                        disabled={unlocking}
+                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50"
+                      >
+                        {unlocking ? "…" : sub.freeBtn}
+                      </button>
+                    )}
+                    <Link
+                      href={`/seafarer/subscription?back=${encodeURIComponent(vacancyPath)}`}
+                      className={
+                        free && free.left > 0
+                          ? "inline-flex items-center gap-2 rounded-xl border border-brass/40 px-5 py-2.5 text-sm font-bold text-brassInk transition hover:bg-brass/10"
+                          : "inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+                      }
+                    >
+                      {sub.cta} <ArrowRight size={15} />
+                    </Link>
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-mist">{sub.lockApply}</p>
                 </div>
+              )}
+
+              {/* Opened as one of the week's free ones: say what is left. */}
+              {userRole === "seafarer" && access === "open" && free && (
+                <p className="mb-4 flex items-center gap-2 text-xs text-teal">
+                  <CheckCircle2 size={14} className="shrink-0" /> {fill(sub.freeLeft)}
+                </p>
               )}
 
               {/* What is still missing, field by field, and the two ways to
@@ -1293,7 +1345,7 @@ export default function VacancyDetailClient({
                 </div>
               )}
 
-              {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && !needSub && subActive !== null && (
+              {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && canAct && (
                 <div>
                   {!gaps.experience ? (
                     <p className="mb-3 flex items-center gap-2 text-sm text-teal">

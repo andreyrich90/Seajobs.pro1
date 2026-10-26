@@ -2,14 +2,16 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { SUB_PLANS, isPlanId } from "@/lib/subscription";
 import { hasCvAccess, subscriptionUntil } from "@/lib/subscriptionAccess";
+import { freeState } from "@/lib/freeUnlocks";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // The seafarer subscription, from the seafarer's side.
 //
-//   GET  → where the caller stands: active until when, and whether the CV files
-//          are open (a subscription, or a Word export bought before it).
+//   GET  → where the caller stands: active until when, whether the CV files
+//          are open (a subscription, or a Word export bought before it), and
+//          without a subscription, the free tier's week (lib/freeUnlocks.ts).
 //   POST → start a checkout for one plan: writes a pending row and returns the
 //          plan's checkout link. The payment webhook (api/billing/buymeacoffee)
 //          is what marks it paid — nothing here can.
@@ -48,6 +50,7 @@ export async function GET(req: Request) {
       activeUntil: until?.toISOString() ?? null,
       cvAccess,
       email: user.email ?? null,
+      free: active ? null : await freeState(db, user.id),
     },
     { headers: NO_STORE },
   );
