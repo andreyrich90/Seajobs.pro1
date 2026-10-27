@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Plus, Trash2, Pencil, AlertCircle, X, Briefcase, ToggleLeft, ToggleRight, ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { supabase, notify } from "@/lib/supabase/client";
+import { purgeVacancy } from "@/lib/purgeVacancy";
 import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyColumns";
 import { TITLE_MAX } from "@/lib/vacancyTitle";
 import MarkdownEditor from "@/components/MarkdownEditor";
@@ -308,6 +309,8 @@ export default function VacanciesPage() {
       if (updateError) {
         setError(gateError(updateError.message) ?? t.va_update_failed + updateError.message);
       } else if (data) {
+        // The page is cached for a day; drop it so the edit shows now.
+        purgeVacancy(editingId, [vacancies.find((v) => v.id === editingId)?.title]);
         setVacancies((prev) => prev.map((v) => (v.id === editingId ? data : v)));
         closeForm();
       }
@@ -335,8 +338,12 @@ export default function VacanciesPage() {
 
   async function handleDelete(id: string) {
     if (!confirm(t.va_delete_confirm)) return;
+    const title = vacancies.find((v) => v.id === id)?.title;
     const { error: deleteError } = await supabase.from("vacancies").delete().eq("id", id);
-    if (!deleteError) setVacancies((prev) => prev.filter((v) => v.id !== id));
+    if (!deleteError) {
+      purgeVacancy(id, [title]);
+      setVacancies((prev) => prev.filter((v) => v.id !== id));
+    }
   }
 
   async function toggleActive(v: Vacancy) {

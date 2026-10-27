@@ -8,7 +8,7 @@ import { HREFLANG, DEFAULT_OG_IMAGE } from "@/lib/seo";
 // The one place in the app that may import the full dictionary map on the
 // client side of the tree: this is a Server Component, so only the single
 // dictionary it selects below is serialised into the page.
-import { T } from "@/lib/i18n";
+import { publicDict } from "@/lib/i18n";
 import type { Lang } from "@/lib/langs";
 import { DictProvider } from "@/components/DictProvider";
 import CookieBanner from "@/components/CookieBanner";
@@ -99,6 +99,8 @@ export default async function LocaleLayout({
 
   // The whole point of doing this here: this is a Server Component, so picking
   // one dictionary out of `T` costs the browser nothing for the other four.
+  // And only the public part of it (publicDict): the cabinets, /about and
+  // /for-companies add the rest in their own layouts.
   // Everything below reads it through `useT()`.
   //
   // No `messages` on the next-intl provider on purpose. Nothing in the app
@@ -116,7 +118,7 @@ export default async function LocaleLayout({
   return (
     <HtmlShell lang={HREFLANG[locale] ?? locale}>
       <NextIntlClientProvider locale={locale} messages={null}>
-        <DictProvider dict={T[locale as Lang]}>{children}</DictProvider>
+        <DictProvider dict={publicDict(locale as Lang)}>{children}</DictProvider>
         {/* Inside the provider: the banner links through @/i18n/navigation. */}
         <CookieBanner />
       </NextIntlClientProvider>

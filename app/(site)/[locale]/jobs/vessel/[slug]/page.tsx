@@ -22,7 +22,9 @@ import {
 
 
 // Eleven vessel types x five languages, crawled the same way. Cached.
-export const revalidate = 3600;
+// Three hours: a new vacancy reaches the home page within 15 minutes and /jobs
+// at once, so the landings can lag; each refresh is a billed ISR write.
+export const revalidate = 10800;
 
 // Prerendered at build, every slug in every language.
 //

@@ -2554,3 +2554,29 @@ Object.assign(T.ru, CVP_RU);
 Object.assign(T.ua, CVP_UA);
 Object.assign(T.pl, CVP_PL);
 Object.assign(T.ro, CVP_RO);
+
+// ── The lighter dictionary for public pages ──
+//
+// The locale layout hands one language's strings to every page, and on a
+// cached page they ride in the HTML and again in the RSC payload — so they are
+// written to the ISR cache on every refresh. About three quarters of them
+// (by bytes) belong to screens no cached page renders: the seafarer and
+// company cabinets, /for-companies and /about. Those sections wrap themselves
+// in a provider with the whole dictionary (their layout.tsx); everything else
+// gets publicDict(), which leaves their prefixes out — about 8 KB a page
+// instead of 24–36 KB.
+//
+// A key whose prefix is listed here must not be read outside those sections,
+// or it renders as nothing on a public page. Add a prefix only after checking
+// with grep that every file using it sits under seafarer/, company/,
+// for-companies/ or about/ (or a component only they render, such as
+// JobAlertsCard and CvLinksPanel).
+const SECTION_ONLY_PREFIXES = new Set([
+  "sp", "fc", "dash", "va", "about", "cp", "cved", "exp", "cert", "kb",
+  "cvp", "ref", "co", "app", "cvlinks", "cref", "cv", "sav",
+]);
+
+export function publicDict(lang: Lang): Record<string, string> {
+  const all = (T[lang] ?? T.en) as Record<string, string>;
+  return Object.fromEntries(Object.entries(all).filter(([k]) => !SECTION_ONLY_PREFIXES.has(k.split("_")[0])));
+}

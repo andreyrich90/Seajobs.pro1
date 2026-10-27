@@ -19,7 +19,9 @@ import { getLandingVacancies } from "@/lib/landingVacancies";
 
 // /jobs/rank/chief-engineer/bulk-carrier — see lib/rankVesselLandings.ts for
 // why these exist and why only some of them are indexed.
-export const revalidate = 3600;
+// Three hours: a new vacancy reaches the home page within 15 minutes and /jobs
+// at once, so the landings can lag; each refresh is a billed ISR write.
+export const revalidate = 10800;
 
 // Only the combinations that clear the bar today are prerendered. The rest are
 // rendered on request with `noindex`, which is all a stale link deserves.

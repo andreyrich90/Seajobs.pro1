@@ -45,5 +45,5 @@ export const getLandingVacancies = unstable_cache(
     return data as unknown as LandingVacancy[];
   },
   ["landing-vacancies-v1"],
-  { revalidate: 3600, tags: ["vacancies"] },
+  { revalidate: 10800, tags: ["vacancies"] },
 );

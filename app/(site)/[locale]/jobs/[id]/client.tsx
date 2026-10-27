@@ -659,6 +659,7 @@ export default function VacancyDetailClient({
   // subscription: how many vacancies are left to open, and when more arrive.
   const [free, setFree] = useState<FreeState | null>(null);
   const [unlocking, setUnlocking] = useState(false);
+  const [views, setViews] = useState(vacancy.views_count ?? 0);
   // One-shot CV import inside the apply modal: parse a PDF/DOCX with
   // /api/cv-parse and write straight into the profile (same as the cabinet).
   const [cvUploading, setCvUploading] = useState(false);
@@ -692,7 +693,12 @@ export default function VacancyDetailClient({
       setUserRole(role);
 
       // Increment views (fire & forget)
-      supabase.rpc("increment_vacancy_views", { vid: vacancy.id }).then(() => {});
+      // Counted, then read back: the cached page is up to a day old, so its
+      // own figure would lag by that much.
+      supabase.rpc("increment_vacancy_views", { vid: vacancy.id }).then(async () => {
+        const { data } = await supabase.from("vacancies").select("views_count").eq("id", vacancy.id).maybeSingle();
+        if (typeof data?.views_count === "number") setViews(data.views_count);
+      });
 
       // Asked of the server whatever the role: it alone decides, and an admin
       // signed in from either cabinet passes too.
@@ -1123,7 +1129,7 @@ export default function VacancyDetailClient({
                   <Eye size={15} className="text-mist shrink-0" />
                   <div>
                     <p className="text-xs text-mist">{(CTX[lang] ?? CTX.en).views}</p>
-                    <p className="text-sm font-semibold tabular-nums text-white">{vacancy.views_count ?? 0}</p>
+                    <p className="text-sm font-semibold tabular-nums text-white">{views}</p>
                   </div>
                 </div>
               </div>
