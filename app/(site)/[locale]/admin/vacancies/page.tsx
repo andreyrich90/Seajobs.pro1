@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Trash2, ToggleLeft, ToggleRight, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { purgeVacancy } from "@/lib/purgeVacancy";
 import { VACANCY_COLUMNS, type BrowserVacancy } from "@/lib/vacancyColumns";
 import { pageAll, MAX_USER_ROWS, MAX_VACANCY_ROWS, type Page } from "@/lib/pageAll";
 
@@ -104,8 +105,12 @@ export default function AdminVacanciesPage() {
 
   async function deleteVacancy(id: string) {
     if (!confirm("Delete this vacancy?")) return;
+    const title = vacancies.find((v) => v.id === id)?.title;
     const { error } = await supabase.from("vacancies").delete().eq("id", id);
-    if (!error) setVacancies((prev) => prev.filter((v) => v.id !== id));
+    if (!error) {
+      purgeVacancy(id, [title]);
+      setVacancies((prev) => prev.filter((v) => v.id !== id));
+    }
   }
 
   const filtered = vacancies.filter((v) => {

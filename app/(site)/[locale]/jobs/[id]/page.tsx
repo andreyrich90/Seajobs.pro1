@@ -13,18 +13,21 @@ import VacancyDetailClient, { type VacancyDetail, type RelatedGuide } from "./cl
 import { money } from "@/lib/format";
 import { SUB_SELLING } from "@/lib/subscription";
 
-// An hour. A published vacancy's text almost never changes, and every
-// refresh is a billed ISR write in each of five languages, for some 1,500
-// pages that crawlers walk around the clock; at five minutes the board's
-// pages were the second line of October 2026's Vercel overage. An edit or a
-// closed vacancy shows within the hour; new vacancies reach the lists that
-// link here on their own schedule.
+// A day. A published vacancy's text almost never changes, and every refresh is
+// a billed ISR write in each of five languages, for some 1,500 live pages that
+// crawlers walk around the clock: at an hour they were still over half of
+// October 2026's Vercel bill. What does change is handled without waiting:
+//   - an edit or a deletion purges the page at once (api/revalidate-vacancy,
+//     called by the company's and the admin's vacancy screens);
+//   - the view counter is read live by the client, not from this page;
+//   - closing a vacancy changes nothing here (the page does not read
+//     is_active), and a new vacancy is a new URL, cached on first request.
 //
 // Some revalidate is needed all the same: with none at all, a vacancy page
 // rendered once stayed in the cache until the next deployment — an edited
 // vacancy kept its old text, and a deleted one kept answering 200 instead of
 // the 404 the route now returns.
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 // Empty on purpose. A dynamic segment with no generateStaticParams is rendered
 // per request and never cached, so `revalidate` above would do nothing. An

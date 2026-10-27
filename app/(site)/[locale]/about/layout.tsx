@@ -1,3 +1,6 @@
+import { T } from "@/lib/i18n";
+import type { Lang } from "@/lib/langs";
+import { DictProvider } from "@/components/DictProvider";
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { routing } from "@/i18n/routing";
@@ -73,6 +76,15 @@ export async function generateMetadata({
   };
 }
 
-export default function AboutLayout({ children }: { children: React.ReactNode }) {
-  return children;
+// This page reads strings the locale layout leaves out of its lighter
+// dictionary (publicDict in lib/i18n.ts), so it gets the whole one here.
+export default async function AboutLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  return <DictProvider dict={T[locale as Lang] ?? T.en}>{children}</DictProvider>;
 }
