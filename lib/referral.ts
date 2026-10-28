@@ -19,14 +19,23 @@ export async function recordReferral(referredUserId: string) {
   if (!code) return;
   localStorage.removeItem(REF_STORAGE_KEY);
 
-  // Referral codes are unique across both seafarers and companies.
-  const [{ data: seafarerReferrer }, { data: companyReferrer }] = await Promise.all([
-    supabase.from("seafarers").select("id").eq("referral_code", code).maybeSingle(),
-    supabase.from("companies").select("id").eq("referral_code", code).maybeSingle(),
-  ]);
-  const referrer = seafarerReferrer ?? companyReferrer;
+  // Referral codes are unique across both seafarers and companies. Resolved by
+  // the referrer_by_code RPC, because a seafarer who hid their profile is not
+  // readable from the seafarers table — their link must still count. The two
+  // direct reads are the fallback for a database without that function yet.
+  let referrerId: string | null = null;
+  const { data: viaRpc, error: rpcError } = await supabase.rpc("referrer_by_code", { code });
+  if (!rpcError) {
+    referrerId = viaRpc ?? null;
+  } else {
+    const [{ data: seafarerReferrer }, { data: companyReferrer }] = await Promise.all([
+      supabase.from("seafarers").select("id").eq("referral_code", code).maybeSingle(),
+      supabase.from("companies").select("id").eq("referral_code", code).maybeSingle(),
+    ]);
+    referrerId = (seafarerReferrer ?? companyReferrer)?.id ?? null;
+  }
 
-  if (!referrer || referrer.id === referredUserId) return;
+  if (!referrerId || referrerId === referredUserId) return;
 
-  await supabase.from("referrals").insert({ referrer_id: referrer.id, referred_id: referredUserId });
+  await supabase.from("referrals").insert({ referrer_id: referrerId, referred_id: referredUserId });
 }

@@ -104,6 +104,7 @@ export interface Database {
           diplomas: Diploma[] | null;
           referral_code: string | null;
           boost_until: string | null;
+          is_hidden: boolean;
           updated_at: string | null;
         };
         Insert: {
@@ -134,6 +135,7 @@ export interface Database {
           diplomas?: Diploma[] | null;
           referral_code?: string | null;
           boost_until?: string | null;
+          is_hidden?: boolean;
           updated_at?: string | null;
         };
         Update: {
@@ -164,6 +166,7 @@ export interface Database {
           diplomas?: Diploma[] | null;
           referral_code?: string | null;
           boost_until?: string | null;
+          is_hidden?: boolean;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -1062,7 +1065,52 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: { [_ in never]: never };
+    // What other people may read about a seafarer (20261028010000): the base
+    // tables are the owner's and admins' only.
+    Views: {
+      seafarer_public: {
+        Row: {
+          id: string;
+          first_name: string | null;
+          last_name: string | null;
+          photo_url: string | null;
+          nationality: string | null;
+          rank: string | null;
+          readiness_date: string | null;
+          about: string | null;
+          updated_at: string | null;
+          boost_until: string | null;
+        };
+        Relationships: [];
+      };
+      certificate_public: {
+        Row: {
+          id: string;
+          seafarer_id: string;
+          name: string;
+          issuing_authority: string | null;
+          issue_date: string | null;
+          expiry_date: string | null;
+        };
+        Relationships: [];
+      };
+      sea_experience_public: {
+        Row: {
+          id: string;
+          seafarer_id: string;
+          vessel_name: string;
+          vessel_type: string | null;
+          rank: string | null;
+          company: string | null;
+          flag: string | null;
+          from_date: string | null;
+          to_date: string | null;
+          dwt: string | null;
+          engine: string | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       increment_vacancy_views: {
         Args: { vid: string };
@@ -1071,6 +1119,10 @@ export interface Database {
       filter_admin_ids: {
         Args: { ids: string[] };
         Returns: string[];
+      };
+      referrer_by_code: {
+        Args: { code: string };
+        Returns: string | null;
       };
     };
     Enums: { [_ in never]: never };
