@@ -73,7 +73,8 @@ export default function PublicSeafarerPage() {
     async function load() {
       try {
         const { data: profileData, error } = await supabase
-          .from("seafarers")
+          // Public views: the tables are the owner's and admins' only.
+          .from("seafarer_public")
           .select("first_name, last_name, photo_url, nationality, rank, readiness_date, about")
           .eq("id", id)
           .single();
@@ -87,12 +88,12 @@ export default function PublicSeafarerPage() {
 
         const [expRes, certRes] = await Promise.all([
           supabase
-            .from("sea_experience")
+            .from("sea_experience_public")
             .select("id, vessel_name, vessel_type, rank, company, flag, from_date, to_date")
             .eq("seafarer_id", id)
             .order("from_date", { ascending: false }),
           supabase
-            .from("certificates")
+            .from("certificate_public")
             .select("id, name, issuing_authority, expiry_date")
             .eq("seafarer_id", id)
             .order("expiry_date", { ascending: false }),

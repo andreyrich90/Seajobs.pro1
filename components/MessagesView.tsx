@@ -83,7 +83,7 @@ export default function MessagesView({ role }: { role: "company" | "seafarer" | 
       // via a SECURITY DEFINER function that returns only the admin ids.
       const [{ data: adminIds }, { data: sf }, { data: co }] = await Promise.all([
         supabase.rpc("filter_admin_ids", { ids: otherIds }),
-        supabase.from("seafarers").select("id, first_name, last_name, photo_url, rank").in("id", otherIds),
+        supabase.from("seafarer_public").select("id, first_name, last_name, photo_url, rank").in("id", otherIds),
         supabase.from("companies").select("id, name, logo_url, location").in("id", otherIds),
       ]);
       adminSet = new Set((adminIds as string[] | null) ?? []);

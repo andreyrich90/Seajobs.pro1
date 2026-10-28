@@ -45,7 +45,9 @@ export default function CompanySeafarersPage() {
     async function load() {
       try {
         const { data } = await supabase
-          .from("seafarers")
+          // The public view, not the table: the table is the owner's and
+          // admins' only, and hidden seafarers are already filtered out here.
+          .from("seafarer_public")
           .select("id, first_name, last_name, photo_url, nationality, rank, readiness_date, about, boost_until")
           .not("first_name", "is", null)
           .order("boost_until", { ascending: false, nullsFirst: false })

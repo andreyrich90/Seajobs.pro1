@@ -94,7 +94,7 @@ export default function CompanyApplicationsPage() {
 
       const seafarerIds = [...new Set(appsData.map((a) => a.seafarer_id).filter(Boolean))];
       const { data: seafarersData } = await supabase
-        .from("seafarers")
+        .from("seafarer_public")
         .select("id, first_name, last_name, photo_url, rank")
         .in("id", seafarerIds);
 
