@@ -11,8 +11,9 @@ import type { Seafarer, Diploma } from "@/lib/supabase/types";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
+import AccountPrivacy from "@/components/AccountPrivacy";
 
-type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas" | "referral_code" | "boost_until">;
+type ProfileForm = Omit<Seafarer, "id" | "updated_at" | "diplomas" | "referral_code" | "boost_until" | "is_hidden">;
 
 const EMPTY_DIPLOMA: Diploma = { name: "", number: "", expiry: "" };
 
@@ -841,6 +842,8 @@ export default function ProfilePage() {
           {saving ? t.sp_saving : t.sp_save}
         </button>
       </form>
+
+      <AccountPrivacy />
     </div>
   );
 }

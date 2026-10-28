@@ -104,6 +104,7 @@ export interface Database {
           diplomas: Diploma[] | null;
           referral_code: string | null;
           boost_until: string | null;
+          is_hidden: boolean;
           updated_at: string | null;
         };
         Insert: {
@@ -134,6 +135,7 @@ export interface Database {
           diplomas?: Diploma[] | null;
           referral_code?: string | null;
           boost_until?: string | null;
+          is_hidden?: boolean;
           updated_at?: string | null;
         };
         Update: {
@@ -164,6 +166,7 @@ export interface Database {
           diplomas?: Diploma[] | null;
           referral_code?: string | null;
           boost_until?: string | null;
+          is_hidden?: boolean;
           updated_at?: string | null;
         };
         Relationships: [];
@@ -1071,6 +1074,10 @@ export interface Database {
       filter_admin_ids: {
         Args: { ids: string[] };
         Returns: string[];
+      };
+      referrer_by_code: {
+        Args: { code: string };
+        Returns: string | null;
       };
     };
     Enums: { [_ in never]: never };
