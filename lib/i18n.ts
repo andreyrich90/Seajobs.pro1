@@ -72,6 +72,7 @@ export const T: Record<Lang, Dict> = {
     cab_subscription: "Abonament",
     cab_messages: "Mesaje",
     cab_notifications: "Notificări",
+    cab_privacy: "Confidențialitate și cont",
     cab_logout: "Ieșire",
     cab_loading: "Se încarcă…",
     cab_vacancies: "Posturi vacante",
@@ -553,7 +554,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_builder: "Зібрати CV",
     cab_cv_blast: "Розсилка резюме",
     cab_subscription: "Підписка",
-    cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_logout: "Вийти", cab_loading: "Завантаження…",
+    cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_privacy: "Приватність і акаунт", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
     cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
     // Common
@@ -636,7 +637,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_builder: "Zrób CV",
     cab_cv_blast: "Wysyłka CV",
     cab_subscription: "Subskrypcja",
-    cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
+    cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_privacy: "Prywatność i konto", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
     cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
     // Common
@@ -719,7 +720,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_builder: "Собрать CV",
     cab_cv_blast: "Рассылка резюме",
     cab_subscription: "Подписка",
-    cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_logout: "Выйти", cab_loading: "Загрузка…",
+    cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_privacy: "Приватность и аккаунт", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
     cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
     // Common
@@ -802,7 +803,7 @@ export const T: Record<Lang, Dict> = {
     nav_cv_builder: "Make a CV",
     cab_cv_blast: "CV distribution",
     cab_subscription: "Subscription",
-    cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_logout: "Logout", cab_loading: "Loading…",
+    cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_privacy: "Privacy & account", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
     cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",
     // Common

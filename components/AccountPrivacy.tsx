@@ -5,8 +5,8 @@ import { EyeOff, Eye, Trash2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 
-// The bottom of /seafarer/profile: hide the profile from crewing companies,
-// and delete the account.
+// /seafarer/privacy, its own item in the cabinet menu: hide the profile from
+// crewing companies, and delete the account.
 //
 // Hiding is one column, `seafarers.is_hidden`; what it hides is decided by the
 // database (20261028000000_seafarer_hidden_profile.sql), so this switch only
@@ -183,8 +183,8 @@ export default function AccountPrivacy() {
   const wordOk = typed.trim().toLocaleUpperCase() === c.delWord;
 
   return (
-    <section className="mt-10 flex flex-col gap-5" aria-labelledby="privacy-title">
-      <h2 id="privacy-title" className="text-sm font-semibold uppercase tracking-wider text-mist">{c.title}</h2>
+    <section className="flex flex-col gap-5" aria-labelledby="privacy-title">
+      <h1 id="privacy-title" className="font-display text-2xl font-semibold text-white">{c.title}</h1>
 
       <div className="rounded-2xl border border-white/10 bg-card p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">

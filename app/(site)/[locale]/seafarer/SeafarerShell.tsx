@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
 import {
-  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle, Search, Mail, Star,
+  Anchor, LayoutDashboard, User, Award, Ship, FileText, LogOut, Menu, X, Globe, Send, Bookmark, MessageCircle, Search, Mail, Star, ShieldCheck,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
@@ -141,6 +141,20 @@ export default function SeafarerShell({ children }: { children: React.ReactNode 
             </div>
           )}
         </div>
+
+        {/* Apart from the menu above so it is easy to find: hiding the
+            profile and deleting the account. */}
+        <Link
+          href="/seafarer/privacy"
+          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
+            pathname === "/seafarer/privacy"
+              ? "bg-brass/15 text-brassInk border border-brass/20"
+              : "text-mist hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          <ShieldCheck size={18} />
+          {t.cab_privacy}
+        </Link>
 
         <button
           onClick={handleLogout}
