@@ -307,7 +307,7 @@ export default function AdminUsersPage() {
                         <img
                           src={u.logo_url}
                           alt=""
-                          className="h-8 w-8 shrink-0 rounded-xl bg-white/10 object-cover"
+                          className="h-8 w-8 shrink-0 rounded-xl border border-white/10 bg-white object-contain p-0.5"
                         />
                       ) : (
                         <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white/10 text-sm font-bold text-white">
