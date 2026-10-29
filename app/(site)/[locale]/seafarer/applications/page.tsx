@@ -158,7 +158,7 @@ export default function ApplicationsPage() {
                       alt={v.companies.name ?? ""}
                       width={48}
                       height={48}
-                      className="h-12 w-12 rounded-xl object-cover"
+                      className="h-12 w-12 rounded-xl border border-white/10 bg-white object-contain p-1"
                     />
                   ) : (
                     <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/10">

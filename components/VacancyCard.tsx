@@ -146,7 +146,7 @@ export default function VacancyCard({
             alt={company}
             width={42}
             height={42}
-            className="h-[42px] w-[42px] shrink-0 rounded-xl object-cover"
+            className="h-[42px] w-[42px] shrink-0 rounded-xl border border-white/10 bg-white object-contain p-1"
           />
         ) : (
           <span

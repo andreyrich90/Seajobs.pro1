@@ -283,7 +283,7 @@ export default function CompanyProfilePage() {
                   alt="Logo"
                   fill
                   sizes="80px"
-                  className="rounded-2xl object-cover border border-white/10"
+                  className="rounded-2xl border border-white/10 bg-white object-contain p-1.5"
                 />
               ) : (
                 <div className="h-20 w-20 rounded-2xl bg-navy2 border border-white/10 flex items-center justify-center">
