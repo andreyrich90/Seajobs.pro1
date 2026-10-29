@@ -16,6 +16,15 @@ export function localePath(path: string, lang: Lang): string {
   return lang === "en" ? path : `/${lang}${path}`;
 }
 
+// Supabase refuses a password from a known leak (leaked password protection,
+// switched on in the project's Auth settings) or one below its strength rules
+// with code "weak_password"; its message is English whatever the page's
+// language, so the two cases get our own copy. Any other error passes through.
+export function passwordErrorText(err: { message: string; code?: string; reasons?: string[] }, t: Record<string, string>): string {
+  if (err.code !== "weak_password") return err.message;
+  return err.reasons?.includes("pwned") ? t.err_pw_leaked : t.err_pw_weak;
+}
+
 // Auth screens live outside the [locale] tree and had no i18n, so their copy
 // lives here in a dedicated map (consumed via useLang() in app/auth/*).
 export const AUTH_T: Record<Lang, Record<string, string>> = {
@@ -97,6 +106,8 @@ Object.assign(AUTH_T.en, {
   creating: "Creating account...", or_continue: "or continue with",
   err_select_role: "Please select a role.", err_pw_match: "Passwords do not match.",
   err_pw_short: "Password must be at least 6 characters.", err_signup_failed: "Sign up failed. Please try again.",
+  err_pw_leaked: "This password has appeared in a known data leak, so it is not safe. Please choose a different one.",
+  err_pw_weak: "This password is too weak. Please choose a stronger one.",
   fp_title: "Forgot password?", fp_subtitle: "Enter your email address and we'll send you a reset link.",
   fp_check: "Check your email!", fp_sent_pre: "We've sent a password reset link to",
   fp_sent_post: "Check your inbox and follow the instructions.", fp_back: "Back to Login",
@@ -117,6 +128,8 @@ Object.assign(AUTH_T.ru, {
   creating: "Создание аккаунта...", or_continue: "или продолжить через",
   err_select_role: "Пожалуйста, выберите роль.", err_pw_match: "Пароли не совпадают.",
   err_pw_short: "Пароль должен содержать минимум 6 символов.", err_signup_failed: "Не удалось зарегистрироваться. Попробуйте ещё раз.",
+  err_pw_leaked: "Этот пароль уже встречался в утёкших базах паролей и небезопасен. Придумайте другой.",
+  err_pw_weak: "Пароль слишком простой. Придумайте надёжнее.",
   fp_title: "Забыли пароль?", fp_subtitle: "Введите ваш email, и мы отправим ссылку для сброса.",
   fp_check: "Проверьте почту!", fp_sent_pre: "Мы отправили ссылку для сброса пароля на",
   fp_sent_post: "Проверьте входящие и следуйте инструкциям.", fp_back: "Назад ко входу",
@@ -137,6 +150,8 @@ Object.assign(AUTH_T.ua, {
   creating: "Створення акаунта...", or_continue: "або продовжити через",
   err_select_role: "Будь ласка, оберіть роль.", err_pw_match: "Паролі не збігаються.",
   err_pw_short: "Пароль має містити щонайменше 6 символів.", err_signup_failed: "Не вдалося зареєструватися. Спробуйте ще раз.",
+  err_pw_leaked: "Цей пароль уже траплявся у витоках паролів і небезпечний. Придумайте інший.",
+  err_pw_weak: "Пароль занадто простий. Придумайте надійніший.",
   fp_title: "Забули пароль?", fp_subtitle: "Введіть ваш email, і ми надішлемо посилання для скидання.",
   fp_check: "Перевірте пошту!", fp_sent_pre: "Ми надіслали посилання для скидання пароля на",
   fp_sent_post: "Перевірте вхідні та дотримуйтесь інструкцій.", fp_back: "Назад до входу",
@@ -157,6 +172,8 @@ Object.assign(AUTH_T.pl, {
   creating: "Tworzenie konta...", or_continue: "lub kontynuuj przez",
   err_select_role: "Wybierz rolę.", err_pw_match: "Hasła nie są zgodne.",
   err_pw_short: "Hasło musi mieć co najmniej 6 znaków.", err_signup_failed: "Rejestracja nie powiodła się. Spróbuj ponownie.",
+  err_pw_leaked: "To hasło pojawiło się w znanym wycieku danych, więc nie jest bezpieczne. Wybierz inne.",
+  err_pw_weak: "To hasło jest zbyt słabe. Wybierz silniejsze.",
   fp_title: "Nie pamiętasz hasła?", fp_subtitle: "Podaj swój adres e-mail, a wyślemy link do resetu.",
   fp_check: "Sprawdź e-mail!", fp_sent_pre: "Wysłaliśmy link do zresetowania hasła na",
   fp_sent_post: "Sprawdź skrzynkę i postępuj zgodnie z instrukcjami.", fp_back: "Powrót do logowania",
@@ -177,6 +194,8 @@ Object.assign(AUTH_T.ro, {
   creating: "Se creează contul...", or_continue: "sau continuă cu",
   err_select_role: "Te rugăm să alegi un rol.", err_pw_match: "Parolele nu coincid.",
   err_pw_short: "Parola trebuie să aibă cel puțin 6 caractere.", err_signup_failed: "Înregistrarea a eșuat. Încearcă din nou.",
+  err_pw_leaked: "Această parolă a apărut într-o scurgere de date cunoscută și nu este sigură. Alege alta.",
+  err_pw_weak: "Parola este prea slabă. Alege una mai puternică.",
   fp_title: "Ai uitat parola?", fp_subtitle: "Introdu adresa de e-mail și îți vom trimite un link de resetare.",
   fp_check: "Verifică-ți e-mailul!", fp_sent_pre: "Am trimis un link de resetare a parolei la",
   fp_sent_post: "Verifică inbox-ul și urmează instrucțiunile.", fp_back: "Înapoi la autentificare",

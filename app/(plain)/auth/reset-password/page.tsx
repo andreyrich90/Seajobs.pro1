@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Anchor, Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
-import { AUTH_T } from "@/lib/authI18n";
+import { AUTH_T, passwordErrorText } from "@/lib/authI18n";
 import { LANGS } from "@/lib/langs";
 
 function ResetPasswordContent() {
@@ -58,7 +58,7 @@ function ResetPasswordContent() {
     setLoading(true);
     try {
       const { error: updErr } = await supabase.auth.updateUser({ password });
-      if (updErr) { setError(updErr.message); return; }
+      if (updErr) { setError(passwordErrorText(updErr, t)); return; }
       // Sign out so the recovery session can't linger; the user signs in fresh.
       await supabase.auth.signOut();
       setSuccess(true);
