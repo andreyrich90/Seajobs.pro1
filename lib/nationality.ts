@@ -113,6 +113,12 @@ const COUNTRIES: Record<string, Country> = {
   JM: { code: "JM", name: "Jamaica", flag: "🇯🇲" },
   GY: { code: "GY", name: "Guyana", flag: "🇬🇾" },
   VC: { code: "VC", name: "Saint Vincent and the Grenadines", flag: "🇻🇨" },
+  CU: { code: "CU", name: "Cuba", flag: "🇨🇺" },
+  // Added from the admin panel's "not recognised" list, October 2026.
+  CM: { code: "CM", name: "Cameroon", flag: "🇨🇲" },
+  SL: { code: "SL", name: "Sierra Leone", flag: "🇸🇱" },
+  CY: { code: "CY", name: "Cyprus", flag: "🇨🇾" },
+  AU: { code: "AU", name: "Australia", flag: "🇦🇺" },
 };
 
 // Every spelling that resolves to a country: the English name, the local name,
@@ -120,8 +126,8 @@ const COUNTRIES: Record<string, Country> = {
 // forms — a Ukrainian seafarer filling a Russian-language form writes
 // "Украина", the same man on the Ukrainian form writes "Україна".
 const ALIASES: Record<string, string[]> = {
-  UA: ["ukraine", "ukrainian", "ukrainia", "ukr", "ua", "україна", "украина", "українець", "українка", "украинец", "украинка", "ukraina", "ukrainskaya", "ukrainian citizen", "ukranian"],
-  PL: ["poland", "polish", "pol", "pl", "polska", "polak", "польша", "польща", "поляк", "polonia"],
+  UA: ["ukraine", "ukrainian", "ukrainia", "ukr", "ua", "україна", "украина", "українець", "українка", "украинец", "украинка", "ukraina", "ukrainskaya", "ukrainian citizen", "ukranian", "ukrain", "ucraina", "ucrainean"],
+  PL: ["poland", "polish", "pol", "pl", "polska", "polak", "польша", "польща", "поляк", "polonia", "polsk"],
   RO: ["romania", "romanian", "rou", "ro", "românia", "roman", "румыния", "румунія", "roumania", "rumania", "rumanian"],
   RU: ["russia", "russian", "rus", "ru", "россия", "росія", "русский", "российская федерация", "russian federation"],
   BG: ["bulgaria", "bulgarian", "bgr", "bg", "българия", "болгария"],
@@ -182,7 +188,8 @@ const ALIASES: Record<string, string[]> = {
   MU: ["mauritius", "mauritian", "маврикий"],
   IR: ["iran", "iranian", "иран"],
   IQ: ["iraq", "iraqi", "ирак"],
-  SY: ["syria", "syrian", "сирия"],
+  // "S.A.R" is the Syrian Arab Republic: the one seafarer who wrote it has a +963 number.
+  SY: ["syria", "syrian", "сирия", "syrian arab republic", "s a r"],
   JO: ["jordan", "jordanian", "иордания"],
   LB: ["lebanon", "lebanese", "ливан"],
   SA: ["saudi", "saudi arabia", "saudi arabian", "саудовская аравия"],
@@ -214,6 +221,11 @@ const ALIASES: Record<string, string[]> = {
   JM: ["jamaica", "jamaican", "ямайка"],
   GY: ["guyana", "guyanese", "гайана"],
   VC: ["saint vincent", "st vincent", "vincentian"],
+  CU: ["cuba", "cuban", "куба"],
+  CM: ["cameroon", "cameroonian", "cameroun", "камерун"],
+  SL: ["sierra leone", "sierra leonean", "сьерра-леоне"],
+  CY: ["cyprus", "cypriot", "кипр"],
+  AU: ["australia", "australian", "австралия"],
 };
 
 const LOOKUP = new Map<string, string>();
@@ -221,15 +233,19 @@ for (const [code, names] of Object.entries(ALIASES)) {
   for (const n of names) LOOKUP.set(n, code);
 }
 
+const WORD_CODES = new Set(["uk", "ua"]);
+
 // Every alias of three letters or more, as a pattern that only matches where a
 // word starts. A plain substring test read "North Macedonia" as Norway ("nor")
 // and "Salvadoran" as Latvia ("lva"). Three-letter codes must also end the
 // word; longer names may run on, so "Indiann" and "Srilankan" still land.
 const PATTERNS: { re: RegExp; code: string; len: number }[] = [];
 for (const [alias, code] of LOOKUP) {
-  if (alias.length <= 2) continue; // codes must be the whole value
+  // Codes must be the whole value, except the few that are never an ordinary
+  // word: "uk" in "UK/Australia" is the United Kingdom, "in" is not India.
+  if (alias.length <= 2 && !WORD_CODES.has(alias)) continue;
   const body = alias.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const tail = alias.length === 3 ? "(?![\\p{L}\\p{M}])" : "";
+  const tail = alias.length <= 3 ? "(?![\\p{L}\\p{M}])" : "";
   PATTERNS.push({ re: new RegExp(`(?<![\\p{L}\\p{M}])${body}${tail}`, "u"), code, len: alias.length });
 }
 
