@@ -9,7 +9,7 @@ import { Anchor, Anchor as AnchorIcon, Briefcase, Eye, EyeOff, AlertCircle, Chev
 import { supabase } from "@/lib/supabase/client";
 import { captureRefParam, recordReferral } from "@/lib/referral";
 import { useLang } from "@/components/LangProvider";
-import { AUTH_T, localePath } from "@/lib/authI18n";
+import { AUTH_T, passwordErrorText, localePath } from "@/lib/authI18n";
 import { LANGS } from "@/lib/langs";
 
 async function signUpWithGoogle(role?: string) {
@@ -87,7 +87,7 @@ export default function RegisterPage() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        setError(passwordErrorText(signUpError, t));
         return;
       }
 
