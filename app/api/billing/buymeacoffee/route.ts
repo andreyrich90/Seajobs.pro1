@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { esc, adminChatIds, tgSendAdmins, tgSendAdminsDocument, SITE } from "@/lib/telegramBot";
+import { esc, adminChatIds, subscriptionChatIds, tgSendAdmins, tgSendAdminsDocument, SITE } from "@/lib/telegramBot";
 import { sendEmail } from "@/lib/email";
 import { REPLY_TO } from "@/lib/outreach";
 import { servicePaidEmail } from "@/lib/servicePaidEmail";
@@ -113,6 +113,8 @@ export async function POST(req: NextRequest) {
       kind === "paid"
         ? `📄 <b>ОПЛАЧЕНО — CV у Word</b>\n\n✉️ ${esc(word.email)}\nСума: ${amount ?? "—"} ${esc(currency ?? "")}\n\nВивантаження відкрито автоматично, робити нічого не треба.`
         : `↩️ <b>ПОВЕРНЕННЯ — CV у Word</b>\n\n✉️ ${esc(word.email)}\n\nДоступ до вивантаження закрито.`,
+      {},
+      subscriptionChatIds(),
     );
     return NextResponse.json({ ok: true, kind, matched: true, product: "cv_word" });
   }
@@ -515,7 +517,7 @@ async function handleSubscription(
     await tgSendAdmins(text.filter((l) => l !== null).join("\n"), {
       buttonText: "Відкрити в адмінці",
       buttonUrl: `${SITE}/admin/subscriptions`,
-    });
+    }, subscriptionChatIds());
   } catch (e) {
     console.error("[bmc] telegram (subscription)", e instanceof Error ? e.message : e);
   }

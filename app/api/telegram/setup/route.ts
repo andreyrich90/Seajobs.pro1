@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminChatIds, botLang, botUsername, channelId, telegramConfigured, tgApi } from "@/lib/telegramBot";
+import { adminChatIds, subscriptionChatIds, botLang, botUsername, channelId, telegramConfigured, tgApi } from "@/lib/telegramBot";
 
 export const runtime = "nodejs";
 
@@ -99,6 +99,9 @@ export async function GET(req: Request) {
     webhook: { url: webhookUrl, registered, info: info.ok ? info.result : info },
     channel,
     admins: await checkAdmins(),
+    subscriptions: process.env.TELEGRAM_SUBSCRIPTION_CHAT_ID?.trim()
+      ? await checkChats(subscriptionChatIds())
+      : { note: "TELEGRAM_SUBSCRIPTION_CHAT_ID is not set — subscription payments go to the admin chats" },
     language: botLang(),
   });
 }
@@ -120,7 +123,10 @@ async function checkAdmins() {
   if (ids.length === 0) {
     return { count: 0, note: "TELEGRAM_ADMIN_CHAT_ID is not set — nobody is notified about CV-distribution requests", chats: [] };
   }
+  return checkChats(ids);
+}
 
+async function checkChats(ids: string[]) {
   const chats = [];
   for (const id of ids) {
     const res = await tgApi<{ title?: string; type?: string; first_name?: string; username?: string }>(

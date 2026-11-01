@@ -405,7 +405,23 @@ export function channelId(): string | null {
  * settled.
  */
 export function adminChatIds(): string[] {
-  return (process.env.TELEGRAM_ADMIN_CHAT_ID ?? "")
+  return chatIdList(process.env.TELEGRAM_ADMIN_CHAT_ID);
+}
+
+/**
+ * The chats told about seafarer subscriptions (and the old Word export): a
+ * payment, an unmatched payment, a refund. Nothing in them is work for the
+ * people running the CV distribution, so `TELEGRAM_SUBSCRIPTION_CHAT_ID` —
+ * one id or several, like the admin list — sends them elsewhere. Unset, they
+ * go to the admin chats as before.
+ */
+export function subscriptionChatIds(): string[] {
+  const own = chatIdList(process.env.TELEGRAM_SUBSCRIPTION_CHAT_ID);
+  return own.length ? own : adminChatIds();
+}
+
+function chatIdList(raw: string | undefined): string[] {
+  return (raw ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -422,9 +438,10 @@ export function adminChatIds(): string[] {
 export async function tgSendAdmins(
   html: string,
   opts: { buttonText?: string; buttonUrl?: string } = {},
+  to: string[] = adminChatIds(),
 ): Promise<number> {
   let sent = 0;
-  for (const chatId of adminChatIds()) {
+  for (const chatId of to) {
     const res = await tgSend(chatId, html, opts);
     if (res.ok) sent++;
     else console.error(`[telegram] admin ${chatId}: ${res.error}`);
