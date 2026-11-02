@@ -1,3 +1,4 @@
+import { toWholeNumber } from "@/lib/wholeNumber";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
 import { normalizeContractDuration } from "@/lib/contract";
@@ -157,8 +158,9 @@ export async function importVacancy(
   const fields = {
     rank: input.rank || null,
     vessel_type: input.vesselType || null,
-    salary_from: input.salaryFrom ? Number(input.salaryFrom) : null,
-    salary_to: input.salaryTo ? Number(input.salaryTo) : null,
+    // Integer columns: "7800.5" is rounded rather than refused (lib/wholeNumber.ts).
+    salary_from: toWholeNumber(input.salaryFrom) || null,
+    salary_to: toWholeNumber(input.salaryTo) || null,
     // Offshore, tug and yacht postings quote a DAY rate. Storing it as monthly
     // made a 450/day rate read as a 450/month wage, which wrecked the offshore
     // column of the salary table.
