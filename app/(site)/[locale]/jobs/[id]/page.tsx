@@ -340,7 +340,7 @@ export default async function VacancyPage(
     // not what Google means by direct apply — so the claim goes with it.
     // A vacancy whose agency takes applications only on its own site is not
     // applied to here at all.
-    "directApply": !SUB_SELLING && !vacancy.apply_url,
+    "directApply": !SUB_SELLING && !(vacancy.apply_url && !contact_email?.trim()),
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
     // NOT the per-vacancy social card, however much it looks like the right
     // answer. Under a dynamic segment Next serves that image only at the hashed

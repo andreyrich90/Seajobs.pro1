@@ -53,8 +53,9 @@ export type VacancyDetail = {
   /** What the lock box holds a place for. */
   lockedContacts: { email: boolean; phone: boolean };
   /** The agency takes applications only on its own site, through this link:
-   *  the page sends readers there instead of offering to apply here. Public,
-   *  unlike the contacts — it is the agency's own public form. */
+   *  when there is no agency e-mail, the page sends readers there instead of
+   *  offering to apply here. Public, unlike the contacts — it is the agency's
+   *  own public form. */
   apply_url?: string | null;
   companies: {
     id: string;
@@ -1253,8 +1254,9 @@ export default function VacancyDetailClient({
               )}
 
               {/* The agency takes applications only on its own site: send the
-                  reader there, and none of the ways to apply here below. */}
-              {vacancy.apply_url ? (
+                  reader there, and none of the ways to apply here below. A
+                  vacancy with an e-mail takes them here, link or not. */}
+              {vacancy.apply_url && !vacancy.hasAgencyEmail ? (
                 <div className="rounded-xl border border-teal/30 bg-teal/10 p-4">
                   <p className="flex items-center gap-2 text-sm font-semibold text-foam">
                     <ExternalLink size={15} className="shrink-0 text-teal" /> {copy.extTitle}
