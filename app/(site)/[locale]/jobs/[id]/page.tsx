@@ -92,7 +92,7 @@ async function fetchVacancy(param: string): Promise<VacancyFull | null> {
   if (!id) return null;
   const { data, error } = await getAdminClient()
     .from("vacancies")
-    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, contact_email, contact_phone, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
+    .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, views_count, created_at, is_imported, contact_email, contact_phone, apply_url, country, region, city, postal_code, valid_through, companies(id, name, logo_url, location, website, is_verified)")
     .eq("id", id)
     .single();
   // PGRST116 is PostgREST's "no rows": the listing really is gone, and 404 is
@@ -338,7 +338,9 @@ export default async function VacancyPage(
     },
     // Applying on the site needs a subscription once one is on sale, which is
     // not what Google means by direct apply — so the claim goes with it.
-    "directApply": !SUB_SELLING,
+    // A vacancy whose agency takes applications only on its own site is not
+    // applied to here at all.
+    "directApply": !SUB_SELLING && !vacancy.apply_url,
     "url": `${BASE_URL}/jobs/${slugId(vacancy.title, vacancy.id)}`,
     // NOT the per-vacancy social card, however much it looks like the right
     // answer. Under a dynamic segment Next serves that image only at the hashed

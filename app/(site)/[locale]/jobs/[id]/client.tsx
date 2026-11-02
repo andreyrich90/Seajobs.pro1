@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Lock,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Lock, ExternalLink,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -52,6 +52,10 @@ export type VacancyDetail = {
   hasAgencyEmail: boolean;
   /** What the lock box holds a place for. */
   lockedContacts: { email: boolean; phone: boolean };
+  /** The agency takes applications only on its own site, through this link:
+   *  the page sends readers there instead of offering to apply here. Public,
+   *  unlike the contacts — it is the agency's own public form. */
+  apply_url?: string | null;
   companies: {
     id: string;
     name: string | null;
@@ -157,6 +161,10 @@ const CTX: Record<string, Record<string, string>> = {
     lockIncomplete: "The apply button opens as soon as your profile says who you are:",
     lockCompany: "Contacts are shown to seafarers with a subscription.",
     lockWhy: "Crewing agencies answer people, not e-mail addresses — so every application from SeaJobs.pro carries a name, a rank and a phone.",
+    extTitle: "Applications go through the company's website",
+    extBody: "This company accepts applications only on its own website. Applying through SeaJobs.pro is not possible for this vacancy: open the link and fill in your profile or application form on the company's page.",
+    extBtn: "Apply on the company's website",
+    extNote: "The link opens the company's own site. SeaJobs.pro does not see or send anything you fill in there.",
     f_email: "E-mail",
     f_first_name: "First name",
     f_last_name: "Last name",
@@ -213,6 +221,10 @@ const CTX: Record<string, Record<string, string>> = {
     lockIncomplete: "Кнопка отклика откроется, как только в профиле будет видно, кто вы:",
     lockCompany: "Контакты видны морякам с подпиской.",
     lockWhy: "Крюинги отвечают людям, а не e-mail-адресам — поэтому каждый отклик с SeaJobs.pro приходит с именем, должностью и телефоном.",
+    extTitle: "Отклик — на сайте компании",
+    extBody: "Эта компания принимает отклики только на своём сайте. Откликнуться через SeaJobs.pro на эту вакансию нельзя: откройте ссылку и заполните профиль или анкету на странице компании.",
+    extBtn: "Откликнуться на сайте компании",
+    extNote: "Ссылка ведёт на сайт самой компании. То, что вы там заполните, SeaJobs.pro не видит и никуда не отправляет.",
     f_email: "E-mail",
     f_first_name: "Имя",
     f_last_name: "Фамилия",
@@ -269,6 +281,10 @@ const CTX: Record<string, Record<string, string>> = {
     lockIncomplete: "Кнопка відгуку відкриється, щойно в профілі буде видно, хто ви:",
     lockCompany: "Контакти бачать моряки з підпискою.",
     lockWhy: "Крюїнги відповідають людям, а не e-mail-адресам — тому кожен відгук із SeaJobs.pro приходить з ім'ям, посадою й телефоном.",
+    extTitle: "Відгук — на сайті компанії",
+    extBody: "Ця компанія приймає відгуки лише на своєму сайті. Відгукнутися через SeaJobs.pro на цю вакансію неможливо: відкрийте посилання й заповніть профіль або анкету на сторінці компанії.",
+    extBtn: "Відгукнутися на сайті компанії",
+    extNote: "Посилання веде на сайт самої компанії. Те, що ви там заповните, SeaJobs.pro не бачить і нікуди не надсилає.",
     f_email: "E-mail",
     f_first_name: "Ім'я",
     f_last_name: "Прізвище",
@@ -325,6 +341,10 @@ const CTX: Record<string, Record<string, string>> = {
     lockIncomplete: "Przycisk aplikowania pojawi się, gdy profil pokaże, kim jesteś:",
     lockCompany: "Kontakty widzą marynarze z subskrypcją.",
     lockWhy: "Agencje odpowiadają ludziom, nie adresom e-mail — dlatego każde zgłoszenie z SeaJobs.pro ma imię, stanowisko i telefon.",
+    extTitle: "Aplikacja — na stronie firmy",
+    extBody: "Ta firma przyjmuje zgłoszenia wyłącznie na swojej stronie. Na tę ofertę nie można aplikować przez SeaJobs.pro: otwórz link i wypełnij profil lub formularz na stronie firmy.",
+    extBtn: "Aplikuj na stronie firmy",
+    extNote: "Link prowadzi na stronę samej firmy. SeaJobs.pro nie widzi ani nie wysyła tego, co tam wypełnisz.",
     f_email: "E-mail",
     f_first_name: "Imię",
     f_last_name: "Nazwisko",
@@ -381,6 +401,10 @@ const CTX: Record<string, Record<string, string>> = {
     lockIncomplete: "Butonul de aplicare apare imediat ce profilul arată cine ești:",
     lockCompany: "Contactele sunt vizibile marinarilor cu abonament.",
     lockWhy: "Agențiile răspund oamenilor, nu adreselor de e-mail — de aceea fiecare aplicație de pe SeaJobs.pro vine cu nume, rang și telefon.",
+    extTitle: "Aplicarea — pe site-ul companiei",
+    extBody: "Această companie primește aplicări doar pe propriul site. Pentru acest post nu se poate aplica prin SeaJobs.pro: deschide linkul și completează profilul sau formularul pe pagina companiei.",
+    extBtn: "Aplică pe site-ul companiei",
+    extNote: "Linkul duce pe site-ul companiei. SeaJobs.pro nu vede și nu trimite nimic din ce completezi acolo.",
     f_email: "E-mail",
     f_first_name: "Prenume",
     f_last_name: "Nume",
@@ -1228,6 +1252,25 @@ export default function VacancyDetailClient({
                 </ContactsBox>
               )}
 
+              {/* The agency takes applications only on its own site: send the
+                  reader there, and none of the ways to apply here below. */}
+              {vacancy.apply_url ? (
+                <div className="rounded-xl border border-teal/30 bg-teal/10 p-4">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-foam">
+                    <ExternalLink size={15} className="shrink-0 text-teal" /> {copy.extTitle}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-mist">{copy.extBody}</p>
+                  <a
+                    href={vacancy.apply_url}
+                    target="_blank"
+                    rel="nofollow noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-brass to-brass2 px-5 py-2.5 text-sm font-bold text-[#061523] transition hover:-translate-y-0.5"
+                  >
+                    {copy.extBtn} <ExternalLink size={15} />
+                  </a>
+                  <p className="mt-3 text-xs leading-relaxed text-mist">{copy.extNote}</p>
+                </div>
+              ) : (<>
               {!userId && (
                 <div>
                   <p className="mb-4 text-sm leading-relaxed text-mist">{copy.lockAnon.replace("{free}", String(FREE_UNLOCKS_PER_WEEK))}</p>
@@ -1370,6 +1413,7 @@ export default function VacancyDetailClient({
                   </button>
                 </div>
               )}
+              </>)}
             </div>
 
             {/* Our own analysis of the offer — see CTX below. */}

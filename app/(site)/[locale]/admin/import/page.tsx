@@ -24,7 +24,7 @@ const empty = () => ({
   companyName: "", companyLocation: "", companyWebsite: "",
   title: "", rank: "", vesselType: "",
   salaryFrom: "", salaryTo: "", salaryPeriod: "month", currency: "USD",
-  contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "", contactPhone: "",
+  contractDuration: "", joiningDate: "", description: "", sourceUrl: "", contactEmail: "", contactPhone: "", applyUrl: "",
 });
 
 type Form = ReturnType<typeof empty>;
@@ -44,6 +44,7 @@ type ParsedVacancy = {
   salaryFrom?: number | null; salaryTo?: number | null; salaryPeriod?: string | null; currency?: string | null;
   contractDuration?: string | null; joiningDate?: string | null;
   description?: string | null; contactEmail?: string | null; contactPhone?: string | null;
+  applyUrl?: string | null;
 };
 
 export default function ImportVacancyPage() {
@@ -86,6 +87,11 @@ export default function ImportVacancyPage() {
   }
 
   function loadParsedList(list: ParsedVacancy[]) {
+    // A new screenshot starts from a clean form. Merging into the last one
+    // kept the previous agency's e-mail whenever the new posting had none —
+    // that is how one company's address ended up on another's vacancies.
+    // The source URL stays: it is typed in by hand before the upload.
+    setForm((p) => ({ ...empty(), sourceUrl: p.sourceUrl }));
     applyParsed(list[0]);
     setQueue(list.slice(1));
   }
@@ -111,6 +117,8 @@ export default function ImportVacancyPage() {
       description: v.description ?? "",
       contactEmail: v.contactEmail ?? p.contactEmail,
       contactPhone: v.contactPhone ?? p.contactPhone,
+      // Never carried from the previous vacancy: a link belongs to its posting.
+      applyUrl: v.applyUrl ?? "",
       // sourceUrl is set manually and shared by all vacancies from one page.
     }));
   }
@@ -327,6 +335,7 @@ export default function ImportVacancyPage() {
         sourceUrl:        form.sourceUrl,
         contactEmail:     form.contactEmail,
         contactPhone:     form.contactPhone,
+        applyUrl:         form.applyUrl,
       }),
     });
 
@@ -685,6 +694,20 @@ export default function ImportVacancyPage() {
             />
             <p className="mt-2 text-xs text-mist">
               If set, &quot;Apply&quot; sends the seafarer&apos;s profile (name, rank, experience, certificates, contacts) directly to this email instead of the in-app inbox.
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <label className={labelClass}>Apply on the company&apos;s website (optional)</label>
+            <input
+              type="url"
+              value={form.applyUrl}
+              onChange={set("applyUrl")}
+              placeholder="https://careers.agency.com/apply"
+              className={inputClass}
+            />
+            <p className="mt-2 text-xs text-mist">
+              For agencies that take applications only through their own form or profile. The vacancy page then sends seafarers to this link instead of applying through SeaJobs.pro. Leave the e-mail empty unless the posting itself shows one.
             </p>
           </div>
 
