@@ -52,6 +52,8 @@ export type ImportVacancyInput = {
   sourceUrl?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
+  /** The agency's own application page, when it takes applications only there. */
+  applyUrl?: string | null;
 };
 
 export type ImportVacancyResult = {
@@ -132,7 +134,12 @@ export async function importVacancy(
   // re-import of a recurring posting would wipe its existing email).
   let contactEmail = input.contactEmail?.trim() || null;
   let contactEmailInherited = false;
-  if (!contactEmail) {
+  // A posting that sends candidates to the agency's own site carries no
+  // address on purpose; borrowing one would mail CVs somewhere it never asked
+  // for them. (Borrowing is how a CP Marine address once spread to a dozen
+  // Bernhard Schulte postings.)
+  const applyUrl = cleanApplyUrl(input.applyUrl);
+  if (!contactEmail && !applyUrl) {
     const { data: prior } = await admin
       .from("vacancies")
       .select("contact_email")
@@ -167,6 +174,9 @@ export async function importVacancy(
     source_url: input.sourceUrl?.trim() || null,
     contact_email: contactEmail,
     contact_phone: input.contactPhone?.trim() || null,
+    // Only when there is one, so imports keep working on a database that does
+    // not have the column yet (20261102000000_vacancy_apply_url.sql).
+    ...(applyUrl ? { apply_url: applyUrl } : {}),
   };
 
   // A queued vacancy is hidden, and the publish check (company name and a
@@ -174,7 +184,7 @@ export async function importVacancy(
   // fail at release, where nobody sees it. Apply it now instead, so the
   // collector falls back to a pending draft exactly as it does for an
   // immediate publish that the check refuses.
-  if (opts.queue && !contactEmail && !input.contactPhone?.trim()) {
+  if (opts.queue && !contactEmail && !input.contactPhone?.trim() && !applyUrl) {
     const { data: co } = await admin.from("companies").select("emails, phones").eq("id", companyId).maybeSingle();
     const has = (a: unknown) => Array.isArray(a) && a.some((x) => typeof x === "string" && x.trim() !== "");
     if (!has(co?.emails) && !has(co?.phones)) throw new Error(readableDbError("company_contact_required"));
@@ -250,4 +260,17 @@ export async function importVacancy(
   const channel = await postVacancyToChannel(admin, vacancy.id);
 
   return { vacancyId: vacancy.id, companyId, refreshed: false, contactEmailInherited, contactEmail, alerts, channel };
+}
+
+/** An http(s) URL, with the scheme added when the source left it off; null otherwise. */
+export function cleanApplyUrl(raw: string | null | undefined): string | null {
+  const v = raw?.trim();
+  if (!v) return null;
+  const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+  try {
+    const u = new URL(withScheme);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
 }

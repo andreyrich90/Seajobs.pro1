@@ -317,6 +317,7 @@ export interface Database {
           is_active: boolean;
           is_imported: boolean;
           source_url: string | null;
+          apply_url: string | null;
           contact_email: string | null;
           contact_phone: string | null;
           country: string | null;
@@ -350,6 +351,7 @@ export interface Database {
           is_active?: boolean;
           is_imported?: boolean;
           source_url?: string | null;
+          apply_url?: string | null;
           contact_email?: string | null;
           contact_phone?: string | null;
           country?: string | null;
@@ -381,6 +383,7 @@ export interface Database {
           is_active?: boolean;
           is_imported?: boolean;
           source_url?: string | null;
+          apply_url?: string | null;
           contact_email?: string | null;
           contact_phone?: string | null;
           country?: string | null;
