@@ -139,7 +139,11 @@ export async function importVacancy(
   // address on purpose; borrowing one would mail CVs somewhere it never asked
   // for them. (Borrowing is how a CP Marine address once spread to a dozen
   // Bernhard Schulte postings.)
-  const applyUrl = cleanApplyUrl(input.applyUrl);
+  // And the other way round: a posting with an e-mail takes applications
+  // through us, so a link beside it is not kept. That link once was the job
+  // board the screenshot was taken from, and the page told seafarers they
+  // could apply only on "the company's site".
+  const applyUrl = contactEmail ? null : cleanApplyUrl(input.applyUrl);
   if (!contactEmail && !applyUrl) {
     const { data: prior } = await admin
       .from("vacancies")
