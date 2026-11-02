@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Upload, CheckCircle, AlertCircle, RefreshCw, ExternalLink,
   Building2, Briefcase, DollarSign, Clock, Calendar, FileText, Link2,
@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { RANK_GROUPS } from "@/lib/ranks";
+import { toWholeNumber } from "@/lib/wholeNumber";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -47,6 +48,31 @@ type ParsedVacancy = {
   applyUrl?: string | null;
 };
 
+/**
+ * Vacancies read from ONE screenshot share their company and contacts: a later
+ * one with no company or e-mail takes the previous one's, as the form's queue
+ * always did. Never across screenshots — that is how one agency's address once
+ * landed on another's vacancies.
+ */
+function shareWithinScreenshot(list: ParsedVacancy[]): ParsedVacancy[] {
+  const out: ParsedVacancy[] = [];
+  for (const v of list) {
+    const prev = out[out.length - 1];
+    out.push(prev ? {
+      ...v,
+      companyName: v.companyName ?? prev.companyName,
+      companyLocation: v.companyLocation ?? prev.companyLocation,
+      companyWebsite: v.companyWebsite ?? prev.companyWebsite,
+      currency: v.currency ?? prev.currency,
+      contactEmail: v.contactEmail ?? prev.contactEmail,
+      contactPhone: v.contactPhone ?? prev.contactPhone,
+    } : v);
+  }
+  return out;
+}
+
+const AUTO_KEY = "import_auto_publish";
+
 export default function ImportVacancyPage() {
   const [form, setForm] = useState<Form>(empty());
   const [saving, setSaving] = useState(false);
@@ -58,6 +84,17 @@ export default function ImportVacancyPage() {
   // loaded into the form after each save (or via "load next").
   const [queue, setQueue] = useState<ParsedVacancy[]>([]);
   const [pasteOpen, setPasteOpen] = useState(false);
+  // Publish everything a screenshot yields at once, instead of one Save per
+  // vacancy. On by default; the choice is remembered in this browser.
+  const [autoPublish, setAutoPublish] = useState(true);
+  const [publishProgress, setPublishProgress] = useState<string | null>(null);
+  useEffect(() => {
+    try { if (localStorage.getItem(AUTO_KEY) === "0") setAutoPublish(false); } catch { /* default */ }
+  }, []);
+  function toggleAuto(on: boolean) {
+    setAutoPublish(on);
+    try { localStorage.setItem(AUTO_KEY, on ? "1" : "0"); } catch { /* not remembered */ }
+  }
   const [pasteText, setPasteText] = useState("");
   const [tgHandle, setTgHandle] = useState("");
   const [tgProbing, setTgProbing] = useState(false);
@@ -108,8 +145,8 @@ export default function ImportVacancyPage() {
       title: v.title ?? "",
       rank: v.rank ?? "",
       vesselType: v.vesselType ?? "",
-      salaryFrom: v.salaryFrom != null ? String(v.salaryFrom) : "",
-      salaryTo: v.salaryTo != null ? String(v.salaryTo) : "",
+      salaryFrom: toWholeNumber(v.salaryFrom)?.toString() ?? "",
+      salaryTo: toWholeNumber(v.salaryTo)?.toString() ?? "",
       salaryPeriod: v.salaryPeriod === "day" ? "day" : "month",
       currency: v.currency ?? p.currency,
       contractDuration: v.contractDuration ?? "",
@@ -231,7 +268,7 @@ export default function ImportVacancyPage() {
           if (list.length === 0) {
             failed.push(file.name);
             reasons.push(data.detail ?? data.error ?? `HTTP ${res.status}`);
-          } else all.push(...list);
+          } else all.push(...shareWithinScreenshot(list));
         } catch (err) {
           failed.push(file.name);
           reasons.push(err instanceof Error ? err.message : String(err));
@@ -252,7 +289,8 @@ export default function ImportVacancyPage() {
             (why ? ` (${why})` : "")
         );
       }
-      loadParsedList(all);
+      if (autoPublish) await publishAll(all, session.access_token);
+      else loadParsedList(all);
     } catch (err) {
       console.error(err);
       setError("Could not read the screenshot.");
@@ -290,7 +328,8 @@ export default function ImportVacancyPage() {
         setError("No vacancy could be read from the text.");
         return;
       }
-      loadParsedList(list);
+      if (autoPublish) await publishAll(shareWithinScreenshot(list), session.access_token);
+      else loadParsedList(shareWithinScreenshot(list));
       setPasteText("");
       setPasteOpen(false);
     } catch (err) {
@@ -298,6 +337,89 @@ export default function ImportVacancyPage() {
       setError("Could not read the text.");
     } finally {
       setParsing(false);
+    }
+  }
+
+  /** One line for the "Just imported" log. */
+  function describeSaved(data: {
+    refreshed?: boolean; contactEmailInherited?: boolean; contactEmail?: string | null;
+    channel?: { posted: boolean; reason?: string };
+  }, title: string): string {
+    return `${data.refreshed ? `${title} — refreshed (duplicate)` : title}`
+      + (data.contactEmailInherited ? ` · ✉ email auto-filled from this company: ${data.contactEmail}` : "")
+      // Whether it reached the Telegram channel. A failure here is recoverable
+      // (the hourly sweeper retries) but invisible unless it is said out loud.
+      + (data.channel
+          ? data.channel.posted
+            ? " · 📣 posted to the Telegram channel"
+            : ` · 📣 not in the channel yet (${data.channel.reason}) — the hourly sweep will retry`
+          : "");
+  }
+
+  /**
+   * Publish every parsed vacancy straight away. The ones the server refuses —
+   * no title or company, no contact at all — come back into the form, one
+   * after another, to be fixed and saved by hand.
+   */
+  async function publishAll(list: ParsedVacancy[], token: string) {
+    const sourceUrl = form.sourceUrl;
+    const refused: ParsedVacancy[] = [];
+    const reasons: string[] = [];
+    let published = 0;
+    for (let i = 0; i < list.length; i++) {
+      const v = list[i];
+      setPublishProgress(`${i + 1}/${list.length}`);
+      if (!v.title?.trim() || !v.companyName?.trim()) {
+        refused.push(v);
+        reasons.push(`${v.title || "untitled"}: no ${v.title?.trim() ? "company name" : "title"}`);
+        continue;
+      }
+      try {
+        const res = await fetch("/api/admin/import-vacancy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            companyName: v.companyName,
+            companyLocation: v.companyLocation ?? "",
+            companyWebsite: v.companyWebsite ?? "",
+            title: v.title,
+            rank: v.rank || null,
+            vesselType: v.vesselType || null,
+            salaryFrom: toWholeNumber(v.salaryFrom) || null,
+            salaryTo: toWholeNumber(v.salaryTo) || null,
+            salaryPeriod: v.salaryPeriod === "day" ? "day" : "month",
+            currency: v.currency || "USD",
+            contractDuration: v.contractDuration ?? "",
+            joiningDate: v.joiningDate || null,
+            description: v.description ?? "",
+            sourceUrl,
+            contactEmail: v.contactEmail ?? "",
+            contactPhone: v.contactPhone ?? "",
+            applyUrl: v.applyUrl ?? "",
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          refused.push(v);
+          reasons.push(`${v.title}: ${data.error ?? `HTTP ${res.status}`}`);
+          continue;
+        }
+        published++;
+        setSaved((p) => [{ id: data.vacancyId, title: describeSaved(data, v.title!) }, ...p]);
+      } catch (err) {
+        refused.push(v);
+        reasons.push(`${v.title}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }
+    setPublishProgress(null);
+    if (refused.length > 0) {
+      loadParsedList(refused);
+      setError(
+        `Published ${published} of ${list.length} automatically. ${refused.length} need a look — the first is in the form below, fix it and press Save: ${reasons.join("; ")}`,
+      );
+    } else {
+      setForm(empty());
+      setQueue([]);
     }
   }
 
@@ -325,8 +447,8 @@ export default function ImportVacancyPage() {
         title:            form.title,
         rank:             form.rank || null,
         vesselType:       form.vesselType || null,
-        salaryFrom:       form.salaryFrom ? Number(form.salaryFrom) : null,
-        salaryTo:         form.salaryTo ? Number(form.salaryTo) : null,
+        salaryFrom:       toWholeNumber(form.salaryFrom) || null,
+        salaryTo:         toWholeNumber(form.salaryTo) || null,
         salaryPeriod:     form.salaryPeriod,
         currency:         form.currency,
         contractDuration: form.contractDuration,
@@ -346,18 +468,7 @@ export default function ImportVacancyPage() {
       return;
     }
 
-    setSaved((p) => [{
-      id: data.vacancyId,
-      title: `${data.refreshed ? `${form.title} — refreshed (duplicate)` : form.title}`
-        + (data.contactEmailInherited ? ` · ✉ email auto-filled from this company: ${data.contactEmail}` : "")
-        // Whether it reached the Telegram channel. A failure here is recoverable
-        // (the hourly sweeper retries) but invisible unless it is said out loud.
-        + (data.channel
-            ? data.channel.posted
-              ? " · 📣 posted to the Telegram channel"
-              : ` · 📣 not in the channel yet (${data.channel.reason}) — the hourly sweep will retry`
-            : ""),
-    }, ...p]);
+    setSaved((p) => [{ id: data.vacancyId, title: describeSaved(data, form.title) }, ...p]);
 
     if (queue.length > 0) {
       // Multi-vacancy screenshot: pull the next parsed vacancy into the form.
@@ -409,9 +520,11 @@ export default function ImportVacancyPage() {
           className="ml-auto flex items-center gap-2 rounded-xl border border-brass/30 bg-brass/10 px-4 py-2.5 text-sm font-semibold text-brassInk transition hover:bg-brass/20 disabled:opacity-50"
         >
           {parsing ? <RefreshCw size={15} className="animate-spin" /> : <ImagePlus size={15} />}
-          {parsing
+          {publishProgress
+            ? `Publishing ${publishProgress}...`
+            : parsing
             ? `Reading${parseProgress ? ` ${parseProgress}` : ""}...`
-            : "Fill from screenshots"}
+            : autoPublish ? "Publish from screenshots" : "Fill from screenshots"}
         </button>
         <button
           type="button"
@@ -427,6 +540,20 @@ export default function ImportVacancyPage() {
           </span>
         )}
       </div>
+
+      <label className="-mt-3 mb-6 flex items-start gap-2.5 text-sm text-foam">
+        <input
+          type="checkbox"
+          checked={autoPublish}
+          onChange={(e) => toggleAuto(e.target.checked)}
+          disabled={parsing}
+          className="mt-0.5 h-4 w-4 accent-brass"
+        />
+        <span>
+          Publish at once — every vacancy read from the screenshots (or pasted text) goes live without pressing Save.
+          <span className="block text-xs text-mist">Any it cannot publish comes back into the form below to be fixed. Type the source URL first if you have one.</span>
+        </span>
+      </label>
 
       {/* Telegram feasibility probe (temporary diagnostic) */}
       <div className="mb-6 rounded-2xl border border-white/10 bg-navy2 p-4">
