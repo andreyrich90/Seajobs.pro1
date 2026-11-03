@@ -1,6 +1,7 @@
 import { getServerSupabase } from "@/lib/supabase/admin";
 import { getSalaryStats } from "@/lib/salaryStatsCached";
 import { getSignupPulse } from "@/lib/signupPulse";
+import { getHomeReach } from "@/lib/homeReach";
 import { newsExcerpt, newsReadMins } from "@/lib/newsText";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
 
@@ -36,7 +37,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   // dominated TTFB/LCP here. The lists below stay per-request fresh.
   // The "joined today" strip is decoration: if its count fails, the hero
   // simply goes without it rather than taking the page down.
-  const [{ data: vacancies }, { data: news }, salaryStats, signups, live] = await Promise.all([
+  const [{ data: vacancies }, { data: news }, salaryStats, signups, live, reach] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
       .eq("is_active", true)
@@ -61,6 +62,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       .select("id", { count: "exact", head: true })
       .eq("is_active", true)
       .or(`joining_date.is.null,joining_date.gte.${cutoff}`),
+    // The hero's companies figure and European share. Decoration like the
+    // strip: if it fails, the hero falls back to its line without figures.
+    getHomeReach(sb, cutoff).catch((e) => {
+      console.error("[home] reach", e);
+      return null;
+    }),
   ]);
 
   // One language per news card, with its excerpt and reading time worked out
@@ -95,6 +102,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       salaryStats={salaryStats}
       signups={signups}
       liveVacancies={live.error ? null : live.count}
+      reach={reach}
       // Read from `revalidate` itself, so the strip's "updates every N minutes"
       // cannot drift from the interval the page is actually cached for.
       refreshMinutes={revalidate / 60}

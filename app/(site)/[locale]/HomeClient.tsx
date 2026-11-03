@@ -13,6 +13,9 @@ import VesselFilter from "@/components/VesselFilter";
 import VacancyCard from "@/components/VacancyCard";
 import RankFilter from "@/components/RankFilter";
 import SignupPulse from "@/components/SignupPulse";
+import EuropeFlags from "@/components/EuropeFlags";
+import type { HomeReach } from "@/lib/homeReach";
+import { heroReachLine } from "@/lib/heroReachCopy";
 import type { SignupPulse as Pulse } from "@/lib/signupPulse";
 import type { SalaryStats } from "@/lib/salaryStats";
 import { FAQ_SEAFARERS } from "@/lib/faq";
@@ -78,6 +81,7 @@ export default function HomeClient({
   signups,
   refreshMinutes,
   liveVacancies,
+  reach,
 }: {
   initialVacancies: DbVacancy[];
   initialNews: DbNews[];
@@ -87,6 +91,8 @@ export default function HomeClient({
   refreshMinutes: number;
   /** Live vacancies on the board, for the strip; null when the count failed. */
   liveVacancies: number | null;
+  /** Companies with live vacancies and the European share; null when the count failed. */
+  reach: HomeReach | null;
 }) {
   const { lang } = useLang();
   const tiles = HOME_SERVICE_TILES[lang] ?? HOME_SERVICE_TILES.en;
@@ -198,7 +204,21 @@ export default function HomeClient({
             <h1 className="mt-5 font-display text-4xl font-semibold leading-tight tracking-tight text-foam md:text-6xl">
               {t.hero_title}
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">{t.hero_sub}</p>
+            {/* With figures when both counts came back, the plain line otherwise.
+                The European share is said only while it is true (lib/homeReach.ts). */}
+            <p className="mt-5 max-w-2xl text-lg leading-relaxed text-mist">
+              {reach && liveVacancies != null ? (
+                <>
+                  {heroReachLine(lang, liveVacancies, reach.companies)}{" "}
+                  {reach.europeShare != null && reach.europeShare > 0.5 && <>{t.hero_eu_share} </>}
+                  {t.hero_sub_tail}
+                </>
+              ) : (
+                t.hero_sub
+              )}
+            </p>
+
+            <EuropeFlags lang={lang} title={t.hero_flags} />
 
             {/* Seafarers who joined today — shown on phones too, where it is
                 most of what a first-time visitor sees above the fold. */}
