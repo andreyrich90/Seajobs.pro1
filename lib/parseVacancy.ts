@@ -1,5 +1,6 @@
 import { RANK_GROUPS } from "@/lib/ranks";
 import { companyFromEmail } from "@/lib/companyName";
+import { formatPlan } from "@/lib/vacancyFormats";
 
 // Shared server-side vacancy parser used by both the admin image/text route
 // (api/admin/parse-vacancy-image) and the automated collector cron. Calls the
@@ -72,12 +73,13 @@ Rules (apply to every vacancy object):
 - "salaryPeriod" = "day" when the figure is a DAY RATE ("/day", "per day", "daily rate", "pd", "p/d", "$450 a day" — common on offshore, tug, dredger and yacht postings), otherwise "month". Use null only when no salary is given. Getting this wrong makes a 450/day offshore rate look like a 450/month wage, so read the unit carefully.
 - "currency" = 3-letter ISO code (USD, EUR, GBP...).
 - "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
-- "description" = a UNIQUE, rewritten job description in English Markdown — NOT a verbatim copy of the source text (duplicated text hurts SEO). Rephrase everything in your own words and structure it as:
-    1. A 2–4 sentence intro paragraph in your own words (vessel type, trading area, contract length, salary — whatever is given). THIS is where the unique wording comes from.
-    2. "## Vessel particulars" — a bullet list of any ship specs present (type, IMO, flag, year built, GRT/DWT, main engine, sailing area). Omit this whole section if the source has no specs.
-    3. "## Requirements" — include EVERY requirement that appears in the source: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet in your own phrasing, but NONE may be dropped, merged away or replaced with a generic line — applicants must see the real requirements for this exact vacancy. Do NOT add requirements that are not in the source.
-    4. "## How to apply" — ALWAYS end with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager." EXCEPT when "applyUrl" is set and "contactEmail" is null: then end with this exact sentence instead: "This company accepts applications only on its own website — use the link on this page to fill in your profile there."
-  Uniqueness comes from rephrasing and the intro — never from inventing facts: only include specs, requirements and figures that actually appear in the source. Skip any section whose data is absent (except "How to apply", which is always included).
+- "description" = a UNIQUE job description in English Markdown, 250–400 words — NOT a verbatim copy of the source (duplicated text hurts SEO). Build it with the FORMAT assigned to this vacancy in the user message (vacancy 1 takes format 1, vacancy 2 format 2, and so on, wrapping round): follow that format's section order and use its "## " headings. Rules for every format:
+    - "## Requirements" must include EVERY requirement that appears in the source: certificates and courses, experience in rank (years / vessel types / GT or kW limits), documents and visas, English level, nationality or permit constraints, age or medical notes. Reword each bullet, but NONE may be dropped, merged away or replaced with a generic line. Do NOT add requirements that are not in the source to this section.
+    - "## How to apply" is always the last section and ends with this exact sentence: "Apply directly through SeaJobs.pro — your CV is forwarded straight to the crewing manager." EXCEPT when "applyUrl" is set and "contactEmail" is null: then end with this exact sentence instead: "This company accepts applications only on its own website — use the link on this page to fill in your profile there."
+    - Facts about THIS vacancy (company, ship name, IMO, flag, specs, trading area, salary, contract, rotation, joining date, crew, benefits) come ONLY from the source. Never invent, estimate or "typically" any of them.
+    - The extra length comes from general, accurate knowledge, written as general: what this rank typically does on this vessel type, what the vessel type carries and how its cargo work runs, certificates and training usually expected in this fleet (as "usually", never as this employer's requirement), documents worth having ready, sensible questions to ask a crewing agency. Use "typically", "usually", "on most ships of this type".
+    - No filler, no keyword stuffing, no marketing superlatives about the company, no salary comparisons or market figures (the page shows its own). Do not repeat sentences between vacancies.
+    - Skip a section whose content would be empty or invented (except "## Requirements" when the source lists any, and "## How to apply", which is always included).
 - "contactEmail": the crewing e-mail address exactly as printed in the source. Null if the source shows none. NEVER invent, guess or complete an address, and never take one from a different company.
 - "applyUrl": ONLY when the source gives no e-mail for applications AND explicitly tells candidates to apply, register or fill in a profile/form through a link (a careers portal, an online application form, "please apply by: <link>"): the full URL of that page, starting with https:// (add it when the source omits the scheme). Copy it exactly as shown. Null in every other case — in particular when an application e-mail is given, for a company homepage that is merely mentioned (that is "companyWebsite"), and NEVER the address-bar URL of the page the screenshot was taken from or of a job board / aggregator listing.
 - "contactPhone": if the ad gives a phone/WhatsApp/Viber/Telegram number to reach the crewing, extract it in international format where possible (e.g. "+380 50 123 45 67"). Null if none is shown. Do NOT invent a number.
@@ -136,15 +138,18 @@ export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]
       ? `The ${images.length} images above are consecutive top-to-bottom slices of ONE screenshot and they overlap slightly. Read them as a single posting: a vacancy that appears in two slices is ONE vacancy, not two.\n`
       : "";
 
+  // A fresh order of description formats per request (lib/vacancyFormats.ts).
+  const plan = `Description formats, in vacancy order (wrap round after the last):\n${formatPlan()}`;
+
   const userContent = images.length
     ? [
         ...images.map((im) => ({
           type: "image",
           source: { type: "base64", media_type: im.mediaType, data: stripDataUrl(im.base64) },
         })),
-        { type: "text", text: `${sliceNote}Extract every vacancy in this posting into the JSON schema.` },
+        { type: "text", text: `${sliceNote}Extract every vacancy in this posting into the JSON schema.\n\n${plan}` },
       ]
-    : [{ type: "text", text: `Extract every vacancy in the text below into the JSON schema.\n\n---\n${input.text!.slice(0, 24000)}` }];
+    : [{ type: "text", text: `Extract every vacancy in the text below into the JSON schema.\n\n${plan}\n\n---\n${input.text!.slice(0, 24000)}` }];
 
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -155,7 +160,9 @@ export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]
     },
     body: JSON.stringify({
       model: images.length ? IMAGE_MODEL : TEXT_MODEL,
-      max_tokens: 8192,
+      // Descriptions run 250–400 words each, and one agency post can list a
+      // dozen ranks.
+      max_tokens: 16000,
       system: SCHEMA_PROMPT,
       messages: [{ role: "user", content: userContent }],
     }),

@@ -18,6 +18,13 @@ import { queueReady, scheduleQueued, interleave } from "@/lib/publishQueue";
 
 // Cap posts parsed per run so one busy channel can't blow the time/token budget.
 const MAX_POSTS_PER_SOURCE = 8;
+
+// The cron route may run 300 s. Longer descriptions (lib/vacancyFormats.ts) made
+// each parse two to three times slower, and a run cut off by the platform loses
+// its audit row and leaves the later channels unread. So parsing stops here,
+// and the posts not reached stay above the channel's high-water mark for the
+// next run.
+const PARSE_BUDGET_MS = 230_000;
 // Skip obvious non-vacancy chatter before spending an LLM call.
 const VACANCY_HINT =
   /(vacan|position|rank|master|officer|engineer|cook|bosun|able seaman|ordinary seaman|fitter|electric|cadet|crew|joining|salary|usd|eur|vessel|tanker|bulk|container|offshore|contract|dwt|imo|c\/o|2\/o|3\/o|c\/e|2\/e|3\/e)/i;
@@ -103,6 +110,8 @@ export async function collectTelegram(
 ): Promise<CollectReport> {
   const startedAt = new Date().toISOString();
   const trigger = opts.trigger ?? "cron";
+  const deadline = Date.now() + PARSE_BUDGET_MS;
+  let outOfTime = false;
 
   const { data: sources, error: srcErr } = await admin
     .from("import_sources")
@@ -131,6 +140,11 @@ export async function collectTelegram(
 
   for (const source of sources ?? []) {
     const entry: Record<string, unknown> = { handle: source.handle };
+    if (outOfTime) {
+      entry.skipped = "out of time — next run";
+      report.push(entry);
+      continue;
+    }
     try {
       const posts = await fetchTelegramPosts(source.handle);
 
@@ -149,6 +163,8 @@ export async function collectTelegram(
       let skippedRussian = 0; // vacancies dropped as Russian crewing (.ru / +7 / location)
 
       for (const post of fresh) {
+        // Out of time: stop before this post, so it and the rest are read next run.
+        if (Date.now() > deadline) { outOfTime = true; entry.stoppedEarly = true; break; }
         if (post.id && post.id > maxId) maxId = post.id;
         if (!VACANCY_HINT.test(post.text)) continue;
         scanned++;

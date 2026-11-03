@@ -3,7 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { parseVacancies, IMAGE_TYPES, type ParseImage } from "@/lib/parseVacancy";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Descriptions now run 250–400 words per vacancy (lib/vacancyFormats.ts), and a
+// screenshot listing several ranks takes the image model well past a minute.
+export const maxDuration = 300;
 
 // Anthropic rejects a single image over 5 MB; the serverless request body is
 // capped around 4.5 MB. Fail with a clear message instead of a generic 500.
