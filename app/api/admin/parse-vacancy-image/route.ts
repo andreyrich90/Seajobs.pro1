@@ -3,7 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { parseVacancies, IMAGE_TYPES, type ParseImage } from "@/lib/parseVacancy";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// A screenshot listing several ranks, each laid out in full (lib/vacancyFormats.ts),
+// can take the image model past a minute.
+export const maxDuration = 300;
 
 // Anthropic rejects a single image over 5 MB; the serverless request body is
 // capped around 4.5 MB. Fail with a clear message instead of a generic 500.
@@ -67,7 +69,9 @@ export async function POST(req: NextRequest) {
 
     let vacancies;
     try {
-      vacancies = await parseVacancies(images.length ? { images } : { text });
+      // Screenshots get the rotating description formats; pasted text keeps
+      // the classic outline (lib/vacancyFormats.ts).
+      vacancies = await parseVacancies(images.length ? { images, rich: true } : { text });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error("Vacancy parse failed:", msg);

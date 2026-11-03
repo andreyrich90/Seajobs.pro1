@@ -17,7 +17,7 @@ import type { Vacancy } from "@/lib/supabase/types";
 //     is granted, because the grant is per column. Add it here and grant it:
 //       grant select (new_column) on public.vacancies to anon, authenticated;
 export const VACANCY_COLUMNS =
-  "id, company_id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, is_active, is_imported, country, region, city, postal_code, valid_through, views_count, created_at, updated_at, featured_until, telegram_message_id, apply_url";
+  "id, company_id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, description, is_active, is_imported, country, region, city, postal_code, valid_through, views_count, created_at, updated_at, featured_until, telegram_message_id, apply_url, crew_preference";
 
 /** A vacancy as the browser may see it. */
 // The publish-queue columns are left out too: publish_alerts is server-only,
