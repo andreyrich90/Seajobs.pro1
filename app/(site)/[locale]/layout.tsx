@@ -20,33 +20,35 @@ export function generateStaticParams() {
 
 // The home page's search snippet and share text. It speaks to both sides of
 // the board: seafarers come for the vacancies, crewing companies for the
-// seafarers. The vacancy figure is a floor of the live count — raise it now
+// seafarers — and, like the hero, it pitches the board as European. The
+// country list names where the companies with live vacancies are based.
+// The vacancy figure is a floor of the live count — raise it now
 // and then, never above what the database holds.
 const SITE_META: Record<string, { title: string; description: string }> = {
   en: {
-    title: "Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
+    title: "European Maritime Jobs for Seafarers & Crewing Companies | SeaJobs",
     description:
-      "1,400+ live vacancies from crewing agencies — search by rank, vessel type and salary, apply free. Crewing companies: post jobs free and reach a large seafarer base.",
+      "1,500+ live vacancies from crewing agencies across Europe — Poland, Greece, the UK, Scandinavia, the Baltics. Search by rank, vessel type and salary. Crewing companies: post jobs free and reach a large seafarer base.",
   },
   ru: {
-    title: "Вакансии для моряков и крюинговых компаний | SeaJobs",
+    title: "Работа в море у крюингов Европы — вакансии для моряков | SeaJobs",
     description:
-      "1 400+ актуальных вакансий от крюинговых компаний — поиск по должности, типу судна и зарплате, отклик бесплатно. Крюингам: бесплатные вакансии и большая база моряков.",
+      "1 500+ актуальных вакансий от крюинговых компаний Европы — Польша, Греция, Великобритания, Скандинавия, Балтия. Поиск по должности, типу судна и зарплате. Крюингам: бесплатные вакансии и большая база моряков.",
   },
   ua: {
-    title: "Вакансії для моряків та крюїнгових компаній | SeaJobs",
+    title: "Робота в морі у крюїнгів Європи — вакансії для моряків | SeaJobs",
     description:
-      "1 400+ актуальних вакансій від крюїнгових компаній — пошук за посадою, типом судна та зарплатою, відгук безкоштовно. Крюїнгам: безкоштовні вакансії та велика база моряків.",
+      "1 500+ актуальних вакансій від крюїнгових компаній Європи — Польща, Греція, Велика Британія, Скандинавія, Балтія. Пошук за посадою, типом судна та зарплатою. Крюїнгам: безкоштовні вакансії та велика база моряків.",
   },
   pl: {
-    title: "Praca dla marynarzy i firm crewingowych | SeaJobs",
+    title: "Praca na morzu w europejskich agencjach crewingowych | SeaJobs",
     description:
-      "1 400+ aktualnych ofert od agencji crewingowych — szukaj według stanowiska, typu statku i stawki, aplikuj za darmo. Agencje: darmowe ogłoszenia i duża baza marynarzy.",
+      "1 500+ aktualnych ofert od agencji crewingowych z całej Europy — Polska, Grecja, Wielka Brytania, Skandynawia, kraje bałtyckie. Szukaj według stanowiska, typu statku i stawki. Agencje: darmowe ogłoszenia i duża baza marynarzy.",
   },
   ro: {
-    title: "Joburi maritime pentru marinari și companii de crewing | SeaJobs",
+    title: "Joburi pe mare la agențiile de crewing din Europa | SeaJobs",
     description:
-      "1.400+ posturi active de la agenții de crewing — caută după rang, tip de navă și salariu, aplici gratuit. Agențiile: anunțuri gratuite și o bază mare de marinari.",
+      "1.500+ posturi active de la agenții de crewing din toată Europa — Polonia, Grecia, Regatul Unit, Scandinavia, țările baltice. Caută după rang, tip de navă și salariu. Agențiile: anunțuri gratuite și o bază mare de marinari.",
   },
 };
 

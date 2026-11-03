@@ -14,14 +14,14 @@ import { ImageResponse } from "next/og";
 // Satori draws this: every element with children needs display:flex, and the
 // default font carries Latin only, so the card is in English.
 
-export const SITE_CARD_ALT = "SeaJobs.pro — maritime jobs for seafarers, seafarers for crewing companies";
+export const SITE_CARD_ALT = "SeaJobs.pro — European maritime jobs for seafarers, seafarers for crewing companies";
 export const SITE_CARD_SIZE = { width: 1200, height: 630 };
 
 const GOLD = "#e3c04a";
 const MIST = "#9fb3c3";
 
 const STATS = [
-  { value: "1,400+", label: "live vacancies", note: "for seafarers" },
+  { value: "1,500+", label: "live vacancies", note: "for seafarers" },
   { value: "12,000+", label: "seafarers", note: "for crewing companies" },
   { value: "400+", label: "crewing companies", note: "on the board" },
 ];
@@ -95,10 +95,10 @@ export function siteCard() {
 
         {/* What the site is, for both sides */}
         <div style={{ display: "flex", fontSize: 40, fontWeight: 700, color: "#ffffff", marginBottom: 12 }}>
-          Maritime jobs for seafarers
+          European maritime jobs for seafarers
         </div>
         <div style={{ display: "flex", fontSize: 26, color: MIST, marginBottom: 46 }}>
-          Vacancies from crewing agencies · Seafarers for crewing companies
+          Vacancies from Europe's crewing agencies · Seafarers for crewing companies
         </div>
 
         {/* The board in numbers */}
