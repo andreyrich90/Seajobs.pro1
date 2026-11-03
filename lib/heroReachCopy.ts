@@ -5,8 +5,10 @@ import { slavic } from "@/lib/plural";
 // The home hero's line with figures: live vacancies and the crewing companies
 // behind them (lib/homeReach.ts). It lives here rather than in lib/i18n.ts
 // because the noun has to agree with the number, which a flat string cannot.
-// The country list after the dash names where the companies with live
-// vacancies are actually based; keep it to places that hold true.
+// The country list after the dash opens with Ukraine, Poland and Romania,
+// where most of our European seafarers come from (the owner's order), then
+// where the companies with live vacancies are based. Keep it to places that
+// hold true, and keep lib/i18n.ts's hero_sub (the line without figures) in step.
 
 /** 322 → "320+": a floor, so the hero never claims more than there is. */
 function companiesFloor(n: number): string {
@@ -24,14 +26,14 @@ export function heroReachLine(lang: Lang, vacancies: number, companies: number):
   const c = companiesFloor(companies);
   switch (lang) {
     case "ru":
-      return `${v} ${slavic(vacancies, "актуальная вакансия", "актуальные вакансии", "актуальных вакансий")} от ${c} крюинговых компаний — Польша, Греция, Великобритания, Скандинавия, Балтия и не только.`;
+      return `${v} ${slavic(vacancies, "актуальная вакансия", "актуальные вакансии", "актуальных вакансий")} от ${c} крюинговых компаний — Украина, Польша, Румыния, Греция, Великобритания, Скандинавия, Балтия и не только.`;
     case "ua":
-      return `${v} ${slavic(vacancies, "актуальна вакансія", "актуальні вакансії", "актуальних вакансій")} від ${c} крюїнгових компаній — Польща, Греція, Велика Британія, Скандинавія, Балтія та інші.`;
+      return `${v} ${slavic(vacancies, "актуальна вакансія", "актуальні вакансії", "актуальних вакансій")} від ${c} крюїнгових компаній — Україна, Польща, Румунія, Греція, Велика Британія, Скандинавія, Балтія та інші.`;
     case "pl":
-      return `${v} ${polish(vacancies, "aktualna oferta", "aktualne oferty", "aktualnych ofert")} od ${c} agencji crewingowych — Polska, Grecja, Wielka Brytania, Skandynawia, kraje bałtyckie i nie tylko.`;
+      return `${v} ${polish(vacancies, "aktualna oferta", "aktualne oferty", "aktualnych ofert")} od ${c} agencji crewingowych — Ukraina, Polska, Rumunia, Grecja, Wielka Brytania, Skandynawia, kraje bałtyckie i nie tylko.`;
     case "ro":
-      return `${v} ${vacancies === 1 ? "post activ" : "de posturi active"} de la ${c} companii de crewing — Polonia, Grecia, Regatul Unit, Scandinavia, țările baltice și nu numai.`;
+      return `${v} ${vacancies === 1 ? "post activ" : "de posturi active"} de la ${c} companii de crewing — Ucraina, Polonia, România, Grecia, Regatul Unit, Scandinavia, țările baltice și nu numai.`;
     default:
-      return `${v} live ${vacancies === 1 ? "vacancy" : "vacancies"} from ${c} crewing companies — Poland, Greece, the UK, Scandinavia, the Baltics and beyond.`;
+      return `${v} live ${vacancies === 1 ? "vacancy" : "vacancies"} from ${c} crewing companies — Ukraine, Poland, Romania, Greece, the UK, Scandinavia, the Baltics and beyond.`;
   }
 }
