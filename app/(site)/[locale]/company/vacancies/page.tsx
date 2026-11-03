@@ -15,6 +15,7 @@ import { RANK_GROUPS } from "@/lib/ranks";
 import { useLang } from "@/components/LangProvider";
 
 import { money } from "@/lib/format";
+import { CREW_OPTIONS, CREW_UI, cleanCrewPreference, crewLabel, crewPreferenceText } from "@/lib/crewPreference";
 
 const VESSEL_TYPE_GROUPS = [
   { label: "Tankers", types: ["Oil Tanker (VLCC)", "Oil Tanker (Suezmax)", "Oil Tanker (Aframax)", "Oil Tanker (MR/Handysize)", "Chemical Tanker", "Product Tanker", "LNG Tanker", "LPG Tanker", "Crude Oil Tanker", "Bitumen Tanker"] },
@@ -42,6 +43,7 @@ type VacancyForm = {
   city: string;
   postal_code: string;
   description: string;
+  crew_preference: string[];
   is_active: boolean;
 };
 
@@ -146,6 +148,7 @@ const EMPTY_FORM: VacancyForm = {
   city: "",
   postal_code: "",
   description: "",
+  crew_preference: [],
   is_active: true,
 };
 
@@ -158,6 +161,7 @@ export default function VacanciesPage() {
   const { lang } = useLang();
   const t = useT();
   const gate = GATE_UI[lang] ?? GATE_UI.en;
+  const crew = CREW_UI[lang] ?? CREW_UI.en;
 
   // The database trigger rejects a publish when the company profile is
   // incomplete; turn its error code into the same wording as the banner.
@@ -231,6 +235,16 @@ export default function VacanciesPage() {
     setError(null);
   }
 
+  function toggleCrew(code: string) {
+    setForm((prev) => ({
+      ...prev,
+      crew_preference: prev.crew_preference.includes(code)
+        ? prev.crew_preference.filter((c) => c !== code)
+        : [...prev.crew_preference, code],
+    }));
+    setError(null);
+  }
+
   function openAdd() {
     setEditingId(null);
     setForm({ ...EMPTY_FORM, description: DESCRIPTION_TEMPLATE });
@@ -255,6 +269,7 @@ export default function VacanciesPage() {
       city: v.city ?? "",
       postal_code: v.postal_code ?? "",
       description: v.description ?? "",
+      crew_preference: cleanCrewPreference(v.crew_preference),
       is_active: v.is_active,
     });
     setError(null);
@@ -294,6 +309,7 @@ export default function VacanciesPage() {
       city: form.city.trim() || null,
       postal_code: form.postal_code.trim() || null,
       description: form.description || null,
+      crew_preference: cleanCrewPreference(form.crew_preference),
       is_active: form.is_active,
       updated_at: new Date().toISOString(),
     };
@@ -530,6 +546,31 @@ export default function VacanciesPage() {
               />
             </div>
 
+            {/* Preferred crew: a region or countries, none = any (lib/crewPreference.ts) */}
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label className="text-sm font-semibold text-foam">{crew.title}</label>
+              <p className="-mt-0.5 text-xs text-mist">{crew.hint}</p>
+              <div className="flex flex-wrap gap-2">
+                {[null, ...CREW_OPTIONS].map((code) => {
+                  const on = code === null ? form.crew_preference.length === 0 : form.crew_preference.includes(code);
+                  return (
+                    <button
+                      key={code ?? "any"}
+                      type="button"
+                      disabled={submitting}
+                      aria-pressed={on}
+                      onClick={() => (code === null ? setForm((prev) => ({ ...prev, crew_preference: [] })) : toggleCrew(code))}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:opacity-50 ${
+                        on ? "border-brass bg-brass/15 text-brassInk" : "border-white/10 bg-navy2 text-mist hover:text-white"
+                      }`}
+                    >
+                      {code === null ? crew.any : crewLabel(code, lang)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Location (for Google for Jobs structured data) */}
             <div className="flex flex-col gap-1.5 sm:col-span-2">
               <label className="text-sm font-semibold text-foam">{t.va_location_section}</label>
@@ -662,6 +703,9 @@ export default function VacanciesPage() {
 
                 <div className="mt-2 flex flex-wrap gap-4 text-xs text-mist">
                   {v.contract_duration && <span>{t.va_contract_label}{v.contract_duration}</span>}
+                  {crewPreferenceText(v.crew_preference, lang) && (
+                    <span>{crew.title}: {crewPreferenceText(v.crew_preference, lang)}</span>
+                  )}
                   {v.description && (
                     <span className="line-clamp-1 max-w-sm">{v.description}</span>
                   )}

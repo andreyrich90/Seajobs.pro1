@@ -8,7 +8,7 @@ import {
   ArrowLeft, Building2, ShieldCheck, Globe, MapPin,
   Briefcase, DollarSign, Clock, Calendar,
   Bookmark, BookmarkCheck, Send, X, AlertCircle, Share2, Copy, Check, MessageCircle, Mail,
-  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Lock, ExternalLink,
+  CheckCircle2, Upload, ChevronRight, ArrowRight, Phone, HelpCircle, Eye, Lock, ExternalLink, Users,
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -28,6 +28,7 @@ import { slugId } from "@/lib/slug";
 import { PROFILE_FIELDS, PROFILE_SELECT, profileGaps, type ProfileField } from "@/lib/profileGate";
 
 import { money } from "@/lib/format";
+import { CREW_UI, crewPreferenceText } from "@/lib/crewPreference";
 
 export type VacancyDetail = {
   id: string;
@@ -57,6 +58,8 @@ export type VacancyDetail = {
    *  offering to apply here. Public, unlike the contacts — it is the agency's
    *  own public form. */
   apply_url?: string | null;
+  /** The crew the company would rather hire (lib/crewPreference.ts). */
+  crew_preference?: string[] | null;
   companies: {
     id: string;
     name: string | null;
@@ -1158,6 +1161,16 @@ export default function VacancyDetailClient({
                   </div>
                 </div>
               </div>
+
+              {crewPreferenceText(vacancy.crew_preference, lang) && (
+                <div className="mt-4 flex items-center gap-2">
+                  <Users size={15} className="text-teal shrink-0" />
+                  <p className="text-sm text-mist">
+                    {(CREW_UI[lang] ?? CREW_UI.en).title}:{" "}
+                    <span className="font-semibold text-white">{crewPreferenceText(vacancy.crew_preference, lang)}</span>
+                  </p>
+                </div>
+              )}
 
               {/* Share */}
               <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
