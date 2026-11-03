@@ -119,3 +119,20 @@ body {
 
 :root[data-theme="light"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
 :root[data-theme="light"] .divide-white\/10 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(7, 38, 63, 0.14); }
+
+/* Home hero: the European flags ticker (components/EuropeFlags.tsx). The
+   track holds the list twice and moves by half its width, so the loop has no
+   seam. Paused under a pointer; still and wrapped for reduced motion. */
+.flags-viewport {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+.flags-track { animation: flags-marquee 70s linear infinite; }
+.flags-viewport:hover .flags-track { animation-play-state: paused; }
+@keyframes flags-marquee { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .flags-viewport { -webkit-mask-image: none; mask-image: none; }
+  .flags-track { animation: none; width: auto; }
+  .flags-track > ul { flex-wrap: wrap; flex-shrink: 1; row-gap: 0.5rem; }
+  .flags-dup { display: none; }
+}
