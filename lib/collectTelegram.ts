@@ -19,11 +19,10 @@ import { queueReady, scheduleQueued, interleave } from "@/lib/publishQueue";
 // Cap posts parsed per run so one busy channel can't blow the time/token budget.
 const MAX_POSTS_PER_SOURCE = 8;
 
-// The cron route may run 300 s. Longer descriptions (lib/vacancyFormats.ts) made
-// each parse two to three times slower, and a run cut off by the platform loses
-// its audit row and leaves the later channels unread. So parsing stops here,
-// and the posts not reached stay above the channel's high-water mark for the
-// next run.
+// The cron route may run 300 s, and busy runs already took 140. A run cut off by
+// the platform loses its audit row and leaves the later channels unread, so
+// parsing stops here, and the posts not reached stay above the channel's
+// high-water mark for the next run.
 const PARSE_BUDGET_MS = 230_000;
 // Skip obvious non-vacancy chatter before spending an LLM call.
 const VACANCY_HINT =
