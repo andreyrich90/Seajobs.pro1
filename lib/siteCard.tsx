@@ -6,15 +6,15 @@ import { ImageResponse } from "next/og";
 // app/twitter-image.tsx, which only wrap this.
 //
 // It speaks to both sides of the board: seafarers come for the vacancies,
-// crewing companies for the seafarers. The vacancy and company figures are
-// floors of the counts in October 2026 (1,406 live vacancies, 401 companies);
-// the seafarer figure is the one the owner chose to show, as on the earlier
-// card. Change them here by hand.
+// crewing companies for the seafarers. The two figures are floors of the
+// counts in November 2026 (1,549 live vacancies, 467 companies); change them
+// here by hand. The seafarer count was taken off at the owner's request, and
+// "one of Europe's largest" is the owner's wording.
 //
 // Satori draws this: every element with children needs display:flex, and the
 // default font carries Latin only, so the card is in English.
 
-export const SITE_CARD_ALT = "SeaJobs.pro — European maritime jobs for seafarers, seafarers for crewing companies";
+export const SITE_CARD_ALT = "SeaJobs.pro — one of Europe's largest maritime job boards for seafarers and crewing companies";
 export const SITE_CARD_SIZE = { width: 1200, height: 630 };
 
 const GOLD = "#e3c04a";
@@ -22,7 +22,6 @@ const MIST = "#9fb3c3";
 
 const STATS = [
   { value: "1,500+", label: "live vacancies", note: "for seafarers" },
-  { value: "12,000+", label: "seafarers", note: "for crewing companies" },
   { value: "400+", label: "crewing companies", note: "on the board" },
 ];
 
@@ -95,10 +94,10 @@ export function siteCard() {
 
         {/* What the site is, for both sides */}
         <div style={{ display: "flex", fontSize: 40, fontWeight: 700, color: "#ffffff", marginBottom: 12 }}>
-          European maritime jobs for seafarers
+          One of Europe's largest maritime job boards
         </div>
         <div style={{ display: "flex", fontSize: 26, color: MIST, marginBottom: 46 }}>
-          Vacancies from Europe's crewing agencies · Seafarers for crewing companies
+          For seafarers and crewing companies · Vacancies from Europe's crewing agencies
         </div>
 
         {/* The board in numbers */}
@@ -110,7 +109,7 @@ export function siteCard() {
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                width: 300,
+                width: 340,
                 padding: "18px 10px 16px",
                 borderRadius: 20,
                 border: "1px solid rgba(227,192,74,0.35)",
