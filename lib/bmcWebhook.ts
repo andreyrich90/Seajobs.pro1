@@ -259,3 +259,25 @@ export function extraIds(body: unknown): number[] {
   walk(body);
   return found;
 }
+
+/**
+ * The extra id in a Buy Me a Coffee checkout link: `…/e/577095` → 577095.
+ */
+export function extraIdFromUrl(url: string | null | undefined): number | null {
+  const m = /\/e\/(\d+)/.exec(url ?? "");
+  return m ? Number(m[1]) : null;
+}
+
+/**
+ * Does this payment name only products that are not ours?
+ *
+ * The Buy Me a Coffee account is shared with another project (the Română app), whose
+ * payments arrive here too. Such a body names its own extras, none of which is a SeaJobs
+ * product — and the package matching below it goes by e-mail alone, so it could mark a
+ * stranger's unpaid CV-distribution request paid on the strength of somebody else's
+ * purchase. A body that names no extra at all says nothing and is not foreign: older
+ * kinds of event carry none, and the existing matching handles them as before.
+ */
+export function isForeignProduct(ids: number[], ours: number[]): boolean {
+  return ids.length > 0 && !ids.some((id) => ours.includes(id));
+}
