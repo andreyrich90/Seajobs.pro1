@@ -20,6 +20,25 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 
+/**
+ * The page the checkout started from (the subscription screen's ?back=): a
+ * site path such as /jobs/<slug>-<uuid>, kept for /admin/subscriptions and the
+ * payment notice. Only a same-site path, without its query, and short.
+ */
+function cleanSource(back: unknown): string | null {
+  if (typeof back !== "string") return null;
+  const path = back.trim().split(/[?#]/)[0];
+  if (!path.startsWith("/") || path.startsWith("//") || path.length > 300) return null;
+  return path;
+}
+
+/** The `source` column arrives with 20261104000000_subscription_source.sql;
+ *  until it is run, a write that names it is retried without it, so a
+ *  checkout never fails over a statistic. */
+function missingColumn(err: { code?: string; message?: string } | null): boolean {
+  return !!err && (err.code === "42703" || err.code === "PGRST204" || /source/.test(err.message ?? ""));
+}
+
 function admin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -61,8 +80,9 @@ export async function POST(req: Request) {
   if (!db) return NextResponse.json({ ok: false, error: "Server not configured" }, { status: 503 });
   if (!user) return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
 
-  const body = (await req.json().catch(() => null)) as { plan?: string } | null;
+  const body = (await req.json().catch(() => null)) as { plan?: string; back?: string } | null;
   const plan = body?.plan;
+  const source = cleanSource(body?.back);
   if (!isPlanId(plan)) return NextResponse.json({ ok: false, error: "bad_plan" }, { status: 400 });
   const { months, usd, payUrl } = SUB_PLANS[plan];
   if (!payUrl) return NextResponse.json({ ok: false, error: "NOT_ON_SALE" }, { status: 409 });
@@ -90,18 +110,20 @@ export async function POST(req: Request) {
     .order("created_at", { ascending: false })
     .limit(1);
   if (open?.length) {
-    await db.from("seafarer_subscriptions").update({ created_at: now, email, price_usd: usd }).eq("id", open[0].id);
+    const base = { created_at: now, email, price_usd: usd };
+    const { error: upErr } = await db.from("seafarer_subscriptions").update({ ...base, source }).eq("id", open[0].id);
+    if (missingColumn(upErr)) await db.from("seafarer_subscriptions").update(base).eq("id", open[0].id);
     return NextResponse.json({ ok: true, id: open[0].id, payUrl });
   }
 
-  const { data, error } = await db
-    .from("seafarer_subscriptions")
-    .insert({ seafarer_id: user.id, plan, months, price_usd: usd, email, status: "pending" })
-    .select("id")
-    .single();
+  const row = { seafarer_id: user.id, plan, months, price_usd: usd, email, status: "pending" };
+  let { data, error } = await db.from("seafarer_subscriptions").insert({ ...row, source }).select("id").single();
+  if (missingColumn(error)) {
+    ({ data, error } = await db.from("seafarer_subscriptions").insert(row).select("id").single());
+  }
   if (error) {
     console.error("[subscription] create", error.message);
     return NextResponse.json({ ok: false, error: "Could not start the checkout" }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, id: data.id, payUrl });
+  return NextResponse.json({ ok: true, id: data!.id, payUrl });
 }

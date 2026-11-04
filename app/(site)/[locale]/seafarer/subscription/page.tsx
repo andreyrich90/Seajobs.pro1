@@ -99,7 +99,8 @@ export default function SubscriptionPage() {
       const res = await fetch("/api/subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ plan }),
+        // Where the seafarer came from (a vacancy, the CV page), for the admin.
+        body: JSON.stringify({ plan, back }),
       });
       const j = (await res.json().catch(() => null)) as { ok?: boolean; payUrl?: string } | null;
       if (!j?.ok) { tab?.close(); return; }

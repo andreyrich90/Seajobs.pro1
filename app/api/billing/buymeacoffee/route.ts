@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { esc, adminChatIds, subscriptionChatIds, tgSendAdmins, tgSendAdminsDocument, SITE } from "@/lib/telegramBot";
+import { parseSubSource } from "@/lib/subscriptionSource";
 import { sendEmail } from "@/lib/email";
 import { REPLY_TO } from "@/lib/outreach";
 import { servicePaidEmail } from "@/lib/servicePaidEmail";
@@ -399,6 +400,35 @@ async function matchWordPurchase(
 type SubRow = { id: string; email: string; seafarer_id: string; months: number };
 
 /**
+ * "👤 Name — Rank" and "🔗 Звідки: <vacancy>" for a subscription notice. The
+ * source column may not exist yet (20261104000000_subscription_source.sql), so
+ * it is read on its own and its absence only drops that line.
+ */
+async function subscriberLines(db: Db, row: SubRow): Promise<string[]> {
+  const out: string[] = [];
+  try {
+    const [{ data: sf }, { data: src }] = await Promise.all([
+      db.from("seafarers").select("first_name, last_name, rank").eq("id", row.seafarer_id).maybeSingle(),
+      db.from("seafarer_subscriptions").select("source").eq("id", row.id).maybeSingle(),
+    ]);
+    const name = [sf?.first_name, sf?.last_name].filter(Boolean).join(" ");
+    if (name || sf?.rank) out.push(`👤 ${esc(name || "без імені")}${sf?.rank ? ` — <b>${esc(sf.rank)}</b>` : ""}`);
+    const source = parseSubSource((src as { source?: string | null } | null)?.source);
+    if (source?.kind === "vacancy") {
+      const { data: v } = await db.from("vacancies").select("title").eq("id", source.id).maybeSingle();
+      out.push(`🔗 Звідки: <a href="${SITE}${esc(source.path)}">${esc(v?.title ?? "вакансія")}</a>`);
+    } else if (source?.kind === "cv") {
+      out.push("🔗 Звідки: сторінка CV");
+    } else if (source) {
+      out.push(`🔗 Звідки: ${esc(source.path)}`);
+    }
+  } catch (e) {
+    console.error("[bmc] subscriber lines", e instanceof Error ? e.message : e);
+  }
+  return out;
+}
+
+/**
  * A payment whose body names a subscription plan: find the checkout it closes,
  * give it its window, record it, announce it.
  *
@@ -497,6 +527,9 @@ async function handleSubscription(
   const months = SUB_PLANS[p.plan].months;
   const sum = p.amount !== null ? `${p.amount} ${esc(p.currency ?? "")}`.trim() : "—";
   const who = `✉️ ${esc(row?.email ?? p.email ?? "пошта не вказана")}`;
+  // Who bought, by rank, and where the checkout started — for a matched row
+  // only. Best-effort: a failed lookup leaves the lines out, never the notice.
+  const about = row ? await subscriberLines(db, row) : [];
   const kyiv = (d: Date) => d.toLocaleDateString("uk-UA", { timeZone: "Europe/Kyiv", day: "numeric", month: "long", year: "numeric" });
   const text = p.kind === "refund"
     ? [
@@ -505,7 +538,7 @@ async function handleSubscription(
       ]
     : row
       ? [
-          `⭐ <b>ПІДПИСКА — ${months} міс.</b>`, "", `Сума: ${sum}`, who,
+          `⭐ <b>ПІДПИСКА — ${months} міс.</b>`, "", `Сума: ${sum}`, who, ...about,
           until ? `Доступ до: ${kyiv(until)}` : "",
           "", "Відкрито автоматично, робити нічого не треба.",
         ]
