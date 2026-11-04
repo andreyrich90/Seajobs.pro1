@@ -6,9 +6,10 @@ import { sendEmail } from "@/lib/email";
 import { REPLY_TO } from "@/lib/outreach";
 import { servicePaidEmail } from "@/lib/servicePaidEmail";
 import { contactLines, parseContact } from "@/lib/serviceContact";
-import { chooseWordMatch, classify, extraIds, readEvent, readState, refineKind, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
+import { chooseWordMatch, classify, extraIdFromUrl, extraIds, isForeignProduct, readEvent, readState, refineKind, verifySignature, type WordMatchRow } from "@/lib/bmcWebhook";
+import { BLAST_PACKAGES } from "@/lib/cvBlast";
 import { CV_WORD, CV_WORD_EXTRA_ID } from "@/lib/cvWord";
-import { SUB_PLANS, planForExtraIds, windowFor, type PlanId } from "@/lib/subscription";
+import { PLAN_IDS, SUB_PLANS, planExtraId, planForExtraIds, windowFor, type PlanId } from "@/lib/subscription";
 import { subscriptionUntil } from "@/lib/subscriptionAccess";
 
 export const runtime = "nodejs";
@@ -66,6 +67,18 @@ export async function POST(req: NextRequest) {
   }
 
   const { eventType, email, amount, currency, eventKey } = readEvent(body, raw);
+
+  // Another project's product (the Buy Me a Coffee account is shared with the Română
+  // app). Answered 200 so their side does not retry, and nothing here is touched: the
+  // package matching goes by e-mail and would otherwise mark a stranger's request paid.
+  const ours = [
+    ...BLAST_PACKAGES.map((p) => extraIdFromUrl(p.payUrl)),
+    CV_WORD_EXTRA_ID,
+    ...PLAN_IDS.map(planExtraId),
+  ].filter((id): id is number => id !== null);
+  if (isForeignProduct(extraIds(body), ours)) {
+    return NextResponse.json({ ok: true, ignored: "not a SeaJobs product" });
+  }
 
   // Money, money going back, or neither. The webhook is subscribed to three
   // kinds of event and only one of them pays for anything — then the body is
