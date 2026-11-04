@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Check, X, RefreshCw, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { PLAN_IDS, SUB_PLANS, SUB_SELLING, subPrice, type PlanId } from "@/lib/subscription";
+import { parseSubSource } from "@/lib/subscriptionSource";
+import { Link } from "@/i18n/navigation";
 
 // Seafarer subscriptions, and the one lever a person has over them.
 //
@@ -28,6 +30,8 @@ type Row = {
   paid_currency: string | null;
   paid_ref: string | null;
   created_at: string;
+  /** The page the checkout started from; absent before its migration. */
+  source?: string | null;
 };
 
 function when(d: string | null, withTime = true) {
@@ -41,6 +45,8 @@ function when(d: string | null, withTime = true) {
 export default function AdminSubscriptionsPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [ranks, setRanks] = useState<Record<string, string>>({});
+  const [titles, setTitles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,10 +74,23 @@ export default function AdminSubscriptionsPage() {
     setRows(list);
     const ids = [...new Set(list.map((r) => r.seafarer_id))];
     if (ids.length) {
-      const { data: people } = await supabase.from("seafarers").select("id, first_name, last_name").in("id", ids);
+      const { data: people } = await supabase.from("seafarers").select("id, first_name, last_name, rank").in("id", ids);
       const map: Record<string, string> = {};
-      for (const p of people ?? []) map[p.id] = [p.first_name, p.last_name].filter(Boolean).join(" ") || "—";
+      const rankMap: Record<string, string> = {};
+      for (const p of people ?? []) {
+        map[p.id] = [p.first_name, p.last_name].filter(Boolean).join(" ") || "—";
+        if (p.rank) rankMap[p.id] = p.rank;
+      }
       setNames(map);
+      setRanks(rankMap);
+    }
+    // Titles of the vacancies the checkouts started from.
+    const vacIds = [...new Set(list.map((r) => parseSubSource(r.source)).flatMap((s) => (s?.kind === "vacancy" ? [s.id] : [])))];
+    if (vacIds.length) {
+      const { data: vacs } = await supabase.from("vacancies").select("id, title").in("id", vacIds);
+      const map: Record<string, string> = {};
+      for (const v of vacs ?? []) map[v.id] = v.title;
+      setTitles(map);
     }
     setLoading(false);
   }
@@ -182,11 +201,12 @@ export default function AdminSubscriptionsPage() {
       {notice && <p className="mb-4 rounded-xl border border-teal/30 bg-teal/10 px-4 py-3 text-sm text-teal">{notice}</p>}
 
       <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="w-full min-w-[820px] text-left">
+        <table className="w-full min-w-[980px] text-left">
           <thead className="bg-deep">
             <tr>
               <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Моряк</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Почта</th>
+              <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Откуда</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Тариф</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Открыта</th>
               <th className="px-4 py-3 text-xs font-semibold uppercase text-mist">Статус</th>
@@ -195,16 +215,25 @@ export default function AdminSubscriptionsPage() {
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading ? (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-sm text-mist">Загрузка…</td></tr>
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-mist">Загрузка…</td></tr>
             ) : rows.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-sm text-mist">Подписок пока нет.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-mist">Подписок пока нет.</td></tr>
             ) : rows.map((r) => (
               <tr key={r.id} className="bg-card hover:bg-white/[0.02]">
                 <td className="px-4 py-3">
                   <p className="font-semibold text-white">{names[r.seafarer_id] ?? "—"}</p>
-                  <p className="text-xs text-mist">{r.seafarer_id.slice(0, 8)}</p>
+                  {ranks[r.seafarer_id] ? (
+                    <p className="mt-0.5 inline-block rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-xs font-semibold text-brassInk">
+                      {ranks[r.seafarer_id]}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-mist">должность не указана</p>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-foam">{r.email}</td>
+                <td className="max-w-[16rem] px-4 py-3 text-xs">
+                  <SourceCell source={r.source} titles={titles} manual={!!r.paid_ref?.startsWith("manual:")} />
+                </td>
                 <td className="px-4 py-3 text-sm text-foam">{r.months} мес.</td>
                 <td className="px-4 py-3 text-xs text-mist">{when(r.created_at)}</td>
                 <td className="px-4 py-3 text-sm">
@@ -261,4 +290,19 @@ export default function AdminSubscriptionsPage() {
       </p>
     </div>
   );
+}
+
+/** Where the checkout started: the vacancy (linked), the CV page, another page, or nothing. */
+function SourceCell({ source, titles, manual }: { source?: string | null; titles: Record<string, string>; manual: boolean }) {
+  const s = parseSubSource(source);
+  if (!s) return <span className="text-mist">{manual ? "выдана вручную" : "страница подписки"}</span>;
+  if (s.kind === "vacancy") {
+    return (
+      <Link href={s.path} className="font-semibold text-brassInk hover:text-brass">
+        {titles[s.id] ?? "вакансия"}
+      </Link>
+    );
+  }
+  if (s.kind === "cv") return <span className="text-foam">страница CV</span>;
+  return <span className="break-all text-foam">{s.path}</span>;
 }

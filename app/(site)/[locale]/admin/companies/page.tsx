@@ -27,6 +27,8 @@ type VacRow = {
   is_imported: boolean | null;
   joining_date: string | null;
   created_at: string;
+  /** Applications to this vacancy: portal and own-mailbox alike. */
+  apps: number;
 };
 
 type CompanyRow = {
@@ -42,6 +44,8 @@ type Row = CompanyRow & {
   registered: boolean;
   active: number;
   total: number;
+  /** Applications to all of the company's vacancies, live or closed. */
+  apps: number;
   vacancies: VacRow[];
   /** Every address we hold: the company profile's, plus the crewing e-mail
       carried by its vacancies (that is where imported agencies keep theirs). */
@@ -93,6 +97,7 @@ export default function AdminCompaniesPage() {
   const [filter, setFilter] = useState<"all" | "active" | "empty" | "registered" | "leads">("active");
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [copied, setCopied] = useState(false);
+  const [appsTotal, setAppsTotal] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -100,7 +105,10 @@ export default function AdminCompaniesPage() {
       // column subset needs a cast — same pattern the other admin pages use.
       // The crewing e-mails come from an admin route: the browser cannot read
       // `vacancies.contact_email` (lib/vacancyColumns.ts).
-      const [companies, vacancies, profiles, emails] = await Promise.all([
+      // Applications are counted here rather than fetched with the vacancies:
+      // PostgREST has no GROUP BY, and one id column paged through is lighter
+      // than an embedded count per vacancy. RLS lets an admin read them all.
+      const [companies, vacancies, profiles, emails, applications] = await Promise.all([
         pageThrough<CompanyRow>((a, b) =>
           supabase.from("companies").select("id, name, location, website, emails, is_verified").order("id").range(a, b) as unknown as Page<CompanyRow>
         ),
@@ -115,8 +123,17 @@ export default function AdminCompaniesPage() {
           supabase.from("profiles").select("id, role").order("id").range(a, b) as unknown as Page<{ id: string; role: string | null }>
         ),
         loadVacancyEmails(),
+        pageThrough<{ id: string; vacancy_id: string }>((a, b) =>
+          supabase.from("applications").select("id, vacancy_id").order("id").range(a, b) as unknown as Page<{ id: string; vacancy_id: string }>
+        ),
       ]);
-      for (const v of vacancies) v.contact_email = emails[v.id] ?? null;
+      const appsByVacancy = new Map<string, number>();
+      for (const a of applications) appsByVacancy.set(a.vacancy_id, (appsByVacancy.get(a.vacancy_id) ?? 0) + 1);
+      for (const v of vacancies) {
+        v.contact_email = emails[v.id] ?? null;
+        v.apps = appsByVacancy.get(v.id) ?? 0;
+      }
+      setAppsTotal(applications.length);
 
       // A company row without a profile is an agency the importer created —
       // real enough, but nobody can log into it.
@@ -145,6 +162,7 @@ export default function AdminCompaniesPage() {
           registered: registered.has(c.id),
           active: list.filter((v) => v.is_active).length,
           total: list.length,
+          apps: list.reduce((s, v) => s + v.apps, 0),
           vacancies: list,
           contacts,
         };
@@ -202,9 +220,9 @@ export default function AdminCompaniesPage() {
   }
 
   function exportCsv() {
-    const head = ["Company", "E-mail", "Location", "Registered account", "Active vacancies", "Total vacancies"];
+    const head = ["Company", "E-mail", "Location", "Registered account", "Active vacancies", "Total vacancies", "Applications"];
     const lines = filtered.map((r) =>
-      [r.name ?? "", r.contacts.join("; "), r.location ?? "", r.registered ? "yes" : "no", r.active, r.total]
+      [r.name ?? "", r.contacts.join("; "), r.location ?? "", r.registered ? "yes" : "no", r.active, r.total, r.apps]
         .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
         .join(",")
     );
@@ -240,7 +258,7 @@ export default function AdminCompaniesPage() {
         <p className="mt-1 text-sm text-mist">
           {loading
             ? "Loading..."
-            : `${totals.companies} companies · ${totals.withActive} with live vacancies · ${totals.active} active vacancies in total`}
+            : `${totals.companies} companies · ${totals.withActive} with live vacancies · ${totals.active} active vacancies in total · ${appsTotal} applications`}
         </p>
       </div>
 
@@ -352,6 +370,10 @@ export default function AdminCompaniesPage() {
                     </span>
                   </div>
 
+                  <div className="shrink-0 text-right" title="Отклики на все вакансии компании">
+                    <p className="font-display text-lg font-bold text-teal">{r.apps}</p>
+                    <p className="text-[11px] uppercase tracking-wide text-mist">applied</p>
+                  </div>
                   <div className="shrink-0 text-right">
                     <p className="font-display text-lg font-bold text-brassInk">{r.active}</p>
                     <p className="text-[11px] uppercase tracking-wide text-mist">
@@ -390,13 +412,14 @@ export default function AdminCompaniesPage() {
                       <p className="px-4 pb-4 text-sm text-mist">No vacancies for this company.</p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[620px] text-sm">
+                        <table className="w-full min-w-[680px] text-sm">
                           <thead className="bg-navy2/60">
                             <tr>
                               <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-mist">Vacancy</th>
                               <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-mist">Rank</th>
                               <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-mist">Vessel</th>
                               <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-mist">Joining</th>
+                              <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-mist">Applied</th>
                               <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-mist">Status</th>
                             </tr>
                           </thead>
@@ -422,6 +445,7 @@ export default function AdminCompaniesPage() {
                                   </span>
                                 </td>
                                 <td className="px-4 py-2.5 text-xs text-mist">{formatDate(v.joining_date)}</td>
+                                <td className={`px-4 py-2.5 text-right font-semibold tabular-nums ${v.apps ? "text-teal" : "text-mist/60"}`}>{v.apps}</td>
                                 <td className="px-4 py-2.5 text-right">
                                   <span
                                     className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${

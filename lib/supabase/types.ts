@@ -577,6 +577,8 @@ export interface Database {
           paid_currency: string | null;
           paid_ref: string | null;
           created_at: string;
+          /** Page the checkout started from (20261104000000_subscription_source). */
+          source: string | null;
         };
         Insert: {
           id?: string;
@@ -593,6 +595,7 @@ export interface Database {
           paid_currency?: string | null;
           paid_ref?: string | null;
           created_at?: string;
+          source?: string | null;
         };
         Update: {
           email?: string;
@@ -605,6 +608,7 @@ export interface Database {
           paid_currency?: string | null;
           paid_ref?: string | null;
           created_at?: string;
+          source?: string | null;
         };
         Relationships: [];
       };
