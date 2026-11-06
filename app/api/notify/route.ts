@@ -1,3 +1,4 @@
+import { emailList } from "@/lib/emailList";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { emailQuotaExhausted, sendEmail } from "@/lib/email";
@@ -121,7 +122,9 @@ ${cv.html}
 
       const { data: vacancy } = await admin
         .from("vacancies").select("title, contact_email").eq("id", vacancyId).single();
-      if (!vacancy?.contact_email) return NextResponse.json({ ok: false }, { status: 404 });
+      // Every address the vacancy lists (lib/emailList.ts) gets the CV.
+      const agencyEmails = emailList(vacancy?.contact_email);
+      if (!vacancy || !agencyEmails.length) return NextResponse.json({ ok: false }, { status: 404 });
 
       // Today's allowance already spent: say so without calling the provider.
       // The page then offers the seafarer's own mailbox, which costs us nothing
@@ -134,7 +137,7 @@ ${cv.html}
       const cv = await buildCvHtml(admin, seafarerId, sfUser?.email ?? caller.email ?? null, appExists.cover_letter);
 
       const sent = await sendEmail({
-        to: vacancy.contact_email,
+        to: agencyEmails,
         subject: `New application for "${vacancy.title}" — ${cv.name}`,
         html: `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro. The full CV is below.</p>${cv.html}`,
         kind: "external_application",

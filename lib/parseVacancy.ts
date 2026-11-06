@@ -1,3 +1,4 @@
+import { cleanEmails } from "@/lib/emailList";
 import { RANK_GROUPS } from "@/lib/ranks";
 import { companyFromEmail } from "@/lib/companyName";
 import { formatPlan } from "@/lib/vacancyFormats";
@@ -76,7 +77,7 @@ Rules (apply to every vacancy object):
 - "currency" = 3-letter ISO code (USD, EUR, GBP...).
 - "joiningDate": if only month/year is given, use the first day of that month. Resolve relative dates ("ASAP", "immediately") to null.
 __DESCRIPTION_RULE__
-- "contactEmail": the crewing e-mail address exactly as printed in the source. Null if the source shows none. NEVER invent, guess or complete an address, and never take one from a different company.
+- "contactEmail": the crewing e-mail address for applications exactly as printed in the source. When the source gives SEVERAL addresses for applications or CVs, return them all in one string separated by ", " in the order printed (at most 3), e.g. "crew@agency.com, cv@agency.com". Null if the source shows none. NEVER invent, guess or complete an address, and never take one from a different company.
 - "applyUrl": ONLY when the source gives no e-mail for applications AND explicitly tells candidates to apply, register or fill in a profile/form through a link (a careers portal, an online application form, "please apply by: <link>"): the full URL of that page, starting with https:// (add it when the source omits the scheme). Copy it exactly as shown. Null in every other case — in particular when an application e-mail is given, for a company homepage that is merely mentioned (that is "companyWebsite"), and NEVER the address-bar URL of the page the screenshot was taken from or of a job board / aggregator listing.
 - "contactPhone": if the ad gives a phone/WhatsApp/Viber/Telegram number to reach the crewing, extract it in international format where possible (e.g. "+380 50 123 45 67"). Null if none is shown. Do NOT invent a number.
 - When several vacancies share one vessel/company, repeat the shared company/vessel data in each object, but write each "description" separately with its own wording — no copy-pasted paragraphs between vacancies.
@@ -238,5 +239,7 @@ export async function parseVacancies(input: ParseInput): Promise<ParsedVacancy[]
     // When the model found a contact email but no company name, derive the
     // name from the email domain (e.g. cv@ariesnav.com → "Ariesnav").
     companyName: v.companyName?.trim() || companyFromEmail(v.contactEmail) || v.companyName || null,
+    // Several addresses come back as one "a@x.com, b@y.com" string (lib/emailList.ts).
+    contactEmail: cleanEmails(v.contactEmail),
   }));
 }
