@@ -1,3 +1,5 @@
+import { emailList } from "@/lib/emailList";
+
 // Derive a company name from a crewing contact email when the source gives no
 // company name of its own. E.g. alfie.smart@selectoffshore.com → "Selectoffshore",
 // cv@ariesnav.com → "Ariesnav". Used as a fallback across every import path
@@ -23,6 +25,8 @@ const MULTI_TLDS = [
 
 /** Returns a company name derived from the email's domain, or null. */
 export function companyFromEmail(email?: string | null): string | null {
+  // A vacancy can hold several addresses ("a@x.com, b@y.com"); the first names the company.
+  email = emailList(email)[0] ?? null;
   if (!email) return null;
   const at = email.indexOf("@");
   if (at < 0) return null;

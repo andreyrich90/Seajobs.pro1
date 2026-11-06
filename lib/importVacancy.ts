@@ -1,3 +1,4 @@
+import { cleanEmails } from "@/lib/emailList";
 import { toWholeNumber } from "@/lib/wholeNumber";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyFromEmail } from "@/lib/companyName";
@@ -133,7 +134,9 @@ export async function importVacancy(
   // email from the same company's most recent posting that had one — otherwise
   // applications to the new vacancy would have nowhere to forward the CV (and a
   // re-import of a recurring posting would wipe its existing email).
-  let contactEmail = input.contactEmail?.trim() || null;
+  // One address or several ("a@x.com, b@y.com"), normalised; text without a
+  // valid address counts as none.
+  let contactEmail = cleanEmails(input.contactEmail);
   let contactEmailInherited = false;
   // A posting that sends candidates to the agency's own site carries no
   // address on purpose; borrowing one would mail CVs somewhere it never asked

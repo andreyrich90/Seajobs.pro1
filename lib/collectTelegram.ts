@@ -1,3 +1,4 @@
+import { emailList } from "@/lib/emailList";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 import { fetchTelegramPosts } from "@/lib/telegram";
@@ -46,8 +47,8 @@ function isRussianCrewing(
   phone: string | null | undefined,
   location: string | null | undefined,
 ): boolean {
-  const emailDomain = (email ?? "").split("@")[1]?.trim().toLowerCase() ?? "";
-  if (/\.(ru|su|рф)$/.test(emailDomain)) return true;
+  // Any of the post's addresses on a Russian domain.
+  if (emailList(email).some((e) => /\.(ru|su|рф)$/i.test(e.split("@")[1] ?? ""))) return true;
 
   // Host part of the website (strip protocol/path) ending in a Russian TLD.
   const host = (website ?? "").toLowerCase().replace(/^https?:\/\//, "").split(/[/?#]/)[0].trim();

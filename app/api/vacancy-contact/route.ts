@@ -1,3 +1,4 @@
+import { emailList } from "@/lib/emailList";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { PROFILE_SELECT, profileGaps } from "@/lib/profileGate";
@@ -105,7 +106,10 @@ async function answer(req: Request, id: string, unlock: boolean) {
   // blanked out of the posting's text. `description` is that text as written,
   // contacts in place, so the reader who passes the gate reads the posting
   // whole rather than the cached page's 🔒 placeholders.
-  const email = v.contact_email?.trim() || null;
+  // A vacancy may list several addresses; `emails` is all of them, `email`
+  // the first (lib/emailList.ts).
+  const emails = emailList(v.contact_email);
+  const email = emails[0] ?? null;
   const phone = v.contact_phone?.trim() || null;
   const inText = contactsInText(v.description);
   const digits = (p: string) => p.replace(/\D/g, "");
@@ -113,8 +117,12 @@ async function answer(req: Request, id: string, unlock: boolean) {
     {
       ok: true,
       email,
+      emails,
       phone,
-      moreEmails: inText.emails.filter((e) => e.toLowerCase() !== email?.toLowerCase()),
+      moreEmails: [
+        ...emails.slice(1),
+        ...inText.emails.filter((e) => !emails.some((x) => x.toLowerCase() === e.toLowerCase())),
+      ],
       morePhones: inText.phones.filter((p) => !phone || digits(p) !== digits(phone)),
       description: v.description ?? null,
       free,

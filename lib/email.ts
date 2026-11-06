@@ -52,7 +52,8 @@ function isQuotaRefusal(status: number, payload: { name?: string; message?: stri
 }
 
 export async function sendEmail(opts: {
-  to: string;
+  /** One address, or several for a vacancy that lists more than one. */
+  to: string | string[];
   subject: string;
   html: string;
   kind: EmailKind;
@@ -110,7 +111,7 @@ export async function sendEmail(opts: {
   try {
     await getServerSupabase()
       .from("email_log")
-      .insert({ to_email: opts.to, kind: opts.kind, ok, error: error ?? null });
+      .insert({ to_email: Array.isArray(opts.to) ? opts.to.join(", ") : opts.to, kind: opts.kind, ok, error: error ?? null });
   } catch {
     /* ignore */
   }

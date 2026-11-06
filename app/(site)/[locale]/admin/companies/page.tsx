@@ -2,6 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
+import { emailList } from "@/lib/emailList";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import {
@@ -152,7 +153,7 @@ export default function AdminCompaniesPage() {
         });
         const contacts = Array.from(
           new Set(
-            [...(c.emails ?? []), ...list.map((v) => v.contact_email)]
+            [...(c.emails ?? []), ...list.flatMap((v) => emailList(v.contact_email))]
               .map((e) => (e ?? "").trim().toLowerCase())
               .filter(Boolean)
           )

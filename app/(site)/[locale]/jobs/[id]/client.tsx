@@ -75,6 +75,8 @@ type ApplicationStatus = "pending" | "viewed" | "accepted" | "rejected";
 /** What api/vacancy-contact hands a subscribed reader whose profile is complete. */
 type Contacts = {
   email: string | null;
+  /** Every address applications go to — a vacancy may list several. */
+  emails?: string[];
   phone: string | null;
   moreEmails: string[];
   morePhones: string[];
@@ -876,7 +878,9 @@ export default function VacancyDetailClient({
    * was actually sent, so the status says "prepared", not "delivered".
    */
   async function handleApplyByMail() {
-    const agencyEmail = contacts?.email;
+    // All the vacancy's addresses go into one letter's To: line.
+    const agencyEmails = contacts?.emails?.length ? contacts.emails : contacts?.email ? [contacts.email] : [];
+    const agencyEmail = agencyEmails.join(", ");
     if (!userId || !agencyEmail) return;
     setMailing(true);
     setApplyError(null);
@@ -936,7 +940,7 @@ export default function VacancyDetailClient({
         .filter((l, i, all) => !(l === "" && all[i - 1] === ""))
         .join("\n");
 
-      const href = `mailto:${encodeURIComponent(agencyEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const href = `mailto:${agencyEmails.map(encodeURIComponent).join(",")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       if (tab) tab.location.href = href;
       else window.location.href = href;
 

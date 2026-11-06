@@ -811,16 +811,17 @@ export default function ImportVacancyPage() {
           <p className="mt-2 text-xs text-mist">Shown as reference. Not indexed by Google for Jobs.</p>
 
           <div className="mt-4">
-            <label className={labelClass}>Crewing contact email (optional)</label>
+            <label className={labelClass}>Crewing contact email (optional — several separated by commas)</label>
             <input
-              type="email"
+              type="text"
+              inputMode="email"
               value={form.contactEmail}
               onChange={set("contactEmail")}
-              placeholder="crew@agency.com"
+              placeholder="crew@agency.com, cv@agency.com"
               className={inputClass}
             />
             <p className="mt-2 text-xs text-mist">
-              If set, &quot;Apply&quot; sends the seafarer&apos;s profile (name, rank, experience, certificates, contacts) directly to this email instead of the in-app inbox.
+              Up to 3 addresses; every one gets the application. If set, &quot;Apply&quot; sends the seafarer&apos;s profile (name, rank, experience, certificates, contacts) directly to this email instead of the in-app inbox.
             </p>
           </div>
 
