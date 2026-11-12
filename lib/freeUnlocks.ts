@@ -95,10 +95,14 @@ export async function unlockVacancy(
 
 /**
  * May this seafarer act on this vacancy — see its contacts, apply to it, write
- * to it from their own mailbox: a subscription (or nothing on sale yet), or
- * this vacancy opened with a free unlock.
+ * to it from their own mailbox: a subscription (or nothing on sale yet), this
+ * vacancy opened with a free unlock, or an admin. Admins pass here as they do
+ * in api/vacancy-contact: the page showed the owner the contacts and the apply
+ * window, and the mailbox route then refused to mint the CV link.
  */
 export async function mayUseVacancy(db: Db, seafarerId: string, vacancyId: string): Promise<boolean> {
   if (await hasToolAccess(db, seafarerId)) return true;
-  return isUnlocked(db, seafarerId, vacancyId);
+  if (await isUnlocked(db, seafarerId, vacancyId)) return true;
+  const { data: profile } = await db.from("profiles").select("is_admin").eq("id", seafarerId).maybeSingle();
+  return !!profile?.is_admin;
 }
