@@ -91,7 +91,9 @@ export default function AdminVacanciesPage() {
     // instead of leaving the toggle silently not moving.
     if (error) {
       alert(
-        error.message.includes("company_contact_required")
+        error.message.includes("vacancy_apply_route_required")
+          ? "Cannot publish: an imported vacancy needs a crewing e-mail or an apply link — a phone number alone is not enough."
+          : error.message.includes("company_contact_required")
           ? "Cannot publish: this company has no email or phone, and the vacancy carries no crewing contact."
           : error.message.includes("company_name_required")
           ? "Cannot publish: this company has no name."

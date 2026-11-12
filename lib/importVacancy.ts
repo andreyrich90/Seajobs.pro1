@@ -83,6 +83,9 @@ export type ImportVacancyResult = {
 // clients are not exempt, so translate the code into something an admin can act
 // on instead of leaking a Postgres error into the import form.
 function readableDbError(message: string): string {
+  if (message.includes("vacancy_apply_route_required")) {
+    return "This vacancy has no crewing e-mail and no apply link. Seafarers apply by e-mail or on the agency's site, so a phone number alone is not enough — add an e-mail or a link.";
+  }
   if (message.includes("company_contact_required")) {
     return "This vacancy has no crewing email or phone, and the company profile has none either — add a contact before importing.";
   }
@@ -188,15 +191,13 @@ export async function importVacancy(
     ...(applyUrl ? { apply_url: applyUrl } : {}),
   };
 
-  // A queued vacancy is hidden, and the publish check (company name and a
-  // contact, 20260812000000) only looks at visible rows — so it would first
-  // fail at release, where nobody sees it. Apply it now instead, so the
-  // collector falls back to a pending draft exactly as it does for an
-  // immediate publish that the check refuses.
-  if (opts.queue && !contactEmail && !input.contactPhone?.trim() && !applyUrl) {
-    const { data: co } = await admin.from("companies").select("emails, phones").eq("id", companyId).maybeSingle();
-    const has = (a: unknown) => Array.isArray(a) && a.some((x) => typeof x === "string" && x.trim() !== "");
-    if (!has(co?.emails) && !has(co?.phones)) throw new Error(readableDbError("company_contact_required"));
+  // A queued vacancy is hidden, and the publish check (an imported vacancy
+  // needs an e-mail or an apply link, 20261112000000) only looks at visible
+  // rows — so it would first fail at release, where nobody sees it. Apply it
+  // now instead, so the collector falls back to a pending draft exactly as it
+  // does for an immediate publish that the check refuses.
+  if (opts.queue && !contactEmail && !applyUrl) {
+    throw new Error(readableDbError("vacancy_apply_route_required"));
   }
   const placeholder = new Date(Date.now() + PLACEHOLDER_DELAY_MIN * 60_000).toISOString();
 
