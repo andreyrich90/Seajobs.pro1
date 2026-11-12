@@ -662,8 +662,9 @@ export default function VacancyDetailClient({
   const mailboxOnly = !!vacancy.is_imported;
   // What the profile still lacks (lib/profileGate.ts), and whether there is
   // any sea service yet. The four fields gate the agency's contacts and the
-  // apply button; a voyage is also needed to send, since the agency receives
-  // a CV built from them. null = not loaded, or not a seafarer.
+  // apply button; a voyage is also needed to send through the portal, since
+  // the company receives a CV built from them (the mailbox letter carries the
+  // seafarer's own CV file, so it does not need one). null = not loaded, or not a seafarer.
   const [gaps, setGaps] = useState<Gaps | null>(null);
   // The agency's contacts, once api/vacancy-contact has handed them over —
   // and when it has not, why: SUBSCRIPTION_REQUIRED shows the way to subscribe.
@@ -899,7 +900,7 @@ export default function VacancyDetailClient({
       setGaps(g);
       if (!g.missing.length) loadContacts();
       setCvNotice(
-        g.missing.length || g.experience
+        g.missing.length || (g.experience && !mailboxOnly)
           ? { type: "error", text: copy.cvPartial }
           : { type: "success", text: copy.cvDone }
       );
@@ -1328,7 +1329,7 @@ export default function VacancyDetailClient({
 
               {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && canAct && (!mailboxOnly || vacancy.hasAgencyEmail) && (
                 <div>
-                  {mailboxOnly && !gaps.experience ? (
+                  {mailboxOnly ? (
                     <p className="mb-3 flex items-center gap-2 text-sm text-mist">
                       <Mail size={16} /> {(CTX[lang] ?? CTX.en).mailAttach}
                     </p>
@@ -1430,7 +1431,7 @@ export default function VacancyDetailClient({
               </div>
             )}
 
-            {gaps && (gaps.missing.length > 0 || gaps.experience) ? (
+            {gaps && (gaps.missing.length > 0 || (gaps.experience && !mailboxOnly)) ? (
               <>
                 <div className="mb-4 flex items-start gap-3 rounded-xl border border-brass/30 bg-brass/10 px-4 py-3">
                   <AlertCircle size={16} className="mt-0.5 shrink-0 text-brassInk" />
@@ -1441,7 +1442,7 @@ export default function VacancyDetailClient({
                       {gaps.missing.map((f) => (
                         <li key={f}><Link href={editHref} className="text-brassInk underline hover:text-brass">{copy[`f_${f}`]}</Link></li>
                       ))}
-                      {gaps.experience && (
+                      {gaps.experience && !mailboxOnly && (
                         <li><Link href={editHref} className="text-brassInk underline hover:text-brass">{copy.addVoyage}</Link></li>
                       )}
                     </ul>
