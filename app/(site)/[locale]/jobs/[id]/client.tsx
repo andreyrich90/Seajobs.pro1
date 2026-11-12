@@ -154,7 +154,8 @@ const CTX: Record<string, Record<string, string>> = {
     share: "Share",
     views: "Views",
     mailPrimary: "Send from my email",
-    mailOnlyNote: "This crewing agency takes applications by e-mail. Your mail app opens with the letter ready — their address, the subject and a link to your CV (valid 30 days, can be withdrawn from your dashboard). Just press Send.",
+    mailOnlyNote: "This crewing agency takes applications by e-mail. Your mail app opens with the letter ready — their address, the subject and your cover letter. Attach your CV file and press Send.",
+    mailAttach: "Don't forget to attach your CV file (PDF or Word) in your mail app before you press Send.",
     mailNeedsSub: "Writing to the agency from your mailbox needs a subscription, or this vacancy opened as one of your free contact views this week.",
     contactsTitle: "Crewing agency contacts",
     emailLabel: "E-mail",
@@ -212,7 +213,8 @@ const CTX: Record<string, Record<string, string>> = {
     share: "Поделиться",
     views: "Просмотры",
     mailPrimary: "Отправить со своей почты",
-    mailOnlyNote: "Этот крюинг принимает анкеты по e-mail. Откроется ваша почта с готовым письмом — адрес крюинга, тема и ссылка на ваше CV (действует 30 дней, её можно отозвать в кабинете). Останется нажать «Отправить».",
+    mailOnlyNote: "Этот крюинг принимает анкеты по e-mail. Откроется ваша почта с готовым письмом — адрес крюинга, тема и ваше сопроводительное письмо. Прикрепите файл своего CV и нажмите «Отправить».",
+    mailAttach: "Не забудьте прикрепить файл CV (PDF или Word) в почте перед отправкой.",
     mailNeedsSub: "Отклик со своей почты доступен с подпиской или после того, как вы откроете контакты этой вакансии одним из бесплатных просмотров недели.",
     contactsTitle: "Контакты крюинга",
     emailLabel: "E-mail",
@@ -270,7 +272,8 @@ const CTX: Record<string, Record<string, string>> = {
     share: "Поділитись",
     views: "Перегляди",
     mailPrimary: "Надіслати зі своєї пошти",
-    mailOnlyNote: "Цей крюїнг приймає анкети по e-mail. Відкриється ваша пошта з готовим листом — адреса крюїнгу, тема і посилання на ваше CV (діє 30 днів, його можна відкликати в кабінеті). Залишиться натиснути «Надіслати».",
+    mailOnlyNote: "Цей крюїнг приймає анкети по e-mail. Відкриється ваша пошта з готовим листом — адреса крюїнгу, тема і ваш супровідний лист. Прикріпіть файл свого CV і натисніть «Надіслати».",
+    mailAttach: "Не забудьте прикріпити файл CV (PDF або Word) у пошті перед надсиланням.",
     mailNeedsSub: "Відгук зі своєї пошти доступний із підпискою або після того, як ви відкриєте контакти цієї вакансії одним із безкоштовних переглядів тижня.",
     contactsTitle: "Контакти крюїнгу",
     emailLabel: "E-mail",
@@ -328,7 +331,8 @@ const CTX: Record<string, Record<string, string>> = {
     share: "Udostępnij",
     views: "Wyświetlenia",
     mailPrimary: "Wyślij ze swojej poczty",
-    mailOnlyNote: "Ta agencja przyjmuje zgłoszenia e-mailem. Otworzy się Twoja poczta z gotowym listem — adres agencji, temat i link do Twojego CV (ważny 30 dni, można go wycofać w panelu). Wystarczy kliknąć „Wyślij”.",
+    mailOnlyNote: "Ta agencja przyjmuje zgłoszenia e-mailem. Otworzy się Twoja poczta z gotowym listem — adres agencji, temat i Twój list motywacyjny. Załącz plik ze swoim CV i kliknij „Wyślij”.",
+    mailAttach: "Nie zapomnij załączyć pliku CV (PDF lub Word) w poczcie przed wysłaniem.",
     mailNeedsSub: "Aplikacja z własnej poczty jest dostępna z subskrypcją albo po otwarciu kontaktów tej oferty jednym z darmowych podglądów w tygodniu.",
     contactsTitle: "Kontakt do agencji",
     emailLabel: "E-mail",
@@ -386,7 +390,8 @@ const CTX: Record<string, Record<string, string>> = {
     share: "Distribuie",
     views: "Vizualizări",
     mailPrimary: "Trimite de pe e-mailul meu",
-    mailOnlyNote: "Această agenție primește aplicațiile pe e-mail. Se deschide e-mailul tău cu scrisoarea gata scrisă — adresa agenției, subiectul și un link spre CV-ul tău (valabil 30 de zile, îl poți retrage din cont). Doar apeși „Trimite”.",
+    mailOnlyNote: "Această agenție primește aplicațiile pe e-mail. Se deschide e-mailul tău cu scrisoarea gata scrisă — adresa agenției, subiectul și scrisoarea ta de intenție. Atașează fișierul CV-ului tău și apasă „Trimite”.",
+    mailAttach: "Nu uita să atașezi fișierul CV (PDF sau Word) în e-mail înainte de trimitere.",
     mailNeedsSub: "Aplicarea de pe e-mailul tău e disponibilă cu abonament sau după ce deschizi contactele acestui anunț cu una dintre vizualizările gratuite ale săptămânii.",
     contactsTitle: "Contactele agenției",
     emailLabel: "E-mail",
@@ -809,88 +814,60 @@ export default function VacancyDetailClient({
   /**
    * Apply by writing from your own mailbox.
    *
-   * A mail client cannot attach a file from a link, so the CV goes as a URL to
-   * a page on our domain — one token per application, dead after 30 days.
-   * We record the application first so it shows up in the seafarer's list and
-   * the profile rule still applies; what we cannot know is whether the letter
-   * was actually sent, so the status says "prepared", not "delivered".
+   * The mail app opens with the letter written — the agency's addresses, the
+   * subject and the cover letter — and the seafarer attaches their own CV file
+   * there. No link to a CV on our domain any more (the owner's call, November
+   * 2026): the letter is the seafarer's own, CV included. The application is
+   * recorded so it shows up in their list; whether the letter was actually
+   * sent is something we cannot know.
    */
   async function handleApplyByMail() {
     // All the vacancy's addresses go into one letter's To: line.
     const agencyEmails = contacts?.emails?.length ? contacts.emails : contacts?.email ? [contacts.email] : [];
-    const agencyEmail = agencyEmails.join(", ");
-    if (!userId || !agencyEmail) return;
-    setMailing(true);
+    if (!userId || !agencyEmails.length) return;
     setApplyError(null);
 
-    // Open the tab before awaiting: a window opened after an await has lost the
-    // user-gesture context and is blocked on Safari and on mobile.
-    const tab = window.open("", "_blank");
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch("/api/cv-share", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token ?? ""}`,
-        },
-        body: JSON.stringify({ vacancyId: vacancy.id, sentTo: agencyEmail }),
-      });
-      const json = (await res.json()) as { ok?: boolean; url?: string; error?: string };
-      if (!json.ok || !json.url) {
-        tab?.close();
-        setApplyError(
-          json.error === "PROFILE_INCOMPLETE"
-            ? copy.profileErr
-            : json.error === "SUBSCRIPTION_REQUIRED"
-              ? (CTX[lang] ?? CTX.en).mailNeedsSub
-              : "Could not prepare the CV link. Please try again.",
-        );
-        setMailing(false);
-        return;
-      }
+    const subject = `${vacancy.rank || vacancy.title} — application`;
+    const body = [
+      "Dear Sir or Madam,",
+      "",
+      `I would like to apply for the position of ${vacancy.rank || vacancy.title}` +
+        (vacancy.vessel_type ? ` on your ${vacancy.vessel_type}.` : "."),
+      "",
+      coverLetter.trim(),
+      "",
+      "Please find my CV attached.",
+      "",
+      "Kind regards,",
+      "",
+      "Sent via SeaJobs.pro",
+    ]
+      .filter((l, i, all) => !(l === "" && all[i - 1] === ""))
+      .join("\n");
 
-      // Record it, so it appears among their applications like any other.
-      await supabase.from("applications").insert({
-        vacancy_id: vacancy.id,
-        seafarer_id: userId,
-        cover_letter: coverLetter.trim() || null,
-        status: "pending",
-      });
+    // Opened straight from the click: a mailto: after an await can lose the
+    // user gesture on Safari and on mobile.
+    window.location.href =
+      `mailto:${agencyEmails.map(encodeURIComponent).join(",")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-      const subject = `${vacancy.rank || vacancy.title} — application`;
-      const body = [
-        "Dear Sir or Madam,",
-        "",
-        `I would like to apply for the position of ${vacancy.rank || vacancy.title}` +
-          (vacancy.vessel_type ? ` on your ${vacancy.vessel_type}.` : "."),
-        "",
-        "My full CV, certificates and sea service record:",
-        json.url,
-        "",
-        coverLetter.trim(),
-        "",
-        "Kind regards,",
-        "",
-        "Sent via SeaJobs.pro",
-      ]
-        .filter((l, i, all) => !(l === "" && all[i - 1] === ""))
-        .join("\n");
-
-      const href = `mailto:${agencyEmails.map(encodeURIComponent).join(",")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      if (tab) tab.location.href = href;
-      else window.location.href = href;
-
-      setApplicationStatus("pending");
-      setShowModal(false);
-      setCoverLetter("");
-    } catch {
-      tab?.close();
-      setApplyError("Could not open your mail app. Please try again.");
-    } finally {
-      setMailing(false);
+    // Record it, so it appears among their applications like any other.
+    setMailing(true);
+    const { error } = await supabase.from("applications").insert({
+      vacancy_id: vacancy.id,
+      seafarer_id: userId,
+      cover_letter: coverLetter.trim() || null,
+      status: "pending",
+    });
+    setMailing(false);
+    if (error && !error.message.includes("duplicate")) {
+      setApplyError(error.message.includes("PROFILE_INCOMPLETE") ? copy.profileErr : error.message);
+      return;
     }
+    setApplicationStatus("pending");
+    setShowModal(false);
+    setCoverLetter("");
   }
+
 
   // Parse an uploaded CV (PDF/DOCX) and write the extracted data straight into
   // the seafarer's profile — the same import the cabinet uses, but one-shot so
@@ -1351,7 +1328,11 @@ export default function VacancyDetailClient({
 
               {userId && userRole === "seafarer" && !applicationStatus && gaps && profileReady && canAct && (!mailboxOnly || vacancy.hasAgencyEmail) && (
                 <div>
-                  {!gaps.experience ? (
+                  {mailboxOnly && !gaps.experience ? (
+                    <p className="mb-3 flex items-center gap-2 text-sm text-mist">
+                      <Mail size={16} /> {(CTX[lang] ?? CTX.en).mailAttach}
+                    </p>
+                  ) : !gaps.experience ? (
                     <p className="mb-3 flex items-center gap-2 text-sm text-teal">
                       <CheckCircle2 size={16} /> Your CV is on SeaJobs.pro — it will be sent with your application.
                     </p>
@@ -1506,7 +1487,7 @@ export default function VacancyDetailClient({
               </>
             ) : (
               <>
-                {gaps && !gaps.missing.length && !gaps.experience && (
+                {gaps && !gaps.missing.length && !gaps.experience && !mailboxOnly && (
                   <p className="mb-4 flex items-center gap-2 text-sm text-teal">
                     <CheckCircle2 size={16} /> Your profile is complete — your CV will be sent with this application.
                   </p>
@@ -1540,9 +1521,8 @@ export default function VacancyDetailClient({
                   )}
 
                   {/* The mailbox route, for imported vacancies. The letter
-                      arrives personally from the seafarer and carries a link to
-                      their CV on our domain, so the crewing manager ends up on
-                      the site. */}
+                      arrives personally from the seafarer, with their own CV
+                      file attached in their mail app. */}
                   {mailboxOnly && contacts?.email && (
                     <>
                       <button
@@ -1554,8 +1534,7 @@ export default function VacancyDetailClient({
                         {mailing ? "Preparing..." : (CTX[lang] ?? CTX.en).mailPrimary}
                       </button>
                       <p className="-mt-1 text-xs leading-relaxed text-mist">
-                        Opens your mail app with the letter ready. Your CV travels as a link that works for 30 days
-                        and can be withdrawn from your dashboard.
+                        {(CTX[lang] ?? CTX.en).mailAttach}
                       </p>
                     </>
                   )}
