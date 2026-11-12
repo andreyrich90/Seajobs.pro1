@@ -1,7 +1,6 @@
-import { emailList } from "@/lib/emailList";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { emailQuotaExhausted, sendEmail } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
 import { buildCvHtml } from "@/lib/cvHtml";
 import { dispatchJobAlerts } from "@/lib/jobAlerts";
 import { postVacancyToChannel } from "@/lib/telegramFeed";
@@ -61,8 +60,11 @@ export async function POST(req: Request) {
       if (!appExists) return NextResponse.json({ ok: false }, { status: 404 });
 
       const { data: vacancy } = await admin
-        .from("vacancies").select("title, company_id").eq("id", vacancyId).single();
+        .from("vacancies").select("title, company_id, is_imported").eq("id", vacancyId).single();
       if (!vacancy) return NextResponse.json({ ok: false }, { status: 404 });
+      // Imported vacancies are answered from the seafarer's own mailbox; the
+      // agency behind one has no account here and asked us for nothing.
+      if (vacancy.is_imported) return NextResponse.json({ ok: false, error: "MAILBOX_ONLY" }, { status: 410 });
 
       const { data: { user: seafarerUser } } = await admin.auth.admin.getUserById(seafarerId);
       const cv = await buildCvHtml(admin, seafarerId, seafarerUser?.email ?? caller.email ?? null, appExists.cover_letter);
@@ -102,56 +104,13 @@ ${cv.html}
       return NextResponse.json({ ok: true });
     }
 
-    // ── A seafarer applied to an imported vacancy → email the crewing agency ──
+    // ── Retired: SeaJobs.pro no longer mails CVs to imported vacancies ──────
+    // An imported vacancy (Telegram collector, screenshot import) is answered
+    // from the seafarer's own mailbox (api/cv-share + mailto:). We do not send
+    // CVs from our address to agencies that never asked us for them. Only
+    // vacancies a company posted from its own account go through the portal.
     if (type === "external_application") {
-      const { vacancyId, seafarerId } = body as { vacancyId: string; seafarerId: string };
-      if (!isUuid(vacancyId) || !isUuid(seafarerId)) {
-        return NextResponse.json({ ok: false, error: "Bad input" }, { status: 400 });
-      }
-      if (caller.id !== seafarerId) {
-        return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
-      }
-      // The CV goes to the agency only for a subscriber, once one is on sale,
-      // or for a vacancy opened as one of the week's free ones.
-      if (!(await mayUseVacancy(admin, caller.id, vacancyId))) {
-        return NextResponse.json({ ok: false, error: "SUBSCRIPTION_REQUIRED" }, { status: 403 });
-      }
-      const { data: appExists } = await admin
-        .from("applications").select("id, cover_letter").eq("vacancy_id", vacancyId).eq("seafarer_id", seafarerId).maybeSingle();
-      if (!appExists) return NextResponse.json({ ok: false }, { status: 404 });
-
-      const { data: vacancy } = await admin
-        .from("vacancies").select("title, contact_email").eq("id", vacancyId).single();
-      // Every address the vacancy lists (lib/emailList.ts) gets the CV.
-      const agencyEmails = emailList(vacancy?.contact_email);
-      if (!vacancy || !agencyEmails.length) return NextResponse.json({ ok: false }, { status: 404 });
-
-      // Today's allowance already spent: say so without calling the provider.
-      // The page then offers the seafarer's own mailbox, which costs us nothing
-      // and reaches the agency just the same.
-      if (await emailQuotaExhausted()) {
-        return NextResponse.json({ ok: false, error: "quota" }, { status: 429 });
-      }
-
-      const { data: { user: sfUser } } = await admin.auth.admin.getUserById(seafarerId);
-      const cv = await buildCvHtml(admin, seafarerId, sfUser?.email ?? caller.email ?? null, appExists.cover_letter);
-
-      const sent = await sendEmail({
-        to: agencyEmails,
-        subject: `New application for "${vacancy.title}" — ${cv.name}`,
-        html: `<p>A seafarer applied for <strong>${vacancy.title}</strong> via SeaJobs.pro. The full CV is below.</p>${cv.html}`,
-        kind: "external_application",
-      });
-      // This one carries the seafarer's CV to the agency — report a failure so
-      // the client can tell them instead of pretending it was delivered. A spent
-      // quota gets its own answer, because it has its own way out.
-      if (!sent.ok) {
-        return sent.quota
-          ? NextResponse.json({ ok: false, error: "quota" }, { status: 429 })
-          : NextResponse.json({ ok: false, error: "email_failed" }, { status: 502 });
-      }
-
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: false, error: "MAILBOX_ONLY" }, { status: 410 });
     }
 
     // ── Company changed an application's status → notify the seafarer ─────────
