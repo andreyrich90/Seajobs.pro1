@@ -94,7 +94,7 @@ const C: Record<Lang, Copy> = {
     manualLink: "Fill in the profile",
 
     needTitle: "What your profile needs",
-    needSub: "Four details are required — first and last name, rank and phone — plus at least one sea-service record before an application can go. The rest is optional, but each item makes your CV stronger in the crewing manager's inbox.",
+    needSub: "Four details are required — first and last name, rank and phone — plus at least one sea-service record for an application through the portal (a letter from your own mailbox carries your CV file instead). The rest is optional, but each item makes your CV stronger in the crewing manager's inbox.",
     needs: [
       { t: "Phone number", d: "Crewing managers call before they write. Without a phone number an application cannot be sent.", required: true },
       { t: "Sea service — at least one record", d: "The vessel, its type, your rank and your sign-on / sign-off dates. This is the first thing a crewing manager looks at.", required: true },
@@ -165,7 +165,7 @@ const C: Record<Lang, Copy> = {
     manualLink: "Заполнить профиль",
 
     needTitle: "Что должно быть в профиле",
-    needSub: "Обязательны имя и фамилия, должность и телефон, а для отправки отклика — ещё хотя бы одна запись морского стажа. Остальное по желанию, но каждый пункт усиливает ваше CV в почте крюинг-менеджера.",
+    needSub: "Обязательны имя и фамилия, должность и телефон, а для отклика через портал — ещё хотя бы одна запись морского стажа (в письме со своей почты стаж есть в вашем CV). Остальное по желанию, но каждый пункт усиливает ваше CV в почте крюинг-менеджера.",
     needs: [
       { t: "Номер телефона", d: "Крюинг-менеджеры сначала звонят и только потом пишут. Без телефона отклик не отправится.", required: true },
       { t: "Морской стаж — минимум одна запись", d: "Судно, его тип, ваша должность и даты посадки и списания. Это первое, на что смотрит крюинг-менеджер.", required: true },
@@ -236,7 +236,7 @@ const C: Record<Lang, Copy> = {
     manualLink: "Заповнити профіль",
 
     needTitle: "Що має бути в профілі",
-    needSub: "Обов'язкові ім'я та прізвище, посада й телефон, а для надсилання відгуку — ще хоча б один запис морського стажу. Решта за бажанням, але кожен пункт посилює ваше CV у пошті крюїнг-менеджера.",
+    needSub: "Обов'язкові ім'я та прізвище, посада й телефон, а для відгуку через портал — ще хоча б один запис морського стажу (у листі зі своєї пошти стаж є у вашому CV). Решта за бажанням, але кожен пункт посилює ваше CV у пошті крюїнг-менеджера.",
     needs: [
       { t: "Номер телефону", d: "Крюїнг-менеджери спершу телефонують і лише потім пишуть. Без телефону відгук не надішлеться.", required: true },
       { t: "Морський стаж — щонайменше один запис", d: "Судно, його тип, ваша посада й дати посадки та списання. Це перше, на що дивиться крюїнг-менеджер.", required: true },
@@ -307,7 +307,7 @@ const C: Record<Lang, Copy> = {
     manualLink: "Uzupełnij profil",
 
     needTitle: "Co musi zawierać profil",
-    needSub: "Wymagane są imię i nazwisko, stanowisko i telefon, a do wysłania aplikacji — także co najmniej jeden wpis stażu morskiego. Reszta jest opcjonalna, ale każdy punkt wzmacnia Twoje CV w skrzynce menedżera crewingu.",
+    needSub: "Wymagane są imię i nazwisko, stanowisko i telefon, a do aplikacji przez portal — także co najmniej jeden wpis stażu morskiego (w liście z własnej poczty staż jest w Twoim CV). Reszta jest opcjonalna, ale każdy punkt wzmacnia Twoje CV w skrzynce menedżera crewingu.",
     needs: [
       { t: "Numer telefonu", d: "Menedżerowie crewingu najpierw dzwonią, dopiero potem piszą. Bez numeru telefonu aplikacji nie da się wysłać.", required: true },
       { t: "Staż morski — co najmniej jeden wpis", d: "Statek, jego typ, Twoje stanowisko oraz daty zaokrętowania i wyokrętowania. To pierwsze, na co patrzy menedżer crewingu.", required: true },
@@ -378,7 +378,7 @@ const C: Record<Lang, Copy> = {
     manualLink: "Completează profilul",
 
     needTitle: "Ce trebuie să conțină profilul",
-    needSub: "Obligatorii sunt numele și prenumele, rangul și telefonul, iar pentru a trimite o aplicare — și cel puțin o înregistrare de stagiu pe mare. Restul e opțional, dar fiecare punct îți întărește CV-ul în căsuța managerului de crewing.",
+    needSub: "Obligatorii sunt numele și prenumele, rangul și telefonul, iar pentru aplicarea prin portal — și cel puțin o înregistrare de stagiu pe mare (în scrisoarea de pe e-mailul tău stagiul e în CV-ul tău). Restul e opțional, dar fiecare punct îți întărește CV-ul în căsuța managerului de crewing.",
     needs: [
       { t: "Număr de telefon", d: "Managerii de crewing sună mai întâi și abia apoi scriu. Fără număr de telefon aplicarea nu poate fi trimisă.", required: true },
       { t: "Stagiu pe mare — cel puțin o înregistrare", d: "Nava, tipul ei, rangul tău și datele de îmbarcare și debarcare. Este primul lucru la care se uită un manager de crewing.", required: true },

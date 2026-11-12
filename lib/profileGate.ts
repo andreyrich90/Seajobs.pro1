@@ -14,8 +14,9 @@
 //     (20261011000000_profile_fields_for_apply.sql) refuses the application row.
 // Change the list here and in that trigger together.
 //
-// Sending an application additionally needs one sea-service record, as before:
-// the CV the agency receives is built from them. That rule stays where it was
+// Sending through the portal additionally needs one sea-service record: the CV
+// the company receives is built from them. The mailbox route does not — the
+// letter carries the seafarer's own CV file. That rule stays where it was
 // (the trigger); viewing the contacts does not need it, so a
 // cadet with no voyages yet can still see whom to write to.
 
