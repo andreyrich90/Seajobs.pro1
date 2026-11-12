@@ -155,6 +155,7 @@ const CTX: Record<string, Record<string, string>> = {
     views: "Views",
     mailPrimary: "Send from my email",
     mailOnlyNote: "This crewing agency takes applications by e-mail. Your mail app opens with the letter ready — their address, the subject and a link to your CV (valid 30 days, can be withdrawn from your dashboard). Just press Send.",
+    mailNeedsSub: "Writing to the agency from your mailbox needs a subscription, or this vacancy opened as one of your free contact views this week.",
     contactsTitle: "Crewing agency contacts",
     emailLabel: "E-mail",
     phoneLabel: "Phone",
@@ -212,6 +213,7 @@ const CTX: Record<string, Record<string, string>> = {
     views: "Просмотры",
     mailPrimary: "Отправить со своей почты",
     mailOnlyNote: "Этот крюинг принимает анкеты по e-mail. Откроется ваша почта с готовым письмом — адрес крюинга, тема и ссылка на ваше CV (действует 30 дней, её можно отозвать в кабинете). Останется нажать «Отправить».",
+    mailNeedsSub: "Отклик со своей почты доступен с подпиской или после того, как вы откроете контакты этой вакансии одним из бесплатных просмотров недели.",
     contactsTitle: "Контакты крюинга",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
@@ -269,6 +271,7 @@ const CTX: Record<string, Record<string, string>> = {
     views: "Перегляди",
     mailPrimary: "Надіслати зі своєї пошти",
     mailOnlyNote: "Цей крюїнг приймає анкети по e-mail. Відкриється ваша пошта з готовим листом — адреса крюїнгу, тема і посилання на ваше CV (діє 30 днів, його можна відкликати в кабінеті). Залишиться натиснути «Надіслати».",
+    mailNeedsSub: "Відгук зі своєї пошти доступний із підпискою або після того, як ви відкриєте контакти цієї вакансії одним із безкоштовних переглядів тижня.",
     contactsTitle: "Контакти крюїнгу",
     emailLabel: "E-mail",
     phoneLabel: "Телефон",
@@ -326,6 +329,7 @@ const CTX: Record<string, Record<string, string>> = {
     views: "Wyświetlenia",
     mailPrimary: "Wyślij ze swojej poczty",
     mailOnlyNote: "Ta agencja przyjmuje zgłoszenia e-mailem. Otworzy się Twoja poczta z gotowym listem — adres agencji, temat i link do Twojego CV (ważny 30 dni, można go wycofać w panelu). Wystarczy kliknąć „Wyślij”.",
+    mailNeedsSub: "Aplikacja z własnej poczty jest dostępna z subskrypcją albo po otwarciu kontaktów tej oferty jednym z darmowych podglądów w tygodniu.",
     contactsTitle: "Kontakt do agencji",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
@@ -383,6 +387,7 @@ const CTX: Record<string, Record<string, string>> = {
     views: "Vizualizări",
     mailPrimary: "Trimite de pe e-mailul meu",
     mailOnlyNote: "Această agenție primește aplicațiile pe e-mail. Se deschide e-mailul tău cu scrisoarea gata scrisă — adresa agenției, subiectul și un link spre CV-ul tău (valabil 30 de zile, îl poți retrage din cont). Doar apeși „Trimite”.",
+    mailNeedsSub: "Aplicarea de pe e-mailul tău e disponibilă cu abonament sau după ce deschizi contactele acestui anunț cu una dintre vizualizările gratuite ale săptămânii.",
     contactsTitle: "Contactele agenției",
     emailLabel: "E-mail",
     phoneLabel: "Telefon",
@@ -837,7 +842,9 @@ export default function VacancyDetailClient({
         setApplyError(
           json.error === "PROFILE_INCOMPLETE"
             ? copy.profileErr
-            : "Could not prepare the CV link. Please try again.",
+            : json.error === "SUBSCRIPTION_REQUIRED"
+              ? (CTX[lang] ?? CTX.en).mailNeedsSub
+              : "Could not prepare the CV link. Please try again.",
         );
         setMailing(false);
         return;
