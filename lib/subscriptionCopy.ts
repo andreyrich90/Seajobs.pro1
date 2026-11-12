@@ -38,7 +38,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
     perks: [
       "Applying through the portal — the site sends your CV straight to the agency",
       "Crewing agencies' e-mails and phones on every vacancy",
-      "Writing to the agency from your own mailbox, with a link to your CV",
+      "Writing to the agency from your own mailbox — the letter is ready, just attach your CV",
       "Contact people of crewing companies on their pages",
       "Your CV as PDF, image and editable Word, in every fleet template",
     ],
@@ -65,7 +65,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
     perks: [
       "Отклик через портал — сайт сам отправит ваше CV в крюинг",
       "E-mail и телефоны крюингов в каждой вакансии",
-      "Письмо крюингу со своей почты, со ссылкой на ваше CV",
+      "Письмо крюингу со своей почты — готовое, останется прикрепить CV",
       "Контактные лица крюинговых компаний на их страницах",
       "Ваше CV в PDF, картинкой и редактируемым Word во всех шаблонах флота",
     ],
@@ -92,7 +92,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
     perks: [
       "Відгук через портал — сайт сам надішле ваше CV у крюїнг",
       "E-mail і телефони крюїнгів у кожній вакансії",
-      "Лист крюїнгу зі своєї пошти, з посиланням на ваше CV",
+      "Лист крюїнгу зі своєї пошти — готовий, залишиться прикріпити CV",
       "Контактні особи крюїнгових компаній на їхніх сторінках",
       "Ваше CV у PDF, картинкою та редагованим Word у всіх шаблонах флоту",
     ],
@@ -119,7 +119,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
     perks: [
       "Aplikowanie przez portal — strona sama wyśle Twoje CV do agencji",
       "E-maile i telefony agencji crewingowych w każdej ofercie",
-      "List do agencji z własnej skrzynki, z linkiem do Twojego CV",
+      "List do agencji z własnej skrzynki — gotowy, wystarczy dołączyć CV",
       "Osoby kontaktowe firm crewingowych na ich stronach",
       "Twoje CV jako PDF, obraz i edytowalny Word, we wszystkich szablonach floty",
     ],
@@ -146,7 +146,7 @@ export const SUB_COPY: Record<string, SubCopy> = {
     perks: [
       "Aplicarea prin portal — site-ul trimite singur CV-ul tău agenției",
       "E-mailurile și telefoanele agențiilor de crewing la fiecare post",
-      "Scrisoare către agenție din propriul e-mail, cu link la CV-ul tău",
+      "Scrisoare către agenție din propriul e-mail — gata scrisă, atașezi doar CV-ul",
       "Persoanele de contact ale companiilor de crewing pe paginile lor",
       "CV-ul tău ca PDF, imagine și Word editabil, în toate șabloanele de flotă",
     ],
