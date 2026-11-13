@@ -22,6 +22,7 @@ import { cvParseError } from "@/lib/cvParseError";
 import { RANK_LANDINGS, RANK_COPY, rankName } from "@/lib/rankLandings";
 import { VESSEL_LANDINGS, vesselName, vacancyMatchesVessel } from "@/lib/vesselLandings";
 import { supabase, notify } from "@/lib/supabase/client";
+import EzoicAd from "@/components/EzoicAd";
 import { renderMarkdown } from "@/lib/markdown";
 import { fromEur, type SalaryContext } from "@/lib/salaryStats";
 import { slugId } from "@/lib/slug";
@@ -1352,6 +1353,10 @@ export default function VacancyDetailClient({
               )}
               </>)}
             </div>
+
+            {/* Ad (Ezoic): below the apply section, never between the
+                description and the button. */}
+            <EzoicAd id={101} />
 
             {/* Our own analysis of the offer — see CTX below. */}
             <SalaryContextBlock ctx={salaryContext} currency={vacancy.currency} lang={lang} rankSlug={rankSlug} />

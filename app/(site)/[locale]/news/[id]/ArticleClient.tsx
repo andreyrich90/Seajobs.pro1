@@ -11,7 +11,8 @@ import { useLang } from "@/components/LangProvider";
 import { supabase } from "@/lib/supabase/client";
 import type { NewsArticle } from "@/lib/supabase/types";
 import { extractId } from "@/lib/slug";
-import { renderMarkdown } from "@/lib/markdown";
+import ArticleBodyWithAd from "@/components/ArticleBodyWithAd";
+import EzoicAd from "@/components/EzoicAd";
 import PopularJobLinks from "@/components/PopularJobLinks";
 import ShareBar from "@/components/ShareBar";
 import ArticleComments from "@/components/ArticleComments";
@@ -176,8 +177,11 @@ export default function ArticleClient({ id, initialArticle }: { id: string; init
 
         {/* Body */}
         <div className="rounded-2xl border border-white/10 bg-card px-6 py-8 sm:px-8">
-          {renderMarkdown(article.body)}
+          <ArticleBodyWithAd body={article.body} />
         </div>
+
+        {/* Ad (Ezoic): after the article. */}
+        <EzoicAd id={104} className="mt-8" />
 
         <ShareBar url={shareUrl} title={shareTitle} />
 
