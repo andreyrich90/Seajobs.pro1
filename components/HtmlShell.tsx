@@ -64,14 +64,44 @@ const orgJsonLd = {
 
 export default function HtmlShell({
   lang,
+  ads = true,
   children,
 }: {
   /** A BCP-47 tag — "uk", not the "ua" used in URLs. See HREFLANG in lib/seo. */
   lang: string;
+  /** Ezoic's scripts. Off for /auth and /cv/[token] — no ads beside a sign-in
+   *  form or a private CV with a passport number on it. */
+  ads?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <html lang={lang} className={`${fraunces.variable} ${archivo.variable}`} suppressHydrationWarning>
+      {ads && (
+        <head>
+          {/* Ezoic (ads), as their integration guide orders it: the privacy
+              scripts (Gatekeeper consent) first and synchronous, then the
+              header script and its analytics, as high in <head> as possible.
+              data-cfasync must come before src. These replaced the AdSense
+              tag after AdSense refused the site again (November 2026); ads.txt
+              is redirected to Ezoic's manager in next.config.js. Placements
+              (ezstandalone.showAds) are added per page. */}
+          <script data-cfasync="false" src="https://cmp.gatekeeperconsent.com/min.js" />
+          <script data-cfasync="false" src="https://the.gatekeeperconsent.com/cmp.min.js" />
+          {/* The header script is async, and React hoists an async <script
+              src> to the top of <head> — above the privacy scripts Ezoic says
+              must come first. Injected from inline code instead, it starts
+              loading only once those two have run. */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.ezstandalone=window.ezstandalone||{};ezstandalone.cmd=ezstandalone.cmd||[];" +
+                "(function(){var s=document.createElement('script');s.async=true;" +
+                "s.src='https://www.ezojs.com/ezoic/sa.min.js';document.head.appendChild(s);})();",
+            }}
+          />
+          <script src="https://ezoicanalytics.com/analytics.js" />
+        </head>
+      )}
       <body className="bg-navy text-foam font-body overflow-x-hidden">
         <script
           dangerouslySetInnerHTML={{
@@ -90,13 +120,6 @@ export default function HtmlShell({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-        />
-        {/* Ads and analytics are not needed for interactivity — load them
-            during idle time so they stop adding to Total Blocking Time. */}
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9585615049936117"
-          strategy="lazyOnload"
-          crossOrigin="anonymous"
         />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-1H5KRW7TS9"

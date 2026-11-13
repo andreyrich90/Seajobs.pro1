@@ -41,7 +41,7 @@ export default function PlainLayout({ children }: { children: React.ReactNode })
   // `@/i18n/navigation` reads its locale. `null` rather than leaving the prop
   // out: next-intl 4 fills a missing one in from i18n/request.ts.
   return (
-    <HtmlShell lang="en">
+    <HtmlShell lang="en" ads={false}>
       <NextIntlClientProvider locale="en" messages={null}>
         {children}
         <CookieBanner />
