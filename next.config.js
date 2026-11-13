@@ -17,6 +17,15 @@ const nextConfig = {
     return [
       { source: "/uk", destination: "/ua", permanent: true },
       { source: "/uk/:path*", destination: "/ua/:path*", permanent: true },
+      // ads.txt is kept by Ezoic's Ads.txt Manager (account 19390) and served
+      // from there, so the list of authorised sellers updates without a deploy.
+      // The IAB spec allows one redirect to another domain. The static
+      // public/ads.txt (the rejected AdSense line) was removed with this.
+      {
+        source: "/ads.txt",
+        destination: "https://srv.adstxtmanager.com/19390/seajobs.pro",
+        statusCode: 301,
+      },
     ];
   },
 };

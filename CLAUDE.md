@@ -107,7 +107,7 @@ Almost everything lives under `app/(site)/[locale]/`; only the auth screens and 
 | `/auth/*` | `app/auth/` | login, register, forgot-password, callback — **not** under `[locale]` |
 | `/for-companies`, `/about`, `/privacy`, `/terms` | `app/[locale]/...` | static marketing/legal pages |
 
-`/uk` and `/uk/:path*` permanently redirect to `/ua` (`next.config.js`) — old indexed links from before the Ukrainian prefix was renamed.
+`/uk` and `/uk/:path*` permanently redirect to `/ua` (`next.config.js`) — old indexed links from before the Ukrainian prefix was renamed. `/ads.txt` is a 301 to Ezoic's Ads.txt Manager (`srv.adstxtmanager.com/19390/seajobs.pro`), set up in November 2026 when the site applied to Ezoic after another AdSense refusal; there is no `public/ads.txt` any more, and the AdSense script in `HtmlShell.tsx` still loads until Ezoic's header scripts replace it.
 
 ### API routes (`app/api/`)
 
