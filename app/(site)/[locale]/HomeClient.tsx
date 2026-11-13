@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { Fragment, useState, useRef, useEffect, useLayoutEffect } from "react";
 import Image from "next/image";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Search, Compass, ArrowRight, ChevronRight, ChevronLeft, ShieldCheck, Building2, Calendar, Tag, Clock, TrendingUp, Star, FileText, Send } from "lucide-react";
@@ -11,6 +11,7 @@ import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import VesselFilter from "@/components/VesselFilter";
 import VacancyCard from "@/components/VacancyCard";
+import EzoicAd from "@/components/EzoicAd";
 import RankFilter from "@/components/RankFilter";
 import SignupPulse from "@/components/SignupPulse";
 import EuropeFlags from "@/components/EuropeFlags";
@@ -367,8 +368,13 @@ export default function HomeClient({
         </div>
 
         <div className="mt-6 flex flex-col gap-3">
-          {dbVacancies.length > 0 ? pageItems.map((v) => (
-            <VacancyCard key={v.id} vacancy={v} lang={lang} />
+          {dbVacancies.length > 0 ? pageItems.map((v, i) => (
+            <Fragment key={v.id}>
+              <VacancyCard vacancy={v} lang={lang} />
+              {/* One ad (Ezoic) after the sixth card, as on /jobs. 102 is
+                  free here: /jobs and the home page are never one page. */}
+              {i === 5 && <EzoicAd id={102} />}
+            </Fragment>
           )) : (
             <div className="rounded-2xl border border-white/10 bg-card px-5 py-10 text-center">
               <p className="text-sm text-mist">{t.jobs_none}</p>
