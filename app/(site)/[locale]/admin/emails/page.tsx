@@ -13,6 +13,8 @@ type Row = {
   ok: boolean;
   error: string | null;
   created_at: string;
+  // Mailbox rows only: the seafarer and the vacancy.
+  from?: string | null;
 };
 
 type Today = Record<string, { sent: number; failed: number }>;
@@ -28,7 +30,11 @@ const KIND_LABEL: Record<string, string> = {
   referral_reminder: "Referral reminder",
   contact: "Contact form",
   outreach: "Agency outreach",
+  // Not sent by us: a seafarer pressed "Send from my email" and their mail app
+  // opened with the letter (api/admin/email-log reads these from applications).
+  mailbox_application: "CV → agency, own mail",
 };
+const MAILBOX = "mailbox_application";
 
 // Emails that carry something a user is waiting on — a failure here is serious.
 const CRITICAL = new Set(["external_application", "application_received", "status_changed"]);
@@ -42,6 +48,7 @@ function fmt(d: string) {
 export default function AdminEmailsPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [today, setToday] = useState<Today>({});
+  const [mailboxToday, setMailboxToday] = useState(0);
   const [budget, setBudget] = useState<{ used: number; limit: number }>({ used: 0, limit: 50 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,6 +79,7 @@ export default function AdminEmailsPage() {
     }
     setRows(data.rows);
     setToday(data.today ?? {});
+    setMailboxToday(data.mailboxToday ?? 0);
     setBudget(data.alertBudget ?? { used: 0, limit: 50 });
     setLoading(false);
   }, [failedOnly, kind]);
@@ -88,7 +96,8 @@ export default function AdminEmailsPage() {
         <div>
           <h1 className="font-display text-2xl font-semibold text-white">Email log</h1>
           <p className="mt-1 text-sm text-mist">
-            Every email the site sends, with its outcome. Free tier allows 100/day.
+            Every email the site sends, with its outcome. Free tier allows 100/day. CVs seafarers send from their
+            own mailbox are listed too, as “own mail” — they do not count towards the 100.
           </p>
         </div>
         <button
@@ -108,10 +117,15 @@ export default function AdminEmailsPage() {
       ) : (
         <>
           {/* Today's counters */}
-          <div className="mb-5 grid gap-3 sm:grid-cols-3">
+          <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-white/10 bg-card p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-mist">Sent today</p>
               <p className="mt-1 text-3xl font-bold text-white">{todaySent}<span className="text-base font-semibold text-mist"> / 100</span></p>
+            </div>
+            <div className="rounded-2xl border border-brass/30 bg-card p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-mist">CV from own mail today</p>
+              <p className="mt-1 text-3xl font-bold text-brassInk">{mailboxToday}</p>
+              <p className="mt-1 text-[11px] leading-snug text-mist">Presses of “Send from my email”. Not via Resend; whether they pressed Send is unknown.</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-card p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-mist">Failed today</p>
@@ -180,6 +194,7 @@ export default function AdminEmailsPage() {
                       <td className="whitespace-nowrap px-4 py-3 text-xs text-mist">{fmt(r.created_at)}</td>
                       <td className="px-4 py-3">
                         <span className="font-medium text-white">{KIND_LABEL[r.kind] ?? r.kind}</span>
+                        {r.from && <p className="mt-0.5 text-[11px] text-mist">{r.from}</p>}
                         {CRITICAL.has(r.kind) && !r.ok && (
                           <span className="ml-2 inline-flex rounded-full border border-coral/30 bg-coral/10 px-2 py-0.5 text-[10px] font-bold uppercase text-coral">
                             critical
@@ -188,7 +203,11 @@ export default function AdminEmailsPage() {
                       </td>
                       <td className="px-4 py-3 text-xs text-mist break-all">{r.to_email}</td>
                       <td className="px-4 py-3">
-                        {r.ok ? (
+                        {r.kind === MAILBOX ? (
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brassInk">
+                            <Mail size={13} /> Mail app opened
+                          </span>
+                        ) : r.ok ? (
                           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal">
                             <CheckCircle2 size={13} /> Sent
                           </span>
