@@ -1,11 +1,10 @@
 "use client";
 
-import { Fragment, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { Search, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import VacancyCard from "@/components/VacancyCard";
-import EzoicAd from "@/components/EzoicAd";
 import { useT } from "@/components/DictProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -168,12 +167,8 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
           </div>
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
-            {pageItems.map((v, i) => (
-              <Fragment key={v.id}>
-                <VacancyCard vacancy={v} lang={lang} />
-                {/* One ad (Ezoic) after the sixth card of the page. */}
-                {i === 5 && <EzoicAd id={102} />}
-              </Fragment>
+            {pageItems.map((v) => (
+              <VacancyCard key={v.id} vacancy={v} lang={lang} />
             ))}
 
             {/* Pagination */}
