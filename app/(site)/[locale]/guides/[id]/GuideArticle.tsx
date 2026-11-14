@@ -7,8 +7,7 @@ import Footer from "@/components/Footer";
 import PopularJobLinks from "@/components/PopularJobLinks";
 import { useLang } from "@/components/LangProvider";
 import { GUIDE_SECTIONS, type GuideSection } from "@/lib/guidesUi";
-import ArticleBodyWithAd from "@/components/ArticleBodyWithAd";
-import EzoicAd from "@/components/EzoicAd";
+import { renderMarkdown } from "@/lib/markdown";
 import { extractId } from "@/lib/slug";
 import ShareBar from "@/components/ShareBar";
 import ArticleComments from "@/components/ArticleComments";
@@ -73,11 +72,8 @@ export default function GuideArticle({ guide, shareUrl, section = "guide" }: { g
 
         {/* Body */}
         <article className="prose-invert mt-6 text-[15px] leading-relaxed text-foam/90">
-          <ArticleBodyWithAd body={guide.body} />
+          {renderMarkdown(guide.body)}
         </article>
-
-        {/* Ad (Ezoic): after the article. */}
-        <EzoicAd id={104} className="mt-8" />
 
         <ShareBar url={shareUrl} title={guide.title} />
 

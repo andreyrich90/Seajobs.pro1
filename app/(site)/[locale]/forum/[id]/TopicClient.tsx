@@ -14,7 +14,6 @@ import { useLang } from "@/components/LangProvider";
 import { renderMarkdown } from "@/lib/markdown";
 import { sectionLabel } from "@/lib/forumSections";
 import PopularJobLinks from "@/components/PopularJobLinks";
-import EzoicAd from "@/components/EzoicAd";
 
 function loc(field: unknown, lang: string): string {
   if (!field) return "";
@@ -487,9 +486,6 @@ export default function TopicClient({
               </NextLink>
             </div>
           )}
-
-          {/* Ad (Ezoic): at the end of the topic, below the reply box. */}
-          <EzoicAd id={104} className="mt-8" />
         </div>
       </div>
       <Footer />
