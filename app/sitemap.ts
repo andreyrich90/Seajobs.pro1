@@ -27,7 +27,12 @@ function locTitle(field: unknown): string {
   return "";
 }
 
-export const revalidate = 3600; // regenerate sitemap every hour
+// Once a day. The sitemap is ~7 MB (every vacancy with its hreflang alternates
+// in five languages), about 900 ISR units per write: at an hour it was the
+// second-largest writer on the site (5.4K units in 12 hours). Google reads it
+// a few times a day at most, and a new vacancy is found through the board and
+// the landings long before the sitemap matters.
+export const revalidate = 86400;
 
 function localizedEntries(
   pathname: string,

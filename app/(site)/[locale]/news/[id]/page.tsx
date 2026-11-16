@@ -6,9 +6,9 @@ import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from 
 import { extractId, slugId } from "@/lib/slug";
 import ArticleClient from "./ArticleClient";
 
-// Ten minutes, and the same fix as the vacancy page: without it an article
-// rendered once was cached until the next deployment.
-export const revalidate = 600;
+// An hour (it was ten minutes), and the same fix as the vacancy page: without
+// it an article rendered once was cached until the next deployment.
+export const revalidate = 3600;
 
 export const dynamicParams = true;
 

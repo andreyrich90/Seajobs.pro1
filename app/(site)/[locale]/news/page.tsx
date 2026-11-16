@@ -4,8 +4,8 @@ import { hreflangAlternates, canonicalUrl } from "@/lib/seo";
 import NewsClient, { type DbArticle } from "./NewsClient";
 
 
-// News is written by hand, a few times a week.
-export const revalidate = 600;
+// News is written by hand, a few times a week; an hour is soon enough.
+export const revalidate = 3600;
 
 const TITLES: Record<string, string> = {
   ua: "Морські новини для моряків | SeaJobs.pro",
