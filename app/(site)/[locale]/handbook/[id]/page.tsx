@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { guideMetadata, GuidePageView } from "../../guides/[id]/guidePage";
 
-export const revalidate = 3600;
+// A day, as the guides (see guides/[id]/page.tsx).
+export const revalidate = 86400;
 
 // Empty on purpose, as for guides: cache each article the first time it is
 // asked for instead of rendering it per request.

@@ -6,9 +6,11 @@ import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl, DEFAUL
 import TopicClient from "./TopicClient";
 
 
-// A minute. The author of a reply sees it instantly — TopicClient appends it
-// locally — so this delay only applies to other readers.
-export const revalidate = 60;
+// Ten minutes. The author of a reply sees it instantly — TopicClient appends it
+// locally — so this delay only applies to other readers. It was one minute;
+// with crawlers on 71 topics in five languages that was a billed ISR write
+// nearly every minute.
+export const revalidate = 600;
 
 // Empty on purpose. A dynamic segment with no generateStaticParams is rendered
 // per request and never cached, so `revalidate` above would do nothing. An

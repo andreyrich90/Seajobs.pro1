@@ -6,8 +6,10 @@ import CompanyClient from "./CompanyClient";
 
 
 // The page is only an existence check around CompanyClient, which loads the
-// profile in the browser. What is cached here is the 200-or-404 decision.
-export const revalidate = 600;
+// profile in the browser. What is cached here is the 200-or-404 decision and
+// the name in the <title>, so a day is plenty. It was ten minutes, which made
+// it the second-largest ISR writer (1.7K writes in 12 hours over 730 paths).
+export const revalidate = 86400;
 
 // Empty on purpose. A dynamic segment with no generateStaticParams is rendered
 // per request and never cached, so `revalidate` above would do nothing. An
