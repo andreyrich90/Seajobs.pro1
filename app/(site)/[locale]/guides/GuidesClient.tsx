@@ -7,50 +7,27 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useLang } from "@/components/LangProvider";
 import { GUIDE_SECTIONS, type GuideSection } from "@/lib/guidesUi";
-import { slugId } from "@/lib/slug";
 
+/** One card, already in the reader's language (built in guideIndex.tsx). */
 export type GuideCard = {
   id: string;
-  title: Record<string, string>;
-  body: Record<string, string> | null;
+  title: string;
   tag: string | null;
-  cover_gradient: string | null;
-  cover_url: string | null;
-  published_at: string | null;
-  created_at: string;
+  date: string;
+  gradient: string;
+  coverUrl: string | null;
+  excerpt: string;
+  readMins: number;
 };
-
-function excerpt(text: string, max = 140): string {
-  const clean = text.replace(/^#{1,6}\s.*$/gm, "").replace(/^(::|!!|\?\?|=>)\s?/gm, "").replace(/[#*_>`]/g, "").replace(/\s+/g, " ").trim();
-  return clean.length > max ? clean.slice(0, max).replace(/\s+\S*$/, "") + "…" : clean;
-}
-function readMins(text: string): number {
-  return Math.max(1, Math.round(text.trim().split(/\s+/).filter(Boolean).length / 200));
-}
 
 // Serves /guides and /handbook: the same cards over a different category,
 // with a switch between the two at the top.
-export default function GuidesClient({ initialGuides, section = "guide" }: { initialGuides: GuideCard[]; section?: GuideSection }) {
+export default function GuidesClient({ cards, section = "guide" }: { cards: GuideCard[]; section?: GuideSection }) {
   const { lang } = useLang();
   const { path, ui: uiMap } = GUIDE_SECTIONS[section];
   const ui = uiMap[lang] ?? uiMap.en;
-  const ukKey = lang === "ua" ? "uk" : lang;
   const minLabel = lang === "ua" ? "хв" : lang === "pl" ? "min" : lang === "ru" ? "мин" : lang === "ro" ? "min" : "min";
-
-  const items = initialGuides.map((g) => {
-    const body = g.body?.[lang] || g.body?.[ukKey] || g.body?.en || "";
-    const title = g.title?.[lang] || g.title?.[ukKey] || g.title?.en || "";
-    return {
-      id: slugId(title, g.id),
-      title,
-      tag: g.tag,
-      date: g.published_at ?? g.created_at,
-      gradient: g.cover_gradient ?? "linear-gradient(135deg,#0c4a6e,#155e75)",
-      coverUrl: g.cover_url ?? null,
-      excerpt: excerpt(body),
-      readMins: readMins(body),
-    };
-  });
+  const items = cards;
 
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString(

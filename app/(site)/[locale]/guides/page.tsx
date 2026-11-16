@@ -10,6 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return guideIndexMetadata(locale, "guide");
 }
 
-export default function GuidesPage() {
-  return <GuideIndexView section="guide" />;
+export default async function GuidesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return <GuideIndexView section="guide" locale={locale} />;
 }

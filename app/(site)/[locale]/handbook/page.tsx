@@ -11,6 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return guideIndexMetadata(locale, "handbook");
 }
 
-export default function HandbookPage() {
-  return <GuideIndexView section="handbook" />;
+export default async function HandbookPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  return <GuideIndexView section="handbook" locale={locale} />;
 }
