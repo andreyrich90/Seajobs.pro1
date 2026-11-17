@@ -11,6 +11,7 @@ import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { LANGS } from "@/lib/langs";
 import NotificationBell from "@/components/NotificationBell";
+import ConsentBanner from "@/components/ConsentBanner";
 
 const NAV_KEYS = [
   { key: "cab_dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
@@ -217,6 +218,7 @@ export default function SeafarerShell({ children }: { children: React.ReactNode 
           </div>
         </div>
 
+        <ConsentBanner />
         {children}
       </main>
     </div>

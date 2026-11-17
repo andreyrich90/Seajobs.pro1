@@ -11,6 +11,9 @@ import { captureRefParam, recordReferral } from "@/lib/referral";
 import { useLang } from "@/components/LangProvider";
 import { AUTH_T, passwordErrorText, localePath } from "@/lib/authI18n";
 import { LANGS } from "@/lib/langs";
+import { CONSENT_KINDS, savePendingConsent } from "@/lib/consent";
+import { consentCopy } from "@/lib/consentCopy";
+import ConsentText from "@/components/ConsentText";
 
 async function signUpWithGoogle(role?: string) {
   if (role) localStorage.setItem("oauth_role", role);
@@ -26,6 +29,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { lang, setLang } = useLang();
   const t = AUTH_T[lang];
+  const cc = consentCopy(lang);
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
@@ -36,6 +40,21 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
+  // The consent boxes for the chosen role (lib/consent.ts). Not ticked by
+  // default; both ways to register wait for all of them. They are remembered
+  // here and written by the cabinet banner once there is a session.
+  const [ticked, setTicked] = useState<Record<string, boolean>>({});
+  const kinds = role ? CONSENT_KINDS[role] : [];
+  const allTicked = kinds.length > 0 && kinds.every((k) => ticked[k]);
+
+  function consentOk(): boolean {
+    if (!role || !allTicked) {
+      setError(cc.needAll);
+      return false;
+    }
+    savePendingConsent(role, kinds);
+    return true;
+  }
 
   function handleRoleSelect(r: Role) {
     setRole(r);
@@ -62,6 +81,8 @@ export default function RegisterPage() {
       setError(t.err_select_role);
       return;
     }
+
+    if (!consentOk()) return;
 
     if (password !== confirmPassword) {
       setError(t.err_pw_match);
@@ -237,6 +258,9 @@ export default function RegisterPage() {
                   </svg>
                   {t.google_continue}
                 </button>
+                <p className="mt-3 text-center text-xs leading-relaxed text-mist">
+                  <ConsentText text={cc.googleNotice} lang={lang} />
+                </p>
               </div>
 
               <p className="mt-5 text-center text-sm text-mist">
@@ -299,9 +323,23 @@ export default function RegisterPage() {
                   </div>
                 )}
 
+                <div className="mb-5 flex flex-col gap-3 rounded-xl border border-white/10 bg-navy2/60 p-4">
+                  {kinds.map((k) => (
+                    <label key={k} className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-foam">
+                      <input
+                        type="checkbox"
+                        checked={!!ticked[k]}
+                        onChange={(e) => { setTicked((x) => ({ ...x, [k]: e.target.checked })); setError(null); }}
+                        className="mt-1 h-4 w-4 shrink-0 accent-[#c9a227]"
+                      />
+                      <span><ConsentText text={cc.boxes[k]} lang={lang} /></span>
+                    </label>
+                  ))}
+                </div>
+
                 {/* Google first — sign up in one tap, or fill the form below. */}
                 <button
-                  onClick={() => signUpWithGoogle(role ?? undefined)}
+                  onClick={() => { setError(null); if (consentOk()) void signUpWithGoogle(role ?? undefined); }}
                   disabled={loading}
                   className="flex w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50"
                 >

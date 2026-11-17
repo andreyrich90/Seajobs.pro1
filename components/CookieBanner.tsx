@@ -28,9 +28,8 @@ export default function CookieBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-deep/95 backdrop-blur-md px-5 py-4">
       <div className="mx-auto max-w-5xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <p className="flex-1 text-sm text-mist leading-relaxed">
-          We use cookies for authentication,{" "}
-          <span className="text-foam">Google Analytics</span> and advertising{" "}
-          (<span className="text-foam">Google AdSense</span>) to run and improve the site.{" "}
+          We use cookies for sign-in and{" "}
+          <span className="text-foam">Google Analytics</span> to run and improve the site.{" "}
           <Link href="/privacy" className="text-brassInk underline underline-offset-2 hover:text-brass transition">
             Privacy Policy
           </Link>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EyeOff, Eye, Trash2, AlertTriangle } from "lucide-react";
+import { EyeOff, Eye, Trash2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
+import { consentCopy } from "@/lib/consentCopy";
+import type { ConsentKind } from "@/lib/consent";
 
 // /seafarer/privacy, its own item in the cabinet menu: hide the profile from
 // crewing companies, and delete the account.
@@ -135,11 +137,19 @@ export default function AccountPrivacy() {
   const [typed, setTyped] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const cc = consentCopy(lang);
+  // The consents on record (api/consent). The banner at the top of the
+  // cabinet asks for any that are missing; this list only shows what was given.
+  const [consents, setConsents] = useState<{ kind: ConsentKind; created_at: string }[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
+      fetch("/api/consent", { headers: { Authorization: `Bearer ${session.access_token}` } })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j) => { if (j?.given) setConsents(j.given); })
+        .catch(() => {});
       const { data, error } = await supabase.from("seafarers").select("is_hidden").eq("id", session.user.id).maybeSingle();
       // Before the migration the column does not exist: the switch stays off and disabled.
       if (!error && data) setHidden(!!data.is_hidden);
@@ -210,6 +220,26 @@ export default function AccountPrivacy() {
         <p className="mt-3 text-xs leading-relaxed text-mist">{c.hideNote}</p>
         {hideError && <p className="mt-2 text-xs text-coral">{c.hideFailed}</p>}
       </div>
+
+      {consents.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-card p-5">
+          <p className="flex items-center gap-2 font-semibold text-white">
+            <ShieldCheck size={17} className="text-teal" /> {cc.listTitle}
+          </p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {consents.map((x) => (
+              <li key={x.kind} className="text-sm leading-relaxed text-foam">
+                <span className="text-teal">✓</span>{" "}
+                {cc.boxes[x.kind].replace(/\[|\]/g, "")}{" "}
+                <span className="text-xs text-mist">
+                  — {cc.given.replace("{date}", new Date(x.created_at).toLocaleDateString(lang === "ua" ? "uk" : lang))}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs leading-relaxed text-mist">{cc.withdraw}</p>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-coral/30 bg-coral/5 p-5">
         <p className="flex items-center gap-2 font-semibold text-white">
