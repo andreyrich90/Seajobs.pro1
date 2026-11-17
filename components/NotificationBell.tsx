@@ -6,6 +6,7 @@ import { Bell } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import type { Lang } from "@/lib/langs";
+import { CONSENT_CONFIRMED_EVENT } from "@/lib/consent";
 
 type Notification = {
   id: string;
@@ -47,6 +48,11 @@ function timeAgo(dateStr: string, lang: Lang): string {
 // from the type + the dynamic parts parsed out of the stored strings, so both
 // old and new notifications appear in the user's language.
 function localize(n: Notification, lang: Lang): { title: string; body: string | null } {
+  if (n.type === "consent_required" && lang !== "en") {
+    const title = { ua: "Підтвердьте згоду на обробку даних", pl: "Potwierdź zgodę na przetwarzanie danych", ru: "Подтвердите согласие на обработку данных", ro: "Confirmă consimțământul pentru prelucrarea datelor" }[lang];
+    const b = { ua: "Ми оновили Політику конфіденційності та Умови. Відкрийте, щоб підтвердити — це один клік.", pl: "Zaktualizowaliśmy Politykę prywatności i Regulamin. Otwórz, aby potwierdzić — to jedno kliknięcie.", ru: "Мы обновили Политику конфиденциальности и Условия. Откройте, чтобы подтвердить, — это один клик.", ro: "Am actualizat Politica de confidențialitate și Termenii. Deschide pentru a confirma — durează un clic." }[lang];
+    return { title, body: b };
+  }
   if (lang === "en") return { title: n.title, body: n.body };
   const body = n.body ?? "";
 
@@ -118,7 +124,11 @@ export default function NotificationBell({ placement = "down-right" }: { placeme
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    // A consent banner confirmed: api/consent has deleted the notification
+    // asking for it, so read the list again rather than wait for the poll.
+    const onConsent = () => { void fetchNotifications(); };
+    window.addEventListener(CONSENT_CONFIRMED_EVENT, onConsent);
+    return () => { clearInterval(interval); window.removeEventListener(CONSENT_CONFIRMED_EVENT, onConsent); };
   }, []);
 
   // Close on outside click

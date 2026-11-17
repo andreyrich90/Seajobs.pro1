@@ -15,6 +15,14 @@
 
 export const CONSENT_VERSION = "2026-11-17";
 
+// Fired on window when a banner records the consent, so the other banner on
+// the page and the notification bell drop theirs at once.
+export const CONSENT_CONFIRMED_EVENT = "seajobs:consent-confirmed";
+
+// The bell notification asking for consent (20261117010000_consent_notifications.sql);
+// api/consent deletes it once the boxes are confirmed.
+export const CONSENT_NOTIFICATION_TYPE = "consent_required";
+
 export type ConsentKind = "privacy" | "profile_sharing" | "candidate_data";
 export type ConsentRole = "seafarer" | "company";
 

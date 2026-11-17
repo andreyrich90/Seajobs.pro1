@@ -15,11 +15,14 @@ export default function CookieBanner() {
   function accept() {
     localStorage.setItem(CONSENT_KEY, "accepted");
     setVisible(false);
+    // The consent banner for signed-in readers waits for this one.
+    window.dispatchEvent(new Event("seajobs:cookie-choice"));
   }
 
   function decline() {
     localStorage.setItem(CONSENT_KEY, "declined");
     setVisible(false);
+    window.dispatchEvent(new Event("seajobs:cookie-choice"));
   }
 
   if (!visible) return null;
