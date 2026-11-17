@@ -6,6 +6,7 @@
     { "path": "/api/cron/collect-telegram", "schedule": "0 */6 * * 1-5" },
     { "path": "/api/cron/telegram-channel", "schedule": "30 * * * *" },
     { "path": "/api/cron/release-vacancies", "schedule": "*/10 * * * *" },
-    { "path": "/api/cron/keepalive", "schedule": "17 */6 * * *" }
+    { "path": "/api/cron/keepalive", "schedule": "17 */6 * * *" },
+    { "path": "/api/cron/vacancy-digest", "schedule": "20 8 * * *" }
   ]
 }

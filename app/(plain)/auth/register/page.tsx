@@ -11,7 +11,7 @@ import { captureRefParam, recordReferral } from "@/lib/referral";
 import { useLang } from "@/components/LangProvider";
 import { AUTH_T, passwordErrorText, localePath } from "@/lib/authI18n";
 import { LANGS } from "@/lib/langs";
-import { CONSENT_KINDS, savePendingConsent } from "@/lib/consent";
+import { CONSENT_KINDS, OPTIONAL_KINDS, savePendingConsent } from "@/lib/consent";
 import { consentCopy } from "@/lib/consentCopy";
 import ConsentText from "@/components/ConsentText";
 
@@ -45,6 +45,7 @@ export default function RegisterPage() {
   // here and written by the cabinet banner once there is a session.
   const [ticked, setTicked] = useState<Record<string, boolean>>({});
   const kinds = role ? CONSENT_KINDS[role] : [];
+  const optionalKinds = role ? OPTIONAL_KINDS[role] : [];
   const allTicked = kinds.length > 0 && kinds.every((k) => ticked[k]);
 
   function consentOk(): boolean {
@@ -52,7 +53,7 @@ export default function RegisterPage() {
       setError(cc.needAll);
       return false;
     }
-    savePendingConsent(role, kinds);
+    savePendingConsent(role, kinds, optionalKinds.length ? !!ticked.marketing : undefined);
     return true;
   }
 
@@ -324,7 +325,7 @@ export default function RegisterPage() {
                 )}
 
                 <div className="mb-5 flex flex-col gap-3 rounded-xl border border-white/10 bg-navy2/60 p-4">
-                  {kinds.map((k) => (
+                  {[...kinds, ...optionalKinds].map((k) => (
                     <label key={k} className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-foam">
                       <input
                         type="checkbox"

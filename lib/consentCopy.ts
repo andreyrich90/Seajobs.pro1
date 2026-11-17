@@ -21,6 +21,10 @@ export type ConsentCopy = {
   listTitle: string;
   given: string;
   withdraw: string;
+  mkTitle: string;
+  mkOn: string;
+  mkOff: string;
+  mkFailed: string;
 };
 
 export const CONSENT_COPY: Record<string, ConsentCopy> = {
@@ -28,6 +32,7 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     boxes: {
       privacy: "I accept the [Terms of Service] and the [Privacy Policy] and consent to the processing of my personal data to run my account on SeaJobs.pro.",
       profile_sharing: "I agree that crewing companies on SeaJobs.pro may see my profile and CV, and receive them when I apply for a vacancy.",
+      marketing: "Optional: send me a weekly digest of new vacancies for my rank and SeaJobs.pro news by e-mail. One click unsubscribes.",
       candidate_data: "I will use seafarers' personal data only to recruit crew and will not pass it on to third parties.",
     },
     googleNotice: "By continuing with Google you accept the [Terms of Service] and the [Privacy Policy].",
@@ -41,11 +46,16 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     listTitle: "Consent to data processing",
     given: "given {date}",
     withdraw: "To withdraw consent, delete your account below or write to partners@seajobs.pro.",
+    mkTitle: "Weekly vacancy digest by e-mail",
+    mkOn: "On: once a week we e-mail you new vacancies for your rank. Every e-mail has an unsubscribe link.",
+    mkOff: "Off: we do not send you digests or news by e-mail.",
+    mkFailed: "Could not change the setting. Try again in a minute.",
   },
   ru: {
     boxes: {
       privacy: "Принимаю [Условия использования] и [Политику конфиденциальности] и даю согласие на обработку моих персональных данных для работы моего аккаунта на SeaJobs.pro.",
       profile_sharing: "Согласен, что крюинговые компании на SeaJobs.pro видят мой профиль и CV и получают их, когда я откликаюсь на вакансию.",
+      marketing: "По желанию: присылайте мне на почту раз в неделю подборку новых вакансий по моей должности и новости SeaJobs.pro. Отписаться — в один клик.",
       candidate_data: "Обязуюсь использовать персональные данные моряков только для подбора экипажа и не передавать их третьим лицам.",
     },
     googleNotice: "Продолжая через Google, вы принимаете [Условия использования] и [Политику конфиденциальности].",
@@ -59,11 +69,16 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     listTitle: "Согласие на обработку данных",
     given: "дано {date}",
     withdraw: "Чтобы отозвать согласие, удалите аккаунт ниже или напишите на partners@seajobs.pro.",
+    mkTitle: "Подборка вакансий на почту раз в неделю",
+    mkOn: "Включено: раз в неделю присылаем на почту новые вакансии по вашей должности. В каждом письме есть ссылка «отписаться».",
+    mkOff: "Выключено: подборки и новости на почту не присылаем.",
+    mkFailed: "Не удалось изменить настройку. Попробуйте через минуту.",
   },
   ua: {
     boxes: {
       privacy: "Приймаю [Умови використання] та [Політику конфіденційності] і даю згоду на обробку моїх персональних даних для роботи мого акаунта на SeaJobs.pro.",
       profile_sharing: "Погоджуюся, що крюїнгові компанії на SeaJobs.pro бачать мій профіль і CV та отримують їх, коли я відгукуюся на вакансію.",
+      marketing: "За бажанням: надсилайте мені на пошту раз на тиждень добірку нових вакансій за моєю посадою та новини SeaJobs.pro. Відписатися — в один клік.",
       candidate_data: "Зобов'язуюся використовувати персональні дані моряків лише для підбору екіпажу і не передавати їх третім особам.",
     },
     googleNotice: "Продовжуючи через Google, ви приймаєте [Умови використання] та [Політику конфіденційності].",
@@ -77,11 +92,16 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     listTitle: "Згода на обробку даних",
     given: "надано {date}",
     withdraw: "Щоб відкликати згоду, видаліть акаунт нижче або напишіть на partners@seajobs.pro.",
+    mkTitle: "Добірка вакансій на пошту раз на тиждень",
+    mkOn: "Увімкнено: раз на тиждень надсилаємо на пошту нові вакансії за вашою посадою. У кожному листі є посилання «відписатися».",
+    mkOff: "Вимкнено: добірки та новини на пошту не надсилаємо.",
+    mkFailed: "Не вдалося змінити налаштування. Спробуйте за хвилину.",
   },
   pl: {
     boxes: {
       privacy: "Akceptuję [Regulamin] i [Politykę prywatności] oraz wyrażam zgodę na przetwarzanie moich danych osobowych w celu prowadzenia mojego konta w SeaJobs.pro.",
       profile_sharing: "Zgadzam się, aby firmy crewingowe w SeaJobs.pro widziały mój profil i CV oraz otrzymywały je, gdy aplikuję na ofertę.",
+      marketing: "Opcjonalnie: wysyłajcie mi e-mailem raz w tygodniu przegląd nowych ofert na moje stanowisko i wiadomości SeaJobs.pro. Wypisanie — jednym kliknięciem.",
       candidate_data: "Zobowiązuję się wykorzystywać dane osobowe marynarzy wyłącznie do rekrutacji załogi i nie przekazywać ich osobom trzecim.",
     },
     googleNotice: "Kontynuując przez Google, akceptujesz [Regulamin] i [Politykę prywatności].",
@@ -95,11 +115,16 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     listTitle: "Zgoda na przetwarzanie danych",
     given: "udzielona {date}",
     withdraw: "Aby wycofać zgodę, usuń konto poniżej lub napisz na partners@seajobs.pro.",
+    mkTitle: "Cotygodniowy przegląd ofert e-mailem",
+    mkOn: "Włączone: raz w tygodniu wysyłamy Ci e-mailem nowe oferty na Twoje stanowisko. W każdym e-mailu jest link do wypisania.",
+    mkOff: "Wyłączone: nie wysyłamy Ci przeglądów ani wiadomości e-mailem.",
+    mkFailed: "Nie udało się zmienić ustawienia. Spróbuj za minutę.",
   },
   ro: {
     boxes: {
       privacy: "Accept [Termenii și condițiile] și [Politica de confidențialitate] și îmi dau consimțământul pentru prelucrarea datelor mele personale în scopul funcționării contului meu pe SeaJobs.pro.",
       profile_sharing: "Sunt de acord ca agențiile de crewing de pe SeaJobs.pro să vadă profilul și CV-ul meu și să le primească atunci când aplic la un post.",
+      marketing: "Opțional: trimiteți-mi pe e-mail o dată pe săptămână o selecție de posturi noi pentru funcția mea și noutăți SeaJobs.pro. Dezabonarea se face cu un clic.",
       candidate_data: "Mă angajez să folosesc datele personale ale marinarilor doar pentru recrutarea echipajului și să nu le transmit terților.",
     },
     googleNotice: "Continuând cu Google, accepți [Termenii și condițiile] și [Politica de confidențialitate].",
@@ -113,6 +138,10 @@ export const CONSENT_COPY: Record<string, ConsentCopy> = {
     listTitle: "Consimțământ pentru prelucrarea datelor",
     given: "acordat {date}",
     withdraw: "Pentru a retrage consimțământul, șterge contul mai jos sau scrie la partners@seajobs.pro.",
+    mkTitle: "Selecție săptămânală de posturi pe e-mail",
+    mkOn: "Activat: o dată pe săptămână îți trimitem pe e-mail posturi noi pentru funcția ta. Fiecare e-mail are un link de dezabonare.",
+    mkOff: "Dezactivat: nu îți trimitem selecții sau noutăți pe e-mail.",
+    mkFailed: "Setarea nu a putut fi schimbată. Încearcă din nou peste un minut.",
   },
 };
 
