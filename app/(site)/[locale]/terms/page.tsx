@@ -8,7 +8,7 @@ import type { Lang } from "@/lib/langs";
 const TRANSLATIONS = {
   ro: {
     title: "Termeni și condiții",
-    updated: "Ultima actualizare: iunie 2026",
+    updated: "Ultima actualizare: 17 noiembrie 2026",
     sections: [
       {
         title: "1. Acceptarea termenilor",
@@ -42,11 +42,15 @@ const TRANSLATIONS = {
         title: "8. Modificarea termenilor",
         body: "Ne rezervăm dreptul de a modifica acești Termeni și condiții în orice moment. Modificările intră în vigoare imediat după publicare. Continuarea utilizării platformei după modificări constituie acceptarea termenilor actualizați.",
       },
+      {
+        title: "9. Date personale",
+        body: "Datele personale sunt prelucrate conform Politicii noastre de confidențialitate. Operatorul este proprietarul site-ului SeaJobs.pro, persoană fizică; contact: partners@seajobs.pro. La înregistrare îți confirmi consimțământul pentru prelucrarea datelor, iar marinarul este de acord și ca agențiile de crewing să-i vadă profilul și CV-ul. O companie care primește date ale marinarilor prin SeaJobs.pro — profiluri, CV-uri, contacte — răspunde de ele: le poate folosi doar pentru recrutarea echipajului, nu le poate transmite terților sau adăuga în liste de e-mail și trebuie să le șteargă când nu mai sunt necesare pentru recrutare. Încălcarea este motiv de închidere a contului.",
+      },
     ],
   },
   en: {
     title: "Terms of Service",
-    updated: "Last updated: June 2026",
+    updated: "Last updated: 17 November 2026",
     sections: [
       {
         title: "1. Acceptance of Terms",
@@ -80,11 +84,15 @@ const TRANSLATIONS = {
         title: "8. Changes to Terms",
         body: "We reserve the right to modify these Terms of Service at any time. Changes will be effective immediately upon posting. Continued use of the platform after changes constitutes acceptance of the updated terms.",
       },
+      {
+        title: "9. Personal Data",
+        body: "Personal data is processed under our Privacy Policy. The controller is the owner of the website SeaJobs.pro, a private individual; contact: partners@seajobs.pro. On registration you confirm your consent to the processing of your data, and a seafarer also agrees that crewing companies see their profile and CV. A company that receives seafarers' data through SeaJobs.pro — profiles, CVs, contacts — becomes responsible for it: it may use the data only to recruit crew, must not pass it to third parties or add it to mailing lists, and must delete it when it is no longer needed for recruitment. A breach is grounds for closing the account.",
+      },
     ],
   },
   ua: {
     title: "Умови використання",
-    updated: "Оновлено: червень 2026",
+    updated: "Оновлено: 17 листопада 2026",
     sections: [
       {
         title: "1. Прийняття умов",
@@ -118,11 +126,15 @@ const TRANSLATIONS = {
         title: "8. Зміни умов",
         body: "Ми залишаємо за собою право вносити зміни до цих Умов використання в будь-який час. Зміни набирають чинності одразу після публікації. Продовження використання платформи після змін означає прийняття оновлених умов.",
       },
+      {
+        title: "9. Персональні дані",
+        body: "Персональні дані обробляються відповідно до нашої Політики конфіденційності. Володілець — власник сайту SeaJobs.pro, приватна особа; контакт: partners@seajobs.pro. Під час реєстрації ви підтверджуєте згоду на обробку своїх даних, а моряк також погоджується, що крюїнгові компанії бачать його профіль і CV. Компанія, яка отримує дані моряків через SeaJobs.pro — профілі, CV, контакти, — несе за них відповідальність: вона може використовувати їх лише для підбору екіпажу, не повинна передавати їх третім особам чи додавати до розсилок і має видалити їх, коли вони більше не потрібні для підбору. Порушення є підставою для закриття акаунта.",
+      },
     ],
   },
   pl: {
     title: "Regulamin",
-    updated: "Ostatnia aktualizacja: czerwiec 2026",
+    updated: "Ostatnia aktualizacja: 17 listopada 2026",
     sections: [
       {
         title: "1. Akceptacja warunków",
@@ -156,11 +168,15 @@ const TRANSLATIONS = {
         title: "8. Zmiany warunków",
         body: "Zastrzegamy sobie prawo do modyfikacji niniejszego Regulaminu w dowolnym momencie. Zmiany wchodzą w życie natychmiast po opublikowaniu. Dalsze korzystanie z platformy po wprowadzeniu zmian oznacza akceptację zaktualizowanych warunków.",
       },
+      {
+        title: "9. Dane osobowe",
+        body: "Dane osobowe są przetwarzane zgodnie z naszą Polityką prywatności. Administratorem jest właściciel serwisu SeaJobs.pro, osoba prywatna; kontakt: partners@seajobs.pro. Przy rejestracji potwierdzasz zgodę na przetwarzanie swoich danych, a marynarz zgadza się również, aby firmy crewingowe widziały jego profil i CV. Firma, która otrzymuje dane marynarzy przez SeaJobs.pro — profile, CV, kontakty — odpowiada za nie: może je wykorzystywać wyłącznie do rekrutacji załogi, nie może przekazywać ich osobom trzecim ani dodawać do list mailingowych i musi je usunąć, gdy przestaną być potrzebne do rekrutacji. Naruszenie jest podstawą do zamknięcia konta.",
+      },
     ],
   },
   ru: {
     title: "Условия использования",
-    updated: "Обновлено: июнь 2026",
+    updated: "Обновлено: 17 ноября 2026",
     sections: [
       {
         title: "1. Принятие условий",
@@ -193,6 +209,10 @@ const TRANSLATIONS = {
       {
         title: "8. Изменение условий",
         body: "Мы оставляем за собой право вносить изменения в настоящие Условия использования в любое время. Изменения вступают в силу немедленно после публикации. Продолжение использования платформы после изменений означает принятие обновлённых условий.",
+      },
+      {
+        title: "9. Персональные данные",
+        body: "Персональные данные обрабатываются согласно нашей Политике конфиденциальности. Оператор — владелец сайта SeaJobs.pro, частное лицо; контакт: partners@seajobs.pro. При регистрации вы подтверждаете согласие на обработку своих данных, а моряк также соглашается, что крюинговые компании видят его профиль и CV. Компания, получающая данные моряков через SeaJobs.pro — профили, CV, контакты, — несёт за них ответственность: она может использовать их только для подбора экипажа, не должна передавать их третьим лицам или добавлять в рассылки и должна удалить их, когда они больше не нужны для подбора. Нарушение — основание для закрытия аккаунта.",
       },
     ],
   },

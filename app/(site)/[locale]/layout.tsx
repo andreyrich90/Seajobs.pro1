@@ -12,6 +12,7 @@ import { publicDict } from "@/lib/i18n";
 import type { Lang } from "@/lib/langs";
 import { DictProvider } from "@/components/DictProvider";
 import CookieBanner from "@/components/CookieBanner";
+import SiteConsent from "@/components/SiteConsent";
 import { OG_LOCALE, alternateOgLocales, hreflangAlternates, canonicalUrl } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -123,6 +124,8 @@ export default async function LocaleLayout({
         <DictProvider dict={publicDict(locale as Lang)}>{children}</DictProvider>
         {/* Inside the provider: the banner links through @/i18n/navigation. */}
         <CookieBanner />
+        {/* Signed-in readers who have not confirmed consent (lib/consent.ts). */}
+        <SiteConsent />
       </NextIntlClientProvider>
     </HtmlShell>
   );
