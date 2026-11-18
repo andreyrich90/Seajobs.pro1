@@ -48,6 +48,9 @@ export default function ConsentBanner({ variant = "cabinet" }: { variant?: "cabi
   const pathname = usePathname() ?? "";
   const c = consentCopy(lang);
   const [missing, setMissing] = useState<ConsentKind[]>([]);
+  // Optional boxes (the e-mail digest) shown unticked under the required ones,
+  // only while there is something required to ask — never a banner of its own.
+  const [optional, setOptional] = useState<ConsentKind[]>([]);
   const [ticked, setTicked] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -71,7 +74,7 @@ export default function ConsentBanner({ variant = "cabinet" }: { variant?: "cabi
         const res = await fetch("/api/consent", {
           method: "POST",
           headers: { "Content-Type": "application/json", ...auth },
-          body: JSON.stringify({ kinds: pending.kinds, source: "register", locale: lang }),
+          body: JSON.stringify({ kinds: pending.kinds, marketing: pending.marketing, source: "register", locale: lang }),
         }).catch(() => null);
         // Kept on failure, so the next visit tries again.
         if (res?.ok) clearPendingConsent();
@@ -84,9 +87,11 @@ export default function ConsentBanner({ variant = "cabinet" }: { variant?: "cabi
 
       const res = await fetch("/api/consent", { headers: auth }).catch(() => null);
       if (!res?.ok || !alive) return;
-      const j = (await res.json()) as { missing?: ConsentKind[]; role?: string | null; unavailable?: boolean };
+      const j = (await res.json()) as { missing?: ConsentKind[]; optional?: ConsentKind[]; marketing?: boolean | null; role?: string | null; unavailable?: boolean };
       const m = j.missing ?? [];
       setMissing(m);
+      // Offer the digest only to someone who has never answered it.
+      setOptional(j.marketing === null || j.marketing === undefined ? j.optional ?? [] : []);
       if (!m.length && j.role && !j.unavailable) rememberOk(userId);
     })();
     return () => { alive = false; };
@@ -135,7 +140,12 @@ export default function ConsentBanner({ variant = "cabinet" }: { variant?: "cabi
       const res = await fetch("/api/consent", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ kinds: missing, source: variant === "site" ? "site_banner" : "banner", locale: lang }),
+        body: JSON.stringify({
+          kinds: missing,
+          ...(optional.length ? { marketing: !!ticked.marketing } : {}),
+          source: variant === "site" ? "site_banner" : "banner",
+          locale: lang,
+        }),
       });
       if (!res.ok) throw new Error(String(res.status));
       rememberOk(session.user.id);
@@ -169,7 +179,7 @@ export default function ConsentBanner({ variant = "cabinet" }: { variant?: "cabi
       </p>
       <p className="mt-1 text-sm text-mist">{c.bannerBody}</p>
       <div className="mt-4 flex flex-col gap-3">
-        {missing.map((k) => (
+        {[...missing, ...optional].map((k) => (
           <label key={k} className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-foam">
             <input
               type="checkbox"

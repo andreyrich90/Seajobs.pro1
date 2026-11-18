@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EyeOff, Eye, Trash2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { EyeOff, Eye, Trash2, AlertTriangle, ShieldCheck, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { consentCopy } from "@/lib/consentCopy";
@@ -141,6 +141,10 @@ export default function AccountPrivacy() {
   // The consents on record (api/consent). The banner at the top of the
   // cabinet asks for any that are missing; this list only shows what was given.
   const [consents, setConsents] = useState<{ kind: ConsentKind; created_at: string }[]>([]);
+  // The optional e-mail digest (lib/marketing.ts): null until read, then on/off.
+  const [marketing, setMarketing] = useState<boolean | null>(null);
+  const [savingMk, setSavingMk] = useState(false);
+  const [mkError, setMkError] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -148,7 +152,10 @@ export default function AccountPrivacy() {
       if (!session) return;
       fetch("/api/consent", { headers: { Authorization: `Bearer ${session.access_token}` } })
         .then((r) => (r.ok ? r.json() : null))
-        .then((j) => { if (j?.given) setConsents(j.given); })
+        .then((j) => {
+          if (j?.given) setConsents(j.given);
+          if (j?.optional?.length) setMarketing(!!j.marketing);
+        })
         .catch(() => {});
       const { data, error } = await supabase.from("seafarers").select("is_hidden").eq("id", session.user.id).maybeSingle();
       // Before the migration the column does not exist: the switch stays off and disabled.
@@ -167,6 +174,28 @@ export default function AccountPrivacy() {
     if (error) setHideError(true);
     else setHidden(next);
     setSavingHidden(false);
+  }
+
+  async function toggleMarketing() {
+    if (marketing === null) return;
+    setSavingMk(true);
+    setMkError(false);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("no session");
+      const next = !marketing;
+      const res = await fetch("/api/consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ marketing: next, source: "privacy_page", locale: lang }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setMarketing(next);
+    } catch {
+      setMkError(true);
+    } finally {
+      setSavingMk(false);
+    }
   }
 
   async function deleteAccount() {
@@ -220,6 +249,31 @@ export default function AccountPrivacy() {
         <p className="mt-3 text-xs leading-relaxed text-mist">{c.hideNote}</p>
         {hideError && <p className="mt-2 text-xs text-coral">{c.hideFailed}</p>}
       </div>
+
+      {marketing !== null && (
+        <div className="rounded-2xl border border-white/10 bg-card p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1 basis-72">
+              <p className="flex items-center gap-2 font-semibold text-white">
+                <Mail size={17} className={marketing ? "text-teal" : "text-mist"} /> {cc.mkTitle}
+              </p>
+              <p className="mt-1 text-sm text-foam">{marketing ? cc.mkOn : cc.mkOff}</p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={marketing}
+              aria-label={cc.mkTitle}
+              onClick={() => void toggleMarketing()}
+              disabled={savingMk}
+              className={`relative h-8 w-14 shrink-0 rounded-full border transition disabled:opacity-50 ${marketing ? "border-teal bg-teal" : "border-white/20 bg-navy2"}`}
+            >
+              <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${marketing ? "left-7" : "left-1"}`} />
+            </button>
+          </div>
+          {mkError && <p className="mt-2 text-xs text-coral">{cc.mkFailed}</p>}
+        </div>
+      )}
 
       {consents.length > 0 && (
         <div className="rounded-2xl border border-white/10 bg-card p-5">

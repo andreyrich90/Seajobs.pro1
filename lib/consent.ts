@@ -23,7 +23,17 @@ export const CONSENT_CONFIRMED_EVENT = "seajobs:consent-confirmed";
 // api/consent deletes it once the boxes are confirmed.
 export const CONSENT_NOTIFICATION_TYPE = "consent_required";
 
-export type ConsentKind = "privacy" | "profile_sharing" | "candidate_data";
+export type ConsentKind = "privacy" | "profile_sharing" | "candidate_data" | "marketing";
+
+// Marketing e-mail (the weekly vacancy digest and news, lib/marketing.ts) is
+// optional and seafarers only: never among the boxes that must be ticked,
+// offered unticked beside them, and switched on or off any time from
+// /seafarer/privacy. Its rows carry granted true or false; the latest wins.
+export const MARKETING_KIND = "marketing" as const;
+export const OPTIONAL_KINDS: Record<"seafarer" | "company", ConsentKind[]> = {
+  seafarer: [MARKETING_KIND],
+  company: [],
+};
 export type ConsentRole = "seafarer" | "company";
 
 export const CONSENT_KINDS: Record<ConsentRole, ConsentKind[]> = {
@@ -38,11 +48,11 @@ export function isConsentRole(r: unknown): r is ConsentRole {
 const PENDING_KEY = "pending_consent";
 const PENDING_TTL_MS = 7 * 24 * 3600 * 1000;
 
-type Pending = { role: ConsentRole; kinds: ConsentKind[]; version: string; at: number };
+type Pending = { role: ConsentRole; kinds: ConsentKind[]; marketing?: boolean; version: string; at: number };
 
-export function savePendingConsent(role: ConsentRole, kinds: ConsentKind[]) {
+export function savePendingConsent(role: ConsentRole, kinds: ConsentKind[], marketing?: boolean) {
   try {
-    const p: Pending = { role, kinds, version: CONSENT_VERSION, at: Date.now() };
+    const p: Pending = { role, kinds, marketing, version: CONSENT_VERSION, at: Date.now() };
     localStorage.setItem(PENDING_KEY, JSON.stringify(p));
   } catch { /* storage blocked: the banner will ask instead */ }
 }

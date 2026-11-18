@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { CONSENT_KINDS, CONSENT_NOTIFICATION_TYPE, CONSENT_VERSION, isConsentRole, type ConsentKind } from "@/lib/consent";
+import { CONSENT_KINDS, CONSENT_NOTIFICATION_TYPE, CONSENT_VERSION, OPTIONAL_KINDS, isConsentRole, type ConsentKind } from "@/lib/consent";
+import { marketingState, setMarketing } from "@/lib/marketing";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,9 @@ export const runtime = "nodejs";
 //   POST — { kinds, source, locale }: records each box as given now, with the
 //          IP and user agent the server saw, and removes the bell
 //          notification that asked for it once nothing is missing.
+//          `marketing: true|false` (seafarers only) records the optional
+//          e-mail digest answer and syncs Brevo (lib/marketing.ts); it may
+//          come alone, from the switch on /seafarer/privacy.
 //
 // The caller is re-derived from the bearer token, and only the boxes of the
 // caller's own role are accepted. A missing table (migration not run yet)
@@ -40,7 +44,8 @@ export async function GET(req: Request) {
   if (!db) return NextResponse.json({ error: "Server not configured" }, { status: 503 });
   const me = await caller(req, db);
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!me.role) return NextResponse.json({ role: null, version: CONSENT_VERSION, required: [], missing: [], given: [] });
+  if (!me.role) return NextResponse.json({ role: null, version: CONSENT_VERSION, required: [], missing: [], given: [], optional: [], marketing: null });
+  const optional = OPTIONAL_KINDS[me.role];
 
   const required = CONSENT_KINDS[me.role];
   const { data, error } = await db
@@ -51,7 +56,7 @@ export async function GET(req: Request) {
     .limit(50);
   if (error) {
     console.error("[consent] read", error.message);
-    return NextResponse.json({ role: me.role, version: CONSENT_VERSION, required, missing: [], given: [], unavailable: true });
+    return NextResponse.json({ role: me.role, version: CONSENT_VERSION, required, missing: [], given: [], optional: [], marketing: null, unavailable: true });
   }
 
   const latest = new Map<string, Row>();
@@ -66,6 +71,8 @@ export async function GET(req: Request) {
     required,
     missing,
     given: required.map((k) => latest.get(k)).filter(Boolean),
+    optional,
+    marketing: optional.length ? await marketingState(db, me.id) : null,
   });
 }
 
@@ -76,17 +83,24 @@ export async function POST(req: Request) {
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!me.role) return NextResponse.json({ error: "NO_ROLE" }, { status: 400 });
 
-  const body = (await req.json().catch(() => null)) as { kinds?: unknown; source?: unknown; locale?: unknown } | null;
+  const body = (await req.json().catch(() => null)) as { kinds?: unknown; source?: unknown; locale?: unknown; marketing?: unknown } | null;
+  const marketing = typeof body?.marketing === "boolean" && OPTIONAL_KINDS[me.role].length ? body.marketing : null;
   const allowed = CONSENT_KINDS[me.role];
   const kinds = Array.isArray(body?.kinds)
     ? Array.from(new Set(body!.kinds.filter((k): k is ConsentKind => allowed.includes(k as ConsentKind))))
     : [];
-  if (!kinds.length) return NextResponse.json({ error: "NO_KINDS" }, { status: 400 });
+  if (!kinds.length && marketing === null) return NextResponse.json({ error: "NO_KINDS" }, { status: 400 });
 
-  const source = body?.source === "register" || body?.source === "site_banner" ? body.source : "banner";
+  const source = body?.source === "register" || body?.source === "site_banner" || body?.source === "privacy_page" ? body.source : "banner";
   const locale = typeof body?.locale === "string" ? body.locale.slice(0, 5) : null;
   const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || req.headers.get("x-real-ip") || null;
   const userAgent = (req.headers.get("user-agent") ?? "").slice(0, 300) || null;
+
+  if (marketing !== null) {
+    const ok = await setMarketing(db, me.id, marketing, { source, locale, ip, userAgent });
+    if (!ok && !kinds.length) return NextResponse.json({ error: "WRITE_FAILED" }, { status: 500 });
+  }
+  if (!kinds.length) return NextResponse.json({ ok: true, kinds, marketing });
 
   const { error } = await db.from("user_consents").insert(
     kinds.map((kind) => ({
@@ -123,5 +137,5 @@ export async function POST(req: Request) {
     if (delError) console.error("[consent] notification", delError.message);
   }
 
-  return NextResponse.json({ ok: true, kinds });
+  return NextResponse.json({ ok: true, kinds, marketing });
 }
