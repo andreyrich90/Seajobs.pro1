@@ -136,3 +136,13 @@ export async function optedIn(db: Db): Promise<Map<string, string>> {
   }
   return out;
 }
+
+/**
+ * The token in the Brevo webhook URL (api/brevo/webhook?secret=…). Derived
+ * from the secret rather than the secret itself, so the admin page can show
+ * the finished URL to paste into Brevo without revealing CRON_SECRET, whose
+ * value Vercel no longer shows once it is saved as sensitive.
+ */
+export function webhookToken(): string {
+  return createHmac("sha256", secret()).update("brevo-webhook").digest("base64url").slice(0, 32);
+}

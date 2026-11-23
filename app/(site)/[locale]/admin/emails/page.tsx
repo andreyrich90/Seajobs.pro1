@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { RefreshCw, AlertTriangle, CheckCircle2, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import BrevoPanel from "./BrevoPanel";
 
 type Row = {
   id: string;
@@ -108,6 +109,8 @@ export default function AdminEmailsPage() {
           <RefreshCw size={15} className={loading ? "animate-spin" : ""} /> Refresh
         </button>
       </div>
+
+      <BrevoPanel />
 
       {error ? (
         <div className="rounded-2xl border border-coral/25 bg-coral/10 p-5">
