@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users, MessageCircle } from "lucide-react";
+import { Anchor, LayoutDashboard, Building2, Briefcase, LogOut, Menu, X, Globe, Users, MessageCircle, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useLang } from "@/components/LangProvider";
 import { useT } from "@/components/DictProvider";
 import { LANGS } from "@/lib/langs";
 import NotificationBell from "@/components/NotificationBell";
 import ConsentBanner from "@/components/ConsentBanner";
+import PartnerInvite from "@/components/PartnerInvite";
 
 const NAV_KEYS = [
   { key: "cab_dashboard",       href: "/company/dashboard",    icon: LayoutDashboard },
@@ -17,6 +18,7 @@ const NAV_KEYS = [
   { key: "cab_vacancies",       href: "/company/vacancies",    icon: Briefcase },
   { key: "cab_applicants",      href: "/company/applications", icon: Users },
   { key: "cab_messages",        href: "/company/messages",     icon: MessageCircle },
+  { key: "cab_partner",         href: "/company/verification", icon: ShieldCheck },
 ];
 
 export default function CompanyShell({ children }: { children: React.ReactNode }) {
@@ -197,6 +199,7 @@ export default function CompanyShell({ children }: { children: React.ReactNode }
 
         <ConsentBanner />
         {children}
+        <PartnerInvite variant="modal" />
       </main>
     </div>
   );

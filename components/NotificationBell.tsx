@@ -48,6 +48,22 @@ function timeAgo(dateStr: string, lang: Lang): string {
 // from the type + the dynamic parts parsed out of the stored strings, so both
 // old and new notifications appear in the user's language.
 function localize(n: Notification, lang: Lang): { title: string; body: string | null } {
+  if (n.type === "partner_invite" && lang !== "en") {
+    const title = { ua: "Станьте Партнером SeaJobs", pl: "Zostań Partnerem SeaJobs", ru: "Станьте Партнёром SeaJobs", ro: "Deveniți Partener SeaJobs" }[lang];
+    const b = { ua: "Підтвердьте, що ви офіційний крюїнг, — і ваші вакансії показуватимуться першими зі значком ✓.", pl: "Potwierdź, że jesteś oficjalną agencją crewingową — Twoje oferty będą pierwsze, z oznaczeniem ✓.", ru: "Подтвердите, что вы официальный крюинг, — и ваши вакансии будут показываться первыми со значком ✓.", ro: "Confirmați că sunteți o agenție de crewing oficială — posturile dumneavoastră vor apărea primele, cu insigna ✓." }[lang];
+    return { title, body: b };
+  }
+  if (n.type === "partner_approved" && lang !== "en") {
+    const title = { ua: "Ваша компанія — Партнер SeaJobs", pl: "Twoja firma jest Partnerem SeaJobs", ru: "Ваша компания — Партнёр SeaJobs", ro: "Firma dumneavoastră este Partener SeaJobs" }[lang];
+    const b = { ua: "Ваші вакансії тепер у блоці «Партнери SeaJobs» зі значком ✓.", pl: "Twoje oferty są teraz w bloku „Partnerzy SeaJobs” z oznaczeniem ✓.", ru: "Ваши вакансии теперь в блоке «Партнёры SeaJobs» со значком ✓.", ro: "Posturile dumneavoastră sunt acum în blocul „Parteneri SeaJobs” cu insigna ✓." }[lang];
+    return { title, body: b };
+  }
+  if (n.type === "partner_rejected" && lang !== "en") {
+    const title = { ua: "Документи партнера не прийнято", pl: "Dokumenty partnera nie zostały przyjęte", ru: "Документы партнёра не приняты", ro: "Documentele de partener nu au fost acceptate" }[lang];
+    const reason = (n.body ?? "").replace(/^Reason:\s*/, "");
+    const label = { ua: "Причина", pl: "Powód", ru: "Причина", ro: "Motiv" }[lang];
+    return { title, body: reason ? `${label}: ${reason}` : null };
+  }
   if (n.type === "consent_required" && lang !== "en") {
     const title = { ua: "Підтвердьте згоду на обробку даних", pl: "Potwierdź zgodę na przetwarzanie danych", ru: "Подтвердите согласие на обработку данных", ro: "Confirmă consimțământul pentru prelucrarea datelor" }[lang];
     const b = { ua: "Ми оновили Політику конфіденційності та Умови. Відкрийте, щоб підтвердити — це один клік.", pl: "Zaktualizowaliśmy Politykę prywatności i Regulamin. Otwórz, aby potwierdzić — to jedno kliknięcie.", ru: "Мы обновили Политику конфиденциальности и Условия. Откройте, чтобы подтвердить, — это один клик.", ro: "Am actualizat Politica de confidențialitate și Termenii. Deschide pentru a confirma — durează un clic." }[lang];

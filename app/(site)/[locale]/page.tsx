@@ -4,6 +4,7 @@ import { getSignupPulse } from "@/lib/signupPulse";
 import { getHomeReach } from "@/lib/homeReach";
 import { newsExcerpt, newsReadMins } from "@/lib/newsText";
 import HomeClient, { type DbVacancy, type DbNews } from "./HomeClient";
+import { PARTNER_BLOCK_DAYS, PARTNER_BLOCK_MAX } from "@/lib/partners";
 
 
 // Cached and refreshed every fifteen minutes rather than rendered per request.
@@ -37,7 +38,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   // dominated TTFB/LCP here. The lists below stay per-request fresh.
   // The "joined today" strip is decoration: if its count fails, the hero
   // simply goes without it rather than taking the page down.
-  const [{ data: vacancies }, { data: news }, salaryStats, signups, live, reach] = await Promise.all([
+  const partnerSince = new Date(Date.now() - PARTNER_BLOCK_DAYS * 864e5).toISOString();
+  const [{ data: vacancies }, { data: news }, salaryStats, signups, live, reach, { data: partners }] = await Promise.all([
     sb.from("vacancies")
       .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies(name, logo_url, is_verified)")
       .eq("is_active", true)
@@ -68,6 +70,16 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
       console.error("[home] reach", e);
       return null;
     }),
+    // "SeaJobs Partners": the freshest vacancies of companies whose documents
+    // an admin checked (lib/partners.ts). Empty until the first approval.
+    sb.from("vacancies")
+      .select("id, title, rank, vessel_type, salary_from, salary_to, salary_period, currency, contract_duration, joining_date, companies!inner(name, logo_url, is_verified)")
+      .eq("is_active", true)
+      .eq("companies.is_verified", true)
+      .gte("created_at", partnerSince)
+      .or(`joining_date.is.null,joining_date.gte.${cutoff}`)
+      .order("created_at", { ascending: false })
+      .limit(PARTNER_BLOCK_MAX),
   ]);
 
   // One language per news card, with its excerpt and reading time worked out
@@ -98,6 +110,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   return (
     <HomeClient
       initialVacancies={(vacancies ?? []) as DbVacancy[]}
+      partnerVacancies={(partners ?? []) as unknown as DbVacancy[]}
       initialNews={newsCards}
       salaryStats={salaryStats}
       signups={signups}

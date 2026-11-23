@@ -5,6 +5,8 @@ import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { Search, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import VacancyCard from "@/components/VacancyCard";
+import PartnerBlock from "@/components/PartnerBlock";
+import { PARTNER_BLOCK_DAYS, PARTNER_BLOCK_MAX } from "@/lib/partners";
 import { useT } from "@/components/DictProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -84,6 +86,18 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
     if (firstRun.current) { firstRun.current = false; return; }
     setPage(1);
   }, [query, ranks, vessels, fleet]);
+
+  // "SeaJobs Partners" (lib/partners.ts): on the first page of the unfiltered
+  // board only — a search is the reader asking for something else. The same
+  // vacancies stay in the list below, so a search still finds them.
+  const unfiltered = !query && !ranks.length && !vessels.length && !fleet;
+  const partnerSince = Date.now() - PARTNER_BLOCK_DAYS * 864e5;
+  const partners = unfiltered
+    ? vacancies
+        .filter((v) => v.companies?.is_verified && new Date(v.created_at).getTime() >= partnerSince)
+        .sort((a, b) => b.created_at.localeCompare(a.created_at))
+        .slice(0, PARTNER_BLOCK_MAX)
+    : [];
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -167,6 +181,7 @@ export default function JobsClient({ initialVacancies }: { initialVacancies: Vac
           </div>
         ) : (
           <div ref={resultsRef} className="mt-6 flex flex-col gap-3 scroll-mt-20">
+            {currentPage === 1 && <PartnerBlock vacancies={partners} lang={lang} className="mb-5" />}
             {pageItems.map((v) => (
               <VacancyCard key={v.id} vacancy={v} lang={lang} />
             ))}

@@ -81,6 +81,7 @@ export const T: Record<Lang, Dict> = {
     cab_vacancies: "Posturi vacante",
     cab_company_profile: "Profilul companiei",
     cab_applicants: "Aplicări",
+    cab_partner: "Partener SeaJobs",
     cab_seafarers: "Marinari",
     save: "Salvează",
     cancel: "Anulează",
@@ -562,7 +563,7 @@ export const T: Record<Lang, Dict> = {
     cab_subscription: "Підписка",
     cab_saved: "Збережені", cab_messages: "Повідомлення", cab_notifications: "Сповіщення", cab_privacy: "Приватність і акаунт", cab_logout: "Вийти", cab_loading: "Завантаження…",
     // Cabinet — company
-    cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_seafarers: "База моряків",
+    cab_vacancies: "Вакансії", cab_company_profile: "Профіль компанії", cab_applicants: "Відгуки", cab_partner: "Партнер SeaJobs", cab_seafarers: "База моряків",
     // Common
     save: "Зберегти", cancel: "Скасувати", delete: "Видалити", edit: "Редагувати",
     add: "Додати", close: "Закрити", send: "Надіслати", search: "Пошук",
@@ -648,7 +649,7 @@ export const T: Record<Lang, Dict> = {
     cab_subscription: "Subskrypcja",
     cab_saved: "Zapisane", cab_messages: "Wiadomości", cab_notifications: "Powiadomienia", cab_privacy: "Prywatność i konto", cab_logout: "Wyloguj", cab_loading: "Ładowanie…",
     // Cabinet — company
-    cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_seafarers: "Baza marynarzy",
+    cab_vacancies: "Oferty", cab_company_profile: "Profil firmy", cab_applicants: "Aplikacje", cab_partner: "Partner SeaJobs", cab_seafarers: "Baza marynarzy",
     // Common
     save: "Zapisz", cancel: "Anuluj", delete: "Usuń", edit: "Edytuj",
     add: "Dodaj", close: "Zamknij", send: "Wyślij", search: "Szukaj",
@@ -734,7 +735,7 @@ export const T: Record<Lang, Dict> = {
     cab_subscription: "Подписка",
     cab_saved: "Сохранённые", cab_messages: "Сообщения", cab_notifications: "Уведомления", cab_privacy: "Приватность и аккаунт", cab_logout: "Выйти", cab_loading: "Загрузка…",
     // Cabinet — company
-    cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_seafarers: "База моряков",
+    cab_vacancies: "Вакансии", cab_company_profile: "Профиль компании", cab_applicants: "Отклики", cab_partner: "Партнёр SeaJobs", cab_seafarers: "База моряков",
     // Common
     save: "Сохранить", cancel: "Отмена", delete: "Удалить", edit: "Изменить",
     add: "Добавить", close: "Закрыть", send: "Отправить", search: "Поиск",
@@ -820,7 +821,7 @@ export const T: Record<Lang, Dict> = {
     cab_subscription: "Subscription",
     cab_saved: "Saved Jobs", cab_messages: "Messages", cab_notifications: "Notifications", cab_privacy: "Privacy & account", cab_logout: "Logout", cab_loading: "Loading…",
     // Cabinet — company
-    cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_seafarers: "Seafarers",
+    cab_vacancies: "Vacancies", cab_company_profile: "Company Profile", cab_applicants: "Applications", cab_partner: "SeaJobs Partner", cab_seafarers: "Seafarers",
     // Common
     save: "Save", cancel: "Cancel", delete: "Delete", edit: "Edit",
     add: "Add", close: "Close", send: "Send", search: "Search",

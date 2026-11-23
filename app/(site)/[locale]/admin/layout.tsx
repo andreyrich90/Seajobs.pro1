@@ -16,6 +16,7 @@ const navItems = [
   { label: "Dashboard",  href: "/admin/dashboard",  icon: LayoutDashboard },
   { label: "Users",      href: "/admin/users",       icon: Users },
   { label: "Companies",  href: "/admin/companies",   icon: Building2 },
+  { label: "Partners",   href: "/admin/verifications", icon: ShieldCheck },
   { label: "Vacancies",  href: "/admin/vacancies",   icon: Briefcase },
   { label: "Import",     href: "/admin/import",      icon: Upload },
   { label: "Auto-queue", href: "/admin/import-queue", icon: Inbox },
