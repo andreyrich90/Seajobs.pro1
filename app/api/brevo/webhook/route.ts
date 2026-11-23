@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { setMarketing } from "@/lib/marketing";
+import { setMarketing, webhookToken } from "@/lib/marketing";
 
 export const runtime = "nodejs";
 
@@ -12,8 +12,9 @@ export const runtime = "nodejs";
 // Brevo only knows the e-mail, so the account is found through
 // `marketing_digest.email`. Addresses that are not ours are ignored.
 //
-// Register it in Brevo (Settings → Webhooks → Marketing) as
-//   https://seajobs.pro/api/brevo/webhook?secret=<CRON_SECRET>
+// Register it in Brevo (Settings → Webhooks → Marketing) with the URL the
+// Brevo panel on /admin/emails shows (it carries webhookToken(), not the
+// secret itself), or as https://seajobs.pro/api/brevo/webhook?secret=<CRON_SECRET>
 // with the events Unsubscribed, Marked as spam and Hard bounce. The URL's
 // secret is the check: Brevo's marketing webhooks carry no signature.
 
@@ -22,7 +23,8 @@ const OPT_OUT = /unsubscri|spam|hard.?bounce|blocked|invalid/i;
 export async function POST(req: Request) {
   const want = process.env.MARKETING_SECRET || process.env.CRON_SECRET;
   const got = new URL(req.url).searchParams.get("secret");
-  if (!want || got !== want) return NextResponse.json({ ok: false }, { status: 401 });
+  // The raw secret, or the token /admin/emails shows in the finished URL.
+  if (!want || !got || (got !== want && got !== webhookToken())) return NextResponse.json({ ok: false }, { status: 401 });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

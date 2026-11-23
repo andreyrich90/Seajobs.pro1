@@ -1,27 +1,42 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { brevoCheck, brevoConfigured, brevoEnsureAttributes, brevoUpsertContact } from "@/lib/brevo";
-import { optedIn } from "@/lib/marketing";
+import { optedIn, webhookToken } from "@/lib/marketing";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
-// Is Brevo wired up? Open /api/brevo/setup?secret=<CRON_SECRET> after setting
-// the env vars (lib/brevo.ts). It reports the key, the plan, the list and the
+// Is Brevo wired up? The "Brevo" panel on /admin/emails calls this as an
+// admin; /api/brevo/setup?secret=<CRON_SECRET> works too. After setting the
+// env vars (lib/brevo.ts) it reports the key, the plan, the list and the
 // sender, creates the RANK and LANG contact attributes, and counts who has
 // said yes. `&sync=1` also pushes every opted-in seafarer to the list — for
 // the first run, and after the list was changed in Brevo.
 
 export async function GET(req: Request) {
-  const want = process.env.CRON_SECRET;
-  const q = new URL(req.url).searchParams;
-  if (!want || q.get("secret") !== want) return NextResponse.json({ ok: false }, { status: 401 });
-  if (!brevoConfigured()) return NextResponse.json({ ok: false, error: "BREVO_API_KEY is not set in Vercel" });
-
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return NextResponse.json({ ok: false }, { status: 503 });
   const db = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+
+  // Either the cron secret in the URL, or a signed-in admin (the Brevo panel
+  // on /admin/emails) — Vercel never shows a sensitive variable's value again,
+  // so the owner may not have the secret to type.
+  const want = process.env.CRON_SECRET;
+  const q = new URL(req.url).searchParams;
+  let allowed = !!want && q.get("secret") === want;
+  let isAdmin = false;
+  const token = req.headers.get("authorization")?.replace(/^Bearer /, "");
+  if (!allowed && token) {
+    const { data: { user } } = await db.auth.getUser(token);
+    if (user) {
+      const { data: profile } = await db.from("profiles").select("is_admin").eq("id", user.id).maybeSingle();
+      isAdmin = !!profile?.is_admin;
+      allowed = isAdmin;
+    }
+  }
+  if (!allowed) return NextResponse.json({ ok: false }, { status: 401 });
+  if (!brevoConfigured()) return NextResponse.json({ ok: false, error: "BREVO_API_KEY is not set in Vercel" });
 
   const [check, attributes, yes] = await Promise.all([brevoCheck(), brevoEnsureAttributes(), optedIn(db)]);
 
@@ -44,5 +59,8 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, ...check, attributes, optedIn: yes.size, ...(synced ? { synced } : {}) });
+  return NextResponse.json({
+    ok: true, ...check, attributes, optedIn: yes.size, ...(synced ? { synced } : {}),
+    ...(isAdmin ? { webhookUrl: `https://seajobs.pro/api/brevo/webhook?secret=${webhookToken()}` } : {}),
+  });
 }
