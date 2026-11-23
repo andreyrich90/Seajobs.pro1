@@ -2,7 +2,7 @@
 -- checks the documents, and its vacancies go into the "SeaJobs Partners" block
 -- at the top of the board with the badge (lib/partners.ts).
 --
--- 1. `company_verifications` — one row per submission: the files, the country
+-- 1. `company_verifications` - one row per submission: the files, the country
 --    and registry number the company gave, and the admin's decision. The
 --    company and an admin may read; every write runs with the service role
 --    (api/company/verification, api/admin/company-verifications).
