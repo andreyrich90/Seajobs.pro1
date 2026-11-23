@@ -15,7 +15,7 @@ export const maxDuration = 300;
 //
 // Every seafarer whose latest marketing answer is yes (lib/marketing.ts) gets
 // one e-mail a week: up to ten vacancies posted in the last seven days for
-// their rank (the profile's rank and their job-alert ranks, matched the way
+// their rank, those stating a salary first (the profile's rank and their job-alert ranks, matched the way
 // job alerts match), topped up with other fresh vacancies that state a salary
 // when their rank brought fewer than three. Nobody gets an empty one.
 //
@@ -92,8 +92,7 @@ export async function GET(req: Request) {
     })
     .sort((a, b) => {
       const la = byUser.get(a)?.last_sent_at, lb = byUser.get(b)?.last_sent_at;
-      if (!la) return -1;
-      if (!lb) return 1;
+      if (!la || !lb) return la ? 1 : lb ? -1 : 0;
       return la.localeCompare(lb);
     });
   if (!due.length) return NextResponse.json({ ok: true, optedIn: yes.size, sent: 0, note: "nobody due" });
@@ -142,9 +141,13 @@ export async function GET(req: Request) {
     const c = digestCopy(lang);
     const userRanks = ranks.get(userId) ?? [];
 
-    const own = userRanks.length
-      ? vacancies.filter((v) => userRanks.some((r) => alertMatchesVacancy(r, v.rank, v.title))).slice(0, MAX_ITEMS)
+    // Vacancies that state a salary first (the owner's choice: the figure is
+    // what a seafarer opens the e-mail for), each group newest first.
+    const matched = userRanks.length
+      ? vacancies.filter((v) => userRanks.some((r) => alertMatchesVacancy(r, v.rank, v.title)))
       : [];
+    const paid = (v: Vac) => !!(v.salary_from || v.salary_to);
+    const own = [...matched.filter(paid), ...matched.filter((v) => !paid(v))].slice(0, MAX_ITEMS);
     const ownIds = new Set(own.map((v) => v.id));
     const others = own.length < MIN_OWN
       ? withSalary.filter((v) => !ownIds.has(v.id)).slice(0, MAX_ITEMS - own.length)
