@@ -11,6 +11,7 @@ import ContactForm from "@/components/ContactForm";
 import FaqSection from "@/components/FaqSection";
 import VesselFilter from "@/components/VesselFilter";
 import VacancyCard from "@/components/VacancyCard";
+import PartnerBlock from "@/components/PartnerBlock";
 import RankFilter from "@/components/RankFilter";
 import SignupPulse from "@/components/SignupPulse";
 import EuropeFlags from "@/components/EuropeFlags";
@@ -76,6 +77,7 @@ const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffec
 
 export default function HomeClient({
   initialVacancies,
+  partnerVacancies = [],
   initialNews,
   salaryStats,
   signups,
@@ -84,6 +86,8 @@ export default function HomeClient({
   reach,
 }: {
   initialVacancies: DbVacancy[];
+  /** "SeaJobs Partners" — verified companies' freshest vacancies; may be empty. */
+  partnerVacancies?: DbVacancy[];
   initialNews: DbNews[];
   salaryStats: SalaryStats;
   signups: Pulse | null;
@@ -354,6 +358,7 @@ export default function HomeClient({
 
       {/* LATEST JOBS */}
       <section ref={jobsRef} className="mx-auto max-w-7xl px-5 py-8 md:py-12 scroll-mt-20">
+        {page === 1 && <PartnerBlock vacancies={partnerVacancies} lang={lang} className="mb-8" />}
         <div className="flex items-end justify-between gap-4">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-white">
             {t.jobs_latest}

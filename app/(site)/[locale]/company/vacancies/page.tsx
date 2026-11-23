@@ -9,6 +9,7 @@ import { supabase, notify } from "@/lib/supabase/client";
 import { purgeVacancy } from "@/lib/purgeVacancy";
 import { VACANCY_COLUMNS, type BrowserVacancy as Vacancy } from "@/lib/vacancyColumns";
 import { TITLE_MAX } from "@/lib/vacancyTitle";
+import PartnerInvite from "@/components/PartnerInvite";
 import MarkdownEditor from "@/components/MarkdownEditor";
 import { useT } from "@/components/DictProvider";
 import { RANK_GROUPS } from "@/lib/ranks";
@@ -432,6 +433,8 @@ export default function VacanciesPage() {
               <p className="text-sm text-coral">{error}</p>
             </div>
           )}
+
+          <PartnerInvite variant="banner" />
 
           <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Title */}

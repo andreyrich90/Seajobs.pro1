@@ -55,12 +55,12 @@ const MONTHS: Record<string, string[]> = {
   ro: ["ian", "feb", "mar", "apr", "mai", "iun", "iul", "aug", "sep", "oct", "noi", "dec"],
 };
 
-const UI: Record<string, { from: string; upTo: string; since: string; featured: string; noCompany: string; noSalary: string; asap: string; contract: string }> = {
-  en: { from: "from", upTo: "up to", since: "from", featured: "Featured", noCompany: "Company", noSalary: "Salary on request", asap: "ASAP", contract: "contract" },
-  ru: { from: "от", upTo: "до", since: "с", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу", asap: "ASAP", contract: "контракт" },
-  ua: { from: "від", upTo: "до", since: "з", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом", asap: "ASAP", contract: "контракт" },
-  pl: { from: "od", upTo: "do", since: "od", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie", asap: "ASAP", contract: "kontrakt" },
-  ro: { from: "de la", upTo: "până la", since: "din", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract" },
+const UI: Record<string, { from: string; upTo: string; since: string; featured: string; noCompany: string; noSalary: string; asap: string; contract: string; partner: string }> = {
+  en: { from: "from", upTo: "up to", since: "from", featured: "Featured", noCompany: "Company", noSalary: "Salary on request", asap: "ASAP", contract: "contract", partner: "SeaJobs Partner — documents checked" },
+  ru: { from: "от", upTo: "до", since: "с", featured: "Рекомендуем", noCompany: "Компания", noSalary: "Зарплата по запросу", asap: "ASAP", contract: "контракт", partner: "Партнёр SeaJobs — документы проверены" },
+  ua: { from: "від", upTo: "до", since: "з", featured: "Рекомендуємо", noCompany: "Компанія", noSalary: "Зарплата за запитом", asap: "ASAP", contract: "контракт", partner: "Партнер SeaJobs — документи перевірено" },
+  pl: { from: "od", upTo: "do", since: "od", featured: "Polecane", noCompany: "Firma", noSalary: "Stawka na zapytanie", asap: "ASAP", contract: "kontrakt", partner: "Partner SeaJobs — dokumenty zweryfikowane" },
+  ro: { from: "de la", upTo: "până la", since: "din", featured: "Recomandat", noCompany: "Companie", noSalary: "Salariu la cerere", asap: "ASAP", contract: "contract", partner: "Partener SeaJobs — documente verificate" },
 };
 
 // Read in UTC, like every other date on the board. A joining date is a calendar
@@ -162,7 +162,9 @@ export default function VacancyCard({
           {(company || v.companies?.location) && (
             <p className="flex items-center gap-1.5 text-xs text-mist">
               {company && <span className="truncate">{company}</span>}
-              {v.companies?.is_verified && <ShieldCheck size={12} className="shrink-0 text-teal" />}
+              {v.companies?.is_verified && (
+                <span title={ui.partner} aria-label={ui.partner} className="shrink-0"><ShieldCheck size={12} className="text-teal" /></span>
+              )}
               {v.companies?.location && (
                 <span className="hidden shrink-0 items-center gap-1 sm:inline-flex">
                   <MapPin size={11} /> {v.companies.location}
