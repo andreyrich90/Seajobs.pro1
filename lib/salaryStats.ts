@@ -235,6 +235,28 @@ function vesselKeyOf(v: StatVacancy, cols: VesselCol[] = SALARY_VESSELS): string
   return null;
 }
 
+// Every fleet a vacancy belongs to, for the salary table. A posting whose
+// vessel_type is a list ("Various (LPG Carrier, Container Ship, Bulk Carrier,
+// Oil Tanker)" — a cadet programme across a whole fleet) pays the same on each
+// of them, so it counts in each column it names. Before this it landed only in
+// the first match (gas), and Deck Cadet had no bulk-carrier figure although
+// two such programmes were live. Each part is classified on its own, so "LPG
+// tanker" still stays gas-only; a single type keeps the old one-column rule,
+// title fallback included. The vacancy page keeps vesselKeyOf (one fleet).
+function vesselKeysOf(v: StatVacancy, cols: VesselCol[] = SALARY_VESSELS): string[] {
+  const parts = (v.vessel_type ?? "").split(/[,;()]|\s+and\s+|\s+&\s+/i).map((x) => x.trim()).filter(Boolean);
+  if (parts.length > 1) {
+    const keys = new Set<string>();
+    for (const part of parts) {
+      const k = vesselKeyOf({ ...v, vessel_type: part, title: "" }, cols);
+      if (k) keys.add(k);
+    }
+    if (keys.size) return [...keys];
+  }
+  const one = vesselKeyOf(v, cols);
+  return one ? [one] : [];
+}
+
 // Rounding to the nearest €50 reads well for officer pay but mangles a cadet
 // allowance (€120 would show as €100), so small figures round to €10.
 const round = (n: number) => (n < 500 ? Math.round(n / 10) * 10 : Math.round(n / 50) * 50);
@@ -312,9 +334,7 @@ function buildRows(ranks: RankLanding[], vacancies: StatVacancy[], cols: VesselC
   // inside the rank × fleet loops meant rescanning every posting for every
   // cell — fine at 6 fleets, wasteful at 11 fleets × 19 ranks.
   const prepared: { rank: string | null; key: string; period: string | null; points: number[] }[] = [];
-  for (const v of vacancies) {
-    const key = vesselKeyOf(v, cols);
-    if (!key) continue;
+  for (const v of vacancies) for (const key of vesselKeysOf(v, cols)) {
     // Monthly-equivalent, then convert the currency to EUR. The pre-filter has
     // to know it is looking at a day rate too, otherwise it drops the posting
     // at the monthly ceiling before fitToBand ever sees it.
