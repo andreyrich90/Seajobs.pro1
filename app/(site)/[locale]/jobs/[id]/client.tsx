@@ -107,9 +107,9 @@ const STATUS_COLORS: Record<ApplicationStatus, string> = {
   rejected: "text-coral border-coral/30 bg-coral/10",
 };
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null, lang = "en"): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString(DATE_LOCALE[lang] ?? "en-GB", { timeZone: "UTC", day: "numeric", month: "short", year: "numeric" });
 }
 
 // The listing card shows only the figure and the currency; this page is where
@@ -118,6 +118,8 @@ function formatSalary(v: VacancyDetail, lang: string): string {
   if (!v.salary_from && !v.salary_to) return "";
   const t = CTX[lang] ?? CTX.en;
   const per = ` ${v.salary_period === "day" ? t.salaryPerDay : t.salaryPerMonth}`;
+  if (v.salary_from && v.salary_to && v.salary_from === v.salary_to)
+    return `${money(v.salary_from)} ${v.currency}${per}`;
   if (v.salary_from && v.salary_to)
     return `${money(v.salary_from)}–${money(v.salary_to)} ${v.currency}${per}`;
   if (v.salary_from) return `${t.salaryFrom} ${money(v.salary_from)} ${v.currency}${per}`;
@@ -153,6 +155,17 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "How to apply — step by step",
     share: "Share",
     views: "Views",
+    lSalary: "Salary",
+    lContract: "Contract",
+    lJoining: "Joining",
+    lPosted: "Posted",
+    lDescription: "Job description",
+    lAbout: "About the company",
+    lWebsite: "Visit website",
+    lCopy: "Copy link",
+    lCopied: "Copied!",
+    lUnknown: "Company not named",
+    lPartner: "SeaJobs Partner — documents checked",
     mailPrimary: "Send from my email",
     mailOnlyNote: "This crewing agency takes applications by e-mail. Your mail app opens with the letter ready — their address, the subject and your cover letter. Attach your CV file and press Send.",
     mailAttach: "Don't forget to attach your CV file (PDF or Word) in your mail app before you press Send.",
@@ -212,6 +225,17 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Как подать анкету — пошаговая инструкция",
     share: "Поделиться",
     views: "Просмотры",
+    lSalary: "Зарплата",
+    lContract: "Контракт",
+    lJoining: "Посадка",
+    lPosted: "Опубликовано",
+    lDescription: "Описание вакансии",
+    lAbout: "О компании",
+    lWebsite: "Сайт компании",
+    lCopy: "Скопировать ссылку",
+    lCopied: "Скопировано!",
+    lUnknown: "Компания не указана",
+    lPartner: "Партнёр SeaJobs — документы проверены",
     mailPrimary: "Отправить со своей почты",
     mailOnlyNote: "Этот крюинг принимает анкеты по e-mail. Откроется ваша почта с готовым письмом — адрес крюинга, тема и ваше сопроводительное письмо. Прикрепите файл своего CV и нажмите «Отправить».",
     mailAttach: "Не забудьте прикрепить файл CV (PDF или Word) в почте перед отправкой.",
@@ -271,6 +295,17 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Як подати анкету — покрокова інструкція",
     share: "Поділитись",
     views: "Перегляди",
+    lSalary: "Зарплата",
+    lContract: "Контракт",
+    lJoining: "Посадка",
+    lPosted: "Опубліковано",
+    lDescription: "Опис вакансії",
+    lAbout: "Про компанію",
+    lWebsite: "Сайт компанії",
+    lCopy: "Скопіювати посилання",
+    lCopied: "Скопійовано!",
+    lUnknown: "Компанію не вказано",
+    lPartner: "Партнер SeaJobs — документи перевірено",
     mailPrimary: "Надіслати зі своєї пошти",
     mailOnlyNote: "Цей крюїнг приймає анкети по e-mail. Відкриється ваша пошта з готовим листом — адреса крюїнгу, тема і ваш супровідний лист. Прикріпіть файл свого CV і натисніть «Надіслати».",
     mailAttach: "Не забудьте прикріпити файл CV (PDF або Word) у пошті перед надсиланням.",
@@ -330,6 +365,17 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Jak aplikować — krok po kroku",
     share: "Udostępnij",
     views: "Wyświetlenia",
+    lSalary: "Wynagrodzenie",
+    lContract: "Kontrakt",
+    lJoining: "Zaokrętowanie",
+    lPosted: "Opublikowano",
+    lDescription: "Opis oferty",
+    lAbout: "O firmie",
+    lWebsite: "Strona firmy",
+    lCopy: "Kopiuj link",
+    lCopied: "Skopiowano!",
+    lUnknown: "Firma nie podana",
+    lPartner: "Partner SeaJobs — dokumenty sprawdzone",
     mailPrimary: "Wyślij ze swojej poczty",
     mailOnlyNote: "Ta agencja przyjmuje zgłoszenia e-mailem. Otworzy się Twoja poczta z gotowym listem — adres agencji, temat i Twój list motywacyjny. Załącz plik ze swoim CV i kliknij „Wyślij”.",
     mailAttach: "Nie zapomnij załączyć pliku CV (PDF lub Word) w poczcie przed wysłaniem.",
@@ -389,6 +435,17 @@ const CTX: Record<string, Record<string, string>> = {
     howToApply: "Cum aplici — pas cu pas",
     share: "Distribuie",
     views: "Vizualizări",
+    lSalary: "Salariu",
+    lContract: "Contract",
+    lJoining: "Îmbarcare",
+    lPosted: "Publicat",
+    lDescription: "Descrierea postului",
+    lAbout: "Despre companie",
+    lWebsite: "Site-ul companiei",
+    lCopy: "Copiază linkul",
+    lCopied: "Copiat!",
+    lUnknown: "Compania nu este menționată",
+    lPartner: "Partener SeaJobs — documente verificate",
     mailPrimary: "Trimite de pe e-mailul meu",
     mailOnlyNote: "Această agenție primește aplicațiile pe e-mail. Se deschide e-mailul tău cu scrisoarea gata scrisă — adresa agenției, subiectul și scrisoarea ta de intenție. Atașează fișierul CV-ului tău și apasă „Trimite”.",
     mailAttach: "Nu uita să atașezi fișierul CV (PDF sau Word) în e-mail înainte de trimitere.",
@@ -927,6 +984,7 @@ export default function VacancyDetailClient({
   }
 
   const salary = formatSalary(vacancy, lang);
+  const L = CTX[lang] ?? CTX.en;
   const company = vacancy.companies;
   // The profile names a person and a rank: contacts and the apply button are
   // theirs. (The server checks the same thing — this only decides the view.)
@@ -1041,7 +1099,7 @@ export default function VacancyDetailClient({
                   <div className="flex items-center gap-2">
                     <DollarSign size={15} className="text-brassInk shrink-0" />
                     <div>
-                      <p className="text-xs text-mist">Salary</p>
+                      <p className="text-xs text-mist">{L.lSalary}</p>
                       <p className="text-sm font-semibold text-white">{salary}</p>
                     </div>
                   </div>
@@ -1050,7 +1108,7 @@ export default function VacancyDetailClient({
                   <div className="flex items-center gap-2">
                     <Clock size={15} className="text-teal shrink-0" />
                     <div>
-                      <p className="text-xs text-mist">Contract</p>
+                      <p className="text-xs text-mist">{L.lContract}</p>
                       <p className="text-sm font-semibold text-white">{vacancy.contract_duration}</p>
                     </div>
                   </div>
@@ -1059,16 +1117,16 @@ export default function VacancyDetailClient({
                   <div className="flex items-center gap-2">
                     <Calendar size={15} className="text-coral shrink-0" />
                     <div>
-                      <p className="text-xs text-mist">Joining</p>
-                      <p className="text-sm font-semibold text-white">{formatDate(vacancy.joining_date)}</p>
+                      <p className="text-xs text-mist">{L.lJoining}</p>
+                      <p className="text-sm font-semibold text-white">{formatDate(vacancy.joining_date, lang)}</p>
                     </div>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
                   <Briefcase size={15} className="text-mist shrink-0" />
                   <div>
-                    <p className="text-xs text-mist">Posted</p>
-                    <p className="text-sm font-semibold text-white">{formatDate(vacancy.created_at)}</p>
+                    <p className="text-xs text-mist">{L.lPosted}</p>
+                    <p className="text-sm font-semibold text-white">{formatDate(vacancy.created_at, lang)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1097,11 +1155,11 @@ export default function VacancyDetailClient({
                 </span>
                 <button
                   onClick={copyLink}
-                  title="Copy link"
+                  title={L.lCopy}
                   className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
                 >
                   {copied ? <Check size={14} className="text-teal" /> : <Copy size={14} />}
-                  {copied ? "Copied!" : "Copy link"}
+                  {copied ? L.lCopied : L.lCopy}
                 </button>
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(`${vacancy.title}${company?.name ? ` — ${company.name}` : ""} ${shareUrl}`)}`}
@@ -1138,7 +1196,7 @@ export default function VacancyDetailClient({
                 reader, with the 🔒 placeholders of the cached page until then. */}
             {(contacts?.description ?? vacancy.description) && (
               <div className="rounded-2xl border border-white/10 bg-card p-6">
-                <h2 className="font-display text-lg font-semibold text-white mb-4">Job Description</h2>
+                <h2 className="font-display text-lg font-semibold text-white mb-4">{L.lDescription}</h2>
                 <div className="leading-relaxed">
                   {renderMarkdown(contacts?.description ?? vacancy.description ?? "")}
                 </div>
@@ -1362,7 +1420,7 @@ export default function VacancyDetailClient({
           {/* Sidebar */}
           <div className="flex flex-col gap-6">
             <div className="rounded-2xl border border-white/10 bg-card p-6">
-              <h3 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">About the Company</h3>
+              <h3 className="text-sm font-semibold text-mist uppercase tracking-wider mb-4">{L.lAbout}</h3>
 
               <div className="flex items-center gap-3 mb-4">
                 {company?.logo_url ? (
@@ -1374,10 +1432,10 @@ export default function VacancyDetailClient({
                 )}
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <p className="font-semibold text-white">{company?.name ?? "Unknown"}</p>
+                    <p className="font-semibold text-white">{company?.name ?? L.lUnknown}</p>
                     {company?.is_verified && <ShieldCheck size={14} className="text-teal" />}
                   </div>
-                  {company?.is_verified && <span className="text-xs text-teal">Verified company</span>}
+                  {company?.is_verified && <span className="text-xs text-teal">{L.lPartner}</span>}
                 </div>
               </div>
 
@@ -1396,7 +1454,7 @@ export default function VacancyDetailClient({
                   className="flex items-center gap-2 text-sm text-brassInk hover:text-brass transition"
                 >
                   <Globe size={14} className="shrink-0" />
-                  Visit website
+                  {L.lWebsite}
                 </a>
               )}
 
