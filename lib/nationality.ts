@@ -119,6 +119,14 @@ const COUNTRIES: Record<string, Country> = {
   SL: { code: "SL", name: "Sierra Leone", flag: "🇸🇱" },
   CY: { code: "CY", name: "Cyprus", flag: "🇨🇾" },
   AU: { code: "AU", name: "Australia", flag: "🇦🇺" },
+  // Added from the same list, November 2026.
+  AL: { code: "AL", name: "Albania", flag: "🇦🇱" },
+  CI: { code: "CI", name: "Côte d'Ivoire", flag: "🇨🇮" },
+  NA: { code: "NA", name: "Namibia", flag: "🇳🇦" },
+  BW: { code: "BW", name: "Botswana", flag: "🇧🇼" },
+  TW: { code: "TW", name: "Taiwan", flag: "🇹🇼" },
+  TH: { code: "TH", name: "Thailand", flag: "🇹🇭" },
+  TT: { code: "TT", name: "Trinidad and Tobago", flag: "🇹🇹" },
 };
 
 // Every spelling that resolves to a country: the English name, the local name,
@@ -151,7 +159,7 @@ const ALIASES: Record<string, string[]> = {
   BD: ["bangladesh", "bangladeshi", "bgd", "bd", "бангладеш"],
   PK: ["pakistan", "pakistani", "pak", "pk", "пакистан"],
   EG: ["egypt", "egyptian", "egy", "eg", "египет", "مصر"],
-  GR: ["greece", "greek", "grc", "gr", "ελλάδα", "греция"],
+  GR: ["greece", "greek", "grc", "gr", "ελλάδα", "греция", "hellenic", "hellas", "grecce", "grece", "grecia"],
   IT: ["italy", "italian", "ita", "it", "italia", "италия"],
   ES: ["spain", "spanish", "esp", "es", "españa", "espana", "испания"],
   PT: ["portugal", "portuguese", "prt", "pt", "португалия"],
@@ -203,7 +211,7 @@ const ALIASES: Record<string, string[]> = {
   MK: ["north macedonia", "macedonia", "macedonian", "македония"],
   SI: ["slovenia", "slovenian", "slovene", "словения"],
   FI: ["finland", "finnish", "финляндия"],
-  FR: ["france", "french", "франция"],
+  FR: ["france", "french", "français", "française", "francais", "франция"],
   BE: ["belgium", "belgian", "бельгия"],
   AT: ["austria", "austrian", "австрия"],
   CH: ["switzerland", "swiss", "швейцария"],
@@ -226,6 +234,14 @@ const ALIASES: Record<string, string[]> = {
   SL: ["sierra leone", "sierra leonean", "сьерра-леоне"],
   CY: ["cyprus", "cypriot", "кипр"],
   AU: ["australia", "australian", "австралия"],
+  AL: ["albania", "albanian", "shqipëri", "shqiptar", "албания"],
+  CI: ["ivorian", "ivory coast", "côte d'ivoire", "cote d'ivoire", "cote divoire", "кот-д'ивуар"],
+  // No bare "na": a lone "NA" is "not applicable" far more often than Namibia.
+  NA: ["namibia", "namibian", "намибия"],
+  BW: ["botswana", "motswana", "batswana", "ботсвана"],
+  TW: ["taiwan", "taiwanese", "тайвань"],
+  TH: ["thailand", "thai", "таиланд", "тайланд"],
+  TT: ["trinidad", "trinidadian", "tobago", "tobagonian", "тринидад"],
 };
 
 const LOOKUP = new Map<string, string>();
