@@ -7,6 +7,7 @@ import { Check, X, RefreshCw, Plus } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { PLAN_IDS, SUB_PLANS, SUB_SELLING, subPrice, type PlanId } from "@/lib/subscription";
 import { parseSubSource } from "@/lib/subscriptionSource";
+import { countryOf, normalizeNationality } from "@/lib/nationality";
 import { Link } from "@/i18n/navigation";
 
 // Seafarer subscriptions, and the one lever a person has over them.
@@ -46,6 +47,9 @@ export default function AdminSubscriptionsPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [ranks, setRanks] = useState<Record<string, string>>({});
+  // Where the seafarer is from: the flag and the country, or the raw text
+  // when lib/nationality.ts cannot place it.
+  const [countries, setCountries] = useState<Record<string, { flag: string; name: string }>>({});
   const [titles, setTitles] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -74,15 +78,22 @@ export default function AdminSubscriptionsPage() {
     setRows(list);
     const ids = [...new Set(list.map((r) => r.seafarer_id))];
     if (ids.length) {
-      const { data: people } = await supabase.from("seafarers").select("id, first_name, last_name, rank").in("id", ids);
+      const { data: people } = await supabase.from("seafarers").select("id, first_name, last_name, rank, nationality").in("id", ids);
       const map: Record<string, string> = {};
       const rankMap: Record<string, string> = {};
+      const countryMap: Record<string, { flag: string; name: string }> = {};
       for (const p of people ?? []) {
+        const raw = (p.nationality ?? "").trim();
+        if (raw) {
+          const code = normalizeNationality(raw);
+          countryMap[p.id] = code ? { flag: countryOf(code).flag, name: countryOf(code).name } : { flag: "🏳️", name: raw };
+        }
         map[p.id] = [p.first_name, p.last_name].filter(Boolean).join(" ") || "—";
         if (p.rank) rankMap[p.id] = p.rank;
       }
       setNames(map);
       setRanks(rankMap);
+      setCountries(countryMap);
     }
     // Titles of the vacancies the checkouts started from.
     const vacIds = [...new Set(list.map((r) => parseSubSource(r.source)).flatMap((s) => (s?.kind === "vacancy" ? [s.id] : [])))];
@@ -222,6 +233,14 @@ export default function AdminSubscriptionsPage() {
               <tr key={r.id} className="bg-card hover:bg-white/[0.02]">
                 <td className="px-4 py-3">
                   <p className="font-semibold text-white">{names[r.seafarer_id] ?? "—"}</p>
+                  {countries[r.seafarer_id] ? (
+                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-foam">
+                      <span className="text-lg leading-none">{countries[r.seafarer_id].flag}</span>
+                      {countries[r.seafarer_id].name}
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-mist">страна не указана</p>
+                  )}
                   {ranks[r.seafarer_id] ? (
                     <p className="mt-0.5 inline-block rounded-full border border-brass/20 bg-brass/10 px-2 py-0.5 text-xs font-semibold text-brassInk">
                       {ranks[r.seafarer_id]}
